@@ -1,9 +1,7 @@
 
 import org.example.CustomTabbedPane
 import org.example.model.Order
-import org.example.model.OrderState
 import org.example.observer.OrderObserver
-import org.example.view.states.PendingState
 import org.example.view.states.ProcessingState
 import java.awt.Dimension
 import javax.swing.JPanel
@@ -27,12 +25,6 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
 
         tabbedPane.addOrderToAllOrders(orderFrameForAllOrders)  // 전체보기 탭에 추가
         tabbedPane.addOrderToPending(orderFrameForPending)  // 접수대기 탭에 추가
-    }
-
-    // 주문 상태 변경 처리
-    fun changeOrderState(order: Order, newState: OrderState) {
-        order.changeState(newState)  // 주문 상태를 변경
-        notifyObservers(order)  // 모든 옵저버에게 알림
     }
 
     // 상태 변화에 따른 주문 처리
@@ -72,11 +64,6 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
             putClientProperty("orderNumber", order.orderNumber)  // 주문 번호 저장
             println("Created order frame for Order #${order.orderNumber}")
         }
-    }
-
-    // 옵저버 추가
-    fun addObserver(observer: OrderObserver) {
-        observers.add(observer)
     }
 
     // 옵저버에게 알림

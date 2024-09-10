@@ -11,19 +11,27 @@ import javax.swing.plaf.basic.BasicTabbedPaneUI
 class CustomTabbedPane : JTabbedPane() {
     private val allOrdersPanel = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
-        background = Color.WHITE  // 전체보기 탭의 배경색을 유지
+        background = Color.WHITE
     }
     private val pendingOrdersPanel = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
-        background = Color.WHITE  // 접수대기 탭의 배경색을 유지
+        background = Color.WHITE
     }
     private val processingOrdersPanel = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
-        background = Color.WHITE  // 접수진행 탭의 배경색을 유지
+        background = Color.WHITE
+    }
+    private val completedOrdersPanel = JPanel().apply {
+        layout = BoxLayout(this, BoxLayout.Y_AXIS)
+        background = Color.WHITE  // 접수완료 탭의 배경색
+    }
+    private val rejectedOrdersPanel = JPanel().apply {
+        layout = BoxLayout(this, BoxLayout.Y_AXIS)
+        background = Color.WHITE  // 주문거절 탭의 배경색
     }
 
     init {
-        // 탭 설정 및 UI 유지
+        // 기존 탭 설정
         addTab("전체보기", JScrollPane(allOrdersPanel).apply {
             border = null
             horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
@@ -37,6 +45,19 @@ class CustomTabbedPane : JTabbedPane() {
         })
 
         addTab("접수진행", JScrollPane(processingOrdersPanel).apply {
+            border = null
+            horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+            verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+        })
+
+        // 새로 추가된 탭
+        addTab("접수완료", JScrollPane(completedOrdersPanel).apply {
+            border = null
+            horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+            verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+        })
+
+        addTab("주문거절", JScrollPane(rejectedOrdersPanel).apply {
             border = null
             horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
             verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
@@ -141,8 +162,7 @@ class CustomTabbedPane : JTabbedPane() {
         return processingOrdersPanel.components
     }
 
-    //============ 주문 처리 ============
-    // 주문 프레임 추가
+    // 주문 처리
     fun addOrderToPending(orderFrame: JPanel) {
         pendingOrdersPanel.add(orderFrame)
         pendingOrdersPanel.revalidate()
@@ -153,6 +173,18 @@ class CustomTabbedPane : JTabbedPane() {
         processingOrdersPanel.add(orderFrame)
         processingOrdersPanel.revalidate()
         processingOrdersPanel.repaint()
+    }
+
+    fun addOrderToCompleted(orderFrame: JPanel) {
+        completedOrdersPanel.add(orderFrame)
+        completedOrdersPanel.revalidate()
+        completedOrdersPanel.repaint()
+    }
+
+    fun addOrderToRejected(orderFrame: JPanel) {
+        rejectedOrdersPanel.add(orderFrame)
+        rejectedOrdersPanel.revalidate()
+        rejectedOrdersPanel.repaint()
     }
 
     fun addOrderToAllOrders(orderFrame: JPanel) {
@@ -181,11 +213,10 @@ class CustomTabbedPane : JTabbedPane() {
             .find { it.getClientProperty("orderNumber") == order.orderNumber }
 
         frameToUpdate?.let {
-            // 주문 프레임을 삭제하지 않고 UI만 업데이트
             val updatedUI = order.getUI()
-            it.removeAll()  // 기존 UI 요소를 모두 제거
-            it.add(updatedUI)  // 새로운 UI 요소를 추가
-            it.revalidate()  // UI 갱신
+            it.removeAll()
+            it.add(updatedUI)
+            it.revalidate()
             it.repaint()
         }
     }
