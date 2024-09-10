@@ -32,32 +32,32 @@ class CustomTabbedPane : JTabbedPane() {
 
     init {
         // 기존 탭 설정
-        addTab("전체보기", JScrollPane(allOrdersPanel).apply {
+        addTab("전체보기 0", JScrollPane(allOrdersPanel).apply {
             border = null
             horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
             verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
         })
 
-        addTab("접수대기", JScrollPane(pendingOrdersPanel).apply {
+        addTab("접수대기 0", JScrollPane(pendingOrdersPanel).apply {
             border = null
             horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
             verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
         })
 
-        addTab("접수진행", JScrollPane(processingOrdersPanel).apply {
+        addTab("접수진행 0", JScrollPane(processingOrdersPanel).apply {
             border = null
             horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
             verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
         })
 
         // 새로 추가된 탭
-        addTab("접수완료", JScrollPane(completedOrdersPanel).apply {
+        addTab("접수완료 0", JScrollPane(completedOrdersPanel).apply {
             border = null
             horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
             verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
         })
 
-        addTab("주문거절", JScrollPane(rejectedOrdersPanel).apply {
+        addTab("주문거절 0", JScrollPane(rejectedOrdersPanel).apply {
             border = null
             horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
             verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
@@ -158,8 +158,10 @@ class CustomTabbedPane : JTabbedPane() {
         setPreferredSize(Dimension(1200, 70))
     }
 
-    fun getProcessingOrderComponents(): Array<Component> {
-        return processingOrdersPanel.components
+
+    // 탭 타이틀 업데이트 메서드
+    private fun updateTabTitle(tabIndex: Int, tabName: String, count: Int) {
+        setTitleAt(tabIndex, "$tabName $count")
     }
 
     // 주문 처리
@@ -167,30 +169,35 @@ class CustomTabbedPane : JTabbedPane() {
         pendingOrdersPanel.add(orderFrame)
         pendingOrdersPanel.revalidate()
         pendingOrdersPanel.repaint()
+        updateTabTitle(1, "접수대기", pendingOrdersPanel.componentCount)
     }
 
     fun addOrderToProcessing(orderFrame: JPanel) {
         processingOrdersPanel.add(orderFrame)
         processingOrdersPanel.revalidate()
         processingOrdersPanel.repaint()
+        updateTabTitle(2, "접수진행", processingOrdersPanel.componentCount)
     }
 
     fun addOrderToCompleted(orderFrame: JPanel) {
         completedOrdersPanel.add(orderFrame)
         completedOrdersPanel.revalidate()
         completedOrdersPanel.repaint()
+        updateTabTitle(3, "접수완료", completedOrdersPanel.componentCount)
     }
 
     fun addOrderToRejected(orderFrame: JPanel) {
         rejectedOrdersPanel.add(orderFrame)
         rejectedOrdersPanel.revalidate()
         rejectedOrdersPanel.repaint()
+        updateTabTitle(4, "주문거절", rejectedOrdersPanel.componentCount)
     }
 
     fun addOrderToAllOrders(orderFrame: JPanel) {
         allOrdersPanel.add(orderFrame)
         allOrdersPanel.revalidate()
         allOrdersPanel.repaint()
+        updateTabTitle(0, "전체보기", allOrdersPanel.componentCount)
     }
 
     // 주문 프레임 삭제 및 업데이트
@@ -203,6 +210,7 @@ class CustomTabbedPane : JTabbedPane() {
             pendingOrdersPanel.remove(it)
             pendingOrdersPanel.revalidate()
             pendingOrdersPanel.repaint()
+            updateTabTitle(1, "접수대기", pendingOrdersPanel.componentCount)
         }
     }
 
