@@ -4,7 +4,7 @@ import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.*
-import javax.swing.Timer
+import kotlin.concurrent.thread
 
 class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
 
@@ -12,9 +12,11 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
     private var mouseY = 0
     private var isMaximized = false
     private var isDragging = false
+    private var lastLocation = Point(0, 0) // 최대화 전 창의 위치 저장
+    private var lastSize = Dimension(800, 600) // 최대화 전 창의 크기 저장
 
     private val animationSpeed = 10 // 애니메이션 속도
-    private val resizeIncrement = 40 // 크기 증가/감소 단위
+    private val resizeIncrement = 30 // 크기 증가/감소 단위 (더 부드럽게 조정)
 
     init {
         layout = BorderLayout()
@@ -42,7 +44,9 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
             isContentAreaFilled = false
             border = null
             isFocusPainted = false
-            addActionListener { parentFrame.extendedState = JFrame.ICONIFIED }
+            addActionListener {
+                parentFrame.extendedState = JFrame.ICONIFIED
+            }
         }
 
         // 최대화/복원 버튼
@@ -53,12 +57,16 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
             isFocusPainted = false
             addActionListener {
                 if (isMaximized) {
-                    // 창을 자연스럽게 작아지게 하는 함수 호출
-                    animateWindowRestore(parentFrame, Toolkit.getDefaultToolkit().screenSize, Dimension(800, 600))
+                    // 창을 자연스럽게 복원
+                    animateWindowRestore(parentFrame, parentFrame.size, lastSize, lastLocation)
                     isMaximized = false
                 } else {
-                    // 창을 자연스럽게 커지게 하는 함수 호출
-                    animateWindowResize(parentFrame, parentFrame.size, Toolkit.getDefaultToolkit().screenSize)
+                    // 최대화 전의 크기와 위치 저장
+                    lastLocation = parentFrame.location
+                    lastSize = parentFrame.size
+
+                    // 스레드를 사용해 자연스럽게 창을 커지게 하고 이동
+                    animateWindowResizeAndMove(parentFrame, parentFrame.size, Toolkit.getDefaultToolkit().screenSize)
                     isMaximized = true
                 }
             }
@@ -96,10 +104,12 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
             override fun mouseClicked(e: MouseEvent) {
                 if (SwingUtilities.isLeftMouseButton(e) && e.clickCount == 2) {
                     if (isMaximized) {
-                        animateWindowRestore(parentFrame, Toolkit.getDefaultToolkit().screenSize, Dimension(800, 600))
+                        animateWindowRestore(parentFrame, parentFrame.size, lastSize, lastLocation)
                         isMaximized = false
                     } else {
-                        animateWindowResize(parentFrame, parentFrame.size, Toolkit.getDefaultToolkit().screenSize)
+                        lastLocation = parentFrame.location
+                        lastSize = parentFrame.size
+                        animateWindowResizeAndMove(parentFrame, parentFrame.size, Toolkit.getDefaultToolkit().screenSize)
                         isMaximized = true
                     }
                 }
@@ -122,52 +132,66 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
         })
     }
 
-    // 창 크기 애니메이션을 위한 함수 (자연스럽게 커지는 애니메이션)
-    private fun animateWindowResize(frame: JFrame, startSize: Dimension, targetSize: Dimension) {
-        val timer = Timer(animationSpeed) {
-            val currentSize = frame.size
+    // 창 크기 및 위치를 동시에 애니메이션하는 함수 (스레드 사용)
+    private fun animateWindowResizeAndMove(frame: JFrame, startSize: Dimension, targetSize: Dimension) {
+        val initialLocation = frame.location
 
-            // 목표 크기와 현재 크기 간의 차이 계산
-            val widthDifference = targetSize.width - currentSize.width
-            val heightDifference = targetSize.height - currentSize.height
+        thread {
+            var currentWidth = startSize.width
+            var currentHeight = startSize.height
+            var currentX = initialLocation.x
+            var currentY = initialLocation.y
 
-            // 목표 크기 도달 시 타이머 중지
-            if (Math.abs(widthDifference) < 1 && Math.abs(heightDifference) < 1) {
-                frame.size = targetSize
-                (it.source as Timer).stop()
+            while (currentWidth < targetSize.width || currentHeight < targetSize.height ||
+                currentX > 0 || currentY > 0) {
+                // 창 크기 증가
+                currentWidth = (currentWidth + resizeIncrement).coerceAtMost(targetSize.width)
+                currentHeight = (currentHeight + resizeIncrement).coerceAtMost(targetSize.height)
+                frame.setSize(currentWidth, currentHeight)
+
+                // 창 위치 이동 (0, 0을 향해)
+                currentX = (currentX - (currentX * 0.1)).toInt().coerceAtLeast(0)
+                currentY = (currentY - (currentY * 0.1)).toInt().coerceAtLeast(0)
+                frame.setLocation(currentX, currentY)
+
+                // 애니메이션 속도 조절
+                Thread.sleep(animationSpeed.toLong())
             }
 
-            // 새로운 크기 계산
-            val newWidth = currentSize.width + Math.signum(widthDifference.toDouble()).toInt() * resizeIncrement
-            val newHeight = currentSize.height + Math.signum(heightDifference.toDouble()).toInt() * resizeIncrement
-
-            // 창 크기 설정
-            frame.size = Dimension(newWidth.coerceAtMost(targetSize.width), newHeight.coerceAtMost(targetSize.height))
+            // 최종적으로 (0, 0)에 위치하고 크기는 최대화 크기로 설정
+            frame.setLocation(0, 0)
+            frame.setSize(targetSize)
         }
-        timer.start()
     }
 
-    // 창 크기 애니메이션을 위한 함수 (자연스럽게 작아지는 애니메이션)
-    private fun animateWindowRestore(frame: JFrame, startSize: Dimension, restoredSize: Dimension) {
+    // 창 크기 및 위치 복원을 위한 함수
+    private fun animateWindowRestore(frame: JFrame, startSize: Dimension, restoredSize: Dimension, restoredLocation: Point) {
         val timer = Timer(animationSpeed) {
             val currentSize = frame.size
+            val currentLocation = frame.location
 
-            // 목표 크기와 현재 크기 간의 차이 계산
+            // 목표 크기와 현재 크기 및 위치 간의 차이 계산
             val widthDifference = restoredSize.width - currentSize.width
             val heightDifference = restoredSize.height - currentSize.height
+            val xDifference = restoredLocation.x - currentLocation.x
+            val yDifference = restoredLocation.y - currentLocation.y
 
-            // 목표 크기 도달 시 타이머 중지
-            if (Math.abs(widthDifference) < 1 && Math.abs(heightDifference) < 1) {
+            // 목표 크기와 위치 도달 시 타이머 중지
+            if (Math.abs(widthDifference) < 1 && Math.abs(heightDifference) < 1 &&
+                Math.abs(xDifference) < 1 && Math.abs(yDifference) < 1) {
                 frame.size = restoredSize
+                frame.location = restoredLocation
                 (it.source as Timer).stop()
             }
 
-            // 새로운 크기 계산
+            // 새로운 크기 및 위치 계산
             val newWidth = currentSize.width + Math.signum(widthDifference.toDouble()).toInt() * resizeIncrement
             val newHeight = currentSize.height + Math.signum(heightDifference.toDouble()).toInt() * resizeIncrement
-
-            // 창 크기 설정
             frame.size = Dimension(newWidth.coerceAtLeast(restoredSize.width), newHeight.coerceAtLeast(restoredSize.height))
+
+            val newX = currentLocation.x + Math.signum(xDifference.toDouble()).toInt() * resizeIncrement
+            val newY = currentLocation.y + Math.signum(yDifference.toDouble()).toInt() * resizeIncrement
+            frame.location = Point(newX.coerceAtMost(restoredLocation.x), newY.coerceAtMost(restoredLocation.y))
         }
         timer.start()
     }
