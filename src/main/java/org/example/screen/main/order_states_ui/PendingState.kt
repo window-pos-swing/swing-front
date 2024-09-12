@@ -1,6 +1,8 @@
 package org.example.view.states
 
+import OrderRejectCancelDialog
 import org.example.command.AcceptOrderCommand
+import org.example.command.RejectOrderCommand
 import org.example.model.Order
 import org.example.model.OrderState
 import org.example.view.components.BaseOrderPanel
@@ -18,9 +20,25 @@ class PendingState : OrderState {
         return BaseOrderPanel(order).apply {
             val rightPanel = JPanel().apply {
                 layout = GridLayout(2, 1, 5, 5)
+
+                // 주문 거절 버튼: 주문 거절 다이얼로그 호출
                 add(JButton("주문 거절").apply {
                     font = Font("Arial", Font.PLAIN, 14)
+                    addActionListener {
+                        OrderRejectCancelDialog(
+                            SwingUtilities.getWindowAncestor(this) as JFrame,
+                            "주문 거절 사유 선택",
+                            "주문 거절 사유를 선택해 주세요.",
+                            "주문 거절",
+                            onReject = { rejectReason ->
+                                val rejectOrderCommand = RejectOrderCommand(order, rejectReason, this@PendingState)
+                                rejectOrderCommand.execute()
+                            }
+                        )
+                    }
                 })
+
+                // 접수하기 버튼: CookingTimeDialog -> DeliveryTimeDialog 순으로 호출
                 add(JButton("접수하기").apply {
                     font = Font("Arial", Font.BOLD, 16)
                     background = Color(255, 153, 51)
@@ -29,11 +47,8 @@ class PendingState : OrderState {
                     border = BorderFactory.createEmptyBorder()
 
                     addActionListener {
-                        // CookingTimeDialog 생성
                         CookingTimeDialog(SwingUtilities.getWindowAncestor(this) as JFrame) { cookingTime ->
-                            // CookingTimeDialog 닫기 후 DeliveryTimeDialog 생성
                             DeliveryTimeDialog(SwingUtilities.getWindowAncestor(this) as JFrame, cookingTime) { deliveryTime ->
-                                // AcceptOrderCommand 실행 후 주문 상태 업데이트 및 UI 갱신
                                 val acceptOrderCommand = AcceptOrderCommand(order, cookingTime, deliveryTime)
                                 acceptOrderCommand.execute()  // 상태 변경 및 notifyObservers 호출됨
                             }.isVisible = true
@@ -45,5 +60,6 @@ class PendingState : OrderState {
         }
     }
 }
+
 
 

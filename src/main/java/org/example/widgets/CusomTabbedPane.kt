@@ -214,6 +214,19 @@ class CustomTabbedPane : JTabbedPane() {
         }
     }
 
+    fun removeOrderFromProcessing(order: Order) {
+        val frameToRemove = processingOrdersPanel.components
+            .filterIsInstance<JPanel>()
+            .find { it.getClientProperty("orderNumber") == order.orderNumber }
+
+        frameToRemove?.let {
+            processingOrdersPanel.remove(it)
+            processingOrdersPanel.revalidate()
+            processingOrdersPanel.repaint()
+            updateTabTitle(2, "접수진행", processingOrdersPanel.componentCount)
+        }
+    }
+
     // 주문 프레임 삭제 및 업데이트
     fun updateOrderInAllOrders(order: Order) {
         val frameToUpdate = allOrdersPanel.components

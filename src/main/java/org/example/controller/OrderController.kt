@@ -2,7 +2,9 @@
 import org.example.CustomTabbedPane
 import org.example.model.Order
 import org.example.observer.OrderObserver
+import org.example.view.states.PendingState
 import org.example.view.states.ProcessingState
+import org.example.view.states.RejectedState
 import java.awt.Dimension
 import javax.swing.JPanel
 
@@ -33,13 +35,16 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
             is ProcessingState -> {
                 moveOrderToProcessing(order)
             }
+            is RejectedState -> {
+                moveOrderToReject(order)
+            }
             else -> {
                 tabbedPane.updateOrderInAllOrders(order)  // 전체보기 탭에서 업데이트
             }
         }
     }
 
-    // 주문을 접수진행 탭으로 이동
+    //[주문을 접수진행 탭으로 이동] =====================================================
     private fun moveOrderToProcessing(order: Order) {
         tabbedPane.removeOrderFromPending(order)  // 접수대기 탭에서 삭제
 
@@ -55,6 +60,33 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
     private fun updateOrderUIInAllOrders(order: Order) {
         tabbedPane.updateOrderInAllOrders(order)  // 기존 프레임을 삭제하지 않고 UI 갱신
     }
+
+    //===========================================================================
+
+
+    // [주문을 접수거절 탭으로 이동] =====================================================
+    // 접수거절 처리 함수
+    private fun moveOrderToReject(order: Order) {
+        val rejectedState = order.state as RejectedState
+
+        // 1. 전체보기 탭에서 UI를 거절 상태로 업데이트
+        updateOrderUIInAllOrders(order)
+
+        // 2. 접수대기 상태에서 호출된 경우 (거절)
+        if (rejectedState.originState is PendingState) {
+            tabbedPane.removeOrderFromPending(order)
+        }
+        // 3. 접수진행 상태에서 호출된 경우 (취소)
+        else if (rejectedState.originState is ProcessingState) {
+            tabbedPane.removeOrderFromProcessing(order)
+        }
+
+        // 4. 주문거절 탭에 UI 추가
+        val rejectedOrderFrame = createOrderFrame(order)
+        tabbedPane.addOrderToRejected(rejectedOrderFrame)
+    }
+    //===========================================================================
+
 
     // 주문 프레임 생성
     private fun createOrderFrame(order: Order): JPanel {

@@ -1,5 +1,7 @@
 package org.example.view.states
 
+import OrderRejectCancelDialog
+import org.example.command.RejectOrderCommand
 import org.example.model.Order
 import org.example.model.OrderState
 import org.example.view.components.BaseOrderPanel
@@ -32,9 +34,20 @@ class ProcessingState(private val totalTime: Int) : OrderState {
                 layout = BoxLayout(this, BoxLayout.Y_AXIS)
                 add(JLabel("주문 진행 중..."))
                 add(progressBar)
+
+                // 주문 취소 버튼: 주문 취소 다이얼로그 호출
                 add(JButton("주문 취소").apply {
                     addActionListener {
-                        // 주문 취소 로직
+                        OrderRejectCancelDialog(
+                            SwingUtilities.getWindowAncestor(this) as JFrame,
+                            "주문 취소 사유 선택",
+                            "주문 취소 사유를 선택해 주세요.",
+                            "주문 취소",
+                            onReject = { cancelReason ->
+                                val rejectOrderCommand = RejectOrderCommand(order, cancelReason, this@ProcessingState)
+                                rejectOrderCommand.execute()
+                            }
+                        )
                     }
                 })
             }
@@ -43,4 +56,5 @@ class ProcessingState(private val totalTime: Int) : OrderState {
         }
     }
 }
+
 

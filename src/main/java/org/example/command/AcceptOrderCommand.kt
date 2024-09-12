@@ -3,6 +3,7 @@ package org.example.command
 import Command
 import org.example.model.Order
 import org.example.view.states.ProcessingState
+import org.example.view.states.RejectedState
 
 class AcceptOrderCommand(
     private val order: Order,      // 처리할 주문
@@ -18,3 +19,4 @@ class AcceptOrderCommand(
         println("Order #${order.orderNumber} state changed to ProcessingState with total time: ${cookingTime + deliveryTime} minutes")
     }
 }
+
