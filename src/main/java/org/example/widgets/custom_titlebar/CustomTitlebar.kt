@@ -1,10 +1,10 @@
 package org.example.widgets.custom_titlebar
 
-import org.example.widgets.custom_titlebar.component_resizer.ComponentResizer
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.*
+import javax.swing.Timer
 
 class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
 
@@ -13,7 +13,8 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
     private var isMaximized = false
     private var isDragging = false
 
-    private val resizer = ComponentResizer()
+    private val animationSpeed = 10 // 애니메이션 속도
+    private val resizeIncrement = 40 // 크기 증가/감소 단위
 
     init {
         layout = BorderLayout()
@@ -52,10 +53,12 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
             isFocusPainted = false
             addActionListener {
                 if (isMaximized) {
-                    parentFrame.extendedState = JFrame.NORMAL // 복원
+                    // 창을 자연스럽게 작아지게 하는 함수 호출
+                    animateWindowRestore(parentFrame, Toolkit.getDefaultToolkit().screenSize, Dimension(800, 600))
                     isMaximized = false
                 } else {
-                    parentFrame.extendedState = JFrame.MAXIMIZED_BOTH // 최대화
+                    // 창을 자연스럽게 커지게 하는 함수 호출
+                    animateWindowResize(parentFrame, parentFrame.size, Toolkit.getDefaultToolkit().screenSize)
                     isMaximized = true
                 }
             }
@@ -93,10 +96,10 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
             override fun mouseClicked(e: MouseEvent) {
                 if (SwingUtilities.isLeftMouseButton(e) && e.clickCount == 2) {
                     if (isMaximized) {
-                        parentFrame.extendedState = JFrame.NORMAL // 복원
+                        animateWindowRestore(parentFrame, Toolkit.getDefaultToolkit().screenSize, Dimension(800, 600))
                         isMaximized = false
                     } else {
-                        parentFrame.extendedState = JFrame.MAXIMIZED_BOTH // 최대화
+                        animateWindowResize(parentFrame, parentFrame.size, Toolkit.getDefaultToolkit().screenSize)
                         isMaximized = true
                     }
                 }
@@ -117,11 +120,56 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
                 }
             }
         })
+    }
 
-        // ComponentResizer 등록을 창이 완전히 로딩된 후 처리
-        SwingUtilities.invokeLater {
-            resizer.registerComponent(parentFrame)
+    // 창 크기 애니메이션을 위한 함수 (자연스럽게 커지는 애니메이션)
+    private fun animateWindowResize(frame: JFrame, startSize: Dimension, targetSize: Dimension) {
+        val timer = Timer(animationSpeed) {
+            val currentSize = frame.size
+
+            // 목표 크기와 현재 크기 간의 차이 계산
+            val widthDifference = targetSize.width - currentSize.width
+            val heightDifference = targetSize.height - currentSize.height
+
+            // 목표 크기 도달 시 타이머 중지
+            if (Math.abs(widthDifference) < 1 && Math.abs(heightDifference) < 1) {
+                frame.size = targetSize
+                (it.source as Timer).stop()
+            }
+
+            // 새로운 크기 계산
+            val newWidth = currentSize.width + Math.signum(widthDifference.toDouble()).toInt() * resizeIncrement
+            val newHeight = currentSize.height + Math.signum(heightDifference.toDouble()).toInt() * resizeIncrement
+
+            // 창 크기 설정
+            frame.size = Dimension(newWidth.coerceAtMost(targetSize.width), newHeight.coerceAtMost(targetSize.height))
         }
+        timer.start()
+    }
+
+    // 창 크기 애니메이션을 위한 함수 (자연스럽게 작아지는 애니메이션)
+    private fun animateWindowRestore(frame: JFrame, startSize: Dimension, restoredSize: Dimension) {
+        val timer = Timer(animationSpeed) {
+            val currentSize = frame.size
+
+            // 목표 크기와 현재 크기 간의 차이 계산
+            val widthDifference = restoredSize.width - currentSize.width
+            val heightDifference = restoredSize.height - currentSize.height
+
+            // 목표 크기 도달 시 타이머 중지
+            if (Math.abs(widthDifference) < 1 && Math.abs(heightDifference) < 1) {
+                frame.size = restoredSize
+                (it.source as Timer).stop()
+            }
+
+            // 새로운 크기 계산
+            val newWidth = currentSize.width + Math.signum(widthDifference.toDouble()).toInt() * resizeIncrement
+            val newHeight = currentSize.height + Math.signum(heightDifference.toDouble()).toInt() * resizeIncrement
+
+            // 창 크기 설정
+            frame.size = Dimension(newWidth.coerceAtLeast(restoredSize.width), newHeight.coerceAtLeast(restoredSize.height))
+        }
+        timer.start()
     }
 }
 
@@ -133,7 +181,6 @@ fun main() {
             size = Dimension(800, 600)
             setLocationRelativeTo(null)
 
-            // 커스텀 타이틀바 추가
             val titleBar = CustomTitleBar(this)
             add(titleBar, BorderLayout.NORTH)
 
