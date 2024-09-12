@@ -2,7 +2,6 @@ package org.example
 
 import org.example.model.Order
 import java.awt.Color
-import java.awt.Component
 import java.awt.Dimension
 import javax.swing.*
 import javax.swing.event.ChangeEvent
