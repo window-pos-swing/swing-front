@@ -1,5 +1,6 @@
 package org.example.screen.login
 
+import LoadImage.loadImage
 import org.example.MainForm
 import org.example.MyFont
 import org.example.style.MyColor
@@ -10,6 +11,8 @@ import org.example.widgets.TextField // 커스텀 텍스트 필드 위젯 임포
 
 import javax.swing.* // 자바 스윙 라이브러리 임포트
 import java.awt.* // 자바 AWT 라이브러리 임포트
+import java.io.IOException
+import javax.imageio.ImageIO
 
 class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정의
     private val mainPanel: JPanel // 메인 패널
@@ -54,10 +57,9 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
     </html>
 """.trimIndent())
 
-        // 로고 이미지 설정
-        val logoIcon = ImageIcon(javaClass.getResource("/logo.png").getPath())
-        val resizedIcon = ImageIcon(logoIcon.image.getScaledInstance(100, 100, Image.SCALE_SMOOTH))
-        logoLabel = JLabel(resizedIcon)
+// 로고 이미지 설정
+        val logoIcon = loadImage("/Logo.png", 100, 100) // LoadImage 함수 사용
+        logoLabel = JLabel(logoIcon)
         findInfoLabel = JLabel("아이디 / 비밀번호 찾기")
 
         footerLabel = JLabel("꼬르륵 콜센터 1600 - 1234")
