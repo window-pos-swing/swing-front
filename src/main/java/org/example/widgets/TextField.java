@@ -16,7 +16,7 @@ import javax.swing.event.DocumentListener;
 public class TextField extends JTextField {
 
     private float location = 0f;
-    private String labelText = "아이디";
+    private String labelText = "가맹점 웹 아이디";
     private Color lineColor = Color.GRAY; // 기본 테두리 색상은 그레이로 설정
 
     public TextField(String label, Color backgroundColor) {
@@ -26,8 +26,14 @@ public class TextField extends JTextField {
         setBorder(new EmptyBorder(20, 3, 10, 3));
         setSelectionColor(MyColor.INSTANCE.getDARK_RED());
 
+        // 드래그 시 텍스트 배경 색상을 연한 회색으로 설정
+        setSelectionColor(new Color(220, 220, 220)); // 연한 회색으로 변경
+
         // 입력 텍스트를 x + 20만큼 오른쪽으로 이동시키기 위해 여백 설정
         setMargin(new Insets(0, 20, 0, 0));  // 왼쪽 여백을 20으로 설정
+
+        // 폰트 크기 설정 (예: 30px)
+        setFont(MyFont.INSTANCE.Regular(30f)); // 입력 텍스트의 폰트 크기를 30으로 설정
 
         // 포커스 리스너 설정
         addFocusListener(new FocusAdapter() {
@@ -78,7 +84,8 @@ public class TextField extends JTextField {
 
     @Override
     protected void paintComponent(Graphics grphcs) {
-
+        // 기본 텍스트 필드의 동작을 유지하여 폰트 크기 반영
+        super.paintComponent(grphcs);
         Graphics2D g2 = (Graphics2D) grphcs;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
@@ -96,6 +103,9 @@ public class TextField extends JTextField {
 
         // 테두리 안쪽에 맞춘 둥근 배경 그리기
         g2.fill(new RoundRectangle2D.Double(x, y, width, height, arcSize, arcSize));
+
+        // 입력 텍스트의 폰트 크기 변경 (20px)
+        setFont(MyFont.INSTANCE.Bold(30f));
 
         // 입력된 텍스트가 수직으로 중앙에 위치하도록 Y 좌표 계산
         int textY = getBaseline(getWidth(), getHeight());
@@ -136,7 +146,7 @@ public class TextField extends JTextField {
         g2.setColor(new Color(150, 150, 150));
 
         // MyFont의 regularFont(20)를 사용하여 폰트 설정
-        g2.setFont(MyFont.INSTANCE.Regular(20));  // regularFont에 20 크기 적용
+        g2.setFont(MyFont.INSTANCE.Regular(30));  // regularFont에 20 크기 적용
 
         FontMetrics fm = g2.getFontMetrics();
         double textY = (getHeight() + fm.getAscent() - fm.getDescent()) / 2.0;

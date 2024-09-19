@@ -28,6 +28,9 @@ public class PasswordField extends JPasswordField {
         setBorder(new EmptyBorder(20, 3, 10, 30));  // 여백 설정
         setSelectionColor(MyColor.INSTANCE.getDARK_RED());  // 선택 색상 설정
 
+        // 드래그 시 텍스트 배경 색상을 연한 회색으로 설정
+        setSelectionColor(new Color(220, 220, 220)); // 연한 회색으로 변경
+
         // 포커스 리스너 설정
         addFocusListener(new FocusAdapter() {
             @Override
@@ -92,6 +95,9 @@ public class PasswordField extends JPasswordField {
         // 테두리 안쪽에 맞춘 둥근 배경 그리기
         g2.fill(new RoundRectangle2D.Double(x, y, width, height, arcSize, arcSize));
 
+        // 입력 텍스트의 폰트 크기 변경 (20px)
+        setFont(MyFont.INSTANCE.Bold(30f));
+
         super.paintComponent(grphcs);
 
         // 힌트 텍스트와 스타일 처리
@@ -122,7 +128,7 @@ public class PasswordField extends JPasswordField {
         g2.setColor(new Color(150, 150, 150));
 
         // MyFont의 regularFont(20)를 사용하여 폰트 설정
-        g2.setFont(MyFont.INSTANCE.Regular(20));  // regularFont에 20 크기 적용
+        g2.setFont(MyFont.INSTANCE.Regular(30));  // regularFont에 20 크기 적용
 
         FontMetrics fm = g2.getFontMetrics();
         double textY = (getHeight() + fm.getAscent() - fm.getDescent()) / 2.0;
