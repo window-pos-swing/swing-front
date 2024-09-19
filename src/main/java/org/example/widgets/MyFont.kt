@@ -28,7 +28,7 @@ object MyFont {
         regularFont = loadFont("/fonts/Pretendard-Regular.ttf")
         semiBoldFont = loadFont("/fonts/Pretendard-SemiBold.ttf")
         thinFont = loadFont("/fonts/Pretendard-Thin.ttf")
-        SCDreamBoldFont = loadFont("/fonts/SCDream7.otf")
+        SCDreamBoldFont = loadFont("/fonts/SCDream7.ttf")
     }
 
     private fun loadFont(fontPath: String): Font? {
