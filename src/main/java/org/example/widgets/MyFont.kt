@@ -28,7 +28,13 @@ object MyFont {
         regularFont = loadFont("/fonts/Pretendard-Regular.ttf")
         semiBoldFont = loadFont("/fonts/Pretendard-SemiBold.ttf")
         thinFont = loadFont("/fonts/Pretendard-Thin.ttf")
-        SCDreamBoldFont = loadFont("/fonts/SCDream7.ttf")
+        // 운영체제에 따른 SCDream 폰트 선택
+        val osName = System.getProperty("os.name").lowercase()
+        SCDreamBoldFont = when {
+            osName.contains("win") -> loadFont("/fonts/SCDream6.ttf") // 윈도우는 SCDream6.ttf
+            osName.contains("mac") -> loadFont("/fonts/SCDream7.ttf") // 맥은 SCDream7.ttf
+            else -> loadFont("/fonts/SCDream7.ttf") // 기본값으로 SCDream7.ttf
+        }
     }
 
     private fun loadFont(fontPath: String): Font? {
