@@ -87,9 +87,8 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         logoPanel.background = MyColor.LOGIN_BACKGROUND
 
         // 로고 설정
-        val logoIcon = ImageIcon(javaClass.getResource("/logo.png").getPath())
-        val resizedIcon = ImageIcon(logoIcon.image.getScaledInstance(100, 100, Image.SCALE_SMOOTH))
-        val logoLabel = JLabel(resizedIcon)
+        val logoIcon = loadImage("/Logo.png", 100, 100) // LoadImage 함수 사용
+        val logoLabel = JLabel(logoIcon)
         logoLabel.horizontalAlignment = JLabel.LEFT // 왼쪽 정렬
         logoPanel.add(logoLabel, BorderLayout.WEST) // 로고를 패널의 왼쪽에 배치
 
