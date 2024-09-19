@@ -37,15 +37,22 @@ object MyFont {
             if (inputStream != null) {
                 val font = Font.createFont(Font.TRUETYPE_FONT, inputStream)
                 GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font)
+                println("폰트가 성공적으로 로드되었습니다: $fontPath")
                 font
             } else {
                 println("폰트 파일을 찾을 수 없습니다: $fontPath")
                 null
             }
         } catch (e: FontFormatException) {
+            println("폰트 형식이 잘못되었습니다: $fontPath, 에러 메시지: ${e.message}")
             e.printStackTrace()
             null
         } catch (e: IOException) {
+            println("폰트 로드 중 IO 오류가 발생했습니다: $fontPath, 에러 메시지: ${e.message}")
+            e.printStackTrace()
+            null
+        } catch (e: Exception) {
+            println("예상치 못한 에러가 발생했습니다: ${e.message}")
             e.printStackTrace()
             null
         }
