@@ -39,20 +39,32 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         autoLoginCheckBox = JCheckBoxCustom()
         loginButton = JButton("로그인")
 
-        val customFont = MyFont.SCDreamBold(48f)
-        val fontFamily = customFont.fontName
+// 폰트 로드 실패에 대한 예외 처리
+        val customFont = try {
+            MyFont.SCDreamBold(48f)
+        } catch (e: Exception) {
+            println("폰트를 로드할 수 없습니다: ${e.message}")
+            MyFont.Regular(48f) // 폰트 로드 실패 시 기본 폰트로 대체
+        }
+
+// 폰트 이름을 가져오고, null 처리
+        val fontFamily = customFont?.fontName ?: "Default"
+
         titleLabel = JLabel("""
     <html>
         <table>
             <tr>
-                <td style='font-family:$fontFamily; font-size:36px;'>“<span style='color:#D10C1D;'>사장님 사이트 계정</span>으로</td>
+                <td style='font-size:36px;'>“<span style='color:#D10C1D;'>사장님 사이트 계정</span>으로</td>
             </tr>
             <tr>
-                <td style='font-family:$fontFamily; font-size:36px; padding-left:20px;'><span style='color:#D10C1D;'>로그인</span> 해주세요”</td>
+                <td style='font-size:36px; padding-left:20px;'><span style='color:#D10C1D;'>로그인</span> 해주세요”</td>
             </tr>
         </table>
     </html>
 """.trimIndent())
+
+// JLabel 자체에 폰트 적용
+        titleLabel.font = customFont ?: MyFont.Regular(40f)
 
         // 로고 이미지 설정
         val logoIcon = ImageIcon(javaClass.getResource("/logo.png").getPath())
