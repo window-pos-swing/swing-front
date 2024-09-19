@@ -20,6 +20,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
     private val titleLabel: JLabel // 제목 라벨
     private val findInfoLabel: JLabel // 아이디/비밀번호 찾기 라벨
     private val logoLabel: JLabel // 로고 라벨 추가
+    private val footerLabel: JLabel // Footer 라벨 추가
 
     init { // 초기화 블록
         // 기존 타이틀바 제거
@@ -59,8 +60,16 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         logoLabel = JLabel(resizedIcon)
         findInfoLabel = JLabel("아이디 / 비밀번호 찾기")
 
+        footerLabel = JLabel("꼬르륵 콜센터 1600 - 1234")
+        footerLabel.font = MyFont.Regular(20f)
+        footerLabel.foreground = Color.WHITE
+
         initializeUI()
         add(mainPanel, BorderLayout.CENTER) // 메인 패널을 CENTER에 명확하게 추가
+
+        // 하단 패널 추가
+        addFooterPanel()
+
         setSize(1440, 1024)
         defaultCloseOperation = EXIT_ON_CLOSE
         setLocationRelativeTo(null) // 화면 중앙에 배치
@@ -88,9 +97,10 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
             gridy = 0
             gridwidth = 2
             anchor = GridBagConstraints.NORTHWEST // 왼쪽 위에 정렬
-            insets = Insets(0, -38, 0, 0) // 여백 설정
+            insets = Insets(-60, -38, 0, 0) // 여백 설정
         }
         mainPanel.add(logoPanel, logoGbc)
+
 
         // 로그인 패널 설정 (기존 코드 유지)
         val logoAndLoginPanel = JPanel()
@@ -197,6 +207,22 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
             this.dispose()
         }
     }
+
+    private fun addFooterPanel() {
+        // 하단 패널 생성
+        val footerPanel = JPanel()
+        footerPanel.layout = BorderLayout()
+        footerPanel.background = MyColor.LOGIN_BACKGROUND
+
+        // 하단 라벨을 우측 정렬
+        footerLabel.horizontalAlignment = SwingConstants.RIGHT
+        footerLabel.border = BorderFactory.createEmptyBorder(0, 0, 20, 20) // 아래와 오른쪽 여백 20 추가
+        footerPanel.add(footerLabel, BorderLayout.EAST)
+
+        // 하단 패널을 메인 프레임에 추가
+        add(footerPanel, BorderLayout.SOUTH)
+    }
+
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {

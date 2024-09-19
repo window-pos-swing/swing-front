@@ -15,7 +15,8 @@ public class JCheckBoxCustom extends JCheckBox {
         setCursor(new Cursor(Cursor.HAND_CURSOR));
         setOpaque(false);
         setBackground(new Color(69, 124, 235));
-        setIconTextGap(7);
+        setIconTextGap(7); // 체크박스랑 텍스트 사이의 여백
+        setFocusPainted(false); // 포커스 박스 그리지 않음
     }
 
     @Override
