@@ -19,7 +19,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
     private val loginButton: JButton // 로그인 버튼
     private val titleLabel: JLabel // 제목 라벨
     private val findInfoLabel: JLabel // 아이디/비밀번호 찾기 라벨
-
+    private val logoLabel: JLabel // 로고 라벨 추가
 
     init { // 초기화 블록
         // 기존 타이틀바 제거
@@ -53,7 +53,10 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
     </html>
 """.trimIndent())
 
-//        titleLabel.font = customFont
+        // 로고 이미지 설정
+        val logoIcon = ImageIcon(javaClass.getResource("/logo.png").getPath())
+        val resizedIcon = ImageIcon(logoIcon.image.getScaledInstance(100, 100, Image.SCALE_SMOOTH))
+        logoLabel = JLabel(resizedIcon)
         findInfoLabel = JLabel("아이디 / 비밀번호 찾기")
 
         initializeUI()
@@ -67,6 +70,34 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         mainPanel.background = MyColor.LOGIN_BACKGROUND
         mainPanel.layout = GridBagLayout()
 
+        // 로고 패널 생성 (로고만 담음)
+        val logoPanel = JPanel()
+        logoPanel.layout = BorderLayout()
+        logoPanel.background = MyColor.LOGIN_BACKGROUND
+
+        // 로고 설정
+        val logoIcon = ImageIcon(javaClass.getResource("/logo.png").getPath())
+        val resizedIcon = ImageIcon(logoIcon.image.getScaledInstance(100, 100, Image.SCALE_SMOOTH))
+        val logoLabel = JLabel(resizedIcon)
+        logoLabel.horizontalAlignment = JLabel.LEFT // 왼쪽 정렬
+        logoPanel.add(logoLabel, BorderLayout.WEST) // 로고를 패널의 왼쪽에 배치
+
+        // 로고 패널을 메인 패널에 추가 (맨 위)
+        val logoGbc = GridBagConstraints().apply {
+            gridx = 0
+            gridy = 0
+            gridwidth = 2
+            anchor = GridBagConstraints.NORTHWEST // 왼쪽 위에 정렬
+            insets = Insets(0, -38, 0, 0) // 여백 설정
+        }
+        mainPanel.add(logoPanel, logoGbc)
+
+        // 로그인 패널 설정 (기존 코드 유지)
+        val logoAndLoginPanel = JPanel()
+        logoAndLoginPanel.layout = BoxLayout(logoAndLoginPanel, BoxLayout.Y_AXIS)
+        logoAndLoginPanel.background = MyColor.LOGIN_BACKGROUND
+
+        // 로그인 패널 추가
         val loginPanel = JPanel()
         loginPanel.preferredSize = Dimension(650, 650)
         loginPanel.background = MyColor.LOGIN_BACKGROUND
@@ -76,7 +107,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         }
         loginPanel.border = BorderFactory.createLineBorder(MyColor.DARK_RED, 5)
 
-        // titleLabel 위쪽 마진 70, 아래쪽 마진 30 설정
+        // titleLabel 설정
         titleLabel.font = MyFont.SCDreamBold(40f)
         titleLabel.horizontalAlignment = SwingConstants.LEFT
         titleLabel.foreground = Color.WHITE
@@ -87,7 +118,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         gbc.anchor = GridBagConstraints.CENTER
         loginPanel.add(titleLabel, gbc)
 
-        // idField 아래 마진 20 설정
+        // idField 설정
         idField.font = MyFont.Regular(14f)
         idField.preferredSize = Dimension(521, 70)
         idField.minimumSize = Dimension(521, 70)
@@ -98,7 +129,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         gbc.anchor = GridBagConstraints.CENTER
         loginPanel.add(idField, gbc)
 
-        // passwordField 아래 마진 20 설정
+        // passwordField 설정
         passwordField.font = MyFont.Regular(14f)
         passwordField.preferredSize = Dimension(521, 70)
         passwordField.minimumSize = Dimension(521, 70)
@@ -109,7 +140,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         gbc.anchor = GridBagConstraints.CENTER
         loginPanel.add(passwordField, gbc)
 
-        // autoLoginCheckBox와 findInfoLabel 아래 마진 20 설정
+        // autoLoginCheckBox와 findInfoLabel 설정
         autoLoginCheckBox.background = MyColor.DARK_RED
         autoLoginCheckBox.text = "자동 로그인"
         autoLoginCheckBox.foreground = Color.WHITE
@@ -132,7 +163,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         gbc.fill = GridBagConstraints.NONE
         loginPanel.add(findInfoLabel, gbc)
 
-        // loginButton 아래 마진 70 설정
+        // loginButton 설정
         loginButton.font = MyFont.Bold(22f)
         loginButton.background = MyColor.DARK_RED
         loginButton.foreground = Color.WHITE
@@ -148,20 +179,24 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         gbc.fill = GridBagConstraints.HORIZONTAL
         loginPanel.add(loginButton, gbc)
 
+        // 로그인 패널을 서브 패널에 추가
+        logoAndLoginPanel.add(loginPanel)
+
+        // 메인 패널에 서브 패널 추가 (로고와 로그인 패널)
+        val mainGbc = GridBagConstraints().apply {
+            gridx = 0
+            gridy = 1 // 로그인 패널은 두 번째로 배치
+            insets = Insets(0, 0, 0, 0) // 여백 없도록 설정
+        }
+        mainPanel.add(logoAndLoginPanel, mainGbc)
+
+        // 로그인 버튼 리스너
         loginButton.addActionListener {
             val mainForm = MainForm()
             mainForm.isVisible = true
             this.dispose()
         }
-
-        gbc.gridx = 0
-        gbc.gridy = 0
-        gbc.gridwidth = 1
-        mainPanel.add(loginPanel, gbc)
     }
-
-
-
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
