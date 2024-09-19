@@ -1,226 +1,139 @@
 package org.example.widgets;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.geom.Rectangle2D;
-import javax.swing.ImageIcon;
+import java.awt.geom.RoundRectangle2D;
 import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
-import org.jdesktop.animation.timing.Animator;
-import org.jdesktop.animation.timing.TimingTarget;
-import org.jdesktop.animation.timing.TimingTargetAdapter;
+
+import org.example.MyFont;
+import org.example.style.MyColor;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class PasswordField extends JPasswordField {
 
-    public boolean isShowAndHide() {
-        return showAndHide;
-    }
-
-    public void setShowAndHide(boolean showAndHide) {
-        this.showAndHide = showAndHide;
-        repaint();
-    }
-
-    public String getLabelText() {
-        return labelText;
-    }
-
-    public void setLabelText(String labelText) {
-        this.labelText = labelText;
-    }
-
-    public Color getLineColor() {
-        return lineColor;
-    }
-
-    public void setLineColor(Color lineColor) {
-        this.lineColor = lineColor;
-    }
-
-    private final Animator animator;
-    private boolean animateHinText = true;
-    private float location;
-    private boolean show;
-    private boolean mouseOver = false;
     private String labelText = "비밀번호";
-    private Color lineColor = new Color(255, 153, 51);
-    private final Image eye;
-    private final Image eye_hide;
+    private Color lineColor = Color.GRAY;  // 기본 테두리 색상은 그레이로 설정
     private boolean hide = true;
     private boolean showAndHide;
 
-    public PasswordField(String Label, Color backgroundColor) {
-        labelText = Label;
+    public PasswordField(String label, Color backgroundColor) {
+        this.labelText = label;
         setBackground(backgroundColor);
-        setBorder(new EmptyBorder(20, 3, 10, 30));
-        setSelectionColor(new Color(255, 153, 51));
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent me) {
-                mouseOver = true;
-                repaint();
-            }
+        setOpaque(false);  // 배경을 투명하게 설정
+        setBorder(new EmptyBorder(20, 3, 10, 30));  // 여백 설정
+        setSelectionColor(MyColor.INSTANCE.getDARK_RED());  // 선택 색상 설정
 
-            @Override
-            public void mouseExited(MouseEvent me) {
-                mouseOver = false;
-                repaint();
-            }
-
-            @Override
-            public void mousePressed(MouseEvent me) {
-                if (showAndHide) {
-                    int x = getWidth() - 30;
-                    if (new Rectangle(x, 0, 30, 30).contains(me.getPoint())) {
-                        hide = !hide;
-                        if (hide) {
-                            setEchoChar('*');
-                        } else {
-                            setEchoChar((char) 0);
-                        }
-                        repaint();
-                    }
-                }
-            }
-        });
+        // 포커스 리스너 설정
         addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent fe) {
-                showing(false);
+                lineColor = MyColor.INSTANCE.getDARK_RED();  // 포커스가 되었을 때 색상 변경
+                repaint();
             }
 
             @Override
             public void focusLost(FocusEvent fe) {
-                showing(true);
-            }
-        });
-        addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent me) {
-                if (showAndHide) {
-                    int x = getWidth() - 30;
-                    if (new Rectangle(x, 0, 30, 30).contains(me.getPoint())) {
-                        setCursor(new Cursor(Cursor.HAND_CURSOR));
-                    } else {
-                        setCursor(new Cursor(Cursor.TEXT_CURSOR));
-                    }
-                }
-            }
-        });
-        TimingTarget target = new TimingTargetAdapter() {
-            @Override
-            public void begin() {
-                animateHinText = String.valueOf(getPassword()).equals("");
-            }
-
-            @Override
-            public void timingEvent(float fraction) {
-                location = fraction;
+                lineColor = Color.GRAY;  // 포커스가 없을 때 기본 색상으로 변경
                 repaint();
             }
+        });
 
-        };
-        eye = new ImageIcon(getClass().getResource("/eye.png")).getImage();
-        eye_hide = new ImageIcon(getClass().getResource("/eye_hide.png")).getImage();
-        animator = new Animator(300, target);
-        animator.setResolution(0);
-        animator.setAcceleration(0.5f);
-        animator.setDeceleration(0.5f);
-    }
+        // DocumentListener 추가 - 텍스트 입력 변화 감지
+        getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                checkText();  // 입력이 추가될 때 확인
+            }
 
-    private void showing(boolean action) {
-        if (animator.isRunning()) {
-            animator.stop();
-        } else {
-            location = 1;
-        }
-        animator.setStartFraction(1f - location);
-        show = action;
-        location = 1f - location;
-        animator.start();
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                checkText();  // 입력이 제거될 때 확인
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                checkText();  // 스타일 등의 변화가 있을 때 확인
+            }
+
+            private void checkText() {
+                if (getPassword().length == 0) {
+                    labelText = "가맹점 웹 비밀번호";  // 입력이 없으면 라벨 표시
+                } else {
+                    labelText = "";  // 입력이 있으면 라벨 숨김
+                }
+                repaint();
+            }
+        });
     }
 
     @Override
-    public void paint(Graphics grphcs) {
-        super.paint(grphcs);
+    protected void paintComponent(Graphics grphcs) {
+
+
         Graphics2D g2 = (Graphics2D) grphcs;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-        int width = getWidth();
-        int height = getHeight();
-        if (mouseOver) {
-            g2.setColor(lineColor);
-        } else {
-            g2.setColor(new Color(150, 150, 150));
-        }
-        g2.fillRect(2, height - 1, width - 4, 1);
+
+        // 배경 그리기 - 테두리 안쪽에 맞춰 그리기
+        g2.setColor(getBackground());
+
+        int borderThickness = 2;
+        int arcSize = 10;
+        int x = borderThickness / 2;
+        int y = borderThickness / 2;
+        int width = getWidth() - borderThickness;
+        int height = getHeight() - borderThickness;
+
+        // 테두리 안쪽에 맞춘 둥근 배경 그리기
+        g2.fill(new RoundRectangle2D.Double(x, y, width, height, arcSize, arcSize));
+
+        super.paintComponent(grphcs);
+
+        // 힌트 텍스트와 스타일 처리
         createHintText(g2);
-        createLineStyle(g2);
-        if (showAndHide) {
-            createShowHide(g2);
-        }
-        g2.dispose();
-    }
-
-    private void createShowHide(Graphics2D g2) {
-        int x = getWidth() - 30 + 5;
-        int y = (getHeight() - 20) / 2;
-        g2.drawImage(hide ? eye_hide : eye, x, y, null);
-    }
-
-    private void createHintText(Graphics2D g2) {
-        Insets in = getInsets();
-        g2.setColor(new Color(150, 150, 150));
-        FontMetrics ft = g2.getFontMetrics();
-        Rectangle2D r2 = ft.getStringBounds(labelText, g2);
-        double height = getHeight() - in.top - in.bottom;
-        double textY = (height - r2.getHeight()) / 2;
-        double size;
-        if (animateHinText) {
-            if (show) {
-                size = 18 * (1 - location);
-            } else {
-                size = 18 * location;
-            }
-        } else {
-            size = 18;
-        }
-        g2.drawString(labelText, in.left, (int) (in.top + textY + ft.getAscent() - size));
-    }
-
-    private void createLineStyle(Graphics2D g2) {
-        if (isFocusOwner()) {
-            double width = getWidth() - 4;
-            int height = getHeight();
-            g2.setColor(lineColor);
-            double size;
-            if (show) {
-                size = width * (1 - location);
-            } else {
-                size = width * location;
-            }
-            double x = (width - size) / 2;
-            g2.fillRect((int) (x + 2), height - 2, (int) size, 2);
-        }
     }
 
     @Override
-    public void setText(String string) {
-        if (!String.valueOf(getPassword()).equals(string)) {
-            showing(string.equals(""));
-        }
-        super.setText(string);
+    protected void paintBorder(Graphics grphcs) {
+        Graphics2D g2 = (Graphics2D) grphcs;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g2.setColor(lineColor);
+
+        int borderThickness = 2;
+        int arcSize = 10;
+        int x = borderThickness / 2;
+        int y = borderThickness / 2;
+        int width = getWidth() - borderThickness;
+        int height = getHeight() - borderThickness;
+
+        // 둥근 테두리 그리기
+        g2.setStroke(new BasicStroke(borderThickness));
+        g2.draw(new RoundRectangle2D.Double(x, y, width, height, arcSize, arcSize));
+    }
+
+    private void createHintText(Graphics2D g2) {
+        Insets insets = getInsets();
+        g2.setColor(new Color(150, 150, 150));
+
+        // MyFont의 regularFont(20)를 사용하여 폰트 설정
+        g2.setFont(MyFont.INSTANCE.Regular(20));  // regularFont에 20 크기 적용
+
+        FontMetrics fm = g2.getFontMetrics();
+        double textY = (getHeight() + fm.getAscent() - fm.getDescent()) / 2.0;
+
+        int textX = 20;  // 고정된 X 좌표로 설정하여 오른쪽으로 이동
+
+        g2.drawString(labelText, textX, (int) textY);  // 수직 중앙에 라벨 텍스트 배치
+    }
+
+    @Override
+    public Insets getInsets() {
+        return new Insets(0, 20, 0, 0);  // 텍스트의 위치를 20만큼 오른쪽으로 이동시키기 위해 여백 설정
     }
 }

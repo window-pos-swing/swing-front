@@ -8,6 +8,7 @@ import javax.swing.event.ChangeEvent
 import javax.swing.plaf.basic.BasicTabbedPaneUI
 
 class CustomTabbedPane : JTabbedPane() {
+
     private val allOrdersPanel = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
         background = Color.WHITE
@@ -30,6 +31,8 @@ class CustomTabbedPane : JTabbedPane() {
     }
 
     init {
+        border = BorderFactory.createEmptyBorder(50, 50, 50, 50)
+
         // 기존 탭 설정
         addTab("전체보기 0", JScrollPane(allOrdersPanel).apply {
             border = null
@@ -123,23 +126,23 @@ class CustomTabbedPane : JTabbedPane() {
                 // 포커스 표시 비활성화
             }
 
-            override fun paintContentBorder(
-                g: java.awt.Graphics?,
-                tabPlacement: Int,
-                selectedIndex: Int
-            ) {
-                g?.color = Color.GRAY
-                val tabAreaHeight = calculateTabAreaHeight(tabPlacement, runCount, maxTabHeight)
-                val contentX = 0
-                val contentY = tabAreaHeight
-                val contentWidth = this@CustomTabbedPane.width - 1
-                val contentHeight = this@CustomTabbedPane.height - tabAreaHeight - 1
-                g?.drawRect(contentX, contentY, contentWidth, contentHeight)
-                val totalTabWidth = rects.take(tabCount).sumOf { it.width }
-                if (totalTabWidth < contentWidth) {
-                    g?.drawLine(totalTabWidth, tabAreaHeight, contentWidth, tabAreaHeight)
-                }
-            }
+//            override fun paintContentBorder(
+//                g: java.awt.Graphics?,
+//                tabPlacement: Int,
+//                selectedIndex: Int
+//            ) {
+//                g?.color = Color.GRAY
+//                val tabAreaHeight = calculateTabAreaHeight(tabPlacement, runCount, maxTabHeight)
+//                val contentX = 0
+//                val contentY = tabAreaHeight
+//                val contentWidth = this@CustomTabbedPane.width - 1
+//                val contentHeight = this@CustomTabbedPane.height - tabAreaHeight - 1
+//                g?.drawRect(contentX, contentY, contentWidth, contentHeight)
+//                val totalTabWidth = rects.take(tabCount).sumOf { it.width }
+//                if (totalTabWidth < contentWidth) {
+//                    g?.drawLine(totalTabWidth, tabAreaHeight, contentWidth, tabAreaHeight)
+//                }
+//            }
         })
 
         // 선택된 탭의 색상 업데이트
@@ -165,6 +168,7 @@ class CustomTabbedPane : JTabbedPane() {
 
     // 주문 처리
     fun addOrderToPending(orderFrame: JPanel) {
+        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)  // 프레임의 가로 크기를 제한하지 않음
         pendingOrdersPanel.add(orderFrame)
         pendingOrdersPanel.revalidate()
         pendingOrdersPanel.repaint()
@@ -193,6 +197,7 @@ class CustomTabbedPane : JTabbedPane() {
     }
 
     fun addOrderToAllOrders(orderFrame: JPanel) {
+        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)  // 프레임의 가로 크기를 제한하지 않음
         allOrdersPanel.add(orderFrame)
         allOrdersPanel.revalidate()
         allOrdersPanel.repaint()
@@ -241,11 +246,4 @@ class CustomTabbedPane : JTabbedPane() {
         }
     }
 
-    private fun createOrderFrame(order: Order): JPanel {
-        return order.getUI().apply {
-            maximumSize = Dimension(size.width, 200)
-            preferredSize = Dimension(size.width, 200)
-            putClientProperty("orderNumber", order.orderNumber)
-        }
-    }
 }

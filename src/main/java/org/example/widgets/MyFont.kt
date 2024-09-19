@@ -16,6 +16,8 @@ object MyFont {
     private var regularFont: Font? = null
     private var mediumFont: Font? = null
 
+    private var SCDreamBoldFont: Font? = null
+
     init {
         blackFont = loadFont("/fonts/Pretendard-Black.ttf")
         boldFont = loadFont("/fonts/Pretendard-Bold.ttf")
@@ -26,6 +28,7 @@ object MyFont {
         regularFont = loadFont("/fonts/Pretendard-Regular.ttf")
         semiBoldFont = loadFont("/fonts/Pretendard-SemiBold.ttf")
         thinFont = loadFont("/fonts/Pretendard-Thin.ttf")
+        SCDreamBoldFont = loadFont("/fonts/SCDream7.otf")
     }
 
     private fun loadFont(fontPath: String): Font? {
@@ -93,5 +96,9 @@ object MyFont {
 
     fun Thin(size: Float): Font {
         return thinFont?.deriveFont(size) ?: getDefaultSystemFont(size)
+    }
+
+    fun SCDreamBold(size: Float): Font {
+        return SCDreamBoldFont?.deriveFont(size) ?: getDefaultSystemFont(size)
     }
 }

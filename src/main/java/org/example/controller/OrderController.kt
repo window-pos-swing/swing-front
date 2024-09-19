@@ -89,10 +89,11 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
 
 
     // 주문 프레임 생성
+// 주문 프레임 생성 함수 수정
     private fun createOrderFrame(order: Order): JPanel {
         return order.getUI().apply {
-            maximumSize = Dimension(tabbedPane.size.width, 200)
-            preferredSize = Dimension(tabbedPane.size.width, 200)
+            minimumSize = Dimension(200, 200)  // 최소 크기만 설정, 크기 변동이 가능하도록
+            preferredSize = Dimension(tabbedPane.width, 200)  // 가로는 탭패널 크기에 맞게 설정
             putClientProperty("orderNumber", order.orderNumber)  // 주문 번호 저장
             println("Created order frame for Order #${order.orderNumber}")
         }

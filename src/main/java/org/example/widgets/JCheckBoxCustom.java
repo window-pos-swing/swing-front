@@ -15,6 +15,7 @@ public class JCheckBoxCustom extends JCheckBox {
         setCursor(new Cursor(Cursor.HAND_CURSOR));
         setOpaque(false);
         setBackground(new Color(69, 124, 235));
+        setIconTextGap(7);
     }
 
     @Override
@@ -29,15 +30,15 @@ public class JCheckBoxCustom extends JCheckBox {
             } else {
                 g2.setColor(Color.GRAY);
             }
-            g2.fillRoundRect(1, ly, 16, 16, border, border);
+            g2.fillRoundRect(1, ly, 18, 18, border, border);
             //  Draw Check icon
             int px[] = {4, 8, 14, 12, 8, 6};
             int py[] = {ly + 8, ly + 14, ly + 5, ly + 3, ly + 10, ly + 6};
             g2.setColor(Color.WHITE);
             g2.fillPolygon(px, py, px.length);
         } else {
-            g2.setColor(Color.GRAY);
-            g2.fillRoundRect(1, ly, 16, 16, border, border);
+            g2.setColor(Color.WHITE);
+            g2.fillRoundRect(1, ly, 18, 18, border, border);
             g2.setColor(Color.WHITE);
             g2.fillRoundRect(2, ly + 1, 14, 14, border, border);
         }
