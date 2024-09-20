@@ -35,7 +35,7 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
         val nameLabel = JLabel("000사장님").apply {
             font = MyFont.Bold(30f)
             foreground = Color.WHITE
-            border = BorderFactory.createEmptyBorder(0, 10, 0, 0)  // 좌측 여백 추가
+            border = BorderFactory.createEmptyBorder(0, 30, 0, 0)  // 좌측 여백 추가
         }
         add(nameLabel, BorderLayout.WEST)
 
