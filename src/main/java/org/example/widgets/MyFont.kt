@@ -43,7 +43,7 @@ object MyFont {
             if (inputStream != null) {
                 val font = Font.createFont(Font.TRUETYPE_FONT, inputStream)
                 GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font)
-                println("폰트가 성공적으로 로드되었습니다: $fontPath")
+//                println("폰트가 성공적으로 로드되었습니다: $fontPath")
                 font
             } else {
                 println("폰트 파일을 찾을 수 없습니다: $fontPath")

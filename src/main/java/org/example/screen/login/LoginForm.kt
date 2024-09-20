@@ -11,8 +11,6 @@ import org.example.widgets.TextField // 커스텀 텍스트 필드 위젯 임포
 
 import javax.swing.* // 자바 스윙 라이브러리 임포트
 import java.awt.* // 자바 AWT 라이브러리 임포트
-import java.io.IOException
-import javax.imageio.ImageIO
 
 class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정의
     private val mainPanel: JPanel // 메인 패널
@@ -33,7 +31,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         layout = BorderLayout()
 
         // 커스텀 타이틀바 추가
-        val customTitleBar = CustomTitleBar(this, false)
+        val customTitleBar = CustomTitleBar(this)
         add(customTitleBar, BorderLayout.NORTH)  // 타이틀바를 명확하게 NORTH에 추가
 
         mainPanel = JPanel()
@@ -78,13 +76,13 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
     }
 
     private fun initializeUI() {
-        mainPanel.background = MyColor.LOGIN_BACKGROUND
+        mainPanel.background = MyColor.DARK_NAVY
         mainPanel.layout = GridBagLayout()
 
         // 로고 패널 생성 (로고만 담음)
         val logoPanel = JPanel()
         logoPanel.layout = BorderLayout()
-        logoPanel.background = MyColor.LOGIN_BACKGROUND
+        logoPanel.background = MyColor.DARK_NAVY
 
         // 로고 설정
         val logoIcon = loadImage("/Logo.png", 100, 100) // LoadImage 함수 사용
@@ -106,12 +104,12 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         // 로그인 패널 설정 (기존 코드 유지)
         val logoAndLoginPanel = JPanel()
         logoAndLoginPanel.layout = BoxLayout(logoAndLoginPanel, BoxLayout.Y_AXIS)
-        logoAndLoginPanel.background = MyColor.LOGIN_BACKGROUND
+        logoAndLoginPanel.background = MyColor.DARK_NAVY
 
         // 로그인 패널 추가
         val loginPanel = JPanel()
         loginPanel.preferredSize = Dimension(650, 650)
-        loginPanel.background = MyColor.LOGIN_BACKGROUND
+        loginPanel.background = MyColor.DARK_NAVY
         loginPanel.layout = GridBagLayout()
         val gbc = GridBagConstraints().apply {
             fill = GridBagConstraints.HORIZONTAL
@@ -213,7 +211,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         // 하단 패널 생성
         val footerPanel = JPanel()
         footerPanel.layout = BorderLayout()
-        footerPanel.background = MyColor.LOGIN_BACKGROUND
+        footerPanel.background = MyColor.DARK_NAVY
 
         // 하단 라벨을 우측 정렬
         footerLabel.horizontalAlignment = SwingConstants.RIGHT

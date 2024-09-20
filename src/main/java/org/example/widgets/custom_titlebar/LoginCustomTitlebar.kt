@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.swing.*
 
-class CustomTitleBar(private val parentFrame: JFrame, private val showMainTitleBar: Boolean) : JPanel() {
+class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
 
     private var mouseX = 0
     private var mouseY = 0
@@ -24,53 +24,20 @@ class CustomTitleBar(private val parentFrame: JFrame, private val showMainTitleB
 
     init {
         layout = BorderLayout()
-        if (showMainTitleBar) {
-            background = Color(255, 255, 255)
-        } else {
-            background = MyColor.LOGIN_TITLEBAR
-        }
+
+        background = MyColor.LOGIN_TITLEBAR
+
 
         preferredSize = Dimension(parentFrame.width, 70)
 
-        if (showMainTitleBar) {
-            // 설정 버튼을 감싸는 패널 생성
-            val settingsPanel = JPanel().apply {
-                layout = BoxLayout(this, BoxLayout.Y_AXIS) // 수직 레이아웃 설정
-                isOpaque = false
-                border = BorderFactory.createEmptyBorder(0, 10, 0, 0) // 좌측 여백 10 추가
-            }
 
-            // 설정 버튼 생성
-            val settingsButton = createSettingButton()
-
-            // 버튼 클릭 이벤트
-            settingsButton.addActionListener {
-                println("설정 버튼 클릭됨")
-            }
-
-            settingsPanel.add(Box.createVerticalGlue())
-            settingsPanel.add(settingsButton)
-            settingsPanel.add(Box.createVerticalGlue())
-
-            // 설정 패널을 WEST에 추가
-            add(settingsPanel, BorderLayout.WEST)
-
-            // 타이틀 라벨
-            val titleLabel = JLabel(currentTime).apply {
-                font = MyFont.Bold(20f)
-                foreground = Color.WHITE
-                horizontalAlignment = SwingConstants.CENTER
-            }
-            add(titleLabel, BorderLayout.CENTER)
-        } else {
-            val titleLabel = JLabel(currentTime).apply {
-                font = MyFont.Bold(20f)
-                foreground = Color.WHITE
-                horizontalAlignment = SwingConstants.LEFT
-                border = BorderFactory.createEmptyBorder(0, 30, 0, 0)
-            }
-            add(titleLabel, BorderLayout.WEST)
+        val titleLabel = JLabel(currentTime).apply {
+            font = MyFont.Bold(20f)
+            foreground = Color.WHITE
+            horizontalAlignment = SwingConstants.LEFT
+            border = BorderFactory.createEmptyBorder(0, 30, 0, 0)
         }
+        add(titleLabel, BorderLayout.WEST)
 
         // 오른쪽 버튼 패널 (FlowLayout을 사용하여 수평으로 가운데 정렬)
         val buttonPanel = JPanel().apply {
@@ -164,15 +131,5 @@ class CustomTitleBar(private val parentFrame: JFrame, private val showMainTitleB
         }
     }
 
-    // 설정 버튼 생성 함수
-    fun createSettingButton(): JButton {
-        val originalIcon = ImageIcon(RoundedSettingButton::class.java.getResource("/setting_icon.png"))
-        val resizedIcon = ImageIcon(originalIcon.image.getScaledInstance(20, 20, Image.SCALE_SMOOTH))
 
-        return RoundedSettingButton("설정", resizedIcon).apply {
-            preferredSize = Dimension(100, 30)
-            font = MyFont.Bold(15f)
-            foreground = Color.WHITE
-        }
-    }
 }

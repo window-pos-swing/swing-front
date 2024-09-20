@@ -6,6 +6,7 @@ import org.example.model.MenuOption
 import org.example.model.Order
 import org.example.view.states.PendingState
 import org.example.widgets.custom_titlebar.CustomTitleBar
+import org.example.widgets.custom_titlebar.MainCustomTitlebar
 import java.awt.*
 import javax.swing.JButton
 import javax.swing.JFrame
@@ -26,27 +27,35 @@ class MainForm : JFrame() {
         // JFrame의 레이아웃을 BorderLayout으로 설정
         layout = BorderLayout()
 
-        // 커스텀 타이틀바 추가
-        val customTitleBar = CustomTitleBar(this, true)
+        // 커스텀 타이틀바 추가 (최상단 오른쪽)
+        val customTitleBar = MainCustomTitlebar(this)
         add(customTitleBar, BorderLayout.NORTH)
 
-        // 메인 패널 초기화
+        // 메인 패널 초기화 (선택된 탭바의 콘텐츠가 표시될 영역)
         mainPanel = JPanel().apply {
             background = Color(220, 220, 220)
-            layout = GridBagLayout()  // 중앙 정렬을 위해 GridBagLayout 사용
+            layout = BorderLayout()  // 콘텐츠 영역을 꽉 채우기 위해 BorderLayout 사용
         }
 
-        // 주문 관련 패널 추가
-        initializeUI()
+        // 왼쪽에 세로로 탭바 추가 (탭바를 BorderLayout.WEST에 배치)
+        add(tabbedPane, BorderLayout.WEST)
 
-        // 메인 패널을 JFrame에 추가
-        add(mainPanel, BorderLayout.CENTER)
+        // 탭바 오른쪽에 선택된 콘텐츠 패널 추가 (탭바 콘텐츠)
+        val contentPanel = JScrollPane(mainPanel).apply {
+            horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+            verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+        }
+        add(contentPanel, BorderLayout.CENTER)
+
+        // 기본 창 설정
         setSize(1440, 1024)
         setLocationRelativeTo(null)  // 화면 중앙에 배치
         defaultCloseOperation = EXIT_ON_CLOSE
     }
 
+    // 주문 관련 패널 설정
     private fun initializeUI() {
+        // 레이아웃 설정
         val gbc = GridBagConstraints().apply {
             insets = Insets(10, 10, 10, 10)
             fill = GridBagConstraints.BOTH  // 탭바가 모든 공간을 차지하도록 설정
@@ -55,7 +64,7 @@ class MainForm : JFrame() {
             anchor = GridBagConstraints.CENTER  // 중앙 정렬
         }
 
-        // 주문 목록 탭 패널
+        // 주문 목록 패널
         val orderListPanel = JPanel().apply {
             background = Color(255, 255, 255)
             layout = GridBagLayout()  // 내부 레이아웃 설정
@@ -75,38 +84,9 @@ class MainForm : JFrame() {
         gbc.weighty = 1.0  // 세로 공간도 모두 차지
         orderListPanel.add(scrollPane, gbc)
 
-        // "주문 발송" 버튼 추가
-        val sendOrderButton = JButton("주문 발송").apply {
-            preferredSize = Dimension(150, 40)  // 적당한 버튼 크기 설정
-        }
-        val buttonGbc = GridBagConstraints().apply {
-            gridx = 0
-            gridy = 1
-            weightx = 0.0  // 버튼의 크기를 고정시킴
-            weighty = 0.0
-            anchor = GridBagConstraints.SOUTHEAST  // 버튼을 하단 우측에 고정
-        }
-        orderListPanel.add(sendOrderButton, buttonGbc)
-
-        // 주문 발송 버튼 클릭 이벤트 추가
-        sendOrderButton.addActionListener {
-            val newOrder = createNewOrder()  // 새로운 주문 생성
-            println("New order created: Order #${newOrder.orderNumber}")  // 디버깅 출력
-            orderController.addOrder(newOrder)  // 주문을 OrderController에 추가
-        }
-
         // 메인 패널에 주문 패널 추가
-        val mainGbc = GridBagConstraints().apply {
-            gridx = 0
-            gridy = 0
-            weightx = 1.0
-            weighty = 1.0
-            fill = GridBagConstraints.BOTH  // 메인 패널을 화면에 가득 채우도록 설정
-            anchor = GridBagConstraints.CENTER  // 중앙에 위치
-        }
-        mainPanel.add(orderListPanel, mainGbc)
+        mainPanel.add(orderListPanel, BorderLayout.CENTER)
     }
-
 
     // 새로운 주문 생성 함수
     private fun createNewOrder(): Order {
@@ -127,7 +107,7 @@ class MainForm : JFrame() {
                     )
                 )
             ),
-            state = PendingState()  // 초기 상태는 접수대기
+            state = org.example.view.states.PendingState()  // 초기 상태는 접수대기
         )
     }
 }
