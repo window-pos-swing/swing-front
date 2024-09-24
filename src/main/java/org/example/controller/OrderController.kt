@@ -22,8 +22,8 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         })
 
         // '전체보기'와 '접수대기' 탭에 각각 다른 프레임을 생성해서 추가
-        val orderFrameForAllOrders = createOrderFrame(order)  // 전체보기용 프레임
-        val orderFrameForPending = createOrderFrame(order)  // 접수대기용 프레임
+        val orderFrameForAllOrders = tabbedPane.createOrderFrame(order)  // 전체보기용 프레임
+        val orderFrameForPending = tabbedPane.createOrderFrame(order)  // 접수대기용 프레임
 
         tabbedPane.addOrderToAllOrders(orderFrameForAllOrders)  // 전체보기 탭에 추가
         tabbedPane.addOrderToPending(orderFrameForPending)  // 접수대기 탭에 추가
@@ -49,7 +49,7 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         tabbedPane.removeOrderFromPending(order)  // 접수대기 탭에서 삭제
 
         // 접수진행 탭에 주문 프레임 추가
-        val processingOrderFrame = createOrderFrame(order)
+        val processingOrderFrame = tabbedPane.createOrderFrame(order)
         tabbedPane.addOrderToProcessing(processingOrderFrame)
 
         // 전체보기 탭에서 주문 UI를 업데이트 (삭제하지 않고 UI만 갱신)
@@ -82,22 +82,10 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         }
 
         // 4. 주문거절 탭에 UI 추가
-        val rejectedOrderFrame = createOrderFrame(order)
+        val rejectedOrderFrame = tabbedPane.createOrderFrame(order)
         tabbedPane.addOrderToRejected(rejectedOrderFrame)
     }
     //===========================================================================
-
-
-    // 주문 프레임 생성
-// 주문 프레임 생성 함수 수정
-    private fun createOrderFrame(order: Order): JPanel {
-        return order.getUI().apply {
-            minimumSize = Dimension(200, 200)  // 최소 크기만 설정, 크기 변동이 가능하도록
-            preferredSize = Dimension(tabbedPane.width, 200)  // 가로는 탭패널 크기에 맞게 설정
-            putClientProperty("orderNumber", order.orderNumber)  // 주문 번호 저장
-            println("Created order frame for Order #${order.orderNumber}")
-        }
-    }
 
     // 옵저버에게 알림
     private fun notifyObservers(order: Order) {

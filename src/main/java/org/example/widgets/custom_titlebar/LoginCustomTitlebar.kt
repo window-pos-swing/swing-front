@@ -2,8 +2,7 @@ package org.example.widgets.custom_titlebar
 
 import org.example.MyFont
 import org.example.style.MyColor
-import org.example.widgets.RoundBorder
-import org.example.widgets.RoundedSettingButton
+import org.example.widgets.IconRoundBorder
 import org.example.widgets.custom_titlebar.component_resizer.ComponentResizer
 import java.awt.*
 import java.awt.event.MouseAdapter
@@ -55,13 +54,13 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
         }
 
         // 둥근 테두리와 흰색 배경을 가진 버튼 생성 및 아이콘 적용
-        val minimizeButton = RoundBorder.createRoundedButton("/minimize_icon.png").apply {
+        val minimizeButton = IconRoundBorder.createRoundedButton("/minimize_icon.png").apply {
             preferredSize = Dimension(40, 40)  // 버튼 크기 설정
         }
-        val maximizeButton = RoundBorder.createRoundedButton("/maximize_icon.png").apply {
+        val maximizeButton = IconRoundBorder.createRoundedButton("/maximize_icon.png").apply {
             preferredSize = Dimension(40, 40)  // 버튼 크기 설정
         }
-        val closeButton = RoundBorder.createRoundedButton("/close_icon.png").apply {
+        val closeButton = IconRoundBorder.createRoundedButton("/close_icon.png").apply {
             preferredSize = Dimension(40, 40)  // 버튼 크기 설정
         }
 

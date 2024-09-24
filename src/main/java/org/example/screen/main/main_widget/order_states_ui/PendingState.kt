@@ -56,7 +56,7 @@ class PendingState : OrderState {
                     }
                 })
             }
-            add(rightPanel, BorderLayout.EAST)
+//            add(rightPanel, BorderLayout.EAST)
         }
     }
 }

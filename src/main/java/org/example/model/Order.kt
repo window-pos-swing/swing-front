@@ -6,6 +6,7 @@ import javax.swing.JPanel
 
 data class Order(
     val orderNumber: Int,
+    val orderTime : String,
     val orderType: String,
     val request: String,
     val address: String,
