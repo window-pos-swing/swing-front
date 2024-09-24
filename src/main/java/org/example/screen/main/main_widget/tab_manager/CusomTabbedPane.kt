@@ -155,6 +155,7 @@ class CustomTabbedPane : JPanel() {
         // 하단에 주문발송테스트 버튼 추가
         val buttonPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            background = MyColor.DARK_RED
             add(Box.createVerticalGlue())  // 공간 확보
             add(sendOrderButton)  // 버튼 추가
         }
@@ -168,14 +169,14 @@ class CustomTabbedPane : JPanel() {
         return Order(
             orderNumber = orderCounter++,  // 주문 번호 증가
             orderTime = "14:20",
-            orderType = "TAKEOUT",  // 포장 주문
-            request = "문앞에 놔두고 가주세요",
+            orderType = "TAKEOUT",  // 포장 주문 TAKEOUT DELIVERY
+            request = "문앞에 놔두고 가주세요, 아기가 자고있어요 절대 벨을 누르지 말아주세요. 집밑 비번 5555*입니다 . 조심히 와주세요 ",
             address = "대전 대화동 가온비즈타워 120 901호",
             deliveryFee = 3000,
             spoonFork = false,
             menuList = listOf(
                 Menu(
-                    menuName = "짜장면",
+                    menuName = "해산물 삼선 짜장면",
                     price = 9000,
                     count = 2,
                     options = listOf(
@@ -184,14 +185,23 @@ class CustomTabbedPane : JPanel() {
                     )
                 ),
                 Menu(
-                    menuName = "짬뽕",
+                    menuName = "차돌박이 오징어 짬뽕",
                     price = 11000,
                     count = 2,
                     options = listOf(
                         MenuOption("곱빼기", 1000),
                         MenuOption("차돌박이", 4000)
                     )
-                )
+                ),
+                Menu(
+                    menuName = "치즈 크러스트 피자 테스트 입니다",
+                    price = 11000,
+                    count = 2,
+                    options = listOf(
+                        MenuOption("곱빼기", 1000),
+                        MenuOption("차돌박이", 4000)
+                    )
+                ),
             ),
             state = org.example.view.states.PendingState()  // 초기 상태는 접수대기
         )
@@ -237,10 +247,7 @@ class CustomTabbedPane : JPanel() {
             )
         }
 
-        val icon = JLabel(ImageIcon(
-            ImageIcon(javaClass.getResource(iconPath))
-                .image.getScaledInstance(56, 56, Image.SCALE_SMOOTH)  // 아이콘 크기를 설정
-        ))
+        val icon = JLabel(LoadImage.loadImage(iconPath, 56, 56))
 
         val text = JLabel(buttonText).apply {
             font = MyFont.Bold(20f)
@@ -317,6 +324,7 @@ class CustomTabbedPane : JPanel() {
     fun addOrderToPending(orderFrame: JPanel) {
         orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
         pendingOrdersPanel.add(orderFrame)
+        pendingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         pendingOrdersPanel.revalidate()
         pendingOrdersPanel.repaint()
         updateTabTitle(1, "접수대기", pendingOrdersPanel.componentCount)
@@ -349,6 +357,7 @@ class CustomTabbedPane : JPanel() {
 
     fun addOrderToProcessing(orderFrame: JPanel) {
         processingOrdersPanel.add(orderFrame)
+        processingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         processingOrdersPanel.revalidate()
         processingOrdersPanel.repaint()
         updateTabTitle(2, "접수처리중", processingOrdersPanel.componentCount)
@@ -356,6 +365,7 @@ class CustomTabbedPane : JPanel() {
 
     fun addOrderToCompleted(orderFrame: JPanel) {
         completedOrdersPanel.add(orderFrame)
+        completedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         completedOrdersPanel.revalidate()
         completedOrdersPanel.repaint()
         updateTabTitle(3, "접수완료", completedOrdersPanel.componentCount)
@@ -363,6 +373,7 @@ class CustomTabbedPane : JPanel() {
 
     fun addOrderToRejected(orderFrame: JPanel) {
         rejectedOrdersPanel.add(orderFrame)
+        rejectedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         rejectedOrdersPanel.revalidate()
         rejectedOrdersPanel.repaint()
         updateTabTitle(4, "주문거절", rejectedOrdersPanel.componentCount)
@@ -371,6 +382,7 @@ class CustomTabbedPane : JPanel() {
     fun addOrderToAllOrders(orderFrame: JPanel) {
         orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
         allOrdersPanel.add(orderFrame)
+        allOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         allOrdersPanel.revalidate()
         allOrdersPanel.repaint()
         updateTabTitle(0, "전체보기", allOrdersPanel.componentCount)

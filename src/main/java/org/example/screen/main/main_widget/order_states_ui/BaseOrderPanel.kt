@@ -13,7 +13,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)  // 모든 내용을 수직으로 정렬
         background = Color.WHITE
         preferredSize = Dimension(Int.MAX_VALUE, 350)  // 패널 크기 설정
-        
+
         // 1. [headerPanel] 주문시간 + 메뉴 갯수와 총 가격
         val headerPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)  // 가로로 배치 (수평)
@@ -166,19 +166,19 @@ class BaseOrderPanel(order: Order) : JPanel() {
             }
 
             val requestLabel = FillRoundedLabel(
-                "요청사항: ${order.request}",  // 텍스트
-                borderColor = Color(240,240,240),  // 테두리 색상
-                backgroundColor = Color(240,240,240),  // 배경 색상 (노란색)
-                textColor = MyColor.BLACK,  // 텍스트 색상
-                borderRadius = 20,  // 둥근 정도
-                borderWidth = 2,  // 테두리 두께
+                truncateText("요청사항: ${order.request}", 500, this),  // 텍스트 줄이기
+                borderColor = Color(240, 240, 240),
+                backgroundColor = Color(240, 240, 240),
+                textColor = MyColor.BLACK,
+                borderRadius = 20,
+                borderWidth = 2,
                 textAlignment = SwingConstants.LEFT,
                 padding = Insets(0, 20, 0, 20)
             ).apply {
                 font = MyFont.Bold(26f)
-                foreground = Color.WHITE  // 텍스트 색상
-                alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
-                preferredSize = Dimension(Int.MAX_VALUE - 200, 70)  // 크기를 146x70으로 설정
+                foreground = Color.WHITE
+                alignmentX = Component.LEFT_ALIGNMENT
+                preferredSize = Dimension(Int.MAX_VALUE - 200, 70)
                 maximumSize = Dimension(Int.MAX_VALUE - 200, 70)
                 minimumSize = Dimension(Int.MAX_VALUE - 200, 70)
             }
@@ -201,5 +201,21 @@ class BaseOrderPanel(order: Order) : JPanel() {
             BorderFactory.createEmptyBorder(0, 20, 0, 20)  // 바깥쪽 여백 설정
         )
 
+    }
+
+    private fun truncateText(text: String, maxWidth: Int, component: JComponent): String {
+        val fontMetrics: FontMetrics = component.getFontMetrics(component.font)
+        var truncatedText = text
+        val ellipsis = "..."
+
+        while (fontMetrics.stringWidth(truncatedText) > maxWidth) {
+            truncatedText = truncatedText.dropLast(1)
+        }
+
+        if (truncatedText.length < text.length) {
+            truncatedText += ellipsis
+        }
+
+        return truncatedText
     }
 }
