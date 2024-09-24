@@ -100,32 +100,37 @@ class BaseOrderPanel(order: Order) : JPanel() {
                 isOpaque = false  // 배경 투명
             }
 
-            // 메뉴 목록을 순회하면서 각 메뉴와 옵션을 한 줄로 추가
+            // 메뉴 라벨의 텍스트 자르기 로직
             order.menuList.forEachIndexed { index, menu ->
-                // 옵션 출력 (예: 곱빼기x1)
                 val optionsText = if (menu.options.isNotEmpty()) {
                     menu.options.joinToString(", ") { it.optionName }
                 } else {
                     ""
                 }
 
-                // 메뉴 이름과 옵션, 개수를 함께 출력
-                val menuLabel = if (optionsText.isNotEmpty()) {
-                    JLabel("${menu.menuName} (${optionsText}) x ${menu.count}").apply {
-                        font = MyFont.Medium(24f)
-                        border = BorderFactory.createEmptyBorder(10, if (index == 0) 10 else 0, 10, 10)  // 첫 메뉴만 왼쪽 여백 추가
-                        foreground = MyColor.BLACK
-                    }
+                val menuText = if (optionsText.isNotEmpty()) {
+                    "${menu.menuName} (${optionsText}) x ${menu.count}"
                 } else {
-                    JLabel("${menu.menuName} x ${menu.count}").apply {
-                        font = MyFont.Medium(24f)
-                        border = BorderFactory.createEmptyBorder(10, if (index == 0) 10 else 0, 10, 10)  // 첫 메뉴만 왼쪽 여백 추가
-                        foreground = MyColor.BLACK
-                    }
+                    "${menu.menuName} x ${menu.count}"
                 }
+
+                // 컴포넌트의 크기가 결정된 후에 텍스트를 자르는 로직을 수행
+                val menuLabel = JLabel().apply {
+                    font = MyFont.Medium(24f)
+                    border = BorderFactory.createEmptyBorder(10, if (index == 0) 10 else 0, 10, 10)
+                    foreground = MyColor.BLACK
+
+                    // 컴포넌트가 리사이즈될 때 텍스트 자르기
+                    addComponentListener(object : java.awt.event.ComponentAdapter() {
+                        override fun componentResized(e: java.awt.event.ComponentEvent) {
+                            val truncatedText = menuTruncateText(menuText, 2, menuRowPanel)  // JComponent 전달
+                            text = "<html>$truncatedText</html>"  // HTML로 감싸 줄바꿈 적용
+                        }
+                    })
+                }
+
                 menuRowPanel.add(menuLabel)
 
-                // 여러 메뉴가 있을 경우, 메뉴 사이에 '/' 구분자 추가
                 if (index < order.menuList.size - 1) {
                     val separatorLabel = JLabel(" / ").apply {
                         font = MyFont.Medium(24f)
@@ -139,6 +144,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
             add(menuRowPanel, BorderLayout.WEST)
         }
 
+
         // 4. [footerPanel] 수저/포크 선택 및 요청사항 (왼쪽 정렬)
         val footerPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)  // 가로로 배치 (수평)
@@ -146,27 +152,25 @@ class BaseOrderPanel(order: Order) : JPanel() {
             preferredSize = Dimension(Int.MAX_VALUE, 100)  // BaseOrderPanel의 전체 너비에 맞춤
             maximumSize = Dimension(Int.MAX_VALUE, 100)
 
-            // 수저/포크 정보 (둥근 테두리 안에 노란색 배경 + 흰색 텍스트)
+            // 수저/포크 정보 라벨
             val spoonForkLabel = FillRoundedLabel(
                 if (order.spoonFork) "수저/포크 O" else "수저/포크 X",  // 텍스트
                 borderColor = MyColor.Yellow,  // 테두리 색상
                 backgroundColor = MyColor.Yellow,  // 배경 색상 (노란색)
                 textColor = Color.WHITE,  // 텍스트 색상
                 borderRadius = 20,  // 둥근 정도
-                borderWidth = 2 , // 테두리 두께
+                borderWidth = 2, // 테두리 두께
                 textAlignment = SwingConstants.CENTER,
                 padding = Insets(0, 0, 0, 0)
             ).apply {
                 font = MyFont.Bold(22f)
-                foreground = Color.WHITE  // 텍스트 색상
-                alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
                 preferredSize = Dimension(146, 70)  // 크기를 146x70으로 설정
                 maximumSize = Dimension(146, 70)
-                minimumSize = Dimension(146, 70)
             }
 
+            // 요청사항 라벨
             val requestLabel = FillRoundedLabel(
-                truncateText("요청사항: ${order.request}", 500, this),  // 텍스트 줄이기
+                "요청사항: ${order.request}",  // 텍스트
                 borderColor = Color(240, 240, 240),
                 backgroundColor = Color(240, 240, 240),
                 textColor = MyColor.BLACK,
@@ -178,10 +182,17 @@ class BaseOrderPanel(order: Order) : JPanel() {
                 font = MyFont.Bold(26f)
                 foreground = Color.WHITE
                 alignmentX = Component.LEFT_ALIGNMENT
-                preferredSize = Dimension(Int.MAX_VALUE - 200, 70)
-                maximumSize = Dimension(Int.MAX_VALUE - 200, 70)
-                minimumSize = Dimension(Int.MAX_VALUE - 200, 70)
+                minimumSize = Dimension(100, 70)  // 최소 크기 설정
+                maximumSize = Dimension(Int.MAX_VALUE, 70)  // 최대 크기 설정
             }
+
+            // 동적으로 너비 계산하여 텍스트 자르기
+            requestLabel.addComponentListener(object : java.awt.event.ComponentAdapter() {
+                override fun componentResized(e: java.awt.event.ComponentEvent) {
+                    val availableWidth = requestLabel.width - 60  // 패딩을 고려한 실제 너비 계산
+                    requestLabel.text = requestTruncateText("요청사항: ${order.request}", availableWidth, requestLabel)
+                }
+            })
 
             add(spoonForkLabel)  // 수저/포크 라벨 추가
             add(Box.createRigidArea(Dimension(20, 0)))  // 수저/포크와 요청사항 사이에 간격 추가
@@ -203,7 +214,32 @@ class BaseOrderPanel(order: Order) : JPanel() {
 
     }
 
-    private fun truncateText(text: String, maxWidth: Int, component: JComponent): String {
+
+    private fun menuTruncateText(text: String, maxLines: Int, component: JComponent): String {
+        val fontMetrics: FontMetrics = component.getFontMetrics(component.font)  // 컴포넌트에서 FontMetrics 가져옴
+        val maxWidth = component.width  // 컴포넌트의 실제 너비
+        val words = text.split(" ")
+        var result = ""
+        var line = ""
+        var lineCount = 0
+
+        for (word in words) {
+            // 텍스트의 너비가 maxWidth를 초과하는지 확인
+            if (fontMetrics.stringWidth(line + word) > maxWidth) {
+                lineCount++
+                if (lineCount == maxLines) {
+                    return "$result$line..."  // 두 번째 줄에서 넘치면 "..."으로 처리
+                }
+                result += "$line<br/>"  // 줄바꿈 추가
+                line = "$word "  // 새로운 줄 시작
+            } else {
+                line += "$word "  // 현재 줄에 단어 추가
+            }
+        }
+        return result + line
+    }
+
+    private fun requestTruncateText(text: String, maxWidth: Int, component: JComponent): String {
         val fontMetrics: FontMetrics = component.getFontMetrics(component.font)
         var truncatedText = text
         val ellipsis = "..."

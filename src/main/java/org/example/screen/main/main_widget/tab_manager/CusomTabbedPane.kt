@@ -213,6 +213,7 @@ class CustomTabbedPane : JPanel() {
 
         // 카드 패널에 스크롤 가능한 주문 패널 추가
         cardPanel.add(JScrollPane(allOrdersPanel).apply {
+            background = Color.WHITE
             border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
         }, "전체보기")
 
