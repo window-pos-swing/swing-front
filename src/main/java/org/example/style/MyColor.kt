@@ -12,4 +12,9 @@ object MyColor {
     val DIVISION_PINK = Color(227,101,101)
     val BLACK = Color(51,51,51)
     val Yellow = Color(244,172,0)
+
+    val SELECTED_TEXT_COLOR = Color.WHITE
+    val UNSELECTED_TEXT_COLOR = Color(120,120,120)
+    val SELECTED_BACKGROUND_COLOR = Color(27, 43, 66)
+    val UNSELECTED_BACKGROUND_COLOR = Color(217,217,217)
 }

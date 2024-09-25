@@ -12,14 +12,8 @@ import javax.swing.*
 
 class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
-    // 선택된 색상 및 기본 색상 정의
-    private val SELECTED_TEXT_COLOR = Color.WHITE
-    private val UNSELECTED_TEXT_COLOR = Color(137, 137, 137)
-    private val SELECTED_BACKGROUND_COLOR = MyColor.DARK_NAVY
-    private val UNSELECTED_BACKGROUND_COLOR = MyColor.LIGHT_GREY
-
     // 현재 선택된 버튼을 저장할 변수
-    private var selectedButton: JButton? = null
+    private var selectedButton: SelectButtonRoundedBorder? = null
 
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -34,63 +28,62 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             minimumSize = Dimension(750, 100)
             background = Color.WHITE
 
-
-            // RoundedBorder2 클래스에서 버튼 생성
-            val selectButtonRoundedBorder = SelectButtonRoundedBorder(30)
-            val allOrdersButton = selectButtonRoundedBorder.createRoundedButton(
-                "전체보기  41건",
-                SELECTED_BACKGROUND_COLOR,
-                UNSELECTED_BACKGROUND_COLOR,
-                SELECTED_TEXT_COLOR,
-                UNSELECTED_TEXT_COLOR
-            )
-            val deliveryButton = selectButtonRoundedBorder.createRoundedButton(
-                "배달  26건",
-                SELECTED_BACKGROUND_COLOR,
-                UNSELECTED_BACKGROUND_COLOR,
-                SELECTED_TEXT_COLOR,
-                UNSELECTED_TEXT_COLOR
-            )
-            val takeoutButton = selectButtonRoundedBorder.createRoundedButton(
-                "포장  15건",
-                SELECTED_BACKGROUND_COLOR,
-                UNSELECTED_BACKGROUND_COLOR,
-                SELECTED_TEXT_COLOR,
-                UNSELECTED_TEXT_COLOR
-            )
+            // SelectButtonRoundedBorder 사용하여 버튼 생성
+            val allOrdersButton = SelectButtonRoundedBorder(30).apply {
+                createRoundedButton(
+                    "전체보기  41건",
+                    MyColor.SELECTED_BACKGROUND_COLOR,
+                    MyColor.UNSELECTED_BACKGROUND_COLOR,
+                    MyColor.SELECTED_TEXT_COLOR,
+                    MyColor.UNSELECTED_TEXT_COLOR,
+                    Dimension(230, 60)
+                )
+            }
+            val deliveryButton = SelectButtonRoundedBorder(30).apply {
+                createRoundedButton(
+                    "배달  26건",
+                    MyColor.SELECTED_BACKGROUND_COLOR,
+                    MyColor.UNSELECTED_BACKGROUND_COLOR,
+                    MyColor.SELECTED_TEXT_COLOR,
+                    MyColor.UNSELECTED_TEXT_COLOR,
+                    Dimension(230, 60)
+                )
+            }
+            val takeoutButton = SelectButtonRoundedBorder(30).apply {
+                createRoundedButton(
+                    "포장  15건",
+                    MyColor.SELECTED_BACKGROUND_COLOR,
+                    MyColor.UNSELECTED_BACKGROUND_COLOR,
+                    MyColor.SELECTED_TEXT_COLOR,
+                    MyColor.UNSELECTED_TEXT_COLOR,
+                    Dimension(230, 60)
+                )
+            }
 
             // 버튼 간 간격 추가
-            add(allOrdersButton)
+            add(allOrdersButton.button)
             add(Box.createRigidArea(Dimension(10, 0)))
-            add(deliveryButton)
+            add(deliveryButton.button)
             add(Box.createRigidArea(Dimension(10, 0)))
-            add(takeoutButton)
+            add(takeoutButton.button)
 
             // 버튼 선택 로직
-            fun setSelectedButton(button: JButton) {
-                selectedButton?.let {
-                    // 이전 선택된 버튼을 기본 색상으로 변경
-                    it.background = UNSELECTED_BACKGROUND_COLOR
-                    it.foreground = UNSELECTED_TEXT_COLOR
-                    it.repaint() // 배경 다시 그리기
-                }
-                // 현재 선택된 버튼을 선택된 색상으로 변경
-                button.background = SELECTED_BACKGROUND_COLOR
-                button.foreground = SELECTED_TEXT_COLOR
-                button.repaint() // 배경 다시 그리기
+            fun setSelectedButton(button: SelectButtonRoundedBorder) {
+                selectedButton?.setButtonStyle(false)  // 이전 선택된 버튼을 선택 해제 상태로 설정
+                button.setButtonStyle(true)  // 현재 선택된 버튼을 선택 상태로 설정
                 selectedButton = button
             }
 
             // 버튼에 클릭 리스너 추가
-            allOrdersButton.addActionListener {
+            allOrdersButton.button.addActionListener {
                 setSelectedButton(allOrdersButton)
                 tabbedPane.PendingshowAllOrders()
             }
-            deliveryButton.addActionListener {
+            deliveryButton.button.addActionListener {
                 setSelectedButton(deliveryButton)
                 tabbedPane.PendingshowFilteredOrders("DELIVERY")
             }
-            takeoutButton.addActionListener {
+            takeoutButton.button.addActionListener {
                 setSelectedButton(takeoutButton)
                 tabbedPane.PendingshowFilteredOrders("TAKEOUT")
             }
@@ -111,4 +104,3 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         tabbedPane.PendingshowAllOrders()
     }
 }
-

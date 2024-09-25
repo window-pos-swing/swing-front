@@ -1,6 +1,7 @@
 package org.example.widgets
 
 import org.example.MyFont
+import org.example.style.MyColor
 import sun.tools.jstat.Alignment
 import java.awt.*
 import javax.swing.*
@@ -39,13 +40,17 @@ class IconRoundBorder {
                     g2.color = Color.LIGHT_GRAY
                     g2.drawRoundRect(0, 0, width - 1, height - 1, 20, 20)
                 }
+
             }
         }
     }
 }
 
-// 서브탭 버튼 스타일링
+// 선택 버튼 스타일링
 class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY, 2, true) {
+
+    private var isSelected: Boolean = false  // 버튼 선택 여부를 추적하는 변수
+    lateinit var button: JButton  // 나중에 생성된 버튼을 저장할 변수
 
     // 둥근 테두리 적용
     override fun getBorderInsets(c: Component): Insets {
@@ -62,61 +67,60 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
         g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius)
     }
 
+    // 선택 상태에 따른 스타일 업데이트 함수
+    fun setButtonStyle(selected: Boolean) {
+        isSelected = selected
+        if (this::button.isInitialized) {  // 버튼이 초기화되었을 때만 작동
+            button.background = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
+            button.foreground = if (isSelected) MyColor.SELECTED_TEXT_COLOR else MyColor.UNSELECTED_TEXT_COLOR
+            button.border = SelectButtonRoundedBorder(radius).apply {
+                lineColor = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
+            }
+            button.repaint()
+        }
+    }
+
     // 둥근 버튼 생성 함수
     fun createRoundedButton(
         text: String,
         selectedColor: Color,
         unselectedColor: Color,
         selectedTextColor: Color,
-        unselectedTextColor: Color
+        unselectedTextColor: Color,
+        buttonSize: Dimension
     ): JButton {
-        return object : JButton(text) {
-            // 버튼 내부를 둥근 테두리 안쪽만 채우도록 재정의
+        button = object : JButton(text) {
             override fun paintComponent(g: Graphics) {
                 val g2 = g as Graphics2D
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
                 // 현재 상태에 따른 배경색 설정
-                if (this.model.isSelected) {
-                    g2.color = selectedColor
-                } else {
-                    g2.color = background // 현재 설정된 배경색 사용
-                }
-
-                // 둥근 사각형 내부에만 배경을 채움
+                g2.color = background
                 g2.fillRoundRect(0, 0, width, height, radius, radius)
 
-                // 부모 클래스의 paintComponent 호출하여 텍스트 처리
                 super.paintComponent(g)
             }
 
-            // 기본 배경 채우기 비활성화
             override fun isContentAreaFilled(): Boolean {
                 return false
             }
         }.apply {
-            preferredSize = Dimension(230, 60)
-            maximumSize = Dimension(230, 60)
-            minimumSize = Dimension(230, 60)
+            preferredSize = buttonSize
+            maximumSize = buttonSize
+            minimumSize = buttonSize
 
-            // 초기 텍스트 색상 설정
-            foreground = unselectedTextColor
-
-            // 둥근 테두리 적용
-            border = SelectButtonRoundedBorder(30) // 둥글기 정도 설정
-
-            // 버튼의 텍스트 폰트 설정
+            foreground = unselectedTextColor  // 초기 텍스트 색상 설정
+            background = unselectedColor  // 초기 배경색 설정
+            border = SelectButtonRoundedBorder(radius).apply {
+                lineColor = MyColor.UNSELECTED_BACKGROUND_COLOR  // 초기 테두리 색상 설정
+            }
             font = MyFont.Bold(24f)
-
-            // 텍스트 가운데 정렬
             horizontalAlignment = SwingConstants.CENTER
-
-            // 선택 여부에 따른 배경색 변경
-            background = unselectedColor
         }
+
+        return button  // 버튼을 리턴
     }
 }
-
 
 
 // 밖에 라인만 둥근 컴포넌트
