@@ -1,5 +1,9 @@
-import javax.swing.*
+import org.example.MyFont
+import org.example.style.MyColor
+import org.example.widgets.SelectButtonRoundedBorder
 import java.awt.*
+import java.awt.geom.RoundRectangle2D
+import javax.swing.*
 import javax.swing.border.EmptyBorder
 
 class OrderRejectCancelDialog(
@@ -7,131 +11,123 @@ class OrderRejectCancelDialog(
     title: String,
     labelText: String,
     buttonText: String,
-    private val onReject: (String) -> Unit  // 거절 사유를 전달받는 콜백 함수
-) : JDialog(parent, title, true) {
-    private var selectedButton: RoundedButton? = null
-    private var selectedReason: String? = null  // 선택된 거절 사유를 저장할 변수
+    private val onReject: (String) -> Unit
+) : CustomRoundedDialog(parent, title, 1000, 465) {
+
+
+    private var selectedButton: SelectButtonRoundedBorder? = null
+    private var selectedReason: String? = null  // 선택된 거절 사유 저장
 
     init {
-        layout = BorderLayout()
-
-        // 상단 제목 설정
-        val titleLabel = JLabel(labelText, SwingConstants.CENTER)
-        titleLabel.font = Font("Arial", Font.BOLD, 16)
-        add(titleLabel, BorderLayout.NORTH)
-
-        // 버튼 클릭 시 스타일을 업데이트하는 함수
-        fun setButtonStyle(button: RoundedButton) {
-            selectedButton?.resetStyle()  // 이전에 선택된 버튼의 스타일을 초기화
-            button.setSelectedStyle()  // 선택된 버튼의 스타일을 설정
-            selectedButton = button
-            selectedReason = button.text  // 선택된 버튼의 텍스트를 거절 사유로 저장
-        }
-
-        // 중간 버튼들 설정 (한글로 텍스트 수정)
-        val rejectReasonButtons = listOf(
-            RoundedButton("가게 사정"),
-            RoundedButton("재료 소진"),
-            RoundedButton("조리 지연"),
-            RoundedButton("배달원 부재"),
-            RoundedButton("배달 불가 지역"),
-            RoundedButton("메뉴 또는 가격 변동"),
-            RoundedButton("요청 사항 적용 불가")
+        // SelectButtonRoundedBorder를 사용한 둥근 버튼 생성
+        val selectButtons = listOf(
+            SelectButtonRoundedBorder(30),
+            SelectButtonRoundedBorder(30),
+            SelectButtonRoundedBorder(30),
+            SelectButtonRoundedBorder(30),
+            SelectButtonRoundedBorder(30),
+            SelectButtonRoundedBorder(30),
+            SelectButtonRoundedBorder(30)
         )
 
-        // 첫 번째 버튼을 기본 선택된 상태로 설정
-        setButtonStyle(rejectReasonButtons[0])
+        val rejectReasonButtons = listOf(
+            selectButtons[0].createRoundedButton("가게 사정", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
+            selectButtons[1].createRoundedButton("재료 소진", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
+            selectButtons[2].createRoundedButton("조리 지연", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
+            selectButtons[3].createRoundedButton("배달원 부재", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
+            selectButtons[4].createRoundedButton("배달 불가 지역", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
+            selectButtons[5].createRoundedButton("메뉴 또는 가격 변동", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
+            selectButtons[6].createRoundedButton("요청 사항 적용 불가", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62))
+        )
 
-        // 각 버튼에 클릭 리스너 추가
-        val buttonPanel = JPanel(GridLayout(4, 2, 10, 10)).apply {
-            rejectReasonButtons.forEach { button ->
-                button.addActionListener {
-                    setButtonStyle(button)  // 클릭된 버튼의 스타일 업데이트
-                }
-                add(button)  // 패널에 버튼 추가
+        // 기본으로 첫 번째 버튼을 선택된 상태로 설정하고 selectedButton에도 저장
+        selectButtons[0].setButtonStyle(true)
+        selectedButton = selectButtons[0]
+
+        // 각 버튼 클릭 시 setButtonStyle 호출
+        rejectReasonButtons.forEachIndexed { index, button ->
+            button.addActionListener {
+                selectedButton?.setButtonStyle(false)  // 이전 버튼 스타일 초기화
+                selectedButton = selectButtons[index]  // 새로운 선택된 버튼 설정
+                selectedButton?.setButtonStyle(true)  // 선택된 버튼 스타일 설정
+                selectedReason = button.text  // 선택된 사유 저장
             }
         }
+
+        val buttonPanel = JPanel(GridBagLayout()).apply {
+            background = Color.WHITE
+            border = EmptyBorder(0, 15, 0, 15)
+
+            val gbc = GridBagConstraints().apply {
+                fill = GridBagConstraints.BOTH
+                insets = Insets(10, 10, 10, 10)
+            }
+
+            val introLabel = JLabel(labelText).apply {
+                font = MyFont.Medium(16f)
+            }
+
+            gbc.gridx = 0
+            gbc.gridy = 0
+            gbc.gridwidth = 3
+            add(introLabel, gbc)
+
+            // 버튼 패널에 버튼 추가
+            gbc.gridwidth = 1
+            gbc.gridx = 0
+            gbc.gridy = 1
+            add(rejectReasonButtons[0], gbc)
+
+            gbc.gridx = 1
+            add(JLabel(), gbc)
+
+            gbc.gridx = 2
+            add(JLabel(), gbc)
+
+            gbc.gridy = 2
+            gbc.gridx = 0
+            add(rejectReasonButtons[1], gbc)
+
+            gbc.gridx = 1
+            add(rejectReasonButtons[2], gbc)
+
+            gbc.gridx = 2
+            add(rejectReasonButtons[3], gbc)
+
+            gbc.gridy = 3
+            gbc.gridx = 0
+            add(rejectReasonButtons[4], gbc)
+
+            gbc.gridx = 1
+            add(rejectReasonButtons[5], gbc)
+
+            gbc.gridx = 2
+            add(rejectReasonButtons[6], gbc)
+        }
+
         add(buttonPanel, BorderLayout.CENTER)
 
-        // 하단 버튼 설정
-        val bottomPanel = JPanel()
-        val cancelButton = JButton(buttonText).apply {
-            background = Color(255, 153, 0)
-            foreground = Color.WHITE
-            font = Font("Arial", Font.BOLD, 14)
-            addActionListener {
-                // 선택된 거절 사유가 있는지 확인
-                selectedReason?.let { reason ->
-                    onReject(reason)  // 거절 사유를 전달하며 콜백 실행
-                    dispose()  // 다이얼로그 닫기
-                } ?: JOptionPane.showMessageDialog(this, "거절 사유를 선택해주세요.")
+        val bottomPanel = JPanel().apply {
+            background = Color.WHITE
+            border = EmptyBorder(10, 10, 10, 10)
+
+            val cancelButton = JButton(buttonText).apply {
+                background = Color.WHITE
+                foreground = Color.RED
+                font = MyFont.Bold(24f)
+                preferredSize = Dimension(300, 62)
+                border = BorderFactory.createLineBorder(Color.RED)
+                addActionListener {
+                    dispose()
+                }
             }
+            add(cancelButton)
         }
-        bottomPanel.add(cancelButton)
         add(bottomPanel, BorderLayout.SOUTH)
 
         // 다이얼로그 크기 및 기본 설정
-        setSize(400, 300)
+        setSize(1000, 465)
         setLocationRelativeTo(parent)
         isVisible = true
-    }
-
-    // 둥근 모서리 버튼 클래스
-    class RoundedButton(text: String) : JButton(text) {
-        var isSelectedState = false
-
-        init {
-            font = Font("Arial", Font.BOLD, 14)
-            isContentAreaFilled = false
-            border = RoundedBorder(15, isSelectedState)
-            preferredSize = Dimension(150, 50)
-        }
-
-        override fun paintComponent(g: Graphics) {
-            val g2 = g as Graphics2D
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-
-            // 선택된 상태일 때 배경 색상을 검은색으로, 선택되지 않았을 때는 흰색으로 설정
-            g2.color = if (isSelectedState) Color.BLACK else Color.WHITE
-
-            // 둥근 사각형 그리기
-            g2.fillRoundRect(0, 0, width, height, 15, 15)
-
-            // 텍스트 색상 설정
-            foreground = if (isSelectedState) Color.WHITE else Color.BLACK
-            super.paintComponent(g)
-        }
-
-        // 버튼 스타일을 선택된 상태로 변경하는 함수
-        fun setSelectedStyle() {
-            isSelectedState = true
-            border = RoundedBorder(15, isSelectedState)  // 선택된 상태에 따른 테두리 색상 변경
-            repaint()
-        }
-
-        // 버튼 스타일을 초기 상태로 복구하는 함수
-        fun resetStyle() {
-            isSelectedState = false
-            border = RoundedBorder(15, isSelectedState)  // 선택되지 않은 상태의 테두리 색상
-            repaint()
-        }
-    }
-
-    // 둥근 테두리 Border 클래스 (선택 상태에 따라 테두리 색상 변경)
-    class RoundedBorder(private val radius: Int, private val isSelected: Boolean) : javax.swing.border.Border {
-        override fun getBorderInsets(c: Component?): Insets {
-            return Insets(radius + 1, radius + 1, radius + 2, radius)
-        }
-
-        override fun isBorderOpaque(): Boolean {
-            return true
-        }
-
-        override fun paintBorder(c: Component?, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
-            val g2 = g as Graphics2D
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-            g2.color = if (isSelected) Color.BLACK else Color.LIGHT_GRAY  // 선택 상태에 따른 테두리 색상
-            g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius)
-        }
     }
 }
