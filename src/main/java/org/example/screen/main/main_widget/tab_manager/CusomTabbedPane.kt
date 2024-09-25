@@ -176,7 +176,7 @@ class CustomTabbedPane : JPanel() {
             spoonFork = false,
             menuList = listOf(
                 Menu(
-                    menuName = "해산물 삼선 짜장면",
+                    menuName = "해산물 ",
                     price = 9000,
                     count = 2,
                     options = listOf(
@@ -185,7 +185,34 @@ class CustomTabbedPane : JPanel() {
                     )
                 ),
                 Menu(
-                    menuName = "차돌박이 오징어 짬뽕",
+                    menuName = "치즈 ",
+                    price = 11000,
+                    count = 2,
+                    options = listOf(
+                        MenuOption("곱빼기", 1000),
+                        MenuOption("차돌박이", 4000)
+                    )
+                ),
+                Menu(
+                    menuName = "해물차돌 파스타",
+                    price = 11000,
+                    count = 2,
+                    options = listOf(
+                        MenuOption("곱빼기", 1000),
+                        MenuOption("차돌박이", 4000)
+                    )
+                ),
+                Menu(
+                    menuName = "차돌박이 오징어 짜장면",
+                    price = 11000,
+                    count = 2,
+                    options = listOf(
+                        MenuOption("곱빼기", 1000),
+                        MenuOption("차돌박이", 4000)
+                    )
+                ),
+                Menu(
+                    menuName = "해물차돌박이삼겹살곱창 파스타",
                     price = 11000,
                     count = 2,
                     options = listOf(
@@ -202,6 +229,16 @@ class CustomTabbedPane : JPanel() {
                         MenuOption("차돌박이", 4000)
                     )
                 ),
+                Menu(
+                    menuName = "해물차돌박이삼겹살곱창 파스타",
+                    price = 11000,
+                    count = 2,
+                    options = listOf(
+                        MenuOption("곱빼기", 1000),
+                        MenuOption("차돌박이", 4000)
+                    )
+                ),
+
             ),
             state = org.example.view.states.PendingState()  // 초기 상태는 접수대기
         )

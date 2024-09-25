@@ -1,6 +1,7 @@
 package org.example.widgets
 
 import org.example.MyFont
+import sun.tools.jstat.Alignment
 import java.awt.*
 import javax.swing.*
 import javax.swing.border.Border
@@ -117,22 +118,60 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
 }
 
 // 밖에 라인만 둥근 컴포넌트
-class OutLineRoundBorder(private val color: Color, private val thickness: Int, private val arcWidth: Int, private val arcHeight: Int) :
-    Border {
-    override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
-        g.color = color
-        g.drawRoundRect(x, y, width - 1, height - 1, arcWidth, arcHeight)
+class OutLineRoundedLabel(
+    text: String,
+    private val borderColor: Color = Color.BLACK,  // 테두리 색상 (기본: 검은색)
+    private val borderRadius: Int = 20,  // 둥근 정도
+    private val borderWidth: Int = 2,  // 테두리 두께
+    private val textColor: Color = Color.BLACK,  // 텍스트 색상
+    private val padding: Insets = Insets(0, 0, 0, 0)  // 패딩 설정
+) : JLabel(text) {
+
+    init {
+        isOpaque = false  // 배경을 투명하게 설정
+        foreground = textColor  // 텍스트 색상 설정
     }
 
-    override fun getBorderInsets(c: Component): Insets {
-        return Insets(thickness, thickness, thickness, thickness)
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+
+        // 안티앨리어싱 활성화 (부드러운 테두리)
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 패널 크기 가져오기
+        val width = width
+        val height = height
+
+        // 라벨의 둥근 테두리 그리기
+        g2.color = borderColor
+        g2.stroke = BasicStroke(borderWidth.toFloat())
+        g2.drawRoundRect(
+            borderWidth / 2,
+            borderWidth / 2,
+            width - borderWidth,
+            height - borderWidth,
+            borderRadius,
+            borderRadius
+        )
+
+        // 텍스트 그리기
+        super.paintComponent(g)
     }
 
-    override fun isBorderOpaque(): Boolean {
-        return true
+    // Insets가 null인 경우 처리
+    override fun getInsets(insets: Insets?): Insets {
+        return insets ?: Insets(padding.top, padding.left, padding.bottom, padding.right)
+    }
+
+    override fun getInsets(): Insets {
+        return Insets(padding.top, padding.left, padding.bottom, padding.right)
+    }
+
+    override fun getPreferredSize(): Dimension {
+        val preferredSize = super.getPreferredSize()
+        return Dimension(preferredSize.width + padding.left + padding.right, preferredSize.height + padding.top + padding.bottom)
     }
 }
-
 // 안에 꽉찬 둥근 라벨
 class FillRoundedLabel(
     text: String,
@@ -143,7 +182,7 @@ class FillRoundedLabel(
     private val borderWidth: Int,
     private val textAlignment: Int,  // 텍스트 정렬 (SwingConstants.LEFT, CENTER, RIGHT)
     private val padding: Insets  // 패딩을 위한 Insets
-) : JLabel(text) {
+) : JLabel(text , SwingConstants.LEFT) {
 
     init {
         isOpaque = false  // 배경을 직접 그릴 것이므로 투명하게 설정
