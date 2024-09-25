@@ -117,6 +117,8 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
     }
 }
 
+
+
 // 밖에 라인만 둥근 컴포넌트
 class OutLineRoundedLabel(
     text: String,
@@ -235,5 +237,71 @@ class FillRoundedLabel(
                 originalSize.height + padding.top + padding.bottom
             )
         }
+    }
+}
+
+class FillRoundedButton(
+    text: String,
+    private val borderColor: Color,
+    private val backgroundColor: Color,
+    private val textColor: Color,
+    private val borderRadius: Int,
+    private val borderWidth: Int,
+    private val textAlignment: Int,
+    private val padding: Insets,
+    private val iconPath: String? = null,  // 아이콘 경로 (없으면 텍스트만)
+    private val buttonSize: Dimension? = null,  // 버튼 크기 설정 추가
+    private val iconWidth: Int = 20,  // 아이콘 너비
+    private val iconHeight: Int = 20,  // 아이콘 높이
+    private val customFont: Font? = null  // 커스텀 폰트 설정
+) : JButton(text) {
+
+    init {
+        isOpaque = false  // 배경을 직접 그리기 위해 투명하게 설정
+        setContentAreaFilled(false)  // 기본 JButton의 배경 칠하기 기능 비활성화
+        setBorderPainted(false)  // 기본 JButton의 테두리 칠하기 기능 비활성화
+        horizontalAlignment = SwingConstants.CENTER  // 아이콘과 텍스트의 가로 정렬을 중앙으로 설정
+        verticalAlignment = SwingConstants.CENTER  // 아이콘과 텍스트의 세로 정렬을 중앙으로 설정
+        foreground = textColor  // 텍스트 색상 설정
+
+        // 아이콘 설정
+        if (iconPath != null) {
+            icon = ImageIcon(javaClass.getResource(iconPath)).apply {
+                // 아이콘 크기 조정
+                image = image.getScaledInstance(iconWidth, iconHeight, java.awt.Image.SCALE_SMOOTH)
+            }
+        }
+
+        // 커스텀 폰트 설정
+        if (customFont != null) {
+            font = customFont
+        }
+
+        // 버튼 크기 설정 (필요 시)
+        if (buttonSize != null) {
+            preferredSize = buttonSize
+            minimumSize = buttonSize
+        }
+    }
+
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 배경색과 테두리 그리기
+        g2.color = backgroundColor
+        g2.fillRoundRect(0, 0, width, height, borderRadius, borderRadius)
+
+        g2.color = borderColor
+        g2.stroke = BasicStroke(borderWidth.toFloat())
+        g2.drawRoundRect(borderWidth / 2, borderWidth / 2, width - borderWidth, height - borderWidth, borderRadius, borderRadius)
+
+        // 기본 아이콘과 텍스트 그리기
+        super.paintComponent(g)
+    }
+
+    override fun getPreferredSize(): Dimension {
+        // 버튼 크기를 고정된 크기로 설정할 수 있게 수정
+        return buttonSize ?: super.getPreferredSize()
     }
 }

@@ -18,7 +18,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
         val headerPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)  // 가로로 배치 (수평)
             isOpaque = false  // 배경 투명
-            preferredSize = Dimension(Int.MAX_VALUE, 80)  // BaseOrderPanel의 전체 너비에 맞춤
+            preferredSize = Dimension(Int.MAX_VALUE, 80)
             maximumSize = Dimension(Int.MAX_VALUE, 80)
             alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
@@ -69,7 +69,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
         val addressPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)  // 가로로 배치 (수평)
             isOpaque = false  // 배경 투명
-            preferredSize = Dimension(Int.MAX_VALUE, 20)  // BaseOrderPanel의 전체 너비에 맞춤
+            preferredSize = Dimension(Int.MAX_VALUE, 20)
             maximumSize = Dimension(Int.MAX_VALUE, 20)
             alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
@@ -96,7 +96,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
         val menuDetailPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)  // 가로로 배치 (수평)
             isOpaque = false  // 배경 투명
-            preferredSize = Dimension(Int.MAX_VALUE, 107)  // BaseOrderPanel의 전체 너비에 맞춤
+            preferredSize = Dimension(Int.MAX_VALUE, 107)
             maximumSize = Dimension(Int.MAX_VALUE, 107)
             alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
@@ -132,7 +132,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
         val footerPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)  // 가로로 배치 (수평)
             isOpaque = false  // 배경 투명
-            preferredSize = Dimension(Int.MAX_VALUE, 100)  // BaseOrderPanel의 전체 너비에 맞춤
+            preferredSize = Dimension(Int.MAX_VALUE, 100)
             maximumSize = Dimension(Int.MAX_VALUE, 100)
             alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
