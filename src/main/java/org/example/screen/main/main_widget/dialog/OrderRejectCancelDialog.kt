@@ -56,11 +56,13 @@ class OrderRejectCancelDialog(
 
         val buttonPanel = JPanel(GridBagLayout()).apply {
             background = Color.WHITE
-            border = EmptyBorder(0, 15, 0, 15)
+            border = EmptyBorder(10, 15, 0, 15) // 상하 여백을 없애고 좌우만 설정
+//            border = EmptyBorder(0, 0, 0, 0)
 
             val gbc = GridBagConstraints().apply {
-                fill = GridBagConstraints.BOTH
-                insets = Insets(10, 10, 10, 10)
+                gridx = 0
+                fill = GridBagConstraints.HORIZONTAL
+                insets = Insets(10, 10, 10, 10) // 버튼들 사이 간격
             }
 
             val introLabel = JLabel(labelText).apply {
@@ -103,26 +105,34 @@ class OrderRejectCancelDialog(
 
             gbc.gridx = 2
             add(rejectReasonButtons[6], gbc)
+
+            // 공백 패널 추가 (전체 레이아웃이 위로 밀리도록)
+            gbc.gridy = 4
+            gbc.gridx = 0
+            gbc.gridwidth = 3
+            gbc.weighty = 1.0 // 세로로 남은 공간을 모두 차지하게 설정
+            add(JPanel().apply { isOpaque = false }, gbc) // 빈 패널을 추가하여 공백을 만듦
         }
 
         add(buttonPanel, BorderLayout.CENTER)
 
-        val bottomPanel = JPanel().apply {
+        val cancelButton = JButton(buttonText).apply {
+            preferredSize = Dimension(300, 62)
+            maximumSize = Dimension(300, 62)
+            minimumSize = Dimension(300, 62)
             background = Color.WHITE
-            border = EmptyBorder(10, 10, 10, 10)
-
-            val cancelButton = JButton(buttonText).apply {
-                background = Color.WHITE
-                foreground = Color.RED
-                font = MyFont.Bold(24f)
-                preferredSize = Dimension(300, 62)
-                border = BorderFactory.createLineBorder(Color.RED)
-                addActionListener {
-                    dispose()
-                }
-            }
-            add(cancelButton)
+            foreground = MyColor.DARK_RED
+            font = MyFont.Bold(24f)
+            border = BorderFactory.createLineBorder(MyColor.DARK_RED)
         }
+
+        val bottomPanel = JPanel().apply {
+            layout = FlowLayout(FlowLayout.CENTER)  // 버튼을 중앙에 배치
+            background = Color.WHITE
+            add(cancelButton)
+            border = BorderFactory.createEmptyBorder(0, 0, 20, 0)
+        }
+
         add(bottomPanel, BorderLayout.SOUTH)
 
         // 다이얼로그 크기 및 기본 설정

@@ -6,9 +6,8 @@ import org.example.command.AcceptOrderCommand
 import org.example.command.RejectOrderCommand
 import org.example.model.Order
 import org.example.model.OrderState
+import org.example.screen.main.main_widget.dialog.EstimatedTimeDialog
 import org.example.view.components.BaseOrderPanel
-import org.example.view.dialog.CookingTimeDialog
-import org.example.view.dialog.DeliveryTimeDialog
 import org.example.widgets.FillRoundedButton
 import org.example.widgets.IconRoundBorder
 import javax.swing.*
@@ -91,12 +90,10 @@ class PendingState : OrderState {
                     customFont = MyFont.Bold(20f)
                 ).apply {
                     addActionListener {
-                        CookingTimeDialog(SwingUtilities.getWindowAncestor(this) as JFrame) { cookingTime ->
-                            DeliveryTimeDialog(SwingUtilities.getWindowAncestor(this) as JFrame, cookingTime) { deliveryTime ->
-                                val acceptOrderCommand = AcceptOrderCommand(order, cookingTime, deliveryTime)
-                                acceptOrderCommand.execute()  // 상태 변경 및 notifyObservers 호출됨
-                            }.isVisible = true
-                        }.isVisible = true
+                        EstimatedTimeDialog(
+                            parent = SwingUtilities.getWindowAncestor(this) as JFrame,  // 현재 창을 부모로 설정
+                            title = "예상 시간 선택"  // 다이얼로그의 타이틀 설정
+                        )
                     }
                 })
             }

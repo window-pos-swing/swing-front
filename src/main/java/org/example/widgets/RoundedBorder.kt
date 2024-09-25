@@ -309,3 +309,32 @@ class FillRoundedButton(
         return buttonSize ?: super.getPreferredSize()
     }
 }
+
+// 둥근 패널을 만들기 위한 커스텀 JPanel 클래스
+class RoundedPanel(private val arcWidth: Int, private val arcHeight: Int) : JPanel() {
+    init {
+        isOpaque = false  // 배경을 투명하게 설정
+    }
+
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 배경색 설정
+        g2.color = background
+
+        // 둥근 사각형 그리기
+        g2.fillRoundRect(0, 0, width, height, arcWidth, arcHeight)
+
+        super.paintComponent(g)
+    }
+
+    override fun paintBorder(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 테두리 그리기
+        g2.color = foreground
+        g2.drawRoundRect(0, 0, width - 1, height - 1, arcWidth, arcHeight)
+    }
+}

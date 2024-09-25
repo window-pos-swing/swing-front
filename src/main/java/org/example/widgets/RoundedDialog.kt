@@ -27,7 +27,7 @@ open class CustomRoundedDialog(
 
             val titleLabel = JLabel(title, SwingConstants.CENTER).apply {
                 font = MyFont.Bold(32f)
-                border = BorderFactory.createEmptyBorder(0, 0, 15, 0)
+                border = BorderFactory.createEmptyBorder(0, 40, 15, 0)
             }
 
             val closeButton = IconRoundBorder.createRoundedButton("/close_red_icon.png").apply {
@@ -52,7 +52,7 @@ open class CustomRoundedDialog(
 
             val bottomBorder = BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY)
             border = BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(15, 25, 0, 25),
+                BorderFactory.createEmptyBorder(15, 30, 0, 30),
                 bottomBorder
             )
 
