@@ -105,15 +105,24 @@ class BaseOrderPanel(order: Order) : JPanel() {
                 originalText,
                 borderColor = Color.BLACK,  // 검은색 테두리
                 borderRadius = 20,  // 둥근 정도
-                borderWidth = 2,  // 테두리 두께
+                borderWidth = 1,  // 테두리 두께
                 textColor = MyColor.BLACK,  // 텍스트 색상
                 padding = Insets(10, 20, 10, 20)  // 패딩 설정
             ).apply {
                 font = MyFont.Medium(24f)
                 alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
                 horizontalAlignment = SwingConstants.LEFT  // 텍스트 왼쪽 정렬
-                minimumSize = Dimension(100, 70)  // 최소 크기 설정
-                maximumSize = Dimension(Int.MAX_VALUE, 70)  // 최대 크기 설정
+                minimumSize = Dimension(100, 107)  // 최소 크기 설정
+                maximumSize = Dimension(Int.MAX_VALUE, 107)  // 최대 크기 설정
+
+                // ComponentListener 추가: 창 크기 변경 시 텍스트를 다시 계산
+                addComponentListener(object : java.awt.event.ComponentAdapter() {
+                    override fun componentResized(e: java.awt.event.ComponentEvent) {
+                        text = truncateTextForTwoLines(originalText, this@apply)
+                        revalidate()
+                        repaint()
+                    }
+                })
             }
 
             add(menuLabel)  // menuLabel을 menuDetailPanel에 추가
@@ -205,6 +214,41 @@ class BaseOrderPanel(order: Order) : JPanel() {
         }
 
         return truncatedText
+    }
+
+    private fun truncateTextForTwoLines(text: String, component: JComponent): String {
+        val fontMetrics: FontMetrics = component.getFontMetrics(component.font)
+        val maxWidth = component.width - component.insets.left - component.insets.right  // 패딩을 고려한 최대 너비
+        val words = text.split(" ")
+
+        var firstLine = ""
+        var secondLine = ""
+        var isFirstLineComplete = false
+
+        for (word in words) {
+            if (!isFirstLineComplete) {
+                // 첫 번째 줄이 넘치지 않으면 계속 추가
+                if (fontMetrics.stringWidth(firstLine + " " + word) < maxWidth) {
+                    firstLine += if (firstLine.isEmpty()) word else " $word"
+                } else {
+                    // 첫 번째 줄이 넘치면 두 번째 줄로 이동
+                    isFirstLineComplete = true
+                    secondLine += word
+                }
+            } else {
+                // 두 번째 줄 처리
+                if (fontMetrics.stringWidth(secondLine + " " + word) < maxWidth) {
+                    secondLine += if (secondLine.isEmpty()) word else " $word"
+                } else {
+                    // 두 번째 줄이 넘치면 ...으로 처리
+                    secondLine = secondLine.take(maxWidth / fontMetrics.charWidth(' ')) + "..."
+                    break
+                }
+            }
+        }
+
+        // 두 줄을 합쳐서 반환, HTML을 사용하여 줄바꿈 처리
+        return "<html>$firstLine<p style='margin-top:10;'>$secondLine</p></html>"
     }
 
 }
