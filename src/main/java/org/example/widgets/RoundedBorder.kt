@@ -2,7 +2,6 @@ package org.example.widgets
 
 import org.example.MyFont
 import org.example.style.MyColor
-import sun.tools.jstat.Alignment
 import java.awt.*
 import javax.swing.*
 import javax.swing.border.Border
@@ -116,6 +115,12 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
             }
             font = MyFont.Bold(24f)
             horizontalAlignment = SwingConstants.CENTER
+
+
+            isFocusPainted = false // 포커스 테두리 비활성화
+            isFocusable = false // 버튼이 포커스를 받을 수 없도록 설정
+            setContentAreaFilled(false) // 배경 칠하기 비활성화
+            setBorderPainted(false) // 기본 테두리 제거 (필요시 추가)
         }
 
         return button  // 버튼을 리턴
