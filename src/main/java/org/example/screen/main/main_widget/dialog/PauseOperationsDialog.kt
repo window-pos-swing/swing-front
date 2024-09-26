@@ -40,7 +40,7 @@ class PauseOperationsDialog(
         // 콤보박스 초기화
         hourComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("1시", "2시", "3시", "4시", "5시", "6시", "7시", "8시", "9시", "10시", "11시", "12시"))).apply {
             // 크기 및 UI 적용
-            preferredSize = Dimension(90, 35)
+            preferredSize = Dimension(90, 40)
         }
 
         // 조리시간 및 배달시간 선택 UI 생성
@@ -215,9 +215,6 @@ class PauseOperationsDialog(
             when (component) {
                 is JLabel -> {
                     component.foreground = textColor // JLabel의 텍스트 색상 변경
-                    println("Title label color: ${titleTextLabel.foreground}")
-                    println("Subtitle label color: ${subtitleTextLabel.foreground}")
-                    println("untilLabel label color: ${untilLabel.foreground}")
                 }
                 is JButton -> {
                     component.background = backgroundColor // JButton의 배경색 변경
@@ -273,6 +270,7 @@ class PauseOperationsDialog(
     }
 
     // 시간 지정 패널 생성 함수
+// 시간 지정 패널 생성 함수
     private fun createTimeSpecifiedPanel(titleText: String, subtitleText: String): JPanel {
 
         // 오전 버튼 생성 (클래스 멤버 변수로 설정)
@@ -284,9 +282,9 @@ class PauseOperationsDialog(
             borderRadius = 40,
             borderWidth = 1,
             textAlignment = SwingConstants.CENTER,
-            padding = Insets(10, 20, 10, 20),
-            buttonSize = Dimension(130, 40),
-            customFont = MyFont.Bold(20f)
+            padding = Insets(8, 16, 8, 16),  // 패딩 줄이기
+            buttonSize = Dimension(120, 35),
+            customFont = MyFont.Bold(22f)  // 버튼 글자 크기 줄임
         )
 
         // 오후 버튼 생성 (클래스 멤버 변수로 설정)
@@ -298,52 +296,42 @@ class PauseOperationsDialog(
             borderRadius = 40,
             borderWidth = 1,
             textAlignment = SwingConstants.CENTER,
-            padding = Insets(10, 20, 10, 20),
-            buttonSize = Dimension(130, 40),
-            customFont = MyFont.Bold(20f)
+            padding = Insets(8, 16, 8, 16),  // 패딩 줄이기
+            buttonSize = Dimension(120, 35),
+            customFont = MyFont.Bold(22f)  // 버튼 글자 크기 줄임
         )
 
         // 기본적으로 오전 버튼을 선택 상태로 설정
         updateButtonState(amButton, pmButton)
 
-        // 오전 버튼 클릭 리스너 추가
-        amButton.addActionListener {
-            updateButtonState(amButton, pmButton)  // 오전 버튼을 선택
-        }
-
-        // 오후 버튼 클릭 리스너 추가
-        pmButton.addActionListener {
-            updateButtonState(pmButton, amButton)  // 오후 버튼을 선택
-        }
-
         // 드롭다운 메뉴
-        val hourComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("1시", "2시", "3시", "4시", "5시", "6시", "7시", "8시", "9시", "10시", "11시", "12시"))).apply {
+        hourComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("1시", "2시", "3시", "4시", "5시", "6시", "7시", "8시", "9시", "10시", "11시", "12시"))).apply {
             // 크기 및 UI 적용
-            preferredSize = Dimension(90, 35)
+            preferredSize = Dimension(80, 40)  // 드롭다운 크기 줄이기
         }
 
         // "까지 중지" 라벨 (클래스 멤버 변수로 설정)
         untilLabel = JLabel("까지 중지").apply {
-            font = MyFont.SemiBold(16f)
+            font = MyFont.SemiBold(16f)  // 글자 크기 줄이기
             foreground = Color.WHITE
         }
 
         // 메인 패널을 둥글게 만들기 위해 RoundedPanel 사용
         val mainPanel = RoundedPanel(30, 30).apply {
             background = MyColor.DARK_NAVY
-            preferredSize = Dimension(460, 258)  // 패널 크기를 설정
+            preferredSize = Dimension(460, 230)  // 패널 크기 조정
             layout = GridBagLayout()
-            border = BorderFactory.createEmptyBorder(20, 15, 20, 15)  // 상하 20, 좌우 15의 마진 추가
+            border = BorderFactory.createEmptyBorder(15, 10, 15, 10)  // 상하좌우 여백 줄이기
 
             val gbc = GridBagConstraints().apply {
                 gridx = 0
                 fill = GridBagConstraints.HORIZONTAL
-                insets = Insets(10, 0, 10, 0)  // 컴포넌트 간의 수직 간격
+                insets = Insets(5, 0, 5, 0)  // 컴포넌트 간의 수직 간격을 줄임
             }
 
             // titleTextLabel
             titleTextLabel = JLabel(titleText, SwingConstants.CENTER).apply {
-                font = MyFont.Bold(24f)
+                font = MyFont.Bold(24f)  // 글자 크기 줄이기
                 foreground = Color.WHITE
             }
             gbc.gridy = 0
@@ -351,7 +339,8 @@ class PauseOperationsDialog(
 
             // subtitleTextLabel
             subtitleTextLabel = JLabel(subtitleText, SwingConstants.CENTER).apply {
-                font = MyFont.SemiBold(16f)
+                border = BorderFactory.createEmptyBorder(10, 0, 0, 0)  // 상하좌우 여백 줄이기
+                font = MyFont.SemiBold(16f)  // 글자 크기 줄이기
                 foreground = Color.WHITE
             }
             gbc.gridy = 1
@@ -360,7 +349,7 @@ class PauseOperationsDialog(
             // 오전/오후 버튼 배치
             val buttonPanel = JPanel().apply {
                 isOpaque = false
-                layout = FlowLayout(FlowLayout.CENTER, 20, 10)  // 버튼 간격 설정
+                layout = FlowLayout(FlowLayout.CENTER, 15, 5)  // 버튼 간격 조정
                 background = MyColor.DARK_NAVY
                 add(amButton)
                 add(pmButton)
@@ -372,7 +361,7 @@ class PauseOperationsDialog(
             // 드롭다운과 "까지 중지" 라벨 배치
             val comboPanel = JPanel().apply {
                 isOpaque = false
-                layout = FlowLayout(FlowLayout.CENTER, 10, 10)
+                layout = FlowLayout(FlowLayout.CENTER, 5, 5)  // 여백 줄이기
                 background = MyColor.DARK_NAVY
                 add(hourComboBox)
                 add(untilLabel)
