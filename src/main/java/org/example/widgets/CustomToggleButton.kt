@@ -24,41 +24,38 @@ class CustomToggleButton : JToggleButton() {
     }
 
     override fun paintComponent(g: Graphics) {
-        super.paintComponent(g)
-
         val g2d = g as Graphics2D
         val width = width
         val height = height
-        // 안티앨리어싱 적용
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-        // 배경 회색 라운드 박스 그리기
+        // 배경 색 그리기 (테두리 효과 방지)
         g2d.color = MyColor.LIGHT_GREY
         g2d.fillRoundRect(0, 0, width, height, height, height)
 
-        // 상태에 따라 오른쪽에 네이비 색상 그리기 (OFF 상태일 때)
-        if (!isSelected) {
-            // OFF 상태일 때 오른쪽을 네이비 색으로 그리기
-            g2d.clipRect(width / 2, 0, width / 2, height)  // 오른쪽 절반 클립
+        // ON/OFF 상태에 따른 배경색 그리기
+        if (isSelected) {
+            g2d.clipRect(0, 0, width / 2, height)  // ON: 왼쪽
             g2d.color = MyColor.DARK_NAVY
             g2d.fillRoundRect(0, 0, width, height, height, height)
         } else {
-            // ON 상태일 때 왼쪽을 네이비 색으로 그리기
-            g2d.clipRect(0, 0, width / 2, height)  // 왼쪽 절반 클립
+            g2d.clipRect(width / 2, 0, width / 2, height)  // OFF: 오른쪽
             g2d.color = MyColor.DARK_NAVY
             g2d.fillRoundRect(0, 0, width, height, height, height)
         }
 
-        // 클리핑 리셋
+        // 클립 리셋 및 텍스트 색상 처리
         g2d.clip = null
-
-        // 텍스트 그리기
-        g2d.color = if (isSelected)   Color.WHITE else Color(137, 137, 137)
+        g2d.color = if (isSelected) Color.WHITE else Color(137, 137, 137)
         g2d.drawString("ON", width / 4 - g2d.fontMetrics.stringWidth("ON") / 2, height / 2 + g2d.fontMetrics.ascent / 2)
 
-        g2d.color = if (isSelected) Color(137, 137, 137) else Color.WHITE
+        g2d.color = if (!isSelected) Color.WHITE else Color(137, 137, 137)
         g2d.drawString("OFF", width * 3 / 4 - g2d.fontMetrics.stringWidth("OFF") / 2, height / 2 + g2d.fontMetrics.ascent / 2)
+
+        // 포커스와 관련된 그리기 동작을 제거
+        isFocusPainted = false
     }
+
 }
 
 fun main() {
