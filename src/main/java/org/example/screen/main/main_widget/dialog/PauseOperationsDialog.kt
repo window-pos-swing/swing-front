@@ -117,6 +117,12 @@ class PauseOperationsDialog(
         setPanelBorderColor(panel, MyColor.DARK_NAVY) // 선택된 패널의 테두리 색상
 
         if (panel == timeSpecifiedPanel) {
+
+            // 오전/오후 버튼 활성화
+            amButton.isEnabled = true
+            pmButton.isEnabled = true
+            hourComboBox.isEnabled = true // 드롭다운 활성화
+
             // 오전/오후 버튼 활성화 스타일
             amButton.backgroundColor = MyColor.DARK_RED
             amButton.textColor = Color.WHITE
@@ -131,6 +137,14 @@ class PauseOperationsDialog(
             // untilLabel 색상 변경
             untilLabel.foreground = Color.WHITE
             untilLabel.repaint()
+
+            val buttonPanel = findButtonPanel(thirtyMinutePanel)
+            if (buttonPanel != null) {
+                val decreaseButton = findComponent<JButton>(buttonPanel, "/minus_unselect_icon.png")
+                val increaseButton = findComponent<JButton>(buttonPanel, "/plus_unselect_icon.png")
+                decreaseButton?.isEnabled = false
+                increaseButton?.isEnabled = false
+            }
 
             // 시간 지정 콤보박스의 배경색을 흰색으로 설정
             updateComponentColors(timeSpecifiedPanel, Color.WHITE, Color.WHITE) // 콤보박스 배경색을 흰색으로 변경
@@ -157,7 +171,14 @@ class PauseOperationsDialog(
                 increaseButton?.repaint()
                 timeLabel?.repaint()
                 buttonPanel.repaint()
+                decreaseButton?.isEnabled = true
+                increaseButton?.isEnabled = true
+
             }
+            // 시간 지정 패널의 오전/오후 버튼 및 드롭다운 상호작용 비활성화 (색상 변경 없이)
+            amButton.isEnabled = false
+            pmButton.isEnabled = false
+            hourComboBox.isEnabled = false
         }
 
     }
@@ -185,6 +206,9 @@ class PauseOperationsDialog(
                 decreaseButton?.icon = ImageIcon(javaClass.getResource("/minus_unselect_icon.png"))
                 increaseButton?.icon = ImageIcon(javaClass.getResource("/plus_unselect_icon.png"))
                 timeLabel?.foreground = MyColor.UNSELECTED_TEXT_COLOR
+
+                decreaseButton?.isEnabled = false
+                increaseButton?.isEnabled = false
 
                 // Repaint components
                 decreaseButton?.repaint()
@@ -303,6 +327,14 @@ class PauseOperationsDialog(
 
         // 기본적으로 오전 버튼을 선택 상태로 설정
         updateButtonState(amButton, pmButton)
+
+        amButton.addActionListener {
+            updateButtonState(amButton, pmButton)  // 오전 버튼을 선택
+        }
+
+        pmButton.addActionListener {
+            updateButtonState(pmButton, amButton)  // 오후 버튼을 선택
+        }
 
         // 드롭다운 메뉴
         hourComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("1시", "2시", "3시", "4시", "5시", "6시", "7시", "8시", "9시", "10시", "11시", "12시"))).apply {
