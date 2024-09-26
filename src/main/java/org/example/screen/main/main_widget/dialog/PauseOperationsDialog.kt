@@ -1,6 +1,8 @@
 package org.example.screen.main.main_widget.dialog
 
+import CustomComboBoxUI
 import CustomRoundedDialog
+import RoundedComboBox
 import org.example.MyFont
 import org.example.style.MyColor
 import org.example.widgets.FillRoundedButton
@@ -24,12 +26,22 @@ class PauseOperationsDialog(
     private lateinit var amButton: FillRoundedButton
     private lateinit var pmButton: FillRoundedButton
     private lateinit var untilLabel: JLabel
+    private lateinit var titleTextLabel: JLabel
+    private lateinit var subtitleTextLabel: JLabel
+
+    private lateinit var hourComboBox: RoundedComboBox
 
     private var cookingTime: Int = 30  // 기본 조리 시간 30분
     private var deliveryTime: Int = 30  // 기본 배달 시간 30분
 
     init {
         isModal = true
+
+        // 콤보박스 초기화
+        hourComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("1시", "2시", "3시", "4시", "5시", "6시", "7시", "8시", "9시", "10시", "11시", "12시"))).apply {
+            // 크기 및 UI 적용
+            preferredSize = Dimension(90, 35)
+        }
 
         // 조리시간 및 배달시간 선택 UI 생성
         val timeSelectionPanel = JPanel(GridLayout(1, 2, 20, 10)).apply {
@@ -119,6 +131,9 @@ class PauseOperationsDialog(
             // untilLabel 색상 변경
             untilLabel.foreground = Color.WHITE
             untilLabel.repaint()
+
+            // 시간 지정 콤보박스의 배경색을 흰색으로 설정
+            updateComponentColors(timeSpecifiedPanel, Color.WHITE, Color.WHITE) // 콤보박스 배경색을 흰색으로 변경
         }
 
         if (panel == thirtyMinutePanel) {
@@ -150,35 +165,19 @@ class PauseOperationsDialog(
     // 패널 비활성화 함수
     private fun deactivatePanel(panel: JPanel) {
         panel.background = MyColor.UNSELECTED_BACKGROUND_COLOR
-        setPanelInteraction(panel, false)
-        setPanelTextColor(panel, MyColor.UNSELECTED_TEXT_COLOR) // 선택되지 않은 패널의 텍스트는 MyColor.UNSELECTED_TEXT_COLOR
         setPanelBorderColor(panel, MyColor.UNSELECTED_BACKGROUND_COLOR) // 선택되지 않은 패널의 테두리 색상
 
-        if (panel == timeSpecifiedPanel) {
-            // 오전/오후 버튼 비활성화 스타일
-            amButton.backgroundColor = MyColor.BRIGHTER_GREY
-            amButton.textColor = MyColor.UNSELECTED_TEXT_COLOR
-            amButton.borderColor = MyColor.BRIGHTER_GREY  // 배경색에 맞춘 테두리 색상
-            amButton.repaint()
-
-            pmButton.backgroundColor = MyColor.BRIGHTER_GREY
-            pmButton.textColor = MyColor.UNSELECTED_TEXT_COLOR
-            pmButton.borderColor = MyColor.BRIGHTER_GREY  // 배경색에 맞춘 테두리 색상
-            pmButton.repaint()
-
-            // untilLabel 색상 변경
-            untilLabel.foreground = MyColor.UNSELECTED_TEXT_COLOR
-            untilLabel.repaint()
-        }
+        // 패널 내 모든 컴포넌트의 색상을 회색으로 변경
+        updateComponentColors(panel, MyColor.UNSELECTED_TEXT_COLOR, MyColor.BRIGHTER_GREY)
 
         if (panel == thirtyMinutePanel) {
-            // 30분단위 패널 내 buttonPanel, timeLabel, decreaseButton, increaseButton 업데이트
+            // 30분단위 패널의 buttonPanel 배경색을 BRIGHTER_GREY로 변경
             val buttonPanel = findButtonPanel(thirtyMinutePanel)
-            if (buttonPanel != null) {
-                buttonPanel.background = MyColor.BRIGHTER_GREY
-                setPanelBorderColor(buttonPanel, MyColor.BRIGHTER_GREY)
+            buttonPanel?.let {
+                it.background = MyColor.BRIGHTER_GREY
+                setPanelBorderColor(it, MyColor.BRIGHTER_GREY)
 
-                // decreaseButton, timeLabel, increaseButton 업데이트
+                // decreaseButton, timeLabel, increaseButton 색상도 변경
                 val decreaseButton = findComponent<JButton>(buttonPanel, "/minus_icon.png")
                 val increaseButton = findComponent<JButton>(buttonPanel, "/plus_icon.png")
                 val timeLabel = findComponent<JLabel>(buttonPanel, "분")
@@ -193,6 +192,47 @@ class PauseOperationsDialog(
                 timeLabel?.repaint()
                 buttonPanel.repaint()
             }
+        }
+
+        if (panel == timeSpecifiedPanel) {
+            // 오전/오후 버튼 비활성화 스타일
+            amButton.backgroundColor = MyColor.BRIGHTER_GREY
+            amButton.textColor = MyColor.UNSELECTED_TEXT_COLOR
+            amButton.borderColor = MyColor.BRIGHTER_GREY  // 테두리 색상
+            amButton.repaint()
+
+            pmButton.backgroundColor = MyColor.BRIGHTER_GREY
+            pmButton.textColor = MyColor.UNSELECTED_TEXT_COLOR
+            pmButton.borderColor = MyColor.BRIGHTER_GREY  // 테두리 색상
+            pmButton.repaint()
+        }
+
+    }
+
+    // hourComboBox의 renderer를 업데이트하는 함수
+    private fun updateComponentColors(container: Container, textColor: Color, backgroundColor: Color) {
+        for (component in container.components) {
+            when (component) {
+                is JLabel -> {
+                    component.foreground = textColor // JLabel의 텍스트 색상 변경
+                    println("Title label color: ${titleTextLabel.foreground}")
+                    println("Subtitle label color: ${subtitleTextLabel.foreground}")
+                    println("untilLabel label color: ${untilLabel.foreground}")
+                }
+                is JButton -> {
+                    component.background = backgroundColor // JButton의 배경색 변경
+                    component.foreground = textColor // JButton의 텍스트 색상 변경
+                }
+                is JComboBox<*> -> {
+                    component.background = backgroundColor // JComboBox의 배경색 변경
+                    component.foreground = MyColor.UNSELECTED_TEXT_COLOR // JComboBox의 텍스트 색상 변경
+                }
+                is JPanel -> {
+                    component.background = Color(217,217,217) // JPanel의 배경색 변경
+                    updateComponentColors(component, textColor, backgroundColor) // 재귀적으로 자식 컴포넌트들에 대해 색상 변경 적용
+                }
+            }
+            component.repaint() // 변경 사항을 반영하기 위해 다시 그리기
         }
     }
 
@@ -210,7 +250,6 @@ class PauseOperationsDialog(
     private fun findButtonPanel(panel: JPanel): JPanel? {
         return panel.components.filterIsInstance<JPanel>().find { it.layout is BorderLayout }
     }
-
 
     // 패널 내 컴포넌트 상호작용 활성/비활성화 함수
     private fun setPanelInteraction(panel: JPanel, isEnabled: Boolean) {
@@ -232,10 +271,9 @@ class PauseOperationsDialog(
     private fun setPanelBorderColor(panel: JPanel, color: Color) {
         panel.foreground  = color
     }
+
     // 시간 지정 패널 생성 함수
     private fun createTimeSpecifiedPanel(titleText: String, subtitleText: String): JPanel {
-        // 오전/오후 선택 버튼 그룹
-        val amPmButtonGroup = ButtonGroup()
 
         // 오전 버튼 생성 (클래스 멤버 변수로 설정)
         amButton = FillRoundedButton(
@@ -279,12 +317,9 @@ class PauseOperationsDialog(
         }
 
         // 드롭다운 메뉴
-        val hourComboBox = JComboBox<String>().apply {
-            font = MyFont.SemiBold(16f)
-            background = Color.WHITE
-            foreground = MyColor.DARK_NAVY
-            model = DefaultComboBoxModel(arrayOf("-시", "1시", "2시", "3시", "4시", "5시", "6시"))
-            preferredSize = Dimension(100, 40)
+        val hourComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("1시", "2시", "3시", "4시", "5시", "6시", "7시", "8시", "9시", "10시", "11시", "12시"))).apply {
+            // 크기 및 UI 적용
+            preferredSize = Dimension(90, 35)
         }
 
         // "까지 중지" 라벨 (클래스 멤버 변수로 설정)
@@ -306,19 +341,21 @@ class PauseOperationsDialog(
                 insets = Insets(10, 0, 10, 0)  // 컴포넌트 간의 수직 간격
             }
 
-            // titleText
-            gbc.gridy = 0
-            add(JLabel(titleText, SwingConstants.CENTER).apply {
+            // titleTextLabel
+            titleTextLabel = JLabel(titleText, SwingConstants.CENTER).apply {
                 font = MyFont.Bold(24f)
                 foreground = Color.WHITE
-            }, gbc)
+            }
+            gbc.gridy = 0
+            add(titleTextLabel, gbc)
 
-            // subtitleText
-            gbc.gridy = 1
-            add(JLabel(subtitleText, SwingConstants.CENTER).apply {
+            // subtitleTextLabel
+            subtitleTextLabel = JLabel(subtitleText, SwingConstants.CENTER).apply {
                 font = MyFont.SemiBold(16f)
                 foreground = Color.WHITE
-            }, gbc)
+            }
+            gbc.gridy = 1
+            add(subtitleTextLabel, gbc)
 
             // 오전/오후 버튼 배치
             val buttonPanel = JPanel().apply {
@@ -363,7 +400,7 @@ class PauseOperationsDialog(
         deselectedButton.repaint()
     }
 
-    // 시간 선택 패널 생성 함수
+    // 30분단위 선택 패널 생성 함수
     private fun createTimeSelectionPanel(titleText: String, subtitleText: String, isCookingTime: Boolean): JPanel {
         // 시간 값 결정 (조리 시간/배달 시간)
         val timeValue = if (isCookingTime) cookingTime else deliveryTime
@@ -416,19 +453,21 @@ class PauseOperationsDialog(
                 insets = Insets(10, 0, 10, 0)  // 컴포넌트 간의 수직 간격
             }
 
-            // titleText
-            gbc.gridy = 0
-            add(JLabel(titleText, SwingConstants.CENTER).apply {
+            // titleTextLabel
+            titleTextLabel = JLabel(titleText, SwingConstants.CENTER).apply {
                 font = MyFont.Bold(24f)
                 foreground = Color.WHITE
-            }, gbc)
+            }
+            gbc.gridy = 0
+            add(titleTextLabel, gbc)
 
-            // subtitleText
-            gbc.gridy = 1
-            add(JLabel(subtitleText, SwingConstants.CENTER).apply {
+            // subtitleTextLabel
+            subtitleTextLabel = JLabel(subtitleText, SwingConstants.CENTER).apply {
                 font = MyFont.SemiBold(16f)
                 foreground = Color.WHITE
-            }, gbc)
+            }
+            gbc.gridy = 1
+            add(subtitleTextLabel, gbc)
 
             // 버튼 패널
             gbc.gridy = 2
@@ -437,7 +476,6 @@ class PauseOperationsDialog(
 
         return mainPanel
     }
-
 
     // 시간 조정 함수 (timeLabel의 값을 업데이트)
     private fun adjustTime(timeLabel: JLabel, delta: Int, isCookingTime: Boolean) {
