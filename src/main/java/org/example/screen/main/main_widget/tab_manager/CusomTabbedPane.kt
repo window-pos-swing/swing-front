@@ -330,13 +330,40 @@ class CustomTabbedPane : JPanel() {
             cardLayout.show(cardPanel, tabName)
         }
 
-        // 기존 선택된 탭의 배경색을 원래 색으로 복구
-        if (selectedTabName.isNotEmpty()) {
-            tabButtonMap[selectedTabName]?.background = MyColor.DARK_RED
+        // 기존 선택된 탭의 배경색, 아이콘, 텍스트 색상 복구
+        tabButtonMap.forEach { (name, panel) ->
+            val iconLabel = panel.getComponent(0) as JLabel  // 첫 번째 컴포넌트는 아이콘
+            val textLabel = panel.getComponent(1) as JLabel  // 두 번째 컴포넌트는 텍스트
+            if (name == tabName) {
+                // 선택된 탭: 배경색을 DARK_NAVY로, 텍스트는 흰색으로, 아이콘을 흰색 버전으로
+                panel.background = MyColor.DARK_NAVY
+                textLabel.foreground = Color.WHITE
+                val whiteIconPath = when (name) {
+                    "전체보기" -> "/home_white.png"
+                    "접수대기" -> "/접수대기_white.png"
+                    "접수처리중" -> "/접수처리중_white.png"
+                    "접수완료" -> "/접수완료_white.png"
+                    "주문거절" -> "/주문거절_white.png"
+                    else -> ""  // 여기에 기본값 또는 에러 처리를 추가할 수 있음
+                }
+                iconLabel.icon = ImageIcon(javaClass.getResource(whiteIconPath))
+            } else {
+                // 선택되지 않은 탭: 배경색은 DARK_RED, 텍스트는 UNSELECTED_TAP 색상, 기본 아이콘
+                panel.background = MyColor.DARK_RED
+                textLabel.foreground = MyColor.UNSELECTED_TAP
+                val defaultIconPath = when (name) {
+                    "전체보기" -> "/home.png"
+                    "접수대기" -> "/접수대기.png"
+                    "접수처리중" -> "/접수처리중.png"
+                    "접수완료" -> "/접수완료.png"
+                    "주문거절" -> "/주문거절.png"
+                    else -> ""  // 여기에 기본값 또는 에러 처리를 추가할 수 있음
+                }
+                iconLabel.icon = ImageIcon(javaClass.getResource(defaultIconPath))
+            }
         }
 
-        // 현재 선택된 탭 배경색을 DARK_NAVY로 설정
-        tabButtonMap[tabName]?.background = MyColor.DARK_NAVY
+        // 현재 선택된 탭 이름을 업데이트
         selectedTabName = tabName
     }
 
