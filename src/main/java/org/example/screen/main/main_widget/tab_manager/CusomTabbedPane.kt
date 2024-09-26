@@ -1,22 +1,26 @@
 package org.example
 
+import CustomToggleButton
 import OrderController
-import createCustomToggleButton
+//import createCustomToggleButton
 import org.example.model.MenuOption
 import org.example.model.Menu
 import org.example.model.Order
+import org.example.screen.main.main_widget.dialog.PauseOperationsDialog
 import org.example.screen.main.main_widget.tab_manager.pandding_sub_tabs.PendingSubTabs
 import org.example.style.MyColor
 import java.awt.*
+import java.awt.event.ItemEvent
 import javax.swing.*
 
-class CustomTabbedPane : JPanel() {
+class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     private var allOrders = mutableListOf<Order>()  // 모든 주문을 저장하는 리스트
     private var cardPanel: JPanel? = null  // 외부에서 전달받을 cardPanel을 nullable로 변경
     private val menuPanel = JPanel()  // 탭 메뉴 패널 (세로로 정렬)
     private var orderCounter = 1 ;
     private val tabButtonMap = mutableMapOf<String, JPanel>()
     private var selectedTabName: String = ""
+    private var isDialogOpen = false // 다이얼로그가 열려 있는지 확인하는 플래
 
     // 주문 목록 패널들 (각 탭별로 구분)
     private val allOrdersPanel = JPanel().apply {
@@ -112,10 +116,37 @@ class CustomTabbedPane : JPanel() {
         }
 
         // 커스텀 토글 버튼 생성 및 추가
-        val customToggleButton = createCustomToggleButton().apply {
-            bounds = Rectangle(0, 0, 120, 40)  // 버튼 크기와 위치 설정
-            isOpaque = false  // 버튼 배경을 투명하게 설정
+        val customToggleButton = CustomToggleButton().apply {
+            bounds = Rectangle(0, 0, 120, 40)
+            isSelected = false // true면 ON / false면 OFF
+
+            addItemListener { event ->
+                if (event.stateChange == ItemEvent.DESELECTED) {
+                    // OFF 상태로 변경 시 - 임시중지 다이얼로그 띄움
+                    println("isDialogOpen: $isDialogOpen")  // 상태 확인용 출력
+                    if (!isDialogOpen) {  // 다이얼로그가 열려있는지 확인
+                        isDialogOpen = true
+                        PauseOperationsDialog(parentFrame, "영업 임시 중지", callback = { confirmed ->
+                            if (confirmed) {
+                                isSelected = false // 사용자가 임시 중지를 확인한 경우 OFF로 변경
+                            } else {
+                                isSelected = true // X 버튼으로 다이얼로그를 닫았을 때는 ON 상태로 유지
+                            }
+                        }).apply {
+                            // 다이얼로그가 닫힐 때 무조건 false로 리셋
+                            addWindowListener(object : java.awt.event.WindowAdapter() {
+                                override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                                    isDialogOpen = false
+                                    println("isDialogOpen = false 실행")
+                                }
+                            })
+                        }
+                    }
+                }
+            }
         }
+
+
 
         // 패널에 토글 버튼 추가
         togglePanel.add(customToggleButton)

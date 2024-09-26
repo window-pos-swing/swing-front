@@ -246,9 +246,9 @@ class FillRoundedLabel(
 
 class FillRoundedButton(
     text: String,
-    private val borderColor: Color,
-    private val backgroundColor: Color,
-    private val textColor: Color,
+    var borderColor: Color,
+    var backgroundColor: Color,  // var로 변경하여 값 변경 가능하게 수정
+    var textColor: Color,        // var로 변경하여 값 변경 가능하게 수정
     private val borderRadius: Int,
     private val borderWidth: Int,
     private val textAlignment: Int,
@@ -264,6 +264,7 @@ class FillRoundedButton(
         isOpaque = false  // 배경을 직접 그리기 위해 투명하게 설정
         setContentAreaFilled(false)  // 기본 JButton의 배경 칠하기 기능 비활성화
         setBorderPainted(false)  // 기본 JButton의 테두리 칠하기 기능 비활성화
+        isFocusPainted = false  // 포커스 라인 제거
         horizontalAlignment = SwingConstants.CENTER  // 아이콘과 텍스트의 가로 정렬을 중앙으로 설정
         verticalAlignment = SwingConstants.CENTER  // 아이콘과 텍스트의 세로 정렬을 중앙으로 설정
         foreground = textColor  // 텍스트 색상 설정
@@ -300,6 +301,7 @@ class FillRoundedButton(
         g2.stroke = BasicStroke(borderWidth.toFloat())
         g2.drawRoundRect(borderWidth / 2, borderWidth / 2, width - borderWidth, height - borderWidth, borderRadius, borderRadius)
 
+        foreground = textColor
         // 기본 아이콘과 텍스트 그리기
         super.paintComponent(g)
     }

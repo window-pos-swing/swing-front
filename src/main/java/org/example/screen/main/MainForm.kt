@@ -7,7 +7,7 @@ import javax.swing.*
 
 class MainForm : JFrame() {
     private val cardPanel = JPanel(CardLayout())  // 카드 패널 생성
-    private val tabbedPane = CustomTabbedPane()  // CustomTabbedPane 생성
+    private val tabbedPane = CustomTabbedPane(this)  // CustomTabbedPane 생성
 
     init {
         // 기존 타이틀바 제거 및 창 리사이즈 가능 설정

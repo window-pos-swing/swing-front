@@ -10,7 +10,8 @@ open class CustomRoundedDialog(
     parent: JFrame,
     title: String,
     dialogWidth: Int = 400,
-    dialogHeight: Int = 300
+    dialogHeight: Int = 300,
+    private val callback: ((Boolean) -> Unit)? = null  // 콜백 함수 추가
 ) : JDialog(parent, title, true) {
 
     init {
@@ -39,6 +40,7 @@ open class CustomRoundedDialog(
 
             // 버튼 기능 추가
             closeButton.addActionListener {
+                callback?.invoke(false)
                 dispose()
             }
 
