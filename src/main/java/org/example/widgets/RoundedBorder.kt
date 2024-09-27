@@ -291,6 +291,7 @@ class FillRoundedButton(
         if (buttonSize != null) {
             preferredSize = buttonSize
             minimumSize = buttonSize
+            maximumSize = buttonSize
         }
     }
 

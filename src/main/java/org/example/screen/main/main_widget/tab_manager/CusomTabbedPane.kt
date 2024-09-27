@@ -6,6 +6,7 @@ import OrderController
 import org.example.model.MenuOption
 import org.example.model.Menu
 import org.example.model.Order
+import org.example.screen.main.main_widget.dialog.OrderDetailDialog
 import org.example.screen.main.main_widget.dialog.PauseOperationsDialog
 import org.example.screen.main.main_widget.tab_manager.pandding_sub_tabs.PendingSubTabs
 import org.example.style.MyColor
@@ -532,6 +533,25 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             maximumSize = Dimension(1162, 340)  // 최대 높이 제한
             putClientProperty("orderNumber", order.orderNumber)  // 주문 번호 저장
             println("Created order frame for Order #${order.orderNumber}")
+
+            // 주문 프레임에 클릭 리스너 추가
+            addMouseListener(object : java.awt.event.MouseAdapter() {
+                override fun mouseClicked(e: java.awt.event.MouseEvent?) {
+                    println("Detail Order #${order.orderNumber}")
+                    // 배달이면 빨간색, 포장이면 파란색으로 설정
+                    val customFont = MyFont.Bold(32f)
+                    val fontFamily = customFont.fontName
+
+                    val orderTypeText = if (order.orderType == "DELIVERY")
+                        "<font color='red' style='font-family:$fontFamily; font-size:26px;'>배달</font>"
+                    else
+                        "<font color='blue' style='font-family:$fontFamily; font-size:26px;'>포장</font>"
+                    val dialogTitle = "<html><span style='font-family:$fontFamily; font-size:26px;'>$orderTypeText 주문 상세</span></html>"
+                    OrderDetailDialog(parentFrame, dialogTitle)
+                }
+            })
+
         }
     }
+
 }
