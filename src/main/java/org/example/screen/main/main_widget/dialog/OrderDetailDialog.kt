@@ -10,6 +10,8 @@ import javax.swing.*
 import javax.swing.border.CompoundBorder
 import javax.swing.border.EmptyBorder
 import javax.swing.border.LineBorder
+import javax.swing.table.DefaultTableCellRenderer
+import javax.swing.table.TableCellRenderer
 import javax.swing.text.View
 
 class OrderDetailDialog(
@@ -158,7 +160,7 @@ class OrderDetailDialog(
         // truncateTextForMultipleLines 함수를 사용해 텍스트 줄바꿈 처리
         val truncatedText = truncateTextForMultipleLines(requestText, 650, contentPanel)
 
-        println("truncatedText ${truncatedText}")
+//        println("truncatedText ${truncatedText}")
         // HTML을 사용한 JLabel 생성
         val requestLabel = JLabel(truncatedText).apply {
             font = MyFont.SemiBold(18f)
@@ -181,7 +183,6 @@ class OrderDetailDialog(
         val panel = JPanel().apply {
             layout = BorderLayout()
             background = Color.WHITE
-            border = LineBorder(MyColor.BRIGHTER_GREY, 1)  // 테두리 추가
         }
 
         // 아이콘 및 제목 추가
@@ -200,7 +201,10 @@ class OrderDetailDialog(
         val contentPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
-            border = EmptyBorder(10, 10, 10, 10)  // 여백 조정
+            border = BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(0, 0, 0, 0),  // 좌우 여백
+                LineBorder(MyColor.BORDER_GRAY, 1)
+            )
         }
 
         // 메뉴 테이블 데이터 설정
@@ -216,14 +220,110 @@ class OrderDetailDialog(
         // 테이블 컬럼 설정
         val columnNames = arrayOf("메뉴", "수량", "금액")
 
-        // 테이블 생성
-        val table = JTable(tableData, columnNames).apply {
-            gridColor = Color.BLACK  // 테두리 색상
-            setEnabled(false)  // 수정 불가
-            autoResizeMode = JTable.AUTO_RESIZE_OFF  // 자동 크기 조정 해제
-            columnModel.getColumn(0).preferredWidth = 500  // 메뉴 열 너비
-            columnModel.getColumn(1).preferredWidth = 100  // 수량 열 너비
-            columnModel.getColumn(2).preferredWidth = 100  // 금액 열 너비
+        val customRenderer = object : DefaultTableCellRenderer() {
+            override fun getTableCellRendererComponent(
+                table: JTable?, value: Any?, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int
+            ): Component {
+                val cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column) as JLabel
+                cell.font = MyFont.Bold(22f)  // 셀 폰트 설정
+                cell.horizontalAlignment = when (column) {
+                    0 -> JLabel.LEFT  // 첫 번째 열(메뉴) 왼쪽 정렬
+                    1 -> JLabel.CENTER  // 두 번째 열(수량) 가운데 정렬
+                    2 -> JLabel.RIGHT  // 세 번째 열(금액) 오른쪽 정렬
+                    else -> JLabel.LEFT
+                }
+
+                // 메뉴와 금액 열에 여백 추가
+                if (column == 0) {
+                    cell.border = BorderFactory.createEmptyBorder(0, 10, 0, 0)  // 메뉴 열에 왼쪽 여백 추가
+                } else if (column == 2) {
+                    cell.border = BorderFactory.createEmptyBorder(0, 0, 0, 10)  // 금액 열에 오른쪽 여백 추가
+                } else {
+                    cell.border = BorderFactory.createEmptyBorder(0, 0, 0, 0)  // 나머지 셀에는 여백 없음
+                }
+
+                return cell
+            }
+        }
+
+// JTable에서 특정 행에만 구분선을 추가
+// 테이블 생성
+        val table = object : JTable(tableData, columnNames) {
+            override fun prepareRenderer(renderer: TableCellRenderer?, row: Int, column: Int): Component {
+                val cell = super.prepareRenderer(renderer, row, column) as JComponent
+                // 특정 행에만 구분선을 추가하는 로직
+                if (row == 3 || row == 4) {  // 에스프레소와 배달비 행에 구분선 추가
+                    cell.border = BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.BORDER_GRAY)  // 하단 구분선
+                } else {
+                    cell.border = BorderFactory.createEmptyBorder()  // 나머지 행에는 구분선 없음
+                }
+                return cell
+            }
+
+            // 테이블이 수정되지 않도록 설정
+            override fun isCellEditable(row: Int, column: Int): Boolean {
+                return false  // 모든 셀에 대해 수정 불가
+            }
+        }.apply {
+            gridColor = MyColor.BORDER_GRAY  // 기본적으로 가로줄을 표시
+            setShowVerticalLines(false)  // 세로 줄 제거
+            setShowHorizontalLines(false)  // 가로 구분선 표시
+            rowHeight = 50  // 각 행의 높이를 50 픽셀로 설정 (원하는 높이로 설정 가능)
+            tableHeader.reorderingAllowed = false  // 열 이동 불가
+        }
+
+
+        // 각 열에 커스텀 렌더러 적용
+        for (i in 0 until table.columnCount) {
+            table.columnModel.getColumn(i).cellRenderer = customRenderer
+        }
+
+        // 헤더의 폰트와 정렬을 MyFont.Medium으로 설정, 각 열에 맞는 정렬 설정
+        val headerRenderer = object : DefaultTableCellRenderer() {
+            override fun getTableCellRendererComponent(
+                table: JTable?, value: Any?, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int
+            ): Component {
+                val headerCell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column) as JLabel
+                headerCell.font = MyFont.Medium(16f)  // 헤더에 MyFont.Medium 적용
+                headerCell.horizontalAlignment = when (column) {
+                    0 -> JLabel.LEFT    // 메뉴 열은 왼쪽 정렬
+                    1 -> JLabel.CENTER  // 수량 열은 가운데 정렬
+                    2 -> JLabel.RIGHT   // 금액 열은 오른쪽 정렬
+                    else -> JLabel.CENTER
+                }
+
+                // 헤더의 메뉴에 왼쪽 여백 추가, 금액에 오른쪽 여백 추가
+                if (column == 0) {
+                    headerCell.border = BorderFactory.createEmptyBorder(0, 20, 0, 0)  // 메뉴 헤더 왼쪽 여백 추가
+                } else if (column == 2) {
+                    headerCell.border = BorderFactory.createEmptyBorder(0, 0, 0, 20)  // 금액 헤더 오른쪽 여백 추가
+                }
+
+                return headerCell
+            }
+        }
+
+        // 헤더에 커스텀 렌더러 적용
+        for (i in 0 until table.columnCount) {
+            table.tableHeader.columnModel.getColumn(i).headerRenderer = headerRenderer
+        }
+
+        // 테이블 높이 설정: 테이블의 모든 행과 헤더를 포함하는 높이로 설정
+        val tableHeight = table.rowHeight * table.rowCount + table.tableHeader.preferredSize.height
+        table.preferredSize = Dimension(900, tableHeight)
+
+        // 헤더 아래에 구분선을 추가
+        table.tableHeader.border = BorderFactory.createCompoundBorder(
+            BorderFactory.createEmptyBorder(0, 10, 0, 10),  // 좌우 여백 설정 (상, 좌, 하, 우)
+            BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.BORDER_GRAY)  // 하단에만 구분선
+        )
+
+        // 테이블을 감싸는 tableContainer 패널을 사용하여 좌우 여백 적용
+        val tableContainer = JPanel(BorderLayout()).apply {
+            background = Color.WHITE
+            border = BorderFactory.createEmptyBorder(0, 10, 0, 10)  // 좌우에 10픽셀 여백 적용
+            add(table.tableHeader, BorderLayout.NORTH)  // 테이블 헤더 추가
+            add(table, BorderLayout.CENTER)  // 테이블 본문 추가
         }
 
         // 총합 행에 텍스트 스타일 적용
@@ -234,26 +334,18 @@ class OrderDetailDialog(
         table.setValueAt("<html><b><font color='red'>$totalRow</font></b></html>", 5, 0)
         table.setValueAt("<html><b><font color='red'>$totalAmount</font></b></html>", 5, 2)
 
-        // 테이블을 스크롤 가능하도록 설정
-        val scrollPane = JScrollPane(table).apply {
-            preferredSize = Dimension(900, 150)  // 크기 조정
-            horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
-        }
-
-        // 테이블 추가
-        contentPanel.add(scrollPane)
-
-        // 총합 정보 추가
-        contentPanel.add(JLabel("<html><b><font color='red'>총합: 15000원</font></b></html>").apply {
-            font = MyFont.Bold(20f)
-            foreground = Color.RED
-            border = EmptyBorder(10, 10, 10, 10)
-        })
+        // 테이블을 바로 추가 (스크롤 패널 없이)
+        contentPanel.add(tableContainer)
 
         panel.add(contentPanel, BorderLayout.CENTER)
 
         return panel
     }
+
+
+
+
+
 
 
 
