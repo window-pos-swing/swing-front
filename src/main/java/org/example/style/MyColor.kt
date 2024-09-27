@@ -19,4 +19,6 @@ object MyColor {
     val UNSELECTED_TEXT_COLOR = Color(120,120,120)
     val SELECTED_BACKGROUND_COLOR = Color(27, 43, 66)
     val UNSELECTED_BACKGROUND_COLOR = Color(217,217,217)
+
+    val BORDER_GRAY = Color(204,204,204)
 }
