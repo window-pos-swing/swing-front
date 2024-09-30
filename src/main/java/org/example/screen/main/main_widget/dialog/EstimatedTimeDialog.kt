@@ -1,7 +1,10 @@
 package org.example.screen.main.main_widget.dialog
 
 import CustomRoundedDialog
+import OrderController
 import org.example.MyFont
+import org.example.command.AcceptOrderCommand
+import org.example.model.Order
 import org.example.style.MyColor
 import org.example.widgets.RoundedPanel
 import java.awt.*
@@ -10,7 +13,9 @@ import java.awt.event.ActionListener
 
 class EstimatedTimeDialog(
     parent: JFrame,
-    title: String
+    title: String,
+    private val order: Order,  // 현재 주문 객체를 받도록 수정
+    private val orderController: OrderController  // OrderController도 받도록 수정
 ) : CustomRoundedDialog(parent, title, 1000, 465) {
 
     private var cookingTime: Int = 30  // 기본 조리 시간 30분
@@ -38,6 +43,11 @@ class EstimatedTimeDialog(
             addActionListener {
                 // 시간 접수 로직 추가
                 println("조리시간: $cookingTime 분, 배달시간: $deliveryTime 분")
+
+                // AcceptOrderCommand 실행
+                val acceptOrderCommand = AcceptOrderCommand(order, cookingTime, deliveryTime, orderController)
+                acceptOrderCommand.execute()
+
                 dispose()  // 다이얼로그 닫기
             }
         }

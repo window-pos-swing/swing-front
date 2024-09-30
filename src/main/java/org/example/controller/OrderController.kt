@@ -33,7 +33,12 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
     private fun handleOrderStateChange(order: Order) {
         when (order.state) {
             is ProcessingState -> {
-                moveOrderToProcessing(order)
+                if (!tabbedPane.isOrderInProcessing(order)) {
+                    moveOrderToProcessing(order)
+                }
+                // 타이머가 동작할 때 필터 상태를 확인
+                println("Timer triggered for Order #${order.orderNumber}, checking filter state...")
+                applyCurrentFilter()  // 타이머 이벤트 발생 시 필터 적용
             }
             is RejectedState -> {
                 moveOrderToReject(order)
@@ -44,16 +49,40 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         }
     }
 
+    // 서브탭 필터링 로직에서도 프린터 추가
+    private fun applyCurrentFilter() {
+        val processingSubTabs = tabbedPane.processingSubTabs  // 현재 서브탭 객체 가져오기
+
+        when (processingSubTabs.currentFilter) {
+            "전체보기" -> {
+                println("Current Filter: 전체보기")
+                tabbedPane.SubTabFilterProcessingOrders()
+            }
+            "배달" -> {
+                println("Current Filter: 배달")
+                tabbedPane.ProcessshowFilteredOrders("DELIVERY")
+            }
+            "포장" -> {
+                println("Current Filter: 포장")
+                tabbedPane.ProcessshowFilteredOrders("TAKEOUT")
+            }
+            else -> {
+                println("Unknown filter state")
+            }
+        }
+    }
+
     //[주문을 접수진행 탭으로 이동] =====================================================
     private fun moveOrderToProcessing(order: Order) {
-        tabbedPane.removeOrderFromPending(order)  // 접수대기 탭에서 삭제
+        // 접수대기 서브탭에서 주문을 제거
+        tabbedPane.removeOrderFromPending(order)
 
-        // 접수진행 탭에 주문 프레임 추가
+        // 접수처리중 탭에 주문 프레임 추가
         val processingOrderFrame = tabbedPane.createOrderFrame(order)
         tabbedPane.addOrderToProcessing(processingOrderFrame)
 
         // 전체보기 탭에서 주문 UI를 업데이트 (삭제하지 않고 UI만 갱신)
-        updateOrderUIInAllOrders(order)
+        tabbedPane.updateOrderInAllOrders(order)  // 상태에 맞게 UI 업데이트
     }
 
     // 전체보기 탭에서 주문 UI 업데이트 (삭제 없이 UI만 갱신)
@@ -86,6 +115,17 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         tabbedPane.addOrderToRejected(rejectedOrderFrame)
     }
     //===========================================================================
+
+    fun onOrderStateChanged(order: Order) {
+        when (order.state) {
+            is ProcessingState -> {
+                // 주문이 처리중일 때 타이머 시작 및 필터링 상태 유지
+                order.startTimer((order.state as ProcessingState).totalTime)
+                applyCurrentFilter()  // 타이머가 동작할 때마다 필터 적용
+            }
+            // 다른 상태에 따른 처리 추가 가능
+        }
+    }
 
     // 옵저버에게 알림
     private fun notifyObservers(order: Order) {

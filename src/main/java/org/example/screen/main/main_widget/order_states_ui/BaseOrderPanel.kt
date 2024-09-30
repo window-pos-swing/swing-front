@@ -9,13 +9,25 @@ import javax.swing.*
 import java.awt.*
 
 class BaseOrderPanel(order: Order) : JPanel() {
+    // 패널들을 protected로 선언
+    private val headerPanel = JPanel()
+    private val addressPanel = JPanel()
+    private val menuDetailPanel = JPanel()
+    private val footerPanel = JPanel()
+
+    // getter 메서드 추가
+    fun getHeaderPanel(): JPanel = headerPanel
+    fun getAddressPanel(): JPanel = addressPanel
+    fun getMenuDetailPanel(): JPanel = menuDetailPanel
+    fun getFooterPanel(): JPanel = footerPanel
+
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)  // 모든 내용을 수직으로 정렬
         background = Color.WHITE
         preferredSize = Dimension(Int.MAX_VALUE, 350)  // 패널 크기 설정
 
         // 1. [headerPanel] 주문시간 + 메뉴 갯수와 총 가격
-        val headerPanel = JPanel().apply {
+         headerPanel.apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)  // 가로로 배치 (수평)
             isOpaque = false  // 배경 투명
             preferredSize = Dimension(Int.MAX_VALUE, 80)
@@ -66,7 +78,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
         }
 
         // 2. [addressPanel] 주소 정보 (왼쪽 정렬)
-        val addressPanel = JPanel().apply {
+        addressPanel.apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)  // 가로로 배치 (수평)
             isOpaque = false  // 배경 투명
             preferredSize = Dimension(Int.MAX_VALUE, 20)
@@ -93,7 +105,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
         }
 
         // 3. [menuDetailPanel] 메뉴 세부사항 (왼쪽 정렬)
-        val menuDetailPanel = JPanel().apply {
+        menuDetailPanel.apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)  // 가로로 배치 (수평)
             isOpaque = false  // 배경 투명
             preferredSize = Dimension(Int.MAX_VALUE, 107)
@@ -129,7 +141,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
         }
 
         // 4. [footerPanel] 수저/포크 선택 및 요청사항 (왼쪽 정렬)
-        val footerPanel = JPanel().apply {
+         footerPanel.apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)  // 가로로 배치 (수평)
             isOpaque = false  // 배경 투명
             preferredSize = Dimension(Int.MAX_VALUE, 100)

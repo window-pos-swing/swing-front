@@ -10,7 +10,7 @@ object LoadImage {
             val imageStream = javaClass.getResourceAsStream(resourcePath)
             if (imageStream != null) {
                 val image = ImageIO.read(imageStream).getScaledInstance(width, height, Image.SCALE_SMOOTH)
-                println("이미지를 성공적으로 로드했습니다: $resourcePath")
+//                println("이미지를 성공적으로 로드했습니다: $resourcePath")
                 ImageIcon(image)
             } else {
                 throw IOException("이미지를 찾을 수 없습니다: $resourcePath")

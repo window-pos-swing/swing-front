@@ -1,8 +1,9 @@
 package org.example.view.states
 
+import OrderController
 import OrderRejectCancelDialog
+import org.example.CustomTabbedPane
 import org.example.MyFont
-import org.example.command.AcceptOrderCommand
 import org.example.command.RejectOrderCommand
 import org.example.model.Order
 import org.example.model.OrderState
@@ -90,9 +91,13 @@ class PendingState : OrderState {
                     customFont = MyFont.Bold(20f)
                 ).apply {
                     addActionListener {
+                        val parentFrame = SwingUtilities.getWindowAncestor(this) as JFrame
+                        val orderController = OrderController(CustomTabbedPane(parentFrame))
                         EstimatedTimeDialog(
-                            parent = SwingUtilities.getWindowAncestor(this) as JFrame,  // 현재 창을 부모로 설정
-                            title = "예상 시간 선택"  // 다이얼로그의 타이틀 설정
+                            parent = parentFrame,
+                            title = "예상 시간 선택",
+                            order = order,  // 주문 객체 전달
+                            orderController = orderController  // OrderController 전달
                         )
                     }
                 })

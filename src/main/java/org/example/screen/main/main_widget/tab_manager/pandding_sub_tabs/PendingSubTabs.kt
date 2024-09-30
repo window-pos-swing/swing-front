@@ -2,6 +2,8 @@ package org.example.screen.main.main_widget.tab_manager.pandding_sub_tabs
 
 import org.example.CustomTabbedPane
 import org.example.style.MyColor
+import org.example.view.states.PendingState
+import org.example.view.states.ProcessingState
 import org.example.widgets.SelectButtonRoundedBorder
 import java.awt.Color
 import java.awt.Component
@@ -77,7 +79,7 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             // 버튼에 클릭 리스너 추가
             allOrdersButton.button.addActionListener {
                 setSelectedButton(allOrdersButton)
-                tabbedPane.PendingshowAllOrders()
+                tabbedPane.SubTabFilterPendingOrders()
             }
             deliveryButton.button.addActionListener {
                 setSelectedButton(deliveryButton)
@@ -101,6 +103,6 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         })
 
         // 기본 선택: 전체보기
-        tabbedPane.PendingshowAllOrders()
+        tabbedPane.SubTabFilterPendingOrders()
     }
 }
