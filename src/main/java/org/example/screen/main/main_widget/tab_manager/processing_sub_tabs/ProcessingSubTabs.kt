@@ -68,15 +68,14 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             add(takeoutButton.button)
 
             // 버튼 선택 로직
-
-            private fun setSelectedButton(button: SelectButtonRoundedBorder) {
+            fun setSelectedButton(button: SelectButtonRoundedBorder) {
                 selectedButton?.setButtonStyle(false)  // 이전 선택된 버튼을 선택 해제 상태로 설정
                 button.setButtonStyle(true)  // 현재 선택된 버튼을 선택 상태로 설정
                 selectedButton = button
-
                 // 필터 상태 변경 후 타이머 동작을 위한 필터 상태 확인
-                println("Subtab Filter Changed: ${currentFilter}")
-                applyCurrentFilter()  // 필터 변경 즉시 적용
+//                println("Subtab Filter Changed: ${processingSubTabs.currentFilter}")
+
+//                applyCurrentFilter()  // 필터 변경 즉시 적용
             }
 
             // 버튼에 클릭 리스너 추가
