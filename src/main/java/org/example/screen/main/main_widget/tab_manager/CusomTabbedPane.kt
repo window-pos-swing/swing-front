@@ -425,7 +425,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
         // allOrders 리스트에서 Processing 상태인 주문 중 배달 주문(DELIVERY)만 필터링
         allOrders.filter { it.state is ProcessingState && it.orderType == "DELIVERY" }.forEach { order ->
-            val orderFrame = createOrderFrame(order)
+            val orderFrame = createOrderFrame(order, forProcessing = true)
             processingOrdersPanel.add(orderFrame)
         }
 
@@ -553,13 +553,21 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         return allOrders
     }
 
-    fun createOrderFrame(order: Order): JPanel {
+    fun createOrderFrame(order: Order, forProcessing: Boolean = false): JPanel {
         return order.getUI().apply {
             minimumSize = Dimension(1162, 340)  // 최소 높이 200으로 설정
             preferredSize = Dimension(1162, 340)  // 선호 높이 200
             maximumSize = Dimension(1162, 340)  // 최대 높이 제한
             putClientProperty("orderNumber", order.orderNumber)  // 주문 번호 저장
             println("Created order frame for Order #${order.orderNumber}")
+
+            // 접수처리중 탭에서는 별도의 Border 적용
+            if (forProcessing) {
+                border = BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color(27, 43, 66), 2),  // 테두리 설정
+                    BorderFactory.createEmptyBorder(0, 20, 0, 20)  // 바깥쪽 여백 설정
+                )// 처리중일 때의 border 설정
+            }
 
             // 주문 프레임에 클릭 리스너 추가
             addMouseListener(object : java.awt.event.MouseAdapter() {

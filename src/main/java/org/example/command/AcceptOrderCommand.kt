@@ -4,7 +4,6 @@ import Command
 import OrderController
 import org.example.model.Order
 import org.example.view.states.ProcessingState
-import org.example.view.states.RejectedState
 
 class AcceptOrderCommand(
     private val order: Order,      // 처리할 주문
@@ -17,7 +16,7 @@ class AcceptOrderCommand(
         order.changeState(ProcessingState(cookingTime + deliveryTime))  // 상태 변경
         orderController.onOrderStateChanged(order)
         // 옵저버들에게 알림
-        order.notifyObservers()  // notifyObservers는 여기서만 한 번 호출
+        order.notifyStateObservers()  // notifyObservers는 여기서만 한 번 호출
         println("Order #${order.orderNumber} state changed to ProcessingState with total time: ${cookingTime + deliveryTime} minutes")
     }
 }

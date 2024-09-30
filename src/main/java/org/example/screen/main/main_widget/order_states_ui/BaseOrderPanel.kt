@@ -25,6 +25,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)  // 모든 내용을 수직으로 정렬
         background = Color.WHITE
         preferredSize = Dimension(Int.MAX_VALUE, 350)  // 패널 크기 설정
+        border = BorderFactory.createEmptyBorder(0, 0, 0, 0)
 
         // 1. [headerPanel] 주문시간 + 메뉴 갯수와 총 가격
          headerPanel.apply {

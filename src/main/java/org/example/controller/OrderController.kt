@@ -5,19 +5,16 @@ import org.example.observer.OrderObserver
 import org.example.view.states.PendingState
 import org.example.view.states.ProcessingState
 import org.example.view.states.RejectedState
-import java.awt.Dimension
-import javax.swing.JPanel
 
 
 class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭과 직접 상호작용
 
-    private val observers = mutableListOf<OrderObserver>()
-
     // 주문 추가
     fun addOrder(order: Order) {
-        order.addObserver(object : OrderObserver {
+        order.addStateObserver(object : OrderObserver {
             override fun update(order: Order) {
                 handleOrderStateChange(order)
+                println("addStateObserver - 상태 업데이트 처리")
             }
         })
 
@@ -36,9 +33,6 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
                 if (!tabbedPane.isOrderInProcessing(order)) {
                     moveOrderToProcessing(order)
                 }
-                // 타이머가 동작할 때 필터 상태를 확인
-                println("Timer triggered for Order #${order.orderNumber}, checking filter state...")
-                applyCurrentFilter()  // 타이머 이벤트 발생 시 필터 적용
             }
             is RejectedState -> {
                 moveOrderToReject(order)
@@ -49,28 +43,7 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         }
     }
 
-    // 서브탭 필터링 로직에서도 프린터 추가
-    private fun applyCurrentFilter() {
-        val processingSubTabs = tabbedPane.processingSubTabs  // 현재 서브탭 객체 가져오기
 
-        when (processingSubTabs.currentFilter) {
-            "전체보기" -> {
-                println("Current Filter: 전체보기")
-                tabbedPane.SubTabFilterProcessingOrders()
-            }
-            "배달" -> {
-                println("Current Filter: 배달")
-                tabbedPane.ProcessshowFilteredOrders("DELIVERY")
-            }
-            "포장" -> {
-                println("Current Filter: 포장")
-                tabbedPane.ProcessshowFilteredOrders("TAKEOUT")
-            }
-            else -> {
-                println("Unknown filter state")
-            }
-        }
-    }
 
     //[주문을 접수진행 탭으로 이동] =====================================================
     private fun moveOrderToProcessing(order: Order) {
@@ -78,7 +51,7 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         tabbedPane.removeOrderFromPending(order)
 
         // 접수처리중 탭에 주문 프레임 추가
-        val processingOrderFrame = tabbedPane.createOrderFrame(order)
+        val processingOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
         tabbedPane.addOrderToProcessing(processingOrderFrame)
 
         // 전체보기 탭에서 주문 UI를 업데이트 (삭제하지 않고 UI만 갱신)
@@ -121,14 +94,9 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
             is ProcessingState -> {
                 // 주문이 처리중일 때 타이머 시작 및 필터링 상태 유지
                 order.startTimer((order.state as ProcessingState).totalTime)
-                applyCurrentFilter()  // 타이머가 동작할 때마다 필터 적용
             }
             // 다른 상태에 따른 처리 추가 가능
         }
     }
 
-    // 옵저버에게 알림
-    private fun notifyObservers(order: Order) {
-        observers.forEach { it.update(order) }
-    }
 }

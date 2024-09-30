@@ -17,7 +17,9 @@ data class Order(
     var state: OrderState = PendingState(),  // 기본 상태는 접수대기
     var elapsedTime: Int = 0
 ) {
-    private val observers = mutableListOf<OrderObserver>()
+    private val stateObservers = mutableListOf<OrderObserver>()
+    private val timerObservers = mutableListOf<OrderObserver>()
+
     private var timer: Timer? = null
 
     fun startTimer(totalTime: Int) {
@@ -25,7 +27,7 @@ data class Order(
 
         timer = Timer(1000) {  // 1초마다 실행
             elapsedTime++
-            notifyObservers()  // 매초 옵저버에게 알림
+            notifyTimerObservers()  // 매초 옵저버에게 알림
             if (elapsedTime >= totalTime) {
                 timer?.stop()
             }
@@ -45,18 +47,31 @@ data class Order(
     }
 
     // 옵저버 등록
-    fun addObserver(observer: OrderObserver) {
-        if (!observers.contains(observer)) {
-            observers.add(observer)
+    fun addStateObserver(observer: OrderObserver) {
+        if (!stateObservers.contains(observer)) {
+            stateObservers.add(observer)
         }
     }
 
-    // 모든 옵저버에게 상태 변경 알림
-    fun notifyObservers() {
-        val observersSnapshot = ArrayList(observers)  // 리스트의 복사본을 사용
+    // 타이머 업데이트 옵저버 등록
+    fun addTimerObserver(observer: OrderObserver) {
+        if (!timerObservers.contains(observer)) {
+            timerObservers.add(observer)
+        }
+    }
+
+    // 상태 변경 옵저버에게 알림
+    fun notifyStateObservers() {
+        val observersSnapshot = ArrayList(stateObservers)  // 리스트의 복사본을 사용
         observersSnapshot.forEach { observer ->
             observer.update(this)
         }
         println("Observers notified for Order #${orderNumber}")
+    }
+
+    // 타이머 업데이트 옵저버에게 알림
+    private fun notifyTimerObservers() {
+        timerObservers.forEach { observer -> observer.update(this) }
+        println("Timer Observers notified for Order #${orderNumber}")
     }
 }

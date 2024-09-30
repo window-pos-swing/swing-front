@@ -12,8 +12,6 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
     // 현재 선택된 버튼을 저장할 변수
     private var selectedButton: SelectButtonRoundedBorder? = null
-    // 현재 선택된 필터 상태 저장
-    var currentFilter: String = "전체보기"
 
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -81,19 +79,16 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             // 버튼에 클릭 리스너 추가
             allOrdersButton.button.addActionListener {
                 setSelectedButton(allOrdersButton)
-                currentFilter = "전체보기"
                 println("Subtab Filter Changed: 전체보기")
                 tabbedPane.SubTabFilterProcessingOrders()  // 전체보기 호출
             }
             deliveryButton.button.addActionListener {
                 setSelectedButton(deliveryButton)
-                currentFilter = "배달"
                 println("Subtab Filter Changed: 배달")
                 tabbedPane.ProcessshowFilteredOrders("DELIVERY")  // 배달 주문만 필터링
             }
             takeoutButton.button.addActionListener {
                 setSelectedButton(takeoutButton)
-                currentFilter = "포장"
                 println("Subtab Filter Changed: 포장")
                 tabbedPane.ProcessshowFilteredOrders("TAKEOUT")  // 포장 주문만 필터링
             }

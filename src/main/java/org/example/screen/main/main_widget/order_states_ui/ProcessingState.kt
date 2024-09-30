@@ -1,14 +1,9 @@
 package org.example.view.states
 
-import OrderRejectCancelDialog
-import org.example.MyFont
-import org.example.command.RejectOrderCommand
 import org.example.model.Order
 import org.example.model.OrderState
 import org.example.observer.OrderObserver
-import org.example.style.MyColor
 import org.example.view.components.BaseOrderPanel
-import org.example.widgets.FillRoundedButton
 import javax.swing.*
 import java.awt.*
 
@@ -34,13 +29,13 @@ class ProcessingState(val totalTime: Int) : OrderState {
 
             // 타이머가 매초 증가할 때마다 프로그레스바를 업데이트
             // 타이머가 매초 증가할 때마다 프로그레스바를 업데이트
-            order.addObserver(object : OrderObserver {
+            order.addTimerObserver(object : OrderObserver {
                 override fun update(order: Order) {
                     // 프로그레스바만 다시 그리기
                     progressBar.value = order.elapsedTime
                     progressBar.string = "${order.elapsedTime} / $totalTime 분"
-                    progressBar.revalidate()
                     progressBar.repaint()  // 프로그레스바만 리페인트
+//                    println("update addTimerObserver - 시간업데이트 처리")
                 }
             })
 
