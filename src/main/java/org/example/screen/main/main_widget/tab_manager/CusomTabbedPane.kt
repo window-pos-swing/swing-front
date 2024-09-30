@@ -455,7 +455,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
         // 필터링된 주문만 화면에 표시
         filteredOrders.forEach { order ->
-            val orderFrame = createOrderFrame(order)
+            val orderFrame = createOrderFrame(order , forProcessing = true)
             processingOrdersPanel.add(orderFrame)
         }
 

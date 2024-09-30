@@ -72,6 +72,6 @@ data class Order(
     // 타이머 업데이트 옵저버에게 알림
     private fun notifyTimerObservers() {
         timerObservers.forEach { observer -> observer.update(this) }
-        println("Timer Observers notified for Order #${orderNumber}")
+//        println("Timer Observers notified for Order #${orderNumber}")
     }
 }
