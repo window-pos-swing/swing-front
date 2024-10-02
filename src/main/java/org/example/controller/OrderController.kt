@@ -24,6 +24,10 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
 
         tabbedPane.addOrderToAllOrders(orderFrameForAllOrders)  // 전체보기 탭에 추가
         tabbedPane.addOrderToPending(orderFrameForPending)  // 접수대기 탭에 추가
+
+        tabbedPane.refreshPendingOrders()
+
+        println("주문 추가")
     }
 
     // 상태 변화에 따른 주문 처리
@@ -56,6 +60,8 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
 
         // 전체보기 탭에서 주문 UI를 업데이트 (삭제하지 않고 UI만 갱신)
         tabbedPane.updateOrderInAllOrders(order)  // 상태에 맞게 UI 업데이트
+
+
     }
 
     // 전체보기 탭에서 주문 UI 업데이트 (삭제 없이 UI만 갱신)

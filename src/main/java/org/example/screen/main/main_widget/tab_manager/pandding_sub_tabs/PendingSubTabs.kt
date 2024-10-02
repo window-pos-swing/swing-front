@@ -79,15 +79,15 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             // 버튼에 클릭 리스너 추가
             allOrdersButton.button.addActionListener {
                 setSelectedButton(allOrdersButton)
-                tabbedPane.SubTabFilterPendingOrders()
+                tabbedPane.filterPendingOrders()
             }
             deliveryButton.button.addActionListener {
                 setSelectedButton(deliveryButton)
-                tabbedPane.PendingshowFilteredOrders("DELIVERY")
+                tabbedPane.filterPendingOrders("DELIVERY")
             }
             takeoutButton.button.addActionListener {
                 setSelectedButton(takeoutButton)
-                tabbedPane.PendingshowFilteredOrders("TAKEOUT")
+                tabbedPane.filterPendingOrders("TAKEOUT")
             }
 
             // 초기 선택된 버튼 설정 (전체보기)
@@ -103,6 +103,6 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         })
 
         // 기본 선택: 전체보기
-        tabbedPane.SubTabFilterPendingOrders()
+        tabbedPane.filterPendingOrders()
     }
 }

@@ -30,6 +30,9 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     private var selectedTabName: String = ""
     private var isDialogOpen = false // 다이얼로그가 열려 있는지 확인하는 플래
 
+    var pendingSubTabsState = ""
+    var processingSubTabsState = ""
+
     // UI 패널들 (각 탭별로 구분)
     private val allOrdersPanel = createOrderPanel()
     val pendingOrdersPanel = createOrderPanel()
@@ -395,28 +398,47 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
     // 주문 처리 관련 함수들
     fun addOrderToPending(orderFrame: JPanel) {
-        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
+//        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
         pendingOrdersPanel.add(orderFrame)
         pendingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         pendingOrdersPanel.revalidate()
         pendingOrdersPanel.repaint()
+
+
         updateTabTitle(1, "접수대기", pendingOrdersPanel.componentCount)
     }
 
+    fun filterPendingOrders(orderType: String? = null) {
+        pendingSubTabsState = orderType ?: ""  // null이면 전체보기 서브탭 상태로 설정
 
-    // 접수대기 상태인 주문만 보여줌 (전체보기)
-    fun SubTabFilterPendingOrders() {
         pendingOrdersPanel.removeAll()
-        println("Displaying all pending orders")
 
-        // allOrders 리스트에서 Pending 상태인 주문만 필터링
-        allOrders.filter { it.state is PendingState }.forEach { order ->
+        // 주문 타입에 따른 필터링: orderType이 null이면 전체보기, 아니면 해당 타입 필터링
+        val filteredOrders = if (orderType == null) {
+            allOrders.filter { it.state is PendingState }  // 전체보기: Pending 상태인 모든 주문
+        } else {
+            allOrders.filter { it.orderType == orderType && it.state is PendingState }  // 특정 주문 타입 필터링
+        }
+
+        // 필터링된 주문을 패널에 추가
+        filteredOrders.forEach { order ->
             val orderFrame = createOrderFrame(order)
+            orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
             pendingOrdersPanel.add(orderFrame)
         }
 
-        pendingOrdersPanel.revalidate() // 패널 레이아웃을 다시 계산
-        pendingOrdersPanel.repaint() // 패널을 다시 그리기
+        // 레이아웃과 화면 갱신
+        pendingOrdersPanel.revalidate()
+        pendingOrdersPanel.repaint()
+    }
+
+    fun refreshPendingOrders() {
+        // pendingSubTabsState 값을 확인해 현재 선택된 서브탭에 맞춰 필터링 적용
+        if (pendingSubTabsState.isEmpty()) {
+            filterPendingOrders()  // 전체보기일 때
+        } else {
+            filterPendingOrders(pendingSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
+        }
     }
 
     fun SubTabFilterProcessingOrders() {
@@ -426,24 +448,12 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         // allOrders 리스트에서 Processing 상태인 주문 중 배달 주문(DELIVERY)만 필터링
         allOrders.filter { it.state is ProcessingState && it.orderType == "DELIVERY" }.forEach { order ->
             val orderFrame = createOrderFrame(order, forProcessing = true)
+            orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
             processingOrdersPanel.add(orderFrame)
         }
 
         processingOrdersPanel.revalidate() // 패널 레이아웃을 다시 계산
         processingOrdersPanel.repaint() // 패널을 다시 그리기
-    }
-
-
-    // 필터링된 주문만 보여줌
-    fun PendingshowFilteredOrders(orderType: String) {
-        pendingOrdersPanel.removeAll()
-        // 접수대기 상태인 주문만 필터링
-        allOrders.filter { it.orderType == orderType && it.state is PendingState }.forEach { order ->
-            val orderFrame = createOrderFrame(order)
-            pendingOrdersPanel.add(orderFrame)
-        }
-        pendingOrdersPanel.revalidate()
-        pendingOrdersPanel.repaint()
     }
 
     fun ProcessshowFilteredOrders(orderType: String) {
@@ -456,6 +466,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         // 필터링된 주문만 화면에 표시
         filteredOrders.forEach { order ->
             val orderFrame = createOrderFrame(order , forProcessing = true)
+            orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
             processingOrdersPanel.add(orderFrame)
         }
 
@@ -468,6 +479,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
 
     fun addOrderToProcessing(orderFrame: JPanel) {
+        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
         processingOrdersPanel.add(orderFrame)
         processingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         processingOrdersPanel.revalidate()
@@ -484,6 +496,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     }
 
     fun addOrderToRejected(orderFrame: JPanel) {
+        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
         rejectedOrdersPanel.add(orderFrame)
         rejectedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         rejectedOrdersPanel.revalidate()
@@ -492,7 +505,11 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     }
 
     fun addOrderToAllOrders(orderFrame: JPanel) {
+//        orderFrame.minimumSize = Dimension(1162, 340)  // 최소 크기
+//        orderFrame.preferredSize = Dimension(1162, 340)  // 선호 크기
+//        orderFrame.maximumSize = Dimension(1162, 340)  // 최대 크기
         orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
+        orderFrame.alignmentX = Component.LEFT_ALIGNMENT // 패널을 왼쪽 정렬
         allOrdersPanel.add(orderFrame)
         allOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         allOrdersPanel.revalidate()
@@ -531,7 +548,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         val frameToUpdate = allOrdersPanel.components
             .filterIsInstance<JPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }
-
+        println("updateOrderInAllOrders 전체보기 업데이트 ")
         frameToUpdate?.let {
             val updatedUI = order.getUI()
             it.removeAll()
