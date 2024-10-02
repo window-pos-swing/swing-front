@@ -1,6 +1,7 @@
 package org.example.widgets.custom_titlebar
 
 import org.example.MyFont
+import org.example.SettingForm
 import org.example.widgets.IconRoundBorder
 import org.example.widgets.custom_titlebar.component_resizer.ComponentResizer
 import java.awt.*
@@ -72,6 +73,12 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
         }
         val closeButton = IconRoundBorder.createRoundedButton("/close_icon.png").apply {
             preferredSize = Dimension(40, 40)  // 버튼 크기 설정
+        }
+
+        //        세팅 화면으로 이동
+        settingsButton.addActionListener {
+            SettingForm().isVisible = true
+            parentFrame.dispose()
         }
 
         // 버튼 기능 추가

@@ -129,6 +129,4 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
             isMaximized = true
         }
     }
-
-
 }
