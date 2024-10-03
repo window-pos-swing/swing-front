@@ -33,7 +33,7 @@ class ProcessingState(val totalTime: Int) : OrderState {
                 val leftPanel = JPanel().apply {
                     layout = BoxLayout(this, BoxLayout.Y_AXIS)  // 세로로 배치
                     isOpaque = false
-
+                    border = BorderFactory.createEmptyBorder(0, 0, 0, 20)
                     add(getAddressPanel())  // 주소 정보
                     add(Box.createRigidArea(Dimension(0, 15)))  // 간격 추가
                     add(getMenuDetailPanel())  // 메뉴 세부 정보
