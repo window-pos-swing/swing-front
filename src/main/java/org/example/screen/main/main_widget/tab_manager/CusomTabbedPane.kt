@@ -293,7 +293,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         val icon = JLabel(LoadImage.loadImage(iconPath, 56, 56))
 
         val text = JLabel(buttonText).apply {
-            font = MyFont.Bold(20f)
+            font = MyFont.SCDreamBoldTest(20f)
             foreground = Color.WHITE
             horizontalAlignment = SwingConstants.CENTER
         }

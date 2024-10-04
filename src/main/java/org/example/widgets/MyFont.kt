@@ -17,6 +17,7 @@ object MyFont {
     private var mediumFont: Font? = null
 
     private var SCDreamBoldFont: Font? = null
+    private var SCDreamBoldFontTest: Font? = null
 
     init {
         blackFont = loadFont("/fonts/Pretendard-Black.ttf")
@@ -35,6 +36,8 @@ object MyFont {
             osName.contains("mac") -> loadFont("/fonts/SCDream7.ttf") // 맥은 SCDream7.ttf
             else -> loadFont("/fonts/SCDream7.ttf") // 기본값으로 SCDream7.ttf
         }
+
+        SCDreamBoldFontTest = loadFont("/fonts/SCDream5.otf")
     }
 
     private fun loadFont(fontPath: String): Font? {
@@ -113,5 +116,9 @@ object MyFont {
 
     fun SCDreamBold(size: Float): Font {
         return SCDreamBoldFont?.deriveFont(size) ?: getDefaultSystemFont(size)
+    }
+
+    fun SCDreamBoldTest(size: Float): Font {
+        return SCDreamBoldFontTest?.deriveFont(size) ?: getDefaultSystemFont(size)
     }
 }
