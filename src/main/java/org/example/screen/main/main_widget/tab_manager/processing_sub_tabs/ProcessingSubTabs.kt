@@ -33,7 +33,7 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                     MyColor.SELECTED_BACKGROUND_COLOR,
                     MyColor.UNSELECTED_BACKGROUND_COLOR,
                     MyColor.SELECTED_TEXT_COLOR,
-                    MyColor.UNSELECTED_TEXT_COLOR,
+                    MyColor.GREY600,
                     Dimension(230, 60)
                 )
             }
@@ -43,7 +43,7 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                     MyColor.SELECTED_BACKGROUND_COLOR,
                     MyColor.UNSELECTED_BACKGROUND_COLOR,
                     MyColor.SELECTED_TEXT_COLOR,
-                    MyColor.UNSELECTED_TEXT_COLOR,
+                    MyColor.GREY600,
                     Dimension(230, 60)
                 )
             }
@@ -53,7 +53,7 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                     MyColor.SELECTED_BACKGROUND_COLOR,
                     MyColor.UNSELECTED_BACKGROUND_COLOR,
                     MyColor.SELECTED_TEXT_COLOR,
-                    MyColor.UNSELECTED_TEXT_COLOR,
+                    MyColor.GREY600,
                     Dimension(230, 60)
                 )
             }

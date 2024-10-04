@@ -2,8 +2,6 @@ package org.example.screen.main.main_widget.tab_manager.pandding_sub_tabs
 
 import org.example.CustomTabbedPane
 import org.example.style.MyColor
-import org.example.view.states.PendingState
-import org.example.view.states.ProcessingState
 import org.example.widgets.SelectButtonRoundedBorder
 import java.awt.Color
 import java.awt.Component
@@ -37,7 +35,7 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                     MyColor.SELECTED_BACKGROUND_COLOR,
                     MyColor.UNSELECTED_BACKGROUND_COLOR,
                     MyColor.SELECTED_TEXT_COLOR,
-                    MyColor.UNSELECTED_TEXT_COLOR,
+                    MyColor.GREY600,
                     Dimension(230, 60)
                 )
             }
@@ -47,7 +45,7 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                     MyColor.SELECTED_BACKGROUND_COLOR,
                     MyColor.UNSELECTED_BACKGROUND_COLOR,
                     MyColor.SELECTED_TEXT_COLOR,
-                    MyColor.UNSELECTED_TEXT_COLOR,
+                    MyColor.GREY600,
                     Dimension(230, 60)
                 )
             }
@@ -57,7 +55,7 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                     MyColor.SELECTED_BACKGROUND_COLOR,
                     MyColor.UNSELECTED_BACKGROUND_COLOR,
                     MyColor.SELECTED_TEXT_COLOR,
-                    MyColor.UNSELECTED_TEXT_COLOR,
+                    MyColor.GREY600,
                     Dimension(230, 60)
                 )
             }

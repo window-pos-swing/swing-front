@@ -2,7 +2,6 @@ import org.example.MyFont
 import org.example.style.MyColor
 import org.example.widgets.SelectButtonRoundedBorder
 import java.awt.*
-import java.awt.geom.RoundRectangle2D
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 
@@ -31,13 +30,13 @@ class OrderRejectCancelDialog(
         )
 
         val rejectReasonButtons = listOf(
-            selectButtons[0].createRoundedButton("가게 사정", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
-            selectButtons[1].createRoundedButton("재료 소진", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
-            selectButtons[2].createRoundedButton("조리 지연", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
-            selectButtons[3].createRoundedButton("배달원 부재", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
-            selectButtons[4].createRoundedButton("배달 불가 지역", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
-            selectButtons[5].createRoundedButton("메뉴 또는 가격 변동", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62)),
-            selectButtons[6].createRoundedButton("요청 사항 적용 불가", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.UNSELECTED_TEXT_COLOR, Dimension(300, 62))
+            selectButtons[0].createRoundedButton("가게 사정", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.GREY600, Dimension(300, 62)),
+            selectButtons[1].createRoundedButton("재료 소진", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.GREY600, Dimension(300, 62)),
+            selectButtons[2].createRoundedButton("조리 지연", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.GREY600, Dimension(300, 62)),
+            selectButtons[3].createRoundedButton("배달원 부재", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.GREY600, Dimension(300, 62)),
+            selectButtons[4].createRoundedButton("배달 불가 지역", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.GREY600, Dimension(300, 62)),
+            selectButtons[5].createRoundedButton("메뉴 또는 가격 변동", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.GREY600, Dimension(300, 62)),
+            selectButtons[6].createRoundedButton("요청 사항 적용 불가", MyColor.SELECTED_BACKGROUND_COLOR, MyColor.UNSELECTED_BACKGROUND_COLOR, MyColor.SELECTED_TEXT_COLOR, MyColor.GREY600, Dimension(300, 62))
         )
 
         // 기본으로 첫 번째 버튼을 선택된 상태로 설정하고 selectedButton에도 저장

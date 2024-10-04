@@ -285,7 +285,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             // 좌우에 패딩을 추가하고 하단에 구분선을 적용하는 border 설정
             border = BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(0, 20, 0, 20),  // 좌우에 20픽셀 패딩
-                BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY)  // 하단에 1픽셀 구분선
+                BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.DIVISION_PINK)  // 하단에 1픽셀 구분선
             )
         }
 

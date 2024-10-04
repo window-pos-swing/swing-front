@@ -1,6 +1,5 @@
 package org.example.screen.main.main_widget.dialog
 
-import CustomComboBoxUI
 import CustomRoundedDialog
 import RoundedComboBox
 import org.example.MyFont
@@ -9,7 +8,6 @@ import org.example.widgets.FillRoundedButton
 import org.example.widgets.RoundedPanel
 import java.awt.*
 import javax.swing.*
-import java.awt.event.ActionListener
 import javax.swing.border.EmptyBorder
 
 class PauseOperationsDialog(
@@ -130,7 +128,7 @@ class PauseOperationsDialog(
             amButton.repaint()
 
             pmButton.backgroundColor = Color.WHITE
-            pmButton.textColor = MyColor.UNSELECTED_TEXT_COLOR
+            pmButton.textColor = MyColor.GREY600
             pmButton.borderColor = Color.WHITE
             pmButton.repaint()
 
@@ -189,14 +187,14 @@ class PauseOperationsDialog(
         setPanelBorderColor(panel, MyColor.UNSELECTED_BACKGROUND_COLOR) // 선택되지 않은 패널의 테두리 색상
 
         // 패널 내 모든 컴포넌트의 색상을 회색으로 변경
-        updateComponentColors(panel, MyColor.UNSELECTED_TEXT_COLOR, MyColor.BRIGHTER_GREY)
+        updateComponentColors(panel, MyColor.GREY600, MyColor.GREY100)
 
         if (panel == thirtyMinutePanel) {
             // 30분단위 패널의 buttonPanel 배경색을 BRIGHTER_GREY로 변경
             val buttonPanel = findButtonPanel(thirtyMinutePanel)
             buttonPanel?.let {
-                it.background = MyColor.BRIGHTER_GREY
-                setPanelBorderColor(it, MyColor.BRIGHTER_GREY)
+                it.background = MyColor.GREY100
+                setPanelBorderColor(it, MyColor.GREY100)
 
                 // decreaseButton, timeLabel, increaseButton 색상도 변경
                 val decreaseButton = findComponent<JButton>(buttonPanel, "/minus_icon.png")
@@ -205,7 +203,7 @@ class PauseOperationsDialog(
 
                 decreaseButton?.icon = ImageIcon(javaClass.getResource("/minus_unselect_icon.png"))
                 increaseButton?.icon = ImageIcon(javaClass.getResource("/plus_unselect_icon.png"))
-                timeLabel?.foreground = MyColor.UNSELECTED_TEXT_COLOR
+                timeLabel?.foreground = MyColor.GREY600
 
                 decreaseButton?.isEnabled = false
                 increaseButton?.isEnabled = false
@@ -220,14 +218,14 @@ class PauseOperationsDialog(
 
         if (panel == timeSpecifiedPanel) {
             // 오전/오후 버튼 비활성화 스타일
-            amButton.backgroundColor = MyColor.BRIGHTER_GREY
-            amButton.textColor = MyColor.UNSELECTED_TEXT_COLOR
-            amButton.borderColor = MyColor.BRIGHTER_GREY  // 테두리 색상
+            amButton.backgroundColor = MyColor.GREY100
+            amButton.textColor = MyColor.GREY600
+            amButton.borderColor = MyColor.GREY100  // 테두리 색상
             amButton.repaint()
 
-            pmButton.backgroundColor = MyColor.BRIGHTER_GREY
-            pmButton.textColor = MyColor.UNSELECTED_TEXT_COLOR
-            pmButton.borderColor = MyColor.BRIGHTER_GREY  // 테두리 색상
+            pmButton.backgroundColor = MyColor.GREY100
+            pmButton.textColor = MyColor.GREY600
+            pmButton.borderColor = MyColor.GREY100  // 테두리 색상
             pmButton.repaint()
         }
 
@@ -246,7 +244,7 @@ class PauseOperationsDialog(
                 }
                 is JComboBox<*> -> {
                     component.background = backgroundColor // JComboBox의 배경색 변경
-                    component.foreground = MyColor.UNSELECTED_TEXT_COLOR // JComboBox의 텍스트 색상 변경
+                    component.foreground = MyColor.GREY600 // JComboBox의 텍스트 색상 변경
                 }
                 is JPanel -> {
                     component.background = Color(217,217,217) // JPanel의 배경색 변경
@@ -316,7 +314,7 @@ class PauseOperationsDialog(
             text = "오후",
             borderColor = Color(0, 0, 0),
             backgroundColor = Color.WHITE,
-            textColor = MyColor.UNSELECTED_TEXT_COLOR,
+            textColor = MyColor.GREY600,
             borderRadius = 40,
             borderWidth = 1,
             textAlignment = SwingConstants.CENTER,
@@ -416,8 +414,8 @@ class PauseOperationsDialog(
 
         // 선택되지 않은 버튼 스타일 설정
         deselectedButton.backgroundColor = Color.WHITE
-        deselectedButton.textColor = MyColor.UNSELECTED_TEXT_COLOR
-        deselectedButton.borderColor = MyColor.UNSELECTED_TEXT_COLOR  // 테두리 색상 설정
+        deselectedButton.textColor = MyColor.GREY600
+        deselectedButton.borderColor = MyColor.GREY600  // 테두리 색상 설정
         deselectedButton.repaint()
     }
 

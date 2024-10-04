@@ -50,13 +50,13 @@ class BaseOrderPanel(order: Order) : JPanel() {
 
                 val orderTimeLabel = JLabel("${order.orderTime}분").apply {
                     font = MyFont.Bold(40f)  // 폰트 크기 40
-                    foreground = MyColor.BLACK
+                    foreground = MyColor.GREY900
                     alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
                 }
 
                 val menuInfoLabel = JLabel("[메뉴 ${order.menuList.size}개] ${order.menuList.sumOf { it.price * it.count }}원").apply {
                     font = MyFont.Medium(24f)  // 폰트 크기 24
-                    foreground = MyColor.BLACK
+                    foreground = MyColor.GREY900
                     alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
                 }
 
@@ -67,7 +67,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
             }
 
             // 하단에만 검은색 테두리 추가
-            val bottomBorder = BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.LIGHT_GREY)  // 하단(border)만 1px 설정
+            val bottomBorder = BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.GREY200)  // 하단(border)만 1px 설정
             border = BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(0, 0, 0, 0),  // 상하 여백 제거
                 bottomBorder  // 하단 테두리
@@ -119,7 +119,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
                 borderColor = Color.BLACK,  // 검은색 테두리
                 borderRadius = 20,  // 둥근 정도
                 borderWidth = 1,  // 테두리 두께
-                textColor = MyColor.BLACK,  // 텍스트 색상
+                textColor = MyColor.GREY900,  // 텍스트 색상
                 padding = Insets(10, 20, 10, 20)  // 패딩 설정
             ).apply {
                 font = MyFont.Medium(24f)
@@ -171,7 +171,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
                 "요청사항: ${order.request}",  // 텍스트
                 borderColor = Color(240, 240, 240),
                 backgroundColor = Color(240, 240, 240),
-                textColor = MyColor.BLACK,
+                textColor = MyColor.GREY900,
                 borderRadius = 20,
                 borderWidth = 2,
                 textAlignment = SwingConstants.LEFT,

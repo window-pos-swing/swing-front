@@ -4,7 +4,6 @@ import org.example.MyFont
 import org.example.style.MyColor
 import java.awt.*
 import javax.swing.*
-import javax.swing.border.Border
 import javax.swing.border.LineBorder
 
 //아이콘 있는 버튼 스타일링
@@ -71,7 +70,7 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
         isSelected = selected
         if (this::button.isInitialized) {  // 버튼이 초기화되었을 때만 작동
             button.background = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
-            button.foreground = if (isSelected) MyColor.SELECTED_TEXT_COLOR else MyColor.UNSELECTED_TEXT_COLOR
+            button.foreground = if (isSelected) MyColor.SELECTED_TEXT_COLOR else MyColor.GREY600
             button.border = SelectButtonRoundedBorder(radius).apply {
                 lineColor = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
             }
