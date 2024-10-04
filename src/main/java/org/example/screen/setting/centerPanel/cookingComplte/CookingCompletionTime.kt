@@ -21,18 +21,15 @@ class CookingCompletionTime : JPanel() {
 
         // 상단 패널: 조리완료시간과 토글 버튼을 한 줄로 나열
         val topPanel = JPanel().apply {
-            layout = FlowLayout(FlowLayout.CENTER)  // 한 줄로 배치
+            layout = BorderLayout()
             background = MyColor.LOGIN_TITLEBAR
 //            background = Color.RED
-            preferredSize = Dimension(400, 50)  // 패널 크기 강제 설정
-            maximumSize = Dimension(400, 50)  // 최대 크기도 설정
-            minimumSize = Dimension(400, 50)  // 최소 크기도 설정
         }
 
         // 아이콘 경로 로드
         val watchIconPath = ImageIcon(javaClass.getResource("/watch.png"))
         val storeLabel = JLabel(watchIconPath).apply {
-            border = BorderFactory.createEmptyBorder(0, 20, 0, 10)  // 아이콘과 텍스트 사이 여백 추가
+            border = BorderFactory.createEmptyBorder(0, 30, 0, 10)  // 아이콘과 텍스트 사이 여백 추가
         }
 
         val label = JLabel("조리완료시간").apply {
@@ -49,21 +46,31 @@ class CookingCompletionTime : JPanel() {
                     enableTimeAdjustment(false)  // OFF 상태에서는 시간 조절 불가능
                 }
             }
+
+            border = BorderFactory.createEmptyBorder(0, 20, 0, 20)
         }
 
-        // 조리완료시간과 토글 버튼을 한 줄에 추가
-        topPanel.add(storeLabel)
-        topPanel.add(label)
-        topPanel.add(toggleButton)
+        val spacing = Box.createRigidArea(Dimension(30, 0))
+
+        // 왼쪽에 아이콘과 라벨을 담을 패널
+        val leftPanel = JPanel().apply {
+            layout = FlowLayout(FlowLayout.LEFT, 0, 0)  // 왼쪽 정렬, 간격 0
+            background = MyColor.LOGIN_TITLEBAR
+            add(storeLabel)
+            add(label)
+            add(spacing)
+            add(toggleButton)
+        }
+
+        // 패널에 컴포넌트 추가: 왼쪽에 라벨
+        topPanel.add(leftPanel, BorderLayout.WEST)  // 왼쪽 끝에 배치
 
         // 시간 선택 패널
         val timeSelectionPanel = JPanel().apply {
             layout = FlowLayout(FlowLayout.CENTER)  // 시간 조절 버튼들 한 줄로 배치
             background = MyColor.LOGIN_TITLEBAR
 //            background = Color.WHITE
-            preferredSize = Dimension(400, 90)  // 패널 크기 강제 설정
-            maximumSize = Dimension(400, 90)  // 최대 크기도 설정
-            minimumSize = Dimension(400, 90) // 최소 크기도 설정
+            border = BorderFactory.createEmptyBorder(5, 0, 20, 0)
             add(createTimeSelectionPanel())  // 시간 선택 패널 추가
         }
 
@@ -106,7 +113,7 @@ class CookingCompletionTime : JPanel() {
         val buttonPanel = RoundedPanel(30, 30).apply {
             background = Color.WHITE  // 배경을 흰색으로 설정
             border = EmptyBorder(0, 15, 0, 15)
-            preferredSize = Dimension(350, 80)  // 패널 크기를 305x90으로 설정
+            preferredSize = Dimension(400, 80)  // 패널 크기를 305x90으로 설정
             layout = BorderLayout()
 
             add(decreaseButton, BorderLayout.WEST)
@@ -117,7 +124,7 @@ class CookingCompletionTime : JPanel() {
         // 메인 패널을 둥글게 만들기 위해 RoundedPanel 사용
         val mainPanel = RoundedPanel(30, 30).apply {
             background = MyColor.LOGIN_TITLEBAR
-            preferredSize = Dimension(350, 80)  // 패널 크기를 설정
+            preferredSize = Dimension(400, 80)  // 패널 크기를 설정
             layout = FlowLayout(FlowLayout.CENTER)  // 중앙 정렬
             border = BorderFactory.createEmptyBorder(-5, 0, 0, 0)  // 마진 추가
 

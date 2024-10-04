@@ -21,24 +21,26 @@ class DeliveryMethodTime : JPanel() {
 
         // 상단 패널: 배달 방법 및 토글 버튼을 한 줄로 나열
         val topPanel = JPanel().apply {
-            layout = FlowLayout(FlowLayout.CENTER)  // 한 줄로 배치
-//            background = MyColor.LOGIN_TITLEBAR
-            background = Color.RED
-            preferredSize = Dimension(600, 50)  // 패널 크기 강제 설정
-            maximumSize = Dimension(600, 50)  // 최대 크기도 설정
-            minimumSize = Dimension(600, 50)  // 최소 크기도 설정
+            layout = BorderLayout()  // 한 줄로 배치
+            background = MyColor.LOGIN_TITLEBAR
+//            background = Color.RED
         }
 
         // 배달 아이콘 경로 로드
         val deliveryIconPath = ImageIcon(javaClass.getResource("/delivery.png"))
-        val deliveryLabel = JLabel(deliveryIconPath).apply {
-            border = BorderFactory.createEmptyBorder(0, 20, 0, 10)  // 아이콘과 텍스트 사이 여백 추가
+        val resizedIcon = ImageIcon(
+            deliveryIconPath.image.getScaledInstance(35, 35, java.awt.Image.SCALE_SMOOTH)  // 20x20 크기로 리사이징
+        )
+        val deliveryLabel = JLabel(resizedIcon).apply {
+            border = BorderFactory.createEmptyBorder(0, 30, 0, 10)  // 아이콘과 텍스트 사이 여백 추가
         }
 
-        val label = JLabel("배달 방법 및 배달 예정 시간").apply {
+        val label = JLabel("배달 예정 시간").apply {
             font = MyFont.Bold(26f)
             foreground = Color.WHITE
         }
+
+        val spacing = Box.createRigidArea(Dimension(30, 0))
 
         // CustomToggleButton을 사용하여 토글 버튼 추가
         val toggleButton = CustomToggleButton2().apply {
@@ -51,15 +53,24 @@ class DeliveryMethodTime : JPanel() {
             }
         }
 
+        // 왼쪽에 아이콘과 라벨을 담을 패널
+        val leftPanel = JPanel().apply {
+            layout = FlowLayout(FlowLayout.LEFT, 0, 0)  // 왼쪽 정렬, 간격 0
+            background = MyColor.LOGIN_TITLEBAR
+            add(deliveryLabel)
+            add(label)
+            add(spacing)
+            add(toggleButton)
+        }
+
         // 배달 방법과 토글 버튼을 한 줄에 추가
-        topPanel.add(deliveryLabel)
-        topPanel.add(label)
-        topPanel.add(toggleButton)
+        topPanel.add(leftPanel, BorderLayout.WEST)  // 왼쪽 끝에 배치
 
         // 시간 선택 패널
         val timeSelectionPanel = JPanel().apply {
             layout = FlowLayout(FlowLayout.CENTER)  // 시간 조절 버튼들 한 줄로 배치
             background = MyColor.LOGIN_TITLEBAR
+            border = BorderFactory.createEmptyBorder(5, 0, 20, 0)
             add(createTimeSelectionPanel())  // 시간 선택 패널 추가
         }
 
@@ -77,7 +88,7 @@ class DeliveryMethodTime : JPanel() {
         timeLabel = JLabel("30분", SwingConstants.CENTER).apply {
             font = MyFont.Bold(38f)
             foreground = Color.BLACK
-            preferredSize = Dimension(200, 50)
+            preferredSize = Dimension(100, 50)
         }
 
         // 시간 증가/감소 버튼 생성
