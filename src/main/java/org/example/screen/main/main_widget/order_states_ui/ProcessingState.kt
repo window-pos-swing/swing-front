@@ -1,5 +1,5 @@
 package org.example.view.states
-
+import RoundedProgressBar
 import org.example.MyFont
 import org.example.model.Order
 import org.example.model.OrderState
@@ -37,7 +37,7 @@ class ProcessingState(val totalTime: Int) : OrderState {
                     add(getAddressPanel())  // 주소 정보
                     add(Box.createRigidArea(Dimension(0, 15)))  // 간격 추가
                     add(getMenuDetailPanel())  // 메뉴 세부 정보
-                    add(Box.createRigidArea(Dimension(0, 10)))  // 간격 추가
+                    add(Box.createRigidArea(Dimension(0, 5)))  // 간격 추가
                     add(getFooterPanel())  // 수저/포크, 요청사항
                 }
 
@@ -46,6 +46,7 @@ class ProcessingState(val totalTime: Int) : OrderState {
                     layout = BoxLayout(this, BoxLayout.Y_AXIS)  // 세로로 배치
                     isOpaque = false
                     alignmentY = Component.TOP_ALIGNMENT
+                    border = BorderFactory.createEmptyBorder(0, 0, 15, 0)
 
                     // 주문취소 버튼
                     val cancelButton = JButton("주문취소").apply {
@@ -56,32 +57,25 @@ class ProcessingState(val totalTime: Int) : OrderState {
                         alignmentX = Component.CENTER_ALIGNMENT
                     }
 
-                    // 프로그레스바
-                    val progressBar = JProgressBar(0, totalTime).apply {
-                        value = order.elapsedTime  // 현재 진행 시간 반영
-                        isStringPainted = true
-                        string = "${order.elapsedTime}분"
-                        preferredSize = Dimension(255, 155)
-                        maximumSize = Dimension(255, 155)
-                        background = Color(30, 30, 30)
-                        foreground = Color.PINK
-                        font = MyFont.Bold(28f)
-                        alignmentX = Component.CENTER_ALIGNMENT
+                    // 둥근 패널과 프로그레스바 통합 클래스 적용
+                    val roundedProgressBar = RoundedProgressBar(0, totalTime).apply {
+                        preferredSize = Dimension(255, 155)  // 전체 패널 크기
                     }
 
+                    // 패널에 추가
+                    add(roundedProgressBar, BorderLayout.CENTER)
+
+                    // 프로그레스바 업데이트 로직
                     order.addTimerObserver(object : OrderObserver {
                         override fun update(order: Order) {
-                            // 프로그레스바만 다시 그리기
-                            progressBar.value = order.elapsedTime
-                            progressBar.string = "${order.elapsedTime} / $totalTime 분"
-                            progressBar.repaint()  // 프로그레스바만 리페인트
+                            roundedProgressBar.updateProgress(order.elapsedTime)
                         }
                     })
 
                     // 요소 추가
                     add(cancelButton)
                     add(Box.createRigidArea(Dimension(0, 15)))  // 간격 추가
-                    add(progressBar)
+                    add(roundedProgressBar)
                 }
 
                 // contentPanel에 좌우 패널 배치

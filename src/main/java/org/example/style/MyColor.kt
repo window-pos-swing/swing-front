@@ -11,7 +11,7 @@ object MyColor {
     val LOGIN_TITLEBAR = Color(65, 79, 98 )
     val DARK_RED = Color(209, 12, 29)
     val DIVISION_PINK = Color(227,101,101)
-    val UNSELECTED_TAP = Color(255,185,185)
+    val PINK = Color(255,185,185)
     val BLACK = Color(51,51,51)
     val Yellow = Color(244,172,0)
 

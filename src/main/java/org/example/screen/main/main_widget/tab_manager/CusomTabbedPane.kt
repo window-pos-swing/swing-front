@@ -356,7 +356,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             } else {
                 // 선택되지 않은 탭: 배경색은 DARK_RED, 텍스트는 UNSELECTED_TAP 색상, 기본 아이콘
                 panel.background = MyColor.DARK_RED
-                textLabel.foreground = MyColor.UNSELECTED_TAP
+                textLabel.foreground = MyColor.PINK
                 val defaultIconPath = when (name) {
                     "전체보기" -> "/home.png"
                     "접수대기" -> "/접수대기.png"
