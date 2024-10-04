@@ -5,6 +5,7 @@ import org.example.model.Order
 import org.example.model.OrderState
 import org.example.observer.OrderObserver
 import org.example.view.components.BaseOrderPanel
+import org.example.widgets.FillRoundedButton
 import javax.swing.*
 import java.awt.*
 
@@ -20,8 +21,42 @@ class ProcessingState(val totalTime: Int) : OrderState {
 
             border = BorderFactory.createEmptyBorder(0, 0, 0, 0)
 
-            // 1. headerPanel을 NORTH에 배치 (전체 가로폭 차지)
-            add(getHeaderPanel(), BorderLayout.NORTH)
+            // 1. headerPanel의 오른쪽에 프린트 버튼 추가
+            val buttonPanel = JPanel().apply {
+                layout = FlowLayout(FlowLayout.RIGHT, 15, 0)  // 오른쪽 정렬
+                background = Color.WHITE  // 배경색 설정
+                border = BorderFactory.createEmptyBorder(15, 0, 0, 0)
+
+                // 프린터 버튼
+                add(
+                    FillRoundedButton(
+                    text = "",
+                    borderColor = Color(230, 230, 230),
+                    backgroundColor = Color(230, 230, 230),
+                    textColor = Color.BLACK,
+                    borderRadius = 20,
+                    borderWidth = 1,
+                    textAlignment = SwingConstants.CENTER,
+                    padding = Insets(10, 20, 10, 20),
+                    iconPath = "/print_icon.png",
+                    buttonSize = Dimension(50, 50),
+                    iconWidth = 45,
+                    iconHeight = 45
+                ).apply {
+                    addActionListener {
+                        // 인쇄 기능 추가
+                        println("프린터 버튼 클릭")
+                    }
+                })
+            }
+
+            // getHeaderPanel()을 사용하여 headerPanel을 가져와서 버튼 패널 추가
+            val headerPanel = getHeaderPanel()
+            headerPanel.add(Box.createHorizontalGlue())  // 오른쪽 정렬을 위해 공간 추가
+            headerPanel.add(buttonPanel)  // 버튼 패널을 headerPanel의 오른쪽에 추가
+
+            // 프린터버튼 추가한 headerPanel을 NORTH에 추가
+            add(headerPanel, BorderLayout.NORTH)
 
             // 2. 좌우로 나누는 메인 패널 contentPanel을 CENTER에 배치
             val contentPanel = JPanel().apply {
