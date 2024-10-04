@@ -1,5 +1,6 @@
 package org.example
 
+import org.example.screen.setting.bottomPanel.BottomPanelForm
 import org.example.screen.setting.centerPanel.CenterPanelForm
 import org.example.screen.setting.headerPanel.HeaderPanelForm
 import org.example.style.MyColor
@@ -71,6 +72,33 @@ class SettingForm : JFrame() {
         settingsPanel.add(separatorPanel)
 
         settingsPanel.add(CenterPanelForm())
+
+        // 경계선과 "가게 기본 설정" 텍스트를 추가하는 패널 생성
+        val separatorPanel2 = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+
+            // "가게 기본 설정" 텍스트 추가 패널 (왼쪽 정렬을 위해 FlowLayout 사용)
+            val labelPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+                background = MyColor.DARK_NAVY
+//                background = Color.RED
+                preferredSize = Dimension(1440, 65)  // 경계선 두께 설정
+                maximumSize = Dimension(1440, 65)  // 최대 크기도 설정
+                minimumSize = Dimension(1440, 65)  // 최소 크기도 설정
+                add(JLabel("POS기 설정").apply {
+                    font = MyFont.Bold(28f)
+                    foreground = Color.WHITE  // 텍스트 색상 설정
+                    border = BorderFactory.createEmptyBorder(10, 0, 10, 0)  // 텍스트 위아래 여백
+
+                })
+            }
+
+            // 경계선과 텍스트 패널을 추가
+            add(labelPanel)
+        }
+
+        settingsPanel.add(separatorPanel2)
+
+        settingsPanel.add(BottomPanelForm())
 
         add(settingsPanel, BorderLayout.CENTER)
 

@@ -129,7 +129,7 @@ class SwitchButton : JPanel() {
         val textWidth = fm.stringWidth(text)
         val textHeight = fm.ascent
         val x = (width - textWidth) / 2
-        val y = (height + textHeight) / 2 - 4
+        val y = (height + textHeight) / 2 - 2
         g2.drawString(text, x, y)
     }
 }

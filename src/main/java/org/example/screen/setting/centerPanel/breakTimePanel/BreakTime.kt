@@ -17,12 +17,15 @@ class BreakTime: JPanel() {
             gridy = 0
             weightx = 1.0
             fill = GridBagConstraints.HORIZONTAL
-            insets = Insets(10, 10, 0, 10)  // 여백 설정
+            insets = Insets(17, 10, 0, 20)  // 여백 설정
         }
 
         val panel = JPanel().apply {
             layout = FlowLayout(FlowLayout.LEFT)  // 한 줄로 배치
             isOpaque = false
+            preferredSize = Dimension(190, 40)  // 원하는 크기로 고정
+            minimumSize = Dimension(190, 40)  // 최소 크기 고정
+            maximumSize = Dimension(190, 40)  // 최대 크기 고정
 //            background = Color.RED
         }
 
@@ -47,10 +50,15 @@ class BreakTime: JPanel() {
 
         // 시간 라벨을 가운데에 배치
         gbc.gridx = 1
+        gbc.gridy = 0
         gbc.anchor = GridBagConstraints.CENTER  // 가운데 정렬
+        gbc.weightx = 1.0
+        gbc.weighty = 1.0  // 수직으로도 공간 차지
+        gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
         val breakTimeLabel = JLabel("14:00 ~ 15:00").apply {
             font = MyFont.Bold(32f)
             foreground = Color.PINK
+            horizontalAlignment = SwingConstants.CENTER
         }
         add(breakTimeLabel, gbc)
 

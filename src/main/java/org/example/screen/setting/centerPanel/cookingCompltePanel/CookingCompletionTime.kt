@@ -1,4 +1,4 @@
-package org.example.screen.setting.centerPanel.cookingComplte
+package org.example.screen.setting.centerPanel.cookingCompltePanel
 
 import org.example.MyFont
 import org.example.style.MyColor

@@ -1,8 +1,7 @@
-package org.example.screen.setting.centerPanel.deliveryMethodTime
+package org.example.screen.setting.centerPanel.deliveryMethodTimePanel
 
 import org.example.MyFont
 import org.example.style.MyColor
-import org.example.widgets.CustomToggleButton2
 import org.example.widgets.RoundedPanel
 import org.example.widgets.SwitchButton
 import org.example.widgets.SwitchListener
