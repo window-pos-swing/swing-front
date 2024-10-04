@@ -4,6 +4,7 @@ import org.example.MyFont
 import org.example.style.MyColor
 import java.awt.*
 import javax.swing.*
+import javax.swing.border.AbstractBorder
 import javax.swing.border.LineBorder
 
 //아이콘 있는 버튼 스타일링
@@ -343,5 +344,50 @@ class RoundedPanel(private val arcWidth: Int, private val arcHeight: Int) : JPan
         // 테두리 그리기
         g2.color = foreground
         g2.drawRoundRect(0, 0, width - 1, height - 1, arcWidth, arcHeight)
+    }
+}
+
+// RoundedBorder 클래스: 모서리가 둥근 테두리
+class RoundedBorder(private val radius: Int) : AbstractBorder() {
+    override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 빨간색 둥근 테두리 그리기
+        g2.color = Color(13, 130, 191)
+        g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius)
+    }
+
+    override fun getBorderInsets(c: Component): Insets {
+        return Insets(radius + 5, radius + 5, radius + 5, radius + 5)  // 테두리 여백 설정
+    }
+
+    override fun isBorderOpaque(): Boolean {
+        return false
+    }
+}
+
+// RoundedButton 클래스: 모서리가 둥근 빨간색 배경을 가진 버튼
+class RoundedButton(text: String) : JButton(text) {
+    init {
+        isContentAreaFilled = false  // 기본 배경 채우기 제거
+        isFocusPainted = false  // 포커스 테두리 제거
+        isOpaque = false  // 불투명 설정 제거
+        border = RoundedBorder(20)  // 둥근 테두리 적용 (반지름 20)
+        preferredSize = Dimension(100, 40)  // 버튼 크기 설정
+        font = MyFont.Bold(20f)  // 폰트 설정
+        foreground = Color.WHITE  // 텍스트 색상
+    }
+
+    // 배경을 그리기 위해 paintComponent 오버라이드
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 빨간색 배경을 그리기
+        g2.color = Color(13, 130, 191)
+        g2.fillRoundRect(0, 0, width, height, 20, 20)  // 둥근 모서리 배경
+
+        super.paintComponent(g)  // 텍스트 및 기타 컴포넌트 렌더링
     }
 }
