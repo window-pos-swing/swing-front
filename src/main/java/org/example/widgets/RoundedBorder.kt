@@ -355,7 +355,7 @@ class RoundedBorder(private val radius: Int) : AbstractBorder() {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
         // 빨간색 둥근 테두리 그리기
-        g2.color = Color.RED
+        g2.color = Color(13, 130, 191)
         g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius)
     }
 
@@ -386,7 +386,7 @@ class RoundedButton(text: String) : JButton(text) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
         // 빨간색 배경을 그리기
-        g2.color = Color.RED
+        g2.color = Color(13, 130, 191)
         g2.fillRoundRect(0, 0, width, height, 20, 20)  // 둥근 모서리 배경
 
         super.paintComponent(g)  // 텍스트 및 기타 컴포넌트 렌더링

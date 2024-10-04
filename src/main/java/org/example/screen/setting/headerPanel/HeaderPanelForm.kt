@@ -41,7 +41,6 @@ class HeaderPanelForm : JPanel() {
             background = MyColor.DARK_NAVY
             font = MyFont.Bold(24f)
             isOpaque = true
-//            border = BorderFactory.createEmptyBorder()
         }
 
         // 로그아웃 버튼을 패널에 넣어 정렬을 유지

@@ -31,9 +31,9 @@ class CenterPanelForm : RoundedPanel(30) {
 
         layout = GridBagLayout()
         background = MyColor.LOGIN_TITLEBAR
-        preferredSize = Dimension(1440, 430)
-        maximumSize = Dimension(1440, 430)  // 최대 크기도 설정
-        minimumSize = Dimension(1440, 430)  // 최소 크기도 설정
+        preferredSize = Dimension(1480, 430)
+        maximumSize = Dimension(1480, 430)  // 최대 크기도 설정
+        minimumSize = Dimension(1480, 430)  // 최소 크기도 설정
 
         val gbc = GridBagConstraints().apply {
             gridx = 0

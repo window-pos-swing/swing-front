@@ -10,7 +10,7 @@ class BreakTime: JPanel() {
     init {
         layout = GridBagLayout()
 //        background = Color.RED  // 배경색 설정
-        background = MyColor.LOGIN_TITLEBAR
+        isOpaque = false
 
         val gbc = GridBagConstraints().apply {
             gridx = 0
@@ -22,7 +22,7 @@ class BreakTime: JPanel() {
 
         val panel = JPanel().apply {
             layout = FlowLayout(FlowLayout.LEFT)  // 한 줄로 배치
-            background = MyColor.LOGIN_TITLEBAR
+            isOpaque = false
 //            background = Color.RED
         }
 

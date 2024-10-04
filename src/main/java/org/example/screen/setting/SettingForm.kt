@@ -30,7 +30,7 @@ class SettingForm : JFrame() {
         val settingsPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = MyColor.DARK_NAVY
-            border = BorderFactory.createEmptyBorder(20, 50, 20, 50)
+            border = BorderFactory.createEmptyBorder(20, 40, 20, 40)
             add(Box.createVerticalStrut(20))
         }
 
