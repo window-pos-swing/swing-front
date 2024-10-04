@@ -134,7 +134,9 @@ class ProcessingState(val totalTime: Int) : OrderState {
                     // 프로그레스바 업데이트 로직
                     order.addTimerObserver(object : OrderObserver {
                         override fun update(order: Order) {
+                            // 프로그레스바만 다시 그리기
                             roundedProgressBar.updateProgress(order.elapsedTime)
+                            roundedProgressBar.repaint()  // 프로그레스바만 리페인트
                         }
                     })
                 }

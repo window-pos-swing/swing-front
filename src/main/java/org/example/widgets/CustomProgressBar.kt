@@ -6,7 +6,8 @@ import org.example.style.MyColor
 
 
 class RoundedProgressBar(min: Int, max: Int) : JPanel() {
-    private val progressBar: JProgressBar
+    val progressBar: JProgressBar
+    val timeLabel: JLabel  // 시간 라벨을 필드로 추가
 
     init {
         layout = GridBagLayout()  // 중앙 배치를 위해 GridBagLayout 사용
@@ -24,7 +25,7 @@ class RoundedProgressBar(min: Int, max: Int) : JPanel() {
         }
 
         // 텍스트 (n분)
-        val timeLabel = JLabel("0분").apply {
+         timeLabel = JLabel("0분").apply {
             foreground = Color.WHITE  // 텍스트 색상
             font = MyFont.Bold(34f)  // 텍스트 폰트 설정
             horizontalAlignment = SwingConstants.CENTER  // 텍스트를 가운데 정렬
@@ -63,8 +64,11 @@ class RoundedProgressBar(min: Int, max: Int) : JPanel() {
 
     // 프로그레스바 업데이트 함수
     fun updateProgress(elapsedTime: Int) {
+        // 프로그레스바의 값을 업데이트 (elapsedTime 만큼 진행)
         progressBar.value = elapsedTime
-        (components[0] as JLabel).text = "${elapsedTime}분"  // 상단 텍스트 업데이트
+        // 시간 라벨을 업데이트 (현재 경과 시간)
+        timeLabel.text = "${elapsedTime}분"
+        progressBar.repaint()
     }
 
     override fun paintComponent(g: Graphics) {

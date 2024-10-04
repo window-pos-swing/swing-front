@@ -2,6 +2,7 @@ package org.example
 
 import CustomToggleButton
 import OrderController
+import RoundedProgressBar
 import org.example.model.MenuOption
 import org.example.model.Menu
 import org.example.model.Order
@@ -570,40 +571,75 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         return allOrders
     }
 
+    // 주문 프레임을 생성하는 함수
     fun createOrderFrame(order: Order, forProcessing: Boolean = false): JPanel {
-        return order.getUI().apply {
-            minimumSize = Dimension(1162, 340)  // 최소 높이 200으로 설정
-            preferredSize = Dimension(1162, 340)  // 선호 높이 200
-            maximumSize = Dimension(1162, 340)  // 최대 높이 제한
-            putClientProperty("orderNumber", order.orderNumber)  // 주문 번호 저장
-            println("Created order frame for Order #${order.orderNumber}")
+        val orderPanel = order.getUI().apply {
+            minimumSize = Dimension(1162, 340)
+            preferredSize = Dimension(1162, 340)
+            maximumSize = Dimension(1162, 340)
+            putClientProperty("orderNumber", order.orderNumber)
 
-            // 접수처리중 탭에서는 별도의 Border 적용
+            // 접수처리중 탭일 때 별도의 테두리 설정
             if (forProcessing) {
-                border = BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(Color(27, 43, 66), 2),  // 테두리 설정
-                    BorderFactory.createEmptyBorder(0, 20, 0, 20)  // 바깥쪽 여백 설정
-                )// 처리중일 때의 border 설정
+                setProcessingBorder()
+                updateProgressBar(this, order)
             }
 
-            // 주문 프레임에 클릭 리스너 추가
-            addMouseListener(object : java.awt.event.MouseAdapter() {
-                override fun mouseClicked(e: java.awt.event.MouseEvent?) {
-                    println("Detail Order #${order.orderNumber}")
-                    // 배달이면 빨간색, 포장이면 파란색으로 설정
-                    val customFont = MyFont.Bold(32f)
-                    val fontFamily = customFont.fontName
-
-                    val orderTypeText = if (order.orderType == "DELIVERY")
-                        "<font color='red' style='font-family:$fontFamily; font-size:26px;'>배달</font>"
-                    else
-                        "<font color='blue' style='font-family:$fontFamily; font-size:26px;'>포장</font>"
-                    val dialogTitle = "<html><span style='font-family:$fontFamily; font-size:26px;'>$orderTypeText 주문 상세</span></html>"
-                    OrderDetailDialog(parentFrame, dialogTitle)
-                }
-            })
-
+            addOrderClickListener(order)
         }
+        return orderPanel
+    }
+
+    // 접수처리중 탭일 때의 테두리 설정
+    private fun JPanel.setProcessingBorder() {
+        border = BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color(27, 43, 66), 2), // 테두리 설정
+            BorderFactory.createEmptyBorder(0, 20, 0, 20)  // 바깥쪽 여백 설정
+        )
+    }
+
+    // 프로그레스바를 찾고 업데이트하는 함수
+    private fun updateProgressBar(orderPanel: JPanel, order: Order) {
+        val progressBar = findProgressBar(orderPanel)
+        if (progressBar != null && order.state is ProcessingState) {
+            progressBar.updateProgress(order.elapsedTime)
+            progressBar.repaint()
+            println("createOrderFrame에서 progressBar 업데이트 ")
+        }
+    }
+
+    // 재귀적으로 모든 자식 컴포넌트를 탐색하여 RoundedProgressBar를 찾는 함수
+    fun findProgressBar(component: Component): RoundedProgressBar? {
+        return when (component) {
+            is RoundedProgressBar -> component
+            is Container -> component.components
+                .mapNotNull { findProgressBar(it) }
+                .firstOrNull()
+            else -> null
+        }
+    }
+
+    // 주문 프레임에 클릭 리스너 추가하는 함수
+    private fun JPanel.addOrderClickListener(order: Order) {
+        addMouseListener(object : java.awt.event.MouseAdapter() {
+            override fun mouseClicked(e: java.awt.event.MouseEvent?) {
+                println("Detail Order #${order.orderNumber}")
+                val dialogTitle = getOrderDialogTitle(order)
+                OrderDetailDialog(SwingUtilities.getWindowAncestor(this@addOrderClickListener) as JFrame, dialogTitle)
+            }
+        })
+    }
+
+    // 주문 타입에 따른 다이얼로그 타이틀 설정 함수
+    private fun getOrderDialogTitle(order: Order): String {
+        val customFont = MyFont.Bold(32f)
+        val fontFamily = customFont.fontName
+        val orderTypeText = if (order.orderType == "DELIVERY") {
+            "<font color='red' style='font-family:$fontFamily; font-size:26px;'>배달</font>"
+        } else {
+            "<font color='blue' style='font-family:$fontFamily; font-size:26px;'>포장</font>"
+        }
+        return "<html><span style='font-family:$fontFamily; font-size:26px;'>$orderTypeText 주문 상세</span></html>"
     }
 
 }
