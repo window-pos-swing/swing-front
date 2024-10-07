@@ -70,10 +70,13 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
 
     // [주문을 접수완료 탭으로 이동] ====================================================
     private fun moveOrderToCompleted(order: Order) {
+        // 1. 전체보기 탭에서 UI를 주문완료 상태로 업데이트
+        tabbedPane.updateOrderInAllOrders(order)
+        // 2. 접수진행중 탭에서 해당 주문 삭제
         tabbedPane.removeOrderFromProcessing(order)
+        // 3. 주문완료 탭에 UI 추가
         val completedOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
         tabbedPane.addOrderToCompleted(completedOrderFrame)
-        tabbedPane.updateOrderInAllOrders(order)
         tabbedPane.filterCompletedOrders()
     }
     //============================================================================

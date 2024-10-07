@@ -415,17 +415,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         }
     }
 
-    // 주문 처리 관련 함수들
-    fun addOrderToPending(orderFrame: JPanel) {
-//        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
-        pendingOrdersPanel.add(orderFrame)
-        pendingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
-        pendingOrdersPanel.revalidate()
-        pendingOrdersPanel.repaint()
 
-
-        updateTabTitle(1, "접수대기", pendingOrdersPanel.componentCount)
-    }
 
     fun filterPendingOrders(orderType: String? = null) {
         pendingSubTabsState = orderType ?: ""  // null이면 전체보기 서브탭 상태로 설정
@@ -522,6 +512,17 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         completedOrdersPanel.repaint()
     }
 
+    // [ADD] =========================================================================
+    fun addOrderToPending(orderFrame: JPanel) {
+//        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
+        pendingOrdersPanel.add(orderFrame)
+        pendingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
+        pendingOrdersPanel.revalidate()
+        pendingOrdersPanel.repaint()
+
+
+        updateTabTitle(1, "접수대기", pendingOrdersPanel.componentCount)
+    }
 
     fun addOrderToProcessing(orderFrame: JPanel) {
         orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
@@ -562,7 +563,11 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         updateTabTitle(0, "전체보기", allOrdersPanel.componentCount)
     }
 
-    // 주문 프레임 삭제 및 업데이트
+    //================================================================================
+
+
+
+    // [REMOVE & UPDATE] ======================================================================
     fun removeOrderFromPending(order: Order) {
         val frameToRemove = pendingOrdersPanel.components
             .filterIsInstance<JPanel>()
@@ -611,6 +616,8 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             it.repaint()
         }
     }
+
+    //================================================================================
 
     // CustomTabbedPane 클래스에 해당 주문이 이미 처리중 상태인지 확인하는 메서드 추가
     fun isOrderInProcessing(order: Order): Boolean {
