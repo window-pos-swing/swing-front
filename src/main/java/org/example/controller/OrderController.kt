@@ -36,6 +36,8 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
             is ProcessingState -> {
                 if (!tabbedPane.isOrderInProcessing(order)) {
                     moveOrderToProcessing(order)
+                }else{
+                    updateOrderUIIfProcessed(order);
                 }
             }
             is RejectedState -> {
@@ -47,7 +49,13 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         }
     }
 
-
+    // 이미 처리된 상태의 주문 UI를 업데이트
+    fun updateOrderUIIfProcessed(order: Order) {
+        if (order.state is ProcessingState) {
+            val processingState = order.state as ProcessingState
+            processingState.simulateOrderEvents(order, processingState)
+        }
+    }
 
     //[주문을 접수진행 탭으로 이동] =====================================================
     private fun moveOrderToProcessing(order: Order) {

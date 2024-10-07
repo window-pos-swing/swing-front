@@ -3,6 +3,7 @@ import OrderRejectCancelDialog
 import RoundedProgressBar
 import org.example.MyFont
 import org.example.command.RejectOrderCommand
+import org.example.`interface`.OrderEventListener
 import org.example.model.Order
 import org.example.model.OrderState
 import org.example.observer.OrderObserver
@@ -12,7 +13,9 @@ import org.example.widgets.FillRoundedButton
 import javax.swing.*
 import java.awt.*
 
-class ProcessingState(val totalTime: Int) : OrderState {
+class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
+    private lateinit var rightPanel: JPanel  // 버튼을 추가할 패널을 멤버로 선언
+
     override fun handle(order: Order) {
         // 주문 진행 처리 로직
         //order.startTimer(totalTime)  // 타이머 시작
@@ -80,7 +83,7 @@ class ProcessingState(val totalTime: Int) : OrderState {
                 }
 
                 // 오른쪽 패널: 주문취소 버튼과 프로그레스바
-                val rightPanel = JPanel().apply {
+                rightPanel = JPanel().apply {
                     layout = GridBagLayout()  // 두 컴포넌트를 독립적으로 배치하기 위해 GridBagLayout 사용
                     isOpaque = false
                     border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
@@ -105,7 +108,7 @@ class ProcessingState(val totalTime: Int) : OrderState {
                         textAlignment = SwingConstants.CENTER,
                         padding = Insets(10, 20, 10, 20),
                         buttonSize = Dimension(255, 63),  // 고정된 버튼 크기
-                        customFont = MyFont.Bold(20f)
+                        customFont = MyFont.Bold(28f)
                     ).apply {
                         addActionListener {
                             OrderRejectCancelDialog(
@@ -139,17 +142,127 @@ class ProcessingState(val totalTime: Int) : OrderState {
                             roundedProgressBar.repaint()  // 프로그레스바만 리페인트
                         }
                     })
+
                 }
 
                 // contentPanel에 좌우 패널 배치
                 add(leftPanel, BorderLayout.CENTER)
                 add(rightPanel, BorderLayout.EAST)
+
             }
 
             // 3. contentPanel을 전체 패널에 CENTER로 추가
             add(contentPanel, BorderLayout.CENTER)
+            simulateOrderEvents(order, this@ProcessingState)
         }
     }
+
+
+    // 주문 상태에 따라 UI 업데이트
+    fun simulateOrderEvents(order: Order, eventListener: OrderEventListener) {
+        if (order.isCompleted) {
+            eventListener.onCompleteOrder(order)
+            return
+        }
+
+        if (order.isResent) {
+            eventListener.onResendOrder(order)
+            return
+        }
+
+        // 주문 번호에 따라 이벤트 타이머 설정
+        if (order.orderNumber % 2 == 0) {
+            order.initializeEventTimer(5000) {
+                eventListener.onResendOrder(order)
+            }
+        } else {
+            order.initializeEventTimer(5000) {
+                eventListener.onCompleteOrder(order)
+            }
+        }
+
+    }
+
+    // Resend Order 이벤트 처리: 프로그레스바를 버튼으로 변환
+    override fun onResendOrder(order: Order) {
+        order.isResent = true
+        println("!! Order #${order.orderNumber} ResendOrder")
+        // '주문취소' 버튼 생성
+        val cancelButton = FillRoundedButton(
+            text = "주문취소",
+            borderColor = MyColor.GREY300,
+            backgroundColor = MyColor.GREY300,
+            textColor = MyColor.GREY500,
+            borderRadius = 20,
+            borderWidth = 1,
+            textAlignment = SwingConstants.CENTER,
+            padding = Insets(10, 20, 10, 20),
+            buttonSize = Dimension(255, 63),
+            customFont = MyFont.Bold(28f)
+        ).apply {
+            addActionListener {
+                println("주문취소 for Order #${order.orderNumber}")
+            }
+        }
+
+        // '배달 대행사로 주문번호 재전송' 버튼 생성
+        val resendOrderButton = FillRoundedButton(
+            text = "배달 대행사로\n주문번호 재전송",
+            borderColor = MyColor.PINK,
+            backgroundColor = MyColor.PINK,
+            textColor = Color.WHITE,
+            borderRadius = 20,
+            borderWidth = 1,
+            textAlignment = SwingConstants.CENTER,
+            padding = Insets(10, 20, 10, 20),
+            buttonSize = Dimension(255, 154),
+            customFont = MyFont.Bold(28f)
+        ).apply {
+            addActionListener {
+                println("Resend Order for #${order.orderNumber}")
+            }
+        }
+
+        println("onResendOrder called")
+
+        // rightPanel을 사용해 기존 UI를 제거하고 두 개의 버튼을 추가
+        rightPanel.removeAll()
+        rightPanel.layout = BoxLayout(rightPanel, BoxLayout.Y_AXIS)  // 세로로 배치
+
+        rightPanel.add(cancelButton)
+        rightPanel.add(Box.createRigidArea(Dimension(0, 10)))  // 두 버튼 사이의 간격 추가
+        rightPanel.add(resendOrderButton)
+
+        rightPanel.revalidate()
+        rightPanel.repaint()
+    }
+
+    // Complete Order 이벤트 처리: 주문 완료 처리
+    override fun onCompleteOrder(order: Order) {
+        order.isCompleted = true
+        println("!! Order #${order.orderNumber} Completed")
+        rightPanel.border = BorderFactory.createEmptyBorder(-15, 0, 0, 0)
+        // 주문 완료 버튼 생성
+        val completeOrderButton = FillRoundedButton(
+            text = "주문\n완료처리",  // 줄바꿈을 위해 "\n" 사용
+            borderColor = Color(27, 43, 66),  // 테두리 색상
+            backgroundColor = Color(27, 43, 66),  // 배경색
+            textColor = Color(255, 182, 193),  // 텍스트 색상 (핑크)
+            borderRadius = 20,  // 둥근 버튼
+            borderWidth = 2,
+            textAlignment = SwingConstants.CENTER,
+            padding = Insets(10, 20, 10, 20),
+            buttonSize = Dimension(255, 232),  // 크기 설정
+            customFont = MyFont.Bold(36f)  // 커스텀 폰트 설정
+        )
+
+        // rightPanel을 사용해 프로그레스바를 제거하고 완료 버튼 추가
+        rightPanel.removeAll()
+        rightPanel.add(completeOrderButton)
+        rightPanel.revalidate()
+        rightPanel.repaint()
+    }
+
 }
 
 

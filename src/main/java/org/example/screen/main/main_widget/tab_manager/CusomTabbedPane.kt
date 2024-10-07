@@ -325,6 +325,10 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         if (cardPanel == null) return
         val cardLayout = cardPanel!!.layout as CardLayout
 
+        getAllOrders().forEach { order ->
+            updateOrderInAllOrders(order)
+        }
+
         if (tabName == "접수대기") {
             val pendingSubTabs = PendingSubTabs(this)
             cardPanel!!.add(pendingSubTabs, "접수대기 하위탭")
@@ -545,11 +549,21 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         }
     }
 
-    fun updateOrderInAllOrders(order: Order) {
+    fun updateOrderInAllOrders(order: Order ) {
         val frameToUpdate = allOrdersPanel.components
             .filterIsInstance<JPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }
-        println("updateOrderInAllOrders 전체보기 업데이트 ")
+        println("updateOrderInAllOrders 전체보기 업데이트 상태 : ${order.state}")
+        if (order.state is PendingState) {
+            println("PendingState")
+            frameToUpdate?.border = BorderFactory.createCompoundBorder()
+        }else{
+            println("OhterState")
+            frameToUpdate?.border = BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color(27, 43, 66), 2), // 테두리 설정
+                BorderFactory.createEmptyBorder(0, 20, 0, 20)  // 바깥쪽 여백 설정
+            )
+        }
         frameToUpdate?.let {
             val updatedUI = order.getUI()
             it.removeAll()
