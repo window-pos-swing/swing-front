@@ -2,6 +2,7 @@ package org.example.view.states
 import OrderRejectCancelDialog
 import RoundedProgressBar
 import org.example.MyFont
+import org.example.command.CompletedOrderCommand
 import org.example.command.RejectOrderCommand
 import org.example.`interface`.OrderEventListener
 import org.example.model.Order
@@ -200,7 +201,16 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
             customFont = MyFont.Bold(28f)
         ).apply {
             addActionListener {
-                println("주문취소 for Order #${order.orderNumber}")
+                OrderRejectCancelDialog(
+                    SwingUtilities.getWindowAncestor(this) as JFrame,
+                    "주문 취소 사유 선택",
+                    "주문 취소 사유를 선택해 주세요.",
+                    "주문 취소",
+                    onReject = { rejectReason ->
+                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason, this@ProcessingState)
+                        rejectOrderCommand.execute()
+                    }
+                )
             }
         }
 
@@ -255,8 +265,16 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
             customFont = MyFont.Bold(36f)  // 커스텀 폰트 설정
         ).apply {
             addActionListener {
-                // 주문완료 api호출
-                println("Completed Order for #${order.orderNumber}")
+                // CompletedOrderCommand 실행
+                val completedOrderCommand = CompletedOrderCommand(order)
+                completedOrderCommand.execute()
+
+                // 완료 후 UI 업데이트
+                val updatedUI = order.getUI()
+                this@apply.removeAll()
+                this@apply.add(updatedUI)
+                this@apply.revalidate()
+                this@apply.repaint()
             }
         }
 

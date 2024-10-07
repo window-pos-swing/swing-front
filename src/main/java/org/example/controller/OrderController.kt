@@ -2,6 +2,7 @@
 import org.example.CustomTabbedPane
 import org.example.model.Order
 import org.example.observer.OrderObserver
+import org.example.view.states.CompletedState
 import org.example.view.states.PendingState
 import org.example.view.states.ProcessingState
 import org.example.view.states.RejectedState
@@ -24,7 +25,6 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
 
         tabbedPane.addOrderToAllOrders(orderFrameForAllOrders)  // 전체보기 탭에 추가
         tabbedPane.addOrderToPending(orderFrameForPending)  // 접수대기 탭에 추가
-
         tabbedPane.refreshPendingOrders()
         println("주문 추가")
     }
@@ -35,26 +35,19 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
             is ProcessingState -> {
                 if (!tabbedPane.isOrderInProcessing(order)) {
                     moveOrderToProcessing(order)
-                }else{
-                    updateOrderUIIfProcessed(order);
                 }
             }
             is RejectedState -> {
                 moveOrderToReject(order)
             }
-            else -> {
-                tabbedPane.updateOrderInAllOrders(order)  // 전체보기 탭에서 업데이트
+            is CompletedState -> {
+                moveOrderToCompleted(order)
             }
+
         }
     }
 
-    // 이미 처리된 상태의 주문 UI를 업데이트
-    fun updateOrderUIIfProcessed(order: Order) {
-        if (order.state is ProcessingState) {
-            val processingState = order.state as ProcessingState
-            processingState.simulateOrderEvents(order, processingState)
-        }
-    }
+
 
     //[주문을 접수진행 탭으로 이동] =====================================================
     private fun moveOrderToProcessing(order: Order) {
@@ -67,16 +60,23 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
 
         // 전체보기 탭에서 주문 UI를 업데이트 (삭제하지 않고 UI만 갱신)
         tabbedPane.updateOrderInAllOrders(order)  // 상태에 맞게 UI 업데이트
-
-
     }
-
     // 전체보기 탭에서 주문 UI 업데이트 (삭제 없이 UI만 갱신)
     private fun updateOrderUIInAllOrders(order: Order) {
         tabbedPane.updateOrderInAllOrders(order)  // 기존 프레임을 삭제하지 않고 UI 갱신
     }
+    //==============================================================================
 
-    //===========================================================================
+
+    // [주문을 접수완료 탭으로 이동] ====================================================
+    private fun moveOrderToCompleted(order: Order) {
+        tabbedPane.removeOrderFromProcessing(order)
+        val completedOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
+        tabbedPane.addOrderToCompleted(completedOrderFrame)
+        tabbedPane.updateOrderInAllOrders(order)
+        tabbedPane.filterCompletedOrders()
+    }
+    //============================================================================
 
 
     // [주문을 접수거절 탭으로 이동] =====================================================

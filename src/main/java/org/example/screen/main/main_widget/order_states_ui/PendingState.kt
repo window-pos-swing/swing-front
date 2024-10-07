@@ -81,8 +81,8 @@ class PendingState : OrderState {
                 // 접수하기 버튼
                 add(FillRoundedButton(
                     text = "접수하기",
-                    borderColor = Color(0, 0, 0),
-                    backgroundColor = Color(27, 43, 66),
+                    borderColor = MyColor.DARK_NAVY,
+                    backgroundColor = MyColor.DARK_NAVY,
                     textColor = Color.WHITE,
                     borderRadius = 20,
                     borderWidth = 1,
