@@ -1,14 +1,12 @@
-package org.example.screen.setting.bottomPanel.SoftwarePanel
+package org.example.screen.setting.bottomPanel.printPanel
 
+import PrinterSettingDialog
 import org.example.MyFont
 import org.example.widgets.RoundedButton
 import java.awt.*
-import javax.swing.BorderFactory
-import javax.swing.ImageIcon
-import javax.swing.JLabel
-import javax.swing.JPanel
+import javax.swing.*
 
-class Software: JPanel()  {
+class Print : JPanel() {
     init {
         layout = GridBagLayout()
 //        background = Color.RED  // 배경색 설정
@@ -19,26 +17,22 @@ class Software: JPanel()  {
             gridy = 0
             weightx = 1.0
             fill = GridBagConstraints.HORIZONTAL
-            insets = Insets(17, 5, 0, 20)  // 여백 설정
+            insets = Insets(20, 0, 0, 10)  // 여백 설정
         }
 
         val panel = JPanel().apply {
             layout = FlowLayout(FlowLayout.LEFT)  // 한 줄로 배치
             isOpaque = false
-//            preferredSize = Dimension(190, 40)  // 원하는 크기로 고정
-//            minimumSize = Dimension(190, 40)  // 최소 크기 고정
-//            maximumSize = Dimension(190, 40)  // 최대 크기 고정
-//            background = Color.RED
         }
 
         // 아이콘 경로 로드
-        val watchIconPath = ImageIcon(javaClass.getResource("/software.png"))
+        val watchIconPath = ImageIcon(javaClass.getResource("/print_icon.png"))
         val storeLabel = JLabel(watchIconPath).apply {
             border = BorderFactory.createEmptyBorder(0, 10, 0, 10)  // 아이콘과 텍스트 사이 여백 추가
         }
 
         // "브레이크 타임" 라벨
-        val label = JLabel("소프트웨어").apply {
+        val label = JLabel("프린트 출력 설정").apply {
             font = MyFont.Bold(26f)
             foreground = Color.WHITE
         }
@@ -55,8 +49,14 @@ class Software: JPanel()  {
         gbc.anchor = GridBagConstraints.EAST  // 오른쪽 정렬
         gbc.weightx = 1.0  // 오른쪽 끝까지 공간을 차지하도록
         gbc.fill = GridBagConstraints.NONE
-        val setButton = RoundedButton("업데이트").apply {
-            preferredSize = Dimension(130, 40)  // 버튼 크기 설정
+        val setButton = RoundedButton("설정").apply {
+            addActionListener {
+                val parentFrame = SwingUtilities.getWindowAncestor(this) as? JFrame
+                if (parentFrame != null) {
+                    // PrinterSettingDialog 호출
+                    PrinterSettingDialog(parentFrame, "프린트 설정")
+                }
+            }
         }
         add(setButton, gbc)
     }

@@ -1,6 +1,8 @@
 package org.example.screen.setting.bottomPanel
 
+import PrinterSettingDialog
 import org.example.screen.setting.bottomPanel.SoftwarePanel.Software
+import org.example.screen.setting.bottomPanel.printPanel.Print
 import org.example.screen.setting.bottomPanel.soundControlPanel.SoundControl
 import org.example.screen.setting.centerPanel.RoundedPanel
 import org.example.screen.setting.centerPanel.cookingCompltePanel.CookingCompletionTime
@@ -32,9 +34,9 @@ class BottomPanelForm  : RoundedPanel(30) {
     init {
         layout = GridBagLayout()
         background = MyColor.LOGIN_TITLEBAR
-        preferredSize = Dimension(1480, 210)
-        maximumSize = Dimension(1480, 210)  // 최대 크기도 설정
-        minimumSize = Dimension(1480, 210)  // 최소 크기도 설정
+        preferredSize = Dimension(1480, 200)
+        maximumSize = Dimension(1480, 200)  // 최대 크기도 설정
+        minimumSize = Dimension(1480, 200)  // 최소 크기도 설정
 
         val gbc = GridBagConstraints().apply {
             gridx = 0
@@ -52,10 +54,9 @@ class BottomPanelForm  : RoundedPanel(30) {
         gbc.gridx = 0  // 첫 번째 열
         gbc.gridy = 0  // 첫 번째 행
         gbc.gridwidth = 1  // 1칸 차지
-        gbc.insets = Insets(10, 0, 0, 0)  // 여백 설정
+//        gbc.insets = Insets(10, 0, 0, 0)  // 여백 설정
         add(Software(), gbc)
 
-        // 경계선 추가 (조리 완료 시간과 배달 예정 시간 사이)
         gbc.gridx = 1
         gbc.gridy = 0
         gbc.gridwidth = 1
@@ -65,7 +66,7 @@ class BottomPanelForm  : RoundedPanel(30) {
         gbc.gridx = 1  // 두 번째 열
         gbc.gridy = 0  // 첫 번째 행
         gbc.gridwidth = 1  // 1칸 차지
-        gbc.insets = Insets(10, 0, 0, 0)  // 여백 설정
+//        gbc.insets = Insets(10, 0, 0, 0)  // 여백 설정
         add(SoundControl(), gbc)
 
         // 경계선 추가 (배달 방법과 브레이크 타임 사이)
@@ -73,6 +74,13 @@ class BottomPanelForm  : RoundedPanel(30) {
         gbc.gridy = 1
         gbc.gridwidth = 3  // 전체 너비 차지
         add(createSeparator(SwingConstants.HORIZONTAL, 1440, 1), gbc)
+
+//        프린트 출력 설정
+        gbc.gridx = 0
+        gbc.gridy = 1
+        gbc.gridwidth = 3  // 전체 너비 차지
+//        gbc.insets = Insets(10, 0, 0, 0)  // 여백 설정
+        add(Print(), gbc)
 
         // 빈 공간 추가: 상단 고정을 위해 아래쪽에 빈 패널을 추가하여 남은 공간을 차지하게 함
         gbc.gridy = 2

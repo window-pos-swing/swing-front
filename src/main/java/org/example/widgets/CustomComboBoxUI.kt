@@ -77,8 +77,12 @@ class RoundedComboBox(model: ComboBoxModel<String>) : JComboBox<String>(model) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
         // 둥근 배경 그리기
-        g2.color = if (!isEnabled) MyColor.BRIGHTER_GREY else background
+        g2.color = background
         g2.fillRoundRect(0, 0, width, height, 30, 30)
+
+        // 테두리 그리기
+        g2.color = Color(86, 86, 86)  // 테두리 색상 설정
+        g2.drawRoundRect(0, 0, width - 1, height - 1, 20, 20)
 
         // 텍스트와 화살표를 포함하여 기본 렌더링
         super.paintComponent(g)

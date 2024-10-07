@@ -5,6 +5,7 @@ import java.awt.Color
 object MyColor {
     val ORANGE = Color(255, 153, 51)       // 오렌지 색상
     val DARK_GREY = Color(86, 86, 86)      // 어두운 회색
+    val LIGHT_GREY2 = Color(120, 120, 120)  // 좀 더 연한 회색
     val LIGHT_GREY = Color(220, 220, 220)  // 밝은 회색 (필요시 추가)
     val BRIGHTER_GREY = Color(240, 240, 240)
     val DARK_NAVY = Color(27, 43, 66)

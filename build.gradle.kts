@@ -25,6 +25,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     implementation("com.fazecast:jSerialComm:2.9.3")
+
+    implementation("javazoom:jlayer:1.0.1")
+
 }
 
 tasks.test {

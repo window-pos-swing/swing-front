@@ -50,7 +50,6 @@ class SettingForm : JFrame() {
                 minimumSize = Dimension(1440, 1)  // 최소 크기도 설정
             })
 
-            // "가게 기본 설정" 텍스트 추가 패널 (왼쪽 정렬을 위해 FlowLayout 사용)
             val labelPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
                 background = MyColor.DARK_NAVY
 //                background = Color.RED
