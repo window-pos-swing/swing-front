@@ -48,7 +48,7 @@ data class Order(
     fun startTimer(totalTime: Int) {
         // 타이머가 이미 존재하면 중복해서 실행하지 않음
         if (progressBarTimer != null) {
-            println("Timer already running for Order #$orderNumber")
+            println("progressBarTimer 이미 실행중  #$orderNumber")
             return
         }
 
@@ -95,7 +95,7 @@ data class Order(
         observersSnapshot.forEach { observer ->
             observer.update(this)
         }
-        println("Observers notified for Order #${orderNumber}")
+        println("[상태변경 옵저버 호출] #${orderNumber}")
     }
 
     // 타이머 업데이트 옵저버에게 알림

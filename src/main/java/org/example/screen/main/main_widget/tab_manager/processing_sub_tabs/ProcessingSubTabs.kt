@@ -80,17 +80,17 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             allOrdersButton.button.addActionListener {
                 setSelectedButton(allOrdersButton)
                 println("Subtab Filter Changed: 전체보기")
-                tabbedPane.SubTabFilterProcessingOrders()  // 전체보기 호출
+                tabbedPane.filterProcessingOrders()  // 전체보기 호출
             }
             deliveryButton.button.addActionListener {
                 setSelectedButton(deliveryButton)
                 println("Subtab Filter Changed: 배달")
-                tabbedPane.ProcessshowFilteredOrders("DELIVERY")  // 배달 주문만 필터링
+                tabbedPane.filterProcessingOrders("DELIVERY")  // 배달 주문만 필터링
             }
             takeoutButton.button.addActionListener {
                 setSelectedButton(takeoutButton)
                 println("Subtab Filter Changed: 포장")
-                tabbedPane.ProcessshowFilteredOrders("TAKEOUT")  // 포장 주문만 필터링
+                tabbedPane.filterProcessingOrders("TAKEOUT")  // 포장 주문만 필터링
             }
 
             // 초기 선택된 버튼 설정 (전체보기)
@@ -109,6 +109,6 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         })
 
         // 기본 선택: 전체보기
-        tabbedPane.SubTabFilterProcessingOrders()
+        tabbedPane.filterProcessingOrders()
     }
 }

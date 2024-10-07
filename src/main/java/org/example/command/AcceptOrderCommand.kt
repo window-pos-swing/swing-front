@@ -17,7 +17,7 @@ class AcceptOrderCommand(
         orderController.onOrderStateChanged(order)
         // 옵저버들에게 알림
         order.notifyStateObservers()  // notifyObservers는 여기서만 한 번 호출
-        println("Order #${order.orderNumber} state changed to ProcessingState with total time: ${cookingTime + deliveryTime} minutes")
+        println("[주문] #${order.orderNumber} 접수처리중으로 상태 변경  with total time: ${cookingTime + deliveryTime} minutes")
     }
 }
 

@@ -11,10 +11,10 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
 
     // 주문 추가
     fun addOrder(order: Order) {
+        //상태 옵저버 등록하여 이벤트 호출 시 handleOrderStateChange실행되게 함.
         order.addStateObserver(object : OrderObserver {
             override fun update(order: Order) {
                 handleOrderStateChange(order)
-                println("addStateObserver - 상태 업데이트 처리")
             }
         })
 
@@ -26,7 +26,6 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         tabbedPane.addOrderToPending(orderFrameForPending)  // 접수대기 탭에 추가
 
         tabbedPane.refreshPendingOrders()
-
         println("주문 추가")
     }
 

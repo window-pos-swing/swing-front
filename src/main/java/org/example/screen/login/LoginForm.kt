@@ -40,7 +40,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         autoLoginCheckBox = JCheckBoxCustom()
         loginButton = JButton("로그인")
 
-        val customFont = MyFont.SCDreamBold(48f)
+        val customFont = MyFont.ExtraBold(48f)
         val fontFamily = customFont.fontName
         titleLabel = JLabel("""
     <html>
@@ -58,10 +58,10 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
 // 로고 이미지 설정
         val logoIcon = loadImage("/Logo.png", 100, 100) // LoadImage 함수 사용
         logoLabel = JLabel(logoIcon)
-        findInfoLabel = JLabel("아이디 / 비밀번호 찾기")
+        findInfoLabel = JLabel("아이디/비밀번호 찾기")
 
         footerLabel = JLabel("꼬르륵 콜센터 1600 - 1234")
-        footerLabel.font = MyFont.Regular(20f)
+        footerLabel.font = MyFont.Medium(20f)
         footerLabel.foreground = Color.WHITE
 
         initializeUI()
@@ -117,7 +117,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         loginPanel.border = BorderFactory.createLineBorder(MyColor.DARK_RED, 5)
 
         // titleLabel 설정
-        titleLabel.font = MyFont.SCDreamBold(40f)
+        titleLabel.font = MyFont.ExtraBold(40f)
         titleLabel.horizontalAlignment = SwingConstants.LEFT
         titleLabel.foreground = Color.WHITE
         gbc.gridx = 0

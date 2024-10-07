@@ -186,7 +186,6 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
     // Resend Order 이벤트 처리: 프로그레스바를 버튼으로 변환
     override fun onResendOrder(order: Order) {
         order.isResent = true
-        println("!! Order #${order.orderNumber} ResendOrder")
         // '주문취소' 버튼 생성
         val cancelButton = FillRoundedButton(
             text = "주문취소",
@@ -219,6 +218,7 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
             customFont = MyFont.Bold(28f)
         ).apply {
             addActionListener {
+                // 배달대행사로 주문번호 재전송 api 호출
                 println("Resend Order for #${order.orderNumber}")
             }
         }
@@ -240,7 +240,6 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
     // Complete Order 이벤트 처리: 주문 완료 처리
     override fun onCompleteOrder(order: Order) {
         order.isCompleted = true
-        println("!! Order #${order.orderNumber} Completed")
         rightPanel.border = BorderFactory.createEmptyBorder(-15, 0, 0, 0)
         // 주문 완료 버튼 생성
         val completeOrderButton = FillRoundedButton(
@@ -254,7 +253,12 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
             padding = Insets(10, 20, 10, 20),
             buttonSize = Dimension(255, 232),  // 크기 설정
             customFont = MyFont.Bold(36f)  // 커스텀 폰트 설정
-        )
+        ).apply {
+            addActionListener {
+                // 주문완료 api호출
+                println("Completed Order for #${order.orderNumber}")
+            }
+        }
 
         // rightPanel을 사용해 프로그레스바를 제거하고 완료 버튼 추가
         rightPanel.removeAll()

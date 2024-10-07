@@ -325,8 +325,10 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         if (cardPanel == null) return
         val cardLayout = cardPanel!!.layout as CardLayout
 
-        getAllOrders().forEach { order ->
-            updateOrderInAllOrders(order)
+        if (tabName == "전체보기") {
+            getAllOrders().forEach { order ->
+                updateOrderInAllOrders(order)  // 전체보기 탭을 눌렀을 때만 호출
+            }
         }
 
         if (tabName == "접수대기") {
@@ -430,6 +432,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             val orderFrame = createOrderFrame(order)
             orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
             pendingOrdersPanel.add(orderFrame)
+            pendingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         }
 
         // 레이아웃과 화면 갱신
@@ -446,41 +449,40 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         }
     }
 
-    fun SubTabFilterProcessingOrders() {
-        processingOrdersPanel.removeAll()
-        println("Displaying all processing orders")
+    fun filterProcessingOrders(orderType: String? = null) {
+        processingSubTabsState = orderType ?: ""  // null이면 전체보기 서브탭 상태로 설정
 
-        // allOrders 리스트에서 Processing 상태인 주문 중 배달 주문(DELIVERY)만 필터링
-        allOrders.filter { it.state is ProcessingState && it.orderType == "DELIVERY" }.forEach { order ->
+        processingOrdersPanel.removeAll()
+
+        // 주문 타입에 따른 필터링: orderType이 null이면 전체보기, 아니면 해당 타입 필터링
+        val filteredOrders = if (orderType == null) {
+            allOrders.filter { it.state is ProcessingState }  // 전체보기: Processing 상태인 모든 주문
+        } else {
+            allOrders.filter { it.orderType == orderType && it.state is ProcessingState }  // 특정 주문 타입 필터링
+        }
+
+        // 필터링된 주문을 패널에 추가
+        filteredOrders.forEach { order ->
             val orderFrame = createOrderFrame(order, forProcessing = true)
             orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
             processingOrdersPanel.add(orderFrame)
+            processingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         }
 
-        processingOrdersPanel.revalidate() // 패널 레이아웃을 다시 계산
-        processingOrdersPanel.repaint() // 패널을 다시 그리기
-    }
-
-    fun ProcessshowFilteredOrders(orderType: String) {
-        processingOrdersPanel.removeAll()  // 기존 주문 프레임 초기화
-
-        val filteredOrders = allOrders.filter {
-            it.orderType == orderType && it.state is ProcessingState
-        }
-
-        // 필터링된 주문만 화면에 표시
-        filteredOrders.forEach { order ->
-            val orderFrame = createOrderFrame(order , forProcessing = true)
-            orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
-            processingOrdersPanel.add(orderFrame)
-        }
-
+        // 레이아웃과 화면 갱신
         processingOrdersPanel.revalidate()
         processingOrdersPanel.repaint()
-
-        println("Filtered Orders: ${filteredOrders.size}, Type: $orderType")
     }
 
+    // Processing 주문 목록을 새로 고침하는 함수
+    fun refreshProcessingOrders() {
+        // processingSubTabsState 값을 확인해 현재 선택된 서브탭에 맞춰 필터링 적용
+        if (processingSubTabsState.isEmpty()) {
+            filterProcessingOrders()  // 전체보기일 때
+        } else {
+            filterProcessingOrders(processingSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
+        }
+    }
 
 
     fun addOrderToProcessing(orderFrame: JPanel) {
@@ -550,15 +552,14 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     }
 
     fun updateOrderInAllOrders(order: Order ) {
+        println("updateOrderInAllOrders : ${order.orderNumber}")
         val frameToUpdate = allOrdersPanel.components
             .filterIsInstance<JPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }
-        println("updateOrderInAllOrders 전체보기 업데이트 상태 : ${order.state}")
+//        println("updateOrderInAllOrders 전체보기 업데이트 상태 : ${order.state}")
         if (order.state is PendingState) {
-            println("PendingState")
             frameToUpdate?.border = BorderFactory.createCompoundBorder()
         }else{
-            println("OhterState")
             frameToUpdate?.border = BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color(27, 43, 66), 2), // 테두리 설정
                 BorderFactory.createEmptyBorder(0, 20, 0, 20)  // 바깥쪽 여백 설정
