@@ -54,18 +54,16 @@ class DeliveryMethodTime : JPanel() {
         // 배달 아이콘 경로 로드
         val deliveryIconPath = ImageIcon(javaClass.getResource("/delivery.png"))
         val resizedIcon = ImageIcon(
-            deliveryIconPath.image.getScaledInstance(35, 35, java.awt.Image.SCALE_SMOOTH)  // 20x20 크기로 리사이징
+            deliveryIconPath.image.getScaledInstance(35, 35, Image.SCALE_SMOOTH)  // 20x20 크기로 리사이징
         )
         val deliveryLabel = JLabel(resizedIcon).apply {
-            border = BorderFactory.createEmptyBorder(0, 30, 0, 10)  // 아이콘과 텍스트 사이 여백 추가
+            border = BorderFactory.createEmptyBorder(0, 10, 0, 10)  // 아이콘과 텍스트 사이 여백 추가
         }
 
         val label = JLabel("배달 예정 시간").apply {
             font = MyFont.Bold(26f)
             foreground = Color.WHITE
         }
-
-        val spacing = Box.createRigidArea(Dimension(30, 0))
 
         // CustomToggleButton을 사용하여 토글 버튼 추가
         val toggleButton = SwitchButton().apply {
@@ -81,6 +79,8 @@ class DeliveryMethodTime : JPanel() {
 
             border = BorderFactory.createEmptyBorder(15, 60, 15, 60)
         }
+
+        val spacing = Box.createRigidArea(Dimension(30, 0))
 
         // 왼쪽에 아이콘과 라벨을 담을 패널
         val leftPanel = JPanel().apply {
@@ -99,7 +99,7 @@ class DeliveryMethodTime : JPanel() {
         val timeSelectionPanel = JPanel().apply {
             layout = FlowLayout(FlowLayout.CENTER)  // 시간 조절 버튼들 한 줄로 배치
             isOpaque = false
-            border = BorderFactory.createEmptyBorder(5, 0, 20, 0)
+            border = BorderFactory.createEmptyBorder(0, 0, 20, 0)
             add(createTimeSelectionPanel())  // 시간 선택 패널 추가
         }
 
@@ -137,7 +137,7 @@ class DeliveryMethodTime : JPanel() {
         // 둥근 시간 선택 패널 구성
         buttonPanel = RoundedPanel(30, 30).apply {
             background = Color.WHITE  // 배경을 흰색으로 설정
-            border = EmptyBorder(0, 15, 0, 15)
+            border = EmptyBorder(5, 15, 0, 15)
             preferredSize = Dimension(400, 80)  // 패널 크기를 305x90으로 설정
             layout = BorderLayout()
 

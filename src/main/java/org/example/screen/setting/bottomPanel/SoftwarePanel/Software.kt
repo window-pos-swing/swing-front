@@ -15,8 +15,8 @@ class Software: JPanel()  {
             gridx = 0
             gridy = 0
             weightx = 1.0
-            fill = GridBagConstraints.HORIZONTAL
-            insets = Insets(17, 5, 0, 20)  // 여백 설정
+            fill = GridBagConstraints.BOTH
+            insets = Insets(0, 5, 0, 0)  // 여백 설정
         }
 
         val leftPanel = JPanel().apply {
@@ -29,7 +29,7 @@ class Software: JPanel()  {
             foreground = Color(146, 146, 146)
             font = MyFont.Bold(14f)
             alignmentX = Component.LEFT_ALIGNMENT
-            border = BorderFactory.createEmptyBorder(3, 17, 0, 0)
+            border = BorderFactory.createEmptyBorder(0, 17, 0, 0)
         }
 
         val panel = JPanel().apply {
