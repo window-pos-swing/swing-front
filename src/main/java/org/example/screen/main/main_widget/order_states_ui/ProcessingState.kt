@@ -173,11 +173,11 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
 
         // 주문 번호에 따라 이벤트 타이머 설정
         if (order.orderNumber % 2 == 0) {
-            order.initializeEventTimer(10000) {
+            order.initializeEventTimer(3000) {
                 eventListener.onResendOrder(order)
             }
         } else {
-            order.initializeEventTimer(10000) {
+            order.initializeEventTimer(3000) {
                 eventListener.onCompleteOrder(order)
             }
         }

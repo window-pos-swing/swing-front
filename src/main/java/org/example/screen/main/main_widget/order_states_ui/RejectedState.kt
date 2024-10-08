@@ -6,6 +6,8 @@ import org.example.model.Order
 import org.example.model.OrderState
 import org.example.style.MyColor
 import org.example.view.components.BaseOrderPanel
+import org.example.widgets.AutoScalingLabel
+import org.example.widgets.CHRoundedPanel
 import org.example.widgets.FillRoundedButton
 import java.awt.*
 import javax.swing.*
@@ -77,7 +79,7 @@ class RejectedState(
                 }
 
                 // 오른쪽 패널 (GridBagLayout 사용)
-                val rightPanel = JPanel().apply {
+                val rightPanel = CHRoundedPanel(30,30).apply {
                     layout = GridBagLayout()  // 그리드 레이아웃 설정
                     preferredSize = Dimension(255, 234)  // rightPanel 크기 설정
                     isOpaque = true  // 패널을 불투명하게 설정
@@ -124,7 +126,7 @@ class RejectedState(
 
                         // 실제 거절일시 (가운데 정렬)
                         gbcDatePanel.anchor = GridBagConstraints.CENTER  // 가운데 정렬
-                        add(JLabel("2024.10.07").apply {
+                        add(JLabel("${rejectDate}").apply {
                             font = MyFont.Bold(28f)
                             foreground = MyColor.GREY900  // 실제 거절일시 텍스트 색상
                             horizontalAlignment = SwingConstants.CENTER  // 수평 가운데 정렬
@@ -153,12 +155,12 @@ class RejectedState(
                         }, gbcReasonPanel.apply { gridy = 0 })  // 첫 번째 행에 추가
 
                         // 실제 거절이유 (가운데 정렬)
-                        gbcReasonPanel.anchor = GridBagConstraints.CENTER  // 가운데 정렬
-                        add(JLabel("재주문").apply {
-                            font = MyFont.Bold(28f)
-                            foreground = MyColor.GREY900  // 실제 거절이유 텍스트 색상
+                        val rejectReasonLabel = AutoScalingLabel(rejectReason).apply {
+                            foreground = MyColor.GREY900  // 텍스트 색상 설정
                             horizontalAlignment = SwingConstants.CENTER  // 수평 가운데 정렬
-                        }, gbcReasonPanel.apply { gridy = 1 })  // 두 번째 행에 추가
+                        }
+                        gbcReasonPanel.anchor = GridBagConstraints.CENTER  // 가운데 정렬
+                        add(rejectReasonLabel, gbcReasonPanel.apply { gridy = 1 })  // 두 번째 행에 추가
                     }
 
                     // rightPanel에 두 개의 박스를 추가 (반반씩 차지하도록)
@@ -166,9 +168,18 @@ class RejectedState(
                     add(rejectReasonPanel, gbc.apply { gridy = 1; weighty = 0.5 })  // 하단 절반을 차지하는 거절이유 박스
                 }
 
+                //rightPanel에 하단 마진을 주기 위해 감싼 레이아웃
+                val wrapperPanel = JPanel().apply {
+                    layout = BorderLayout()
+                    isOpaque = false
+                    border = BorderFactory.createEmptyBorder(0, 0, 15, 0)  // 하단 마진 설정
+
+                    add(rightPanel, BorderLayout.CENTER)  // rightPanel을 중앙에 추가
+                }
+
                 // contentPanel에 좌우 패널 배치
                 add(leftPanel, BorderLayout.CENTER)
-                add(rightPanel, BorderLayout.EAST)
+                add(wrapperPanel, BorderLayout.EAST)
             }
 
             // contentPanel을 CENTER에 배치
