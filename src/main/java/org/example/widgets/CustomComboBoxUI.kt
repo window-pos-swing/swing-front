@@ -80,6 +80,10 @@ class RoundedComboBox(model: ComboBoxModel<String>) : JComboBox<String>(model) {
         g2.color = if (!isEnabled) MyColor.GREY100 else background
         g2.fillRoundRect(0, 0, width, height, 30, 30)
 
+        // 테두리 그리기
+        g2.color = Color(86, 86, 86)  // 테두리 색상 설정
+        g2.drawRoundRect(0, 0, width - 1, height - 1, 20, 20)
+
         // 텍스트와 화살표를 포함하여 기본 렌더링
         super.paintComponent(g)
     }

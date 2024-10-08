@@ -1,8 +1,8 @@
 package org.example.screen.setting.centerPanel
 
 import org.example.screen.setting.centerPanel.breakTimePanel.BreakTime
-import org.example.screen.setting.centerPanel.cookingComplte.CookingCompletionTime
-import org.example.screen.setting.centerPanel.deliveryMethodTime.DeliveryMethodTime
+import org.example.screen.setting.centerPanel.cookingCompltePanel.CookingCompletionTime
+import org.example.screen.setting.centerPanel.deliveryMethodTimePanel.DeliveryMethodTime
 import org.example.screen.setting.centerPanel.holidayPanel.HolidayPanel
 import org.example.screen.setting.centerPanel.operateTimePanel.OperateTime
 import org.example.style.MyColor
@@ -31,9 +31,9 @@ class CenterPanelForm : RoundedPanel(30) {
 
         layout = GridBagLayout()
         background = MyColor.LOGIN_TITLEBAR
-        preferredSize = Dimension(1480, 430)
-        maximumSize = Dimension(1480, 430)  // 최대 크기도 설정
-        minimumSize = Dimension(1480, 430)  // 최소 크기도 설정
+        preferredSize = Dimension(1480, 460)
+        maximumSize = Dimension(1480, 460)  // 최대 크기도 설정
+        minimumSize = Dimension(1480, 460)  // 최소 크기도 설정
 
         val gbc = GridBagConstraints().apply {
             gridx = 0
@@ -109,7 +109,7 @@ class CenterPanelForm : RoundedPanel(30) {
         // 빈 공간 추가: 상단 고정을 위해 아래쪽에 빈 패널을 추가하여 남은 공간을 차지하게 함
         gbc.gridy = 4
         gbc.weighty = 1.0  // 빈 공간이 남은 공간을 차지하도록 설정
-        add(JPanel().apply { background = MyColor.LOGIN_TITLEBAR }, gbc)  // 빈 패널 추가
+        add(JPanel().apply { isOpaque = false }, gbc)  // 빈 패널 추가
     }
 
     private fun createSeparator(orientation: Int, width: Int, height: Int): JSeparator {
