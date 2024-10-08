@@ -20,43 +20,14 @@ class PrinterButton(name: String) : JButton(name) {
     fun setClickedStyle() {
         background = Color(13, 130, 191)  // 클릭 시 배경색
         foreground = Color.WHITE           // 클릭 시 글자색
-//        preferredSize = Dimension(230, 50)
-//        maximumSize = Dimension(230, 50)
-//        minimumSize = Dimension(230, 50)
-//        revalidate()
         repaint() // 디자인 변경 후 다시 그리기
     }
 
     fun resetStyle() {
         background = Color(217, 217, 217)  // 기본 배경색으로 되돌리기
         foreground = Color(120, 120, 120)  // 기본 글자색으로 되돌리기
-//        preferredSize = Dimension(200, 50)
-//        maximumSize = Dimension(200, 50)
-//        minimumSize = Dimension(200, 50)
-//        revalidate()
         repaint()
     }
-
-//    override fun paintComponent(g: Graphics) {
-//        super.paintComponent(g)
-//        val g2 = g as Graphics2D
-//        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-//
-//        // 삼각형을 버튼 오른쪽에 그리기 (클릭된 상태일 때)
-//        if (background == Color(13, 130, 191)) {
-//            val triangleWidth = 30  // 삼각형 너비
-//            val triangleHeight = height  // 삼각형 높이를 버튼 높이에 맞춤
-//
-//            // 삼각형 X 좌표: 버튼 오른쪽에 붙여서 그리기
-//            val arrowX = intArrayOf(width - triangleWidth, width, width - triangleWidth)
-//            // 삼각형 Y 좌표: 버튼의 상단과 하단에 맞게 배치
-//            val arrowY = intArrayOf(0, height / 2, height)
-//
-//            // 삼각형을 그리기
-//            g2.color = Color.WHITE
-//            g2.fillPolygon(arrowX, arrowY, 3)
-//        }
-//    }
 }
 
 // 둥근 모서리를 가진 버튼 클래스
@@ -156,7 +127,7 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
 //        leftPanel.add(Box.createVerticalGlue())
 
         // 기본 프린터 설정 추가 (주방프린터)
-        val kitchenPrinterPanel = createPrinterSettingPanel("프린트1", leftPanel, printer1Button, rightPanel)
+        val kitchenPrinterPanel = createPrinterSettingPanel("프린트1", leftPanel, printer1Button, rightPanel, printer1Button)
         rightPanel.add(kitchenPrinterPanel, "프린트1")
 
         // 버튼 클릭 시 오른쪽 패널에 맞는 프린터 설정 보여주기
@@ -207,7 +178,7 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
             leftPanel.repaint()
 
             // 오른쪽 패널에 해당 프린터 설정 패널 추가
-            val newPrinterPanel = createPrinterSettingPanel(newPrinterName, leftPanel, newPrinterButton, rightPanel)
+            val newPrinterPanel = createPrinterSettingPanel(newPrinterName, leftPanel, newPrinterButton, rightPanel, newPrinterButton)
             rightPanel.add(newPrinterPanel, newPrinterName)
 
             // 새로 추가된 버튼 클릭 시 해당 프린터 설정 패널 보여주기
@@ -262,14 +233,15 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         name: String,
         leftPanel: JPanel,
         buttonToRemove: JButton,
-        rightPanel: JPanel
+        rightPanel: JPanel,
+        buttonToUpdate: JButton
     ): JPanel {
         val panel = JPanel().apply {
             background = Color.WHITE
             layout = GridBagLayout()
             preferredSize = Dimension(725, 300)
             border = BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(MyColor.LIGHT_GREY, 1),  // 회색 테두리, 두께 1
+                BorderFactory.createLineBorder(Color(154, 200, 224), 1),  // 회색 테두리, 두께 1
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
             )   // 내부 여백
         }
@@ -298,6 +270,22 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
             font = MyFont.Bold(22f)
             border = BorderFactory.createEmptyBorder()
         }
+
+        // 텍스트 필드의 값이 변경될 때 버튼 이름을 동기화
+        printerNameField.document.addDocumentListener(object : javax.swing.event.DocumentListener {
+            override fun insertUpdate(e: javax.swing.event.DocumentEvent?) {
+                buttonToUpdate.text = printerNameField.text
+            }
+
+            override fun removeUpdate(e: javax.swing.event.DocumentEvent?) {
+                buttonToUpdate.text = printerNameField.text
+            }
+
+            override fun changedUpdate(e: javax.swing.event.DocumentEvent?) {
+                buttonToUpdate.text = printerNameField.text
+            }
+        })
+
         gbc.gridx = 1
         gbc.gridy = 0
         gbc.gridwidth = 2
