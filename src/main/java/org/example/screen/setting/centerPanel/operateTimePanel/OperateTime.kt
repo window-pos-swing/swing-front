@@ -17,7 +17,7 @@ class OperateTime: JPanel() {
             gridy = 0
             weightx = 1.0
             fill = GridBagConstraints.HORIZONTAL
-            insets = Insets(17, 10, 0, 20)  // 여백 설정
+            insets = Insets(15, 10, 15, 20)  // 여백 설정
         }
 
         val panel = JPanel().apply {
@@ -55,7 +55,7 @@ class OperateTime: JPanel() {
         gbc.weightx = 1.0
         gbc.weighty = 1.0  // 수직으로도 공간 차지
         gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
-        val breakTimeLabel = JLabel("월~금 10:30 / 토 10:30 / 일 10:30").apply {
+        val breakTimeLabel = JLabel("월~금 10:30 ~ 22:00 / 토 10:30 ~ 22:00 / 일 10:30 ~ 22:00").apply {
             font = MyFont.Bold(32f)
             foreground = Color.PINK
             horizontalAlignment = SwingConstants.CENTER
