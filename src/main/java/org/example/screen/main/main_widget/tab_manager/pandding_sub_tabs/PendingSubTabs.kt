@@ -29,7 +29,7 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             background = Color.WHITE
 
             // SelectButtonRoundedBorder 사용하여 버튼 생성
-            val allOrdersButton = SelectButtonRoundedBorder(30).apply {
+            val allOrdersButton = SelectButtonRoundedBorder(50).apply {
                 createRoundedButton(
                     "전체보기  41건",
                     MyColor.SELECTED_BACKGROUND_COLOR,
@@ -39,7 +39,7 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                     Dimension(230, 60)
                 )
             }
-            val deliveryButton = SelectButtonRoundedBorder(30).apply {
+            val deliveryButton = SelectButtonRoundedBorder(50).apply {
                 createRoundedButton(
                     "배달  26건",
                     MyColor.SELECTED_BACKGROUND_COLOR,
@@ -49,7 +49,7 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                     Dimension(230, 60)
                 )
             }
-            val takeoutButton = SelectButtonRoundedBorder(30).apply {
+            val takeoutButton = SelectButtonRoundedBorder(50).apply {
                 createRoundedButton(
                     "포장  15건",
                     MyColor.SELECTED_BACKGROUND_COLOR,

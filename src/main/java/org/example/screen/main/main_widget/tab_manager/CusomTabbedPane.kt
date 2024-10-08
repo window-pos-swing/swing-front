@@ -11,20 +11,18 @@ import org.example.screen.main.main_widget.dialog.PauseOperationsDialog
 import org.example.screen.main.main_widget.tab_manager.completed_sub_tabs.CompletedSubTabs
 import org.example.screen.main.main_widget.tab_manager.pandding_sub_tabs.PendingSubTabs
 import org.example.screen.main.main_widget.tab_manager.processing_sub_tabs.ProcessingSubTabs
+import org.example.screen.main.main_widget.tab_manager.rejected_sub_tabs.RejectedSubTabs
 import org.example.style.MyColor
 import org.example.view.states.CompletedState
 import org.example.view.states.PendingState
 import org.example.view.states.ProcessingState
+import org.example.view.states.RejectedState
 import java.awt.*
 import java.awt.event.ItemEvent
 import javax.swing.*
 
 class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     private var allOrders = mutableListOf<Order>()  // 모든 주문을 저장하는 리스트
-    private val pendingOrders = mutableListOf<Order>()  // 접수대기 주문 저장
-    private val processingOrders = mutableListOf<Order>()  // 접수처리중 주문 저장
-    private val completedOrders = mutableListOf<Order>()  // 접수완료 주문 저장
-    private val rejectedOrders = mutableListOf<Order>()  // 주문거절 주문 저장
 
     private var cardPanel: JPanel? = null  // 외부에서 전달받을 cardPanel을 nullable로 변경
     private val menuPanel = JPanel()  // 탭 메뉴 패널 (세로로 정렬)
@@ -36,6 +34,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     var pendingSubTabsState = ""
     var processingSubTabsState = ""
     var completedSubTabsState = ""
+    var rejectedSubTabsState = ""
 
     // UI 패널들 (각 탭별로 구분)
     private val allOrdersPanel = createOrderPanel()
@@ -52,6 +51,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
     val processingSubTabs = ProcessingSubTabs(this)
     val completedSubTabs = CompletedSubTabs(this)
+    val rejectedSubTabs = RejectedSubTabs(this)
 
     init {
         layout = BorderLayout()
@@ -102,7 +102,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         val operationPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = MyColor.DARK_RED
-            border = BorderFactory.createEmptyBorder(20, 0, 20, 0)  // 상하 여백 추가
+            border = BorderFactory.createEmptyBorder(10, 0, 20, 0)  // 상하 여백 추가
         }
 
         // 운영시간 레이블 추가
@@ -120,6 +120,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             isOpaque = true  // 패널을 불투명하게 설정하여 배경색이 적용되도록 함
             preferredSize = Dimension(120, 40)
             maximumSize = Dimension(120, 40)
+            minimumSize = Dimension(120,40)
             alignmentX = CENTER_ALIGNMENT
 
         }
@@ -269,7 +270,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
         // 나머지 탭 추가
         cardPanel.add(completedSubTabs, "접수완료")
-        cardPanel.add(JScrollPane(rejectedOrdersPanel), "주문거절")
+        cardPanel.add(rejectedSubTabs, "주문거절")
 
         // 기본 선택된 탭 설정
         setTab("전체보기")
@@ -416,7 +417,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     }
 
 
-
+    //[Filter] ========================================================================
     fun filterPendingOrders(orderType: String? = null) {
         pendingSubTabsState = orderType ?: ""  // null이면 전체보기 서브탭 상태로 설정
 
@@ -512,6 +513,37 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         completedOrdersPanel.repaint()
     }
 
+    fun filterRejectedOrders(rejectType: String? = null) {
+        // rejectedSubTabsState 값을 업데이트
+        rejectedSubTabsState = rejectType ?: ""  // null이면 전체보기 상태로 설정
+
+        rejectedOrdersPanel.removeAll()  // 기존 패널 비우기
+
+        // 주문 타입에 따른 필터링: rejectType이 null이면 전체보기, 아니면 해당 거절 타입으로 필터링
+        val filteredOrders = if (rejectType == null) {
+            allOrders.filter { it.state is RejectedState }  // 전체 거절 주문
+        } else {
+            allOrders.filter { it.state is RejectedState && (it.state as RejectedState).rejectReason == rejectType }
+        }
+
+        // 필터링된 주문을 패널에 추가
+        filteredOrders.forEach { order ->
+            val orderFrame = createOrderFrame(order)
+            orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
+            rejectedOrdersPanel.add(orderFrame)
+            rejectedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
+        }
+
+        // 패널을 갱신
+        rejectedOrdersPanel.revalidate()
+        rejectedOrdersPanel.repaint()
+
+        // 탭 타이틀 업데이트
+        updateTabTitle(4, "주문거절", rejectedOrdersPanel.componentCount)
+    }
+    //=================================================================================
+
+
     // [ADD] =========================================================================
     fun addOrderToPending(orderFrame: JPanel) {
 //        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
@@ -562,7 +594,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         allOrdersPanel.repaint()
         updateTabTitle(0, "전체보기", allOrdersPanel.componentCount)
     }
-
     //================================================================================
 
 
@@ -600,7 +631,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             .filterIsInstance<JPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }
 //        println("updateOrderInAllOrders 전체보기 업데이트 상태 : ${order.state}")
-        if (order.state is PendingState || order.state is CompletedState) {
+        if (order.state is PendingState || order.state is CompletedState || order.state is RejectedState) {
             frameToUpdate?.border = BorderFactory.createCompoundBorder()
         }else{
             frameToUpdate?.border = BorderFactory.createCompoundBorder(
@@ -616,7 +647,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             it.repaint()
         }
     }
-
     //================================================================================
 
     // CustomTabbedPane 클래스에 해당 주문이 이미 처리중 상태인지 확인하는 메서드 추가

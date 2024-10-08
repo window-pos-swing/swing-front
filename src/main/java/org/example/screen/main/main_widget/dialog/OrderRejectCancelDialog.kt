@@ -15,7 +15,7 @@ class OrderRejectCancelDialog(
 
 
     private var selectedButton: SelectButtonRoundedBorder? = null
-    private var selectedReason: String? = null  // 선택된 거절 사유 저장
+    private var selectedReason: String? = "가게 사정"  // 선택된 거절 사유 저장
 
     init {
         // SelectButtonRoundedBorder를 사용한 둥근 버튼 생성
@@ -123,6 +123,15 @@ class OrderRejectCancelDialog(
             foreground = MyColor.DARK_RED
             font = MyFont.Bold(24f)
             border = BorderFactory.createLineBorder(MyColor.DARK_RED)
+
+            // 주문 거절 버튼을 클릭했을 때 onReject 실행
+            addActionListener {
+                selectedReason?.let {
+                    onReject(it)  // 거절 사유를 콜백으로 전달
+                    dispose()  // 다이얼로그 닫기
+                }
+            }
+
         }
 
         val bottomPanel = JPanel().apply {
