@@ -111,22 +111,29 @@ class OrderDetailDialog(
         // contentPanel 생성 (좌우로 나뉨)
         val contentPanel = JPanel(GridLayout(1, 2, 10, 0)).apply {
             background = Color.WHITE
-            border = LineBorder(MyColor.GREY400, 1)  // 테두리 추가
-            preferredSize = Dimension(940, 250)
+            border = CompoundBorder(
+                LineBorder(MyColor.GREY400, 1), // 기존 테두리 추가
+                EmptyBorder(10, 10, 10, 10) // 안쪽 패딩 10씩 추가
+            )
+            preferredSize = Dimension(940, 182) // 원하는 높이와 너비 설정
+            minimumSize = Dimension(940, 182) // 최소 높이와 너비 설정
+            maximumSize = Dimension(940, 182) // 최대 높이와 너비 설정
         }
 
         // leftPanel 생성 (좌우로 나뉨)
         val leftPanel = JPanel(BorderLayout()).apply {
-            border = LineBorder(Color.BLUE, 1)
+            background = Color.WHITE
+            border = CompoundBorder(
+                EmptyBorder(0, 0, 0, 0), // 상하 패딩 10씩 추가
+                BorderFactory.createMatteBorder(0, 0, 0, 1, MyColor.GREY400), // 오른쪽에만 테두리 추가
+            )
         }
 
         // leftInleftPanel: 레이블 패널 (주소, 연락처, 결제방법)
         val leftInleftPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
-            border = LineBorder(Color.GREEN, 1)
+            background = Color.WHITE
             preferredSize = Dimension(80, 250)
-            maximumSize = Dimension(80, 250)
-            maximumSize = Dimension(80, 250)
             add(JLabel("주소").apply { font = MyFont.Bold(20f) })
             add(Box.createVerticalStrut(35))
             add(JLabel("연락처").apply { font = MyFont.Bold(20f) })
@@ -137,8 +144,9 @@ class OrderDetailDialog(
         // rigthInleftPanel: 실제 값 패널 (주소 값, 연락처 값, 결제방법 값)
         val rigthInleftPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
-            border = LineBorder(Color.CYAN, 1)
+            background = Color.WHITE
             alignmentX = Component.LEFT_ALIGNMENT
+            border = EmptyBorder(0, 20, 0, 20)
 
             // 주소 값 - JTextArea 사용
             add(JTextArea("서울시 송파구 무슨빌라 어쩌구 저쩌구 고객주소 101호").apply {
@@ -179,14 +187,15 @@ class OrderDetailDialog(
         leftPanel.add(rigthInleftPanel, BorderLayout.CENTER)
 
         // rightPanel 생성 (좌우로 나뉨)
-        val rightPanel = JPanel(GridLayout(1, 2, 10, 0)).apply {
-            border = LineBorder(Color.RED, 1)
+        val rightPanel = JPanel(BorderLayout()).apply {
+            background = Color.WHITE
         }
 
         // leftInrightPanel: 레이블 패널 (접수일시, 예상조리시간, 배달예상시간)
         val leftInrightPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
-            border = LineBorder(Color.MAGENTA, 1)
+            background = Color.WHITE
+            preferredSize = Dimension(200, 250)
             add(JLabel("접수 일시").apply { font = MyFont.Bold(20f) })
             add(Box.createVerticalStrut(30))
             add(JLabel("예상 조리 시간 (라이더)").apply { font = MyFont.Bold(20f) })
@@ -196,18 +205,19 @@ class OrderDetailDialog(
 
         // rightInrightPanel: 실제 값 패널 (접수일시 값, 예상조리시간 값, 배달예상시간 값)
         val rightInrightPanel = JPanel().apply {
+            border = EmptyBorder(0, 20, 0, 20)
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
-            border = LineBorder(Color.YELLOW, 1)
+            background = Color.WHITE
             add(JLabel("24-09-09 AM 05:00").apply { font = MyFont.SemiBold(18f) })
-            add(Box.createVerticalStrut(30))
+            add(Box.createVerticalStrut(35))
             add(JLabel("20분").apply { font = MyFont.SemiBold(18f) })
-            add(Box.createVerticalStrut(30))
+            add(Box.createVerticalStrut(35))
             add(JLabel("45분").apply { font = MyFont.SemiBold(18f) })
         }
 
         // rightPanel에 leftInrightPanel과 rightInrightPanel 추가
-        rightPanel.add(leftInrightPanel)
-        rightPanel.add(rightInrightPanel)
+        rightPanel.add(leftInrightPanel, BorderLayout.WEST)
+        rightPanel.add(rightInrightPanel, BorderLayout.CENTER)
 
         // contentPanel에 leftPanel과 rightPanel 추가
         contentPanel.add(leftPanel)
@@ -218,6 +228,7 @@ class OrderDetailDialog(
 
         return panel
     }
+
 
     private fun createRequestInfoPanel(type: String): JPanel {
         val panel = JPanel().apply {
