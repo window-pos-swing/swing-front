@@ -308,7 +308,7 @@ class OrderDetailDialog(
             background = Color.WHITE
             border = CompoundBorder(
                 LineBorder(MyColor.GREY400, 1),  // 테두리 색상과 두께 설정
-                EmptyBorder(30, 10, 0, 10)  // 기본 내부 여백 설정
+                EmptyBorder(15, 10, 0, 10)  // 기본 내부 여백 설정
             )
         }
 
@@ -316,6 +316,8 @@ class OrderDetailDialog(
         val orderInfoContainer = JPanel().apply {
             layout = GridBagLayout()
             background = Color.WHITE
+            border = EmptyBorder(0, 0, -15, 0)  // 기본 내부 여백 설정
+
         }
 
         val constraints = GridBagConstraints().apply {
@@ -359,9 +361,9 @@ class OrderDetailDialog(
         quantityPanel.add(JLabel("수량").apply { font = MyFont.SemiBold(22f); alignmentX = Component.CENTER_ALIGNMENT })
         pricePanel.add(JLabel("금액").apply { font = MyFont.SemiBold(22f); alignmentX = Component.RIGHT_ALIGNMENT })
 
-        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        menuPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
 
         menuPanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
             border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
@@ -376,9 +378,9 @@ class OrderDetailDialog(
             maximumSize = Dimension(Int.MAX_VALUE, 1)
         })
 
-        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        menuPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
 
         // order.menuList의 데이터를 순회하며 각 메뉴, 수량, 가격을 패널에 추가
         order.menuList.forEach { menu ->
@@ -422,15 +424,15 @@ class OrderDetailDialog(
             }
 
             // 메뉴 사이클이 끝날 때 공백 추가
-            menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-            quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-            pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+            menuPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+            quantityPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+            pricePanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
 
         }
 
-        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        menuPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
 
         menuPanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
             border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
@@ -445,9 +447,9 @@ class OrderDetailDialog(
             maximumSize = Dimension(Int.MAX_VALUE, 1)
         })
 
-        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        menuPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
 
         // 배달비 추가
         menuPanel.add(JLabel("배달비").apply {
@@ -461,9 +463,9 @@ class OrderDetailDialog(
             alignmentX = Component.RIGHT_ALIGNMENT
         })
 
-        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        menuPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
 
         // 구분선 추가
         menuPanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
@@ -479,9 +481,9 @@ class OrderDetailDialog(
             maximumSize = Dimension(Int.MAX_VALUE, 1)
         })
 
-        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
-        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        menuPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
 
         // 총합 추가
         val totalCount = order.menuList.sumOf { it.count }
