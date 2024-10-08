@@ -30,7 +30,7 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
 
             // 1. headerPanel의 오른쪽에 프린트 버튼 추가
             val buttonPanel = JPanel().apply {
-                layout = FlowLayout(FlowLayout.RIGHT, 15, 0)  // 오른쪽 정렬
+                layout = FlowLayout(FlowLayout.RIGHT, 0, 0)  // 오른쪽 정렬
                 background = Color.WHITE  // 배경색 설정
                 border = BorderFactory.createEmptyBorder(15, 0, 0, 0)
 
@@ -132,7 +132,7 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
 
                     // GridBagConstraints로 각 컴포넌트를 독립적으로 배치
                     add(cancelButton, gbc.apply { gridy = 0 })  // 첫 번째 행에 주문 취소 버튼 배치
-                    add(Box.createRigidArea(Dimension(0, 0)), gbc.apply { gridy = 1 })  // 간격을 2px로 줄임
+                    add(Box.createRigidArea(Dimension(0, 0)), gbc.apply { gridy = 1 })
                     add(roundedProgressBar, gbc.apply { gridy = 2 })  // 두 번째 행에 프로그레스바 배치
 
                     // 프로그레스바 업데이트 로직
@@ -173,11 +173,11 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
 
         // 주문 번호에 따라 이벤트 타이머 설정
         if (order.orderNumber % 2 == 0) {
-            order.initializeEventTimer(5000) {
+            order.initializeEventTimer(10000) {
                 eventListener.onResendOrder(order)
             }
         } else {
-            order.initializeEventTimer(5000) {
+            order.initializeEventTimer(10000) {
                 eventListener.onCompleteOrder(order)
             }
         }

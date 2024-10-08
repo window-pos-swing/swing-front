@@ -45,7 +45,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
             val timeAndMenuPanel = JPanel().apply {
                 layout = FlowLayout(FlowLayout.LEFT, 0, 0)  // 수평으로 정렬 (왼쪽 정렬)
                 isOpaque = false  // 배경 투명
-                border = BorderFactory.createEmptyBorder(15, 0, 0, 0)  // 상하 여백 제거
+                border = BorderFactory.createEmptyBorder(10, 0, 0, 0)  // 상하 여백 제거
                 alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
                 val orderTimeLabel = JLabel("${order.orderTime}분").apply {

@@ -27,9 +27,13 @@ object MyColor {
     val Yellow = Color(244,172,0)
 
     val SELECTED_TEXT_COLOR = Color.WHITE
-    val UNSELECTED_TEXT_COLOR = Color(120,120,120)
-    val SELECTED_BACKGROUND_COLOR = Color(27, 43, 66)
-    val UNSELECTED_BACKGROUND_COLOR = Color(217,217,217)
 
-    val BORDER_GRAY = Color(204,204,204)
+    val UNSELECTED_TEXT_COLOR = GREY500   // 명확하게 GREY500과 연결
+    val SELECTED_BACKGROUND_COLOR = DARK_NAVY
+    val REJECT_SELECTED_BACKGROUND_COLOR = DARK_RED
+    val UNSELECTED_BACKGROUND_COLOR = GREY200
+
+    // 테두리 색상
+    val BORDER_GRAY = GREY300  // 중간 회색을 테두리 색상으로 사용
+
 }

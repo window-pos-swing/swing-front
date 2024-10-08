@@ -22,10 +22,8 @@ class CompletedState : OrderState {
         return BaseOrderPanel(order).apply {
             // headerPanel의 오른쪽에 버튼 추가
             val buttonPanel = JPanel().apply {
-                layout = FlowLayout(FlowLayout.RIGHT, 15, 0)  // FlowLayout을 사용하여 버튼 크기 조정 가능하게 설정
-                background = Color.WHITE  // 배경색 설정
-
-                border = BorderFactory.createEmptyBorder(15,0,0,0)
+                layout = BoxLayout(this, BoxLayout.X_AXIS)  // 수평 박스 레이아웃 설정
+                background = Color.WHITE
 
                 // 프린터 버튼
                 add(
@@ -48,6 +46,9 @@ class CompletedState : OrderState {
                         println("프린터 버튼 클릭")
                     }
                 })
+
+                // 버튼 사이에 간격을 추가
+                add(Box.createRigidArea(Dimension(15, 0)))
 
                 // 접수하기 버튼
                 add(

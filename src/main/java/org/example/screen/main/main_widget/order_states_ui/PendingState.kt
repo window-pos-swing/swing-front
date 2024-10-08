@@ -25,12 +25,10 @@ class PendingState : OrderState {
         return BaseOrderPanel(order).apply {
             // headerPanel의 오른쪽에 버튼 추가
             val buttonPanel = JPanel().apply {
-                layout = FlowLayout(FlowLayout.RIGHT, 15, 0)  // FlowLayout을 사용하여 버튼 크기 조정 가능하게 설정
-                background = Color.WHITE  // 배경색 설정
+                layout = BoxLayout(this, BoxLayout.X_AXIS)  // 수평 박스 레이아웃 설정
+                background = Color.WHITE
 
-                border = BorderFactory.createEmptyBorder(15,0,0,0)
-
-                // 프린터 버튼
+                // 프린터 버튼 추가
                 add(FillRoundedButton(
                     text = "",
                     borderColor = Color(230, 230, 230),
@@ -51,7 +49,10 @@ class PendingState : OrderState {
                     }
                 })
 
-                // 주문 거절 버튼
+                // 버튼 사이에 간격을 추가
+                add(Box.createRigidArea(Dimension(15, 0)))
+
+                // 주문 거절 버튼 추가
                 add(FillRoundedButton(
                     text = "주문거절",
                     borderColor = MyColor.GREY300,
@@ -78,7 +79,10 @@ class PendingState : OrderState {
                     }
                 })
 
-                // 접수하기 버튼
+                // 버튼 사이에 간격을 추가
+                add(Box.createRigidArea(Dimension(15, 0)))
+
+                // 접수하기 버튼 추가 (오른쪽 여백 없이)
                 add(FillRoundedButton(
                     text = "접수하기",
                     borderColor = MyColor.DARK_NAVY,
@@ -97,8 +101,8 @@ class PendingState : OrderState {
                         EstimatedTimeDialog(
                             parent = parentFrame,
                             title = "예상 시간 선택",
-                            order = order,  // 주문 객체 전달
-                            orderController = orderController  // OrderController 전달
+                            order = order,
+                            orderController = orderController
                         )
                     }
                 })
