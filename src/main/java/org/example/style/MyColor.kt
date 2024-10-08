@@ -3,6 +3,14 @@ package org.example.style
 import java.awt.Color
 
 object MyColor {
+    val GREY100 = Color(240, 240, 240)
+    val GREY200 = Color(220, 220, 220)  // 밝은 회색 (필요시 추가)
+    val GREY300 = Color(217,217,217)
+    val GREY400 = Color(204,204,204)
+    val GREY500 = Color(147, 147, 147)
+    val GREY600 = Color(120,120,120)
+    val GREY900 = Color(51,51,51)
+
     val ORANGE = Color(255, 153, 51)       // 오렌지 색상
     val DARK_GREY = Color(86, 86, 86)      // 어두운 회색
     val LIGHT_GREY2 = Color(120, 120, 120)  // 좀 더 연한 회색
@@ -14,6 +22,8 @@ object MyColor {
     val DIVISION_PINK = Color(227,101,101)
     val UNSELECTED_TAP = Color(255,185,185)
     val BLACK = Color(51,51,51)
+    val PINK = Color(255,185,185)
+
     val Yellow = Color(244,172,0)
 
     val SELECTED_TEXT_COLOR = Color.WHITE

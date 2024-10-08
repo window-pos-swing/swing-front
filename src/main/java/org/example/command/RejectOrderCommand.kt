@@ -18,7 +18,7 @@ class RejectOrderCommand(
         order.changeState(RejectedState(rejectReason, rejectDate, originState))
 
         // 옵저버들에게 상태 변경 알림
-        order.notifyObservers()
-        println("Order #${order.orderNumber} state changed to RejectedState with reason: $rejectReason at $rejectDate")
+        order.notifyStateObservers()
+        println("[주문] #${order.orderNumber} 거절상태로 변경  with reason: $rejectReason at $rejectDate")
     }
 }

@@ -12,7 +12,6 @@ import javax.swing.border.EmptyBorder
 import javax.swing.border.LineBorder
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableCellRenderer
-import javax.swing.text.View
 
 class OrderDetailDialog(
     parent: JFrame,
@@ -108,7 +107,7 @@ class OrderDetailDialog(
         // 세부 배달 정보 패널
         val contentPanel = JPanel(GridLayout(3, 2, 10, 0)).apply {
             background = Color.WHITE
-            border = LineBorder(MyColor.BORDER_GRAY, 1)  // 여기만 테두리 추가
+            border = LineBorder(MyColor.GREY400, 1)  // 여기만 테두리 추가
             add(createLabeledField("주소", "서울시 송파구 무슨빌라 어쩌구 저쩌구 고객주소 101호 테스트 길이 입니다",false))
             add(createLabeledField("접수 일시", "24-09-09 AM 05:00"))
             add(createLabeledField("연락처", "050-1234-1234",false))
@@ -149,7 +148,7 @@ class OrderDetailDialog(
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
             border = CompoundBorder(
-                LineBorder(MyColor.BORDER_GRAY, 1),  // 테두리 색상과 두께 설정
+                LineBorder(MyColor.GREY400, 1),  // 테두리 색상과 두께 설정
                 EmptyBorder(10, 10, 10, 10)  // 기본 내부 여백 설정
             )
         }
@@ -203,7 +202,7 @@ class OrderDetailDialog(
             background = Color.WHITE
             border = BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(0, 0, 0, 0),  // 좌우 여백
-                LineBorder(MyColor.BORDER_GRAY, 1)
+                LineBorder(MyColor.GREY400, 1)
             )
         }
 
@@ -253,7 +252,7 @@ class OrderDetailDialog(
                 val cell = super.prepareRenderer(renderer, row, column) as JComponent
                 // 특정 행에만 구분선을 추가하는 로직
                 if (row == 3 || row == 4) {  // 에스프레소와 배달비 행에 구분선 추가
-                    cell.border = BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.BORDER_GRAY)  // 하단 구분선
+                    cell.border = BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.GREY400)  // 하단 구분선
                 } else {
                     cell.border = BorderFactory.createEmptyBorder()  // 나머지 행에는 구분선 없음
                 }
@@ -265,7 +264,7 @@ class OrderDetailDialog(
                 return false  // 모든 셀에 대해 수정 불가
             }
         }.apply {
-            gridColor = MyColor.BORDER_GRAY  // 기본적으로 가로줄을 표시
+            gridColor = MyColor.GREY400  // 기본적으로 가로줄을 표시
             setShowVerticalLines(false)  // 세로 줄 제거
             setShowHorizontalLines(false)  // 가로 구분선 표시
             rowHeight = 50  // 각 행의 높이를 50 픽셀로 설정 (원하는 높이로 설정 가능)
@@ -315,7 +314,7 @@ class OrderDetailDialog(
         // 헤더 아래에 구분선을 추가
         table.tableHeader.border = BorderFactory.createCompoundBorder(
             BorderFactory.createEmptyBorder(0, 10, 0, 10),  // 좌우 여백 설정 (상, 좌, 하, 우)
-            BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.BORDER_GRAY)  // 하단에만 구분선
+            BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.GREY400)  // 하단에만 구분선
         )
 
         // 테이블을 감싸는 tableContainer 패널을 사용하여 좌우 여백 적용
@@ -399,9 +398,9 @@ class OrderDetailDialog(
         // 먼저 인쇄 버튼을 추가하고 그다음에 닫기 버튼 추가
         val printButton = FillRoundedButton(
             text = "인쇄하기",
-            borderColor = MyColor.BRIGHTER_GREY,
-            backgroundColor = MyColor.BRIGHTER_GREY,
-            textColor = MyColor.UNSELECTED_TEXT_COLOR,
+            borderColor = MyColor.GREY100,
+            backgroundColor = MyColor.GREY100,
+            textColor = MyColor.GREY600,
             borderRadius = 20,
             borderWidth = 1,
             textAlignment = SwingConstants.CENTER,

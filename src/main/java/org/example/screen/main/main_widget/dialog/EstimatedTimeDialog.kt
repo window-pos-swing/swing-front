@@ -42,8 +42,6 @@ class EstimatedTimeDialog(
             border = BorderFactory.createLineBorder(MyColor.DARK_RED)
             addActionListener {
                 // 시간 접수 로직 추가
-                println("조리시간: $cookingTime 분, 배달시간: $deliveryTime 분")
-
                 // AcceptOrderCommand 실행
                 val acceptOrderCommand = AcceptOrderCommand(order, cookingTime, deliveryTime, orderController)
                 acceptOrderCommand.execute()

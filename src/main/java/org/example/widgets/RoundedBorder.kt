@@ -5,7 +5,6 @@ import org.example.style.MyColor
 import java.awt.*
 import javax.swing.*
 import javax.swing.border.AbstractBorder
-import javax.swing.border.Border
 import javax.swing.border.LineBorder
 
 //아이콘 있는 버튼 스타일링
@@ -72,7 +71,7 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
         isSelected = selected
         if (this::button.isInitialized) {  // 버튼이 초기화되었을 때만 작동
             button.background = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
-            button.foreground = if (isSelected) MyColor.SELECTED_TEXT_COLOR else MyColor.UNSELECTED_TEXT_COLOR
+            button.foreground = if (isSelected) MyColor.SELECTED_TEXT_COLOR else MyColor.GREY600
             button.border = SelectButtonRoundedBorder(radius).apply {
                 lineColor = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
             }
@@ -264,16 +263,26 @@ class FillRoundedButton(
     private val iconWidth: Int = 20,  // 아이콘 너비
     private val iconHeight: Int = 20,  // 아이콘 높이
     private val customFont: Font? = null  // 커스텀 폰트 설정
-) : JButton(text) {
+) : JButton() {
 
     init {
         isOpaque = false  // 배경을 직접 그리기 위해 투명하게 설정
         setContentAreaFilled(false)  // 기본 JButton의 배경 칠하기 기능 비활성화
         setBorderPainted(false)  // 기본 JButton의 테두리 칠하기 기능 비활성화
         isFocusPainted = false  // 포커스 라인 제거
-        horizontalAlignment = SwingConstants.CENTER  // 아이콘과 텍스트의 가로 정렬을 중앙으로 설정
-        verticalAlignment = SwingConstants.CENTER  // 아이콘과 텍스트의 세로 정렬을 중앙으로 설정
-        foreground = textColor  // 텍스트 색상 설정
+        horizontalAlignment = SwingConstants.CENTER
+        verticalAlignment = SwingConstants.CENTER
+
+        // HTML 형식을 이용한 줄바꿈과 폰트 적용 및 텍스트 색상 설정
+        val fontFamily = customFont?.fontName ?: "Arial"  // 기본 폰트는 Arial로 설정
+
+        val fontSize = customFont?.size?.minus(4) ?: 16;
+//        print("fontSize : ${fontSize}");
+
+        val textHexColor = "#${Integer.toHexString(textColor.rgb).substring(2)}"  // 텍스트 색상을 HEX 형식으로 변환
+
+        // HTML 텍스트로 폰트와 색상 적용, 줄바꿈 처리
+        this.text = "<html><center><span style='font-family:$fontFamily; font-size:${fontSize}px; color:$textHexColor;'>${text.replace("\n", "<br>")}</span></center></html>"
 
         // 아이콘 설정
         if (iconPath != null) {
@@ -281,11 +290,6 @@ class FillRoundedButton(
                 // 아이콘 크기 조정
                 image = image.getScaledInstance(iconWidth, iconHeight, java.awt.Image.SCALE_SMOOTH)
             }
-        }
-
-        // 커스텀 폰트 설정
-        if (customFont != null) {
-            font = customFont
         }
 
         // 버튼 크기 설정 (필요 시)
@@ -308,16 +312,16 @@ class FillRoundedButton(
         g2.stroke = BasicStroke(borderWidth.toFloat())
         g2.drawRoundRect(borderWidth / 2, borderWidth / 2, width - borderWidth, height - borderWidth, borderRadius, borderRadius)
 
-        foreground = textColor
-        // 기본 아이콘과 텍스트 그리기
         super.paintComponent(g)
     }
 
     override fun getPreferredSize(): Dimension {
-        // 버튼 크기를 고정된 크기로 설정할 수 있게 수정
         return buttonSize ?: super.getPreferredSize()
     }
 }
+
+
+
 
 // 둥근 패널을 만들기 위한 커스텀 JPanel 클래스
 class RoundedPanel(private val arcWidth: Int, private val arcHeight: Int) : JPanel() {

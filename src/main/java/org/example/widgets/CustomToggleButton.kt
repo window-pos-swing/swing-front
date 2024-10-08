@@ -1,7 +1,6 @@
 import org.example.style.MyColor
 import java.awt.*
 import javax.swing.*
-import javax.swing.plaf.basic.BasicButtonUI
 
 class CustomToggleButton : JToggleButton() {
     init {
@@ -30,7 +29,7 @@ class CustomToggleButton : JToggleButton() {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
         // 배경 색 그리기 (테두리 효과 방지)
-        g2d.color = MyColor.LIGHT_GREY
+        g2d.color = MyColor.GREY200
         g2d.fillRoundRect(0, 0, width, height, height, height)
 
         // ON/OFF 상태에 따른 배경색 그리기

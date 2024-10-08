@@ -8,6 +8,7 @@ import org.example.command.RejectOrderCommand
 import org.example.model.Order
 import org.example.model.OrderState
 import org.example.screen.main.main_widget.dialog.EstimatedTimeDialog
+import org.example.style.MyColor
 import org.example.view.components.BaseOrderPanel
 import org.example.widgets.FillRoundedButton
 import org.example.widgets.IconRoundBorder
@@ -53,8 +54,8 @@ class PendingState : OrderState {
                 // 주문 거절 버튼
                 add(FillRoundedButton(
                     text = "주문거절",
-                    borderColor = Color(230, 230, 230),
-                    backgroundColor = Color(230, 230, 230),
+                    borderColor = MyColor.GREY300,
+                    backgroundColor = MyColor.GREY300,
                     textColor = Color.BLACK,
                     borderRadius = 20,
                     borderWidth = 1,
@@ -80,8 +81,8 @@ class PendingState : OrderState {
                 // 접수하기 버튼
                 add(FillRoundedButton(
                     text = "접수하기",
-                    borderColor = Color(0, 0, 0),
-                    backgroundColor = Color(27, 43, 66),
+                    borderColor = MyColor.DARK_NAVY,
+                    backgroundColor = MyColor.DARK_NAVY,
                     textColor = Color.WHITE,
                     borderRadius = 20,
                     borderWidth = 1,

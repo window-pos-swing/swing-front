@@ -16,25 +16,20 @@ object MyFont {
     private var regularFont: Font? = null
     private var mediumFont: Font? = null
 
-    private var SCDreamBoldFont: Font? = null
 
     init {
-        blackFont = loadFont("/fonts/Pretendard-Black.ttf")
-        boldFont = loadFont("/fonts/Pretendard-Bold.ttf")
-        extraBoldFont = loadFont("/fonts/Pretendard-ExtraBold.ttf")
-        extraLightFont = loadFont("/fonts/Pretendard-ExtraLight.ttf")
-        lightFont = loadFont("/fonts/Pretendard-Light.ttf")
-        mediumFont = loadFont("/fonts/Pretendard-Medium.ttf")
-        regularFont = loadFont("/fonts/Pretendard-Regular.ttf")
-        semiBoldFont = loadFont("/fonts/Pretendard-SemiBold.ttf")
-        thinFont = loadFont("/fonts/Pretendard-Thin.ttf")
+        blackFont = loadFont("/fonts/NotoSansKR-Black.ttf")
+        boldFont = loadFont("/fonts/NotoSansKR-Bold.ttf")
+        extraBoldFont = loadFont("/fonts/NotoSansKR-ExtraBold.ttf")
+        extraLightFont = loadFont("/fonts/NotoSansKR-ExtraLight.ttf")
+        lightFont = loadFont("/fonts/NotoSansKR-Light.ttf")
+        mediumFont = loadFont("/fonts/NotoSansKR-Medium.ttf")
+        regularFont = loadFont("/fonts/NotoSansKR-Regular.ttf")
+        semiBoldFont = loadFont("/fonts/NotoSansKR-SemiBold.ttf")
+        thinFont = loadFont("/fonts/NotoSansKR-Thin.ttf")
         // 운영체제에 따른 SCDream 폰트 선택
         val osName = System.getProperty("os.name").lowercase()
-        SCDreamBoldFont = when {
-            osName.contains("win") -> loadFont("/fonts/SCDream6.ttf") // 윈도우는 SCDream6.ttf
-            osName.contains("mac") -> loadFont("/fonts/SCDream7.ttf") // 맥은 SCDream7.ttf
-            else -> loadFont("/fonts/SCDream7.ttf") // 기본값으로 SCDream7.ttf
-        }
+
     }
 
     private fun loadFont(fontPath: String): Font? {
@@ -111,7 +106,4 @@ object MyFont {
         return thinFont?.deriveFont(size) ?: getDefaultSystemFont(size)
     }
 
-    fun SCDreamBold(size: Float): Font {
-        return SCDreamBoldFont?.deriveFont(size) ?: getDefaultSystemFont(size)
-    }
 }
