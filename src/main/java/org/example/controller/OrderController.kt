@@ -1,5 +1,6 @@
 
 import org.example.CustomTabbedPane
+import org.example.command.RejectedReasonType
 import org.example.model.Order
 import org.example.observer.OrderObserver
 import org.example.view.states.CompletedState
@@ -90,13 +91,21 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         // 1. 전체보기 탭에서 UI를 거절 상태로 업데이트
         updateOrderUIInAllOrders(order)
 
-        // 2. 접수대기 상태에서 호출된 경우 (거절)
-        if (rejectedState.originState is PendingState) {
-            tabbedPane.removeOrderFromPending(order)
-        }
-        // 3. 접수진행 상태에서 호출된 경우 (취소)
-        else if (rejectedState.originState is ProcessingState) {
-            tabbedPane.removeOrderFromProcessing(order)
+        when (rejectedState.rejectType) {
+            RejectedReasonType.CUSTOMER_CANCEL -> {
+                println("주문이 고객에 의해 취소되었습니다.")
+                // 고객 취소에 맞는 UI 처리 추가 가능
+            }
+            RejectedReasonType.STORE_REJECT -> {
+                tabbedPane.removeOrderFromPending(order)
+                println("주문이 가게에 의해 거절되었습니다.")
+                // 가게 거절에 맞는 UI 처리 추가 가능
+            }
+            RejectedReasonType.STORE_CANCEL -> {
+                println("주문이 가게에 의해 취소되었습니다.")
+                tabbedPane.removeOrderFromProcessing(order)
+                // 가게 취소에 맞는 UI 처리 추가 가능
+            }
         }
 
         // 4. 주문거절 탭에 UI 추가

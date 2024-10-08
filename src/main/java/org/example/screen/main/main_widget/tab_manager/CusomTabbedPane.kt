@@ -3,6 +3,7 @@ package org.example
 import CustomToggleButton
 import OrderController
 import RoundedProgressBar
+import org.example.command.RejectedReasonType
 import org.example.model.MenuOption
 import org.example.model.Menu
 import org.example.model.Order
@@ -513,9 +514,9 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         completedOrdersPanel.repaint()
     }
 
-    fun filterRejectedOrders(rejectType: String? = null) {
+    fun filterRejectedOrders(rejectType: RejectedReasonType? = null) {
         // rejectedSubTabsState 값을 업데이트
-        rejectedSubTabsState = rejectType ?: ""  // null이면 전체보기 상태로 설정
+        rejectedSubTabsState = rejectType?.name ?: ""  // null이면 전체보기 상태로 설정
 
         rejectedOrdersPanel.removeAll()  // 기존 패널 비우기
 
@@ -523,7 +524,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         val filteredOrders = if (rejectType == null) {
             allOrders.filter { it.state is RejectedState }  // 전체 거절 주문
         } else {
-            allOrders.filter { it.state is RejectedState && (it.state as RejectedState).rejectReason == rejectType }
+            allOrders.filter { it.state is RejectedState && (it.state as RejectedState).rejectType == rejectType }
         }
 
         // 필터링된 주문을 패널에 추가

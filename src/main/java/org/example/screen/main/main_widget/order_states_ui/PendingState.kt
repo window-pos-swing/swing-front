@@ -5,6 +5,7 @@ import OrderRejectCancelDialog
 import org.example.CustomTabbedPane
 import org.example.MyFont
 import org.example.command.RejectOrderCommand
+import org.example.command.RejectedReasonType
 import org.example.model.Order
 import org.example.model.OrderState
 import org.example.screen.main.main_widget.dialog.EstimatedTimeDialog
@@ -72,7 +73,7 @@ class PendingState : OrderState {
                             "주문 거절 사유를 선택해 주세요.",
                             "주문 거절",
                             onReject = { rejectReason ->
-                                val rejectOrderCommand = RejectOrderCommand(order, rejectReason, this@PendingState)
+                                val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_REJECT)
                                 rejectOrderCommand.execute()
                             }
                         )

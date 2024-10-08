@@ -2,6 +2,7 @@ package org.example.view.states
 
 
 import org.example.MyFont
+import org.example.command.RejectedReasonType
 import org.example.model.Order
 import org.example.model.OrderState
 import org.example.style.MyColor
@@ -15,9 +16,16 @@ import javax.swing.*
 class RejectedState(
     val rejectReason: String,
     val rejectDate: String,
-    val originState: OrderState  // 거절된 원래 상태 (PendingState 또는 ProcessingState)
+    val rejectType : RejectedReasonType
 ) : OrderState {
 
+    fun rejectTypeFormat(): String {
+        return when (rejectType) {
+            RejectedReasonType.CUSTOMER_CANCEL -> "고객접수거절"
+            RejectedReasonType.STORE_REJECT -> "가게접수거절"
+            RejectedReasonType.STORE_CANCEL -> "가게접수취소"
+        }
+    }
     override fun handle(order: Order) {
         // 거절된 상태에 대한 추가 처리 로직이 필요할 경우 여기에 작성
     }
@@ -38,7 +46,7 @@ class RejectedState(
                 // "고객접수거절" 버튼
                 add(
                     FillRoundedButton(
-                        text = "고객접수거절",
+                        text = "${rejectTypeFormat()}",
                         borderColor = MyColor.PINK,
                         backgroundColor = MyColor.PINK,
                         textColor = MyColor.DARK_RED,

@@ -4,6 +4,7 @@ import RoundedProgressBar
 import org.example.MyFont
 import org.example.command.CompletedOrderCommand
 import org.example.command.RejectOrderCommand
+import org.example.command.RejectedReasonType
 import org.example.`interface`.OrderEventListener
 import org.example.model.Order
 import org.example.model.OrderState
@@ -118,7 +119,7 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
                                 "주문 취소 사유를 선택해 주세요.",
                                 "주문 취소",
                                 onReject = { rejectReason ->
-                                    val rejectOrderCommand = RejectOrderCommand(order, rejectReason, this@ProcessingState)
+                                    val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_CANCEL)
                                     rejectOrderCommand.execute()
                                 }
                             )
@@ -207,7 +208,7 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
                     "주문 취소 사유를 선택해 주세요.",
                     "주문 취소",
                     onReject = { rejectReason ->
-                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason, this@ProcessingState)
+                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason , RejectedReasonType.STORE_CANCEL)
                         rejectOrderCommand.execute()
                     }
                 )
