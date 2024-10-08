@@ -17,7 +17,7 @@ class Print : JPanel() {
             gridy = 0
             weightx = 1.0
             fill = GridBagConstraints.HORIZONTAL
-            insets = Insets(20, 0, 0, 10)  // 여백 설정
+            insets = Insets(0, 0, 0, 10)  // 여백 설정
         }
 
         val panel = JPanel().apply {
