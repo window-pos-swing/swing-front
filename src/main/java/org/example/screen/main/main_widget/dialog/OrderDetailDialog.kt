@@ -41,15 +41,15 @@ class OrderDetailDialog(
         // 요청 사항 패널 추가
         val storeRequestInfoPanel = createRequestInfoPanel("가게").apply {
             border = EmptyBorder(10, 0, 0, 0)
-            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
-            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
+//            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
+//            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
         }
         mainPanel.add(storeRequestInfoPanel)
 
         val deliveryRequestInfoPanel = createRequestInfoPanel("배달").apply {
             border = EmptyBorder(10, 0, 0, 0)
-            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
-            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
+//            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
+//            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
         }
         mainPanel.add(deliveryRequestInfoPanel)
 
@@ -229,8 +229,7 @@ class OrderDetailDialog(
         return panel
     }
 
-
-    private fun createRequestInfoPanel(type: String): JPanel {
+    fun createRequestInfoPanel(type: String): JPanel {
         val panel = JPanel().apply {
             layout = BorderLayout()
             background = Color.WHITE
@@ -240,7 +239,7 @@ class OrderDetailDialog(
         val headerPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
             background = Color.WHITE
             add(JLabel(LoadImage.loadImage("/pin_icon.png", 20, 20)))
-            add(JLabel("$type 요청 사항").apply {
+            add(JLabel("${type} 요청 사항").apply {
                 font = MyFont.Bold(24f)
                 foreground = Color.BLACK
                 border = EmptyBorder(20, 0, 0, 0)
@@ -259,29 +258,32 @@ class OrderDetailDialog(
         }
 
         // 요청 사항 텍스트
-        val requestText = "요청사항입니다. 반드시 들어줘야함... 단무지 빼주세요 피클 많이 주세요 등등 테스트 요청사항 입니다 문앞에 두고가주세요 맵게 해주세요 맛있게 해주세요"
+        val requestText = "요청사항입니다. 반드시 들어줘야함... 단무지 빼주세요 피클 많이 주세요 등등 테스트 요청사항 입니다 문앞에 두고가주세요 맵게 해주세요 맛있게 해주세요 여기에 텍스트를 입력합니다. 이 텍스트가 길어지면 자동으로 줄바꿈이 됩니다. 더 많은 내용을 입력해 보세요."
 
-        // truncateTextForMultipleLines 함수를 사용해 텍스트 줄바꿈 처리
-        val truncatedText = truncateTextForMultipleLines(requestText, 650, contentPanel)
-
-//        println("truncatedText ${truncatedText}")
-        // HTML을 사용한 JLabel 생성
-        val requestLabel = JLabel(truncatedText).apply {
-            font = MyFont.SemiBold(18f)
+        // 요청 사항 텍스트를 JTextArea로 생성하여 추가
+        val requestTextArea = JTextArea(requestText).apply {
+            font = Font("Arial", Font.PLAIN, 18)
             foreground = Color.BLACK
             background = Color.WHITE
+            lineWrap = true  // 텍스트가 길어질 경우 줄바꿈 허용
+            wrapStyleWord = true  // 단어 단위로 줄바꿈
+            isEditable = false  // 수정 불가능하게 설정
             isOpaque = false  // 배경 투명 설정
             border = null  // 불필요한 경계 제거
-            // 크기를 텍스트 길이에 맞게 자동 조정
-            preferredSize = Dimension(900, preferredSize.height)
-            minimumSize = Dimension(900, minimumSize.height)
         }
 
-        contentPanel.add(requestLabel)
+        // 텍스트 길이에 따라 동적으로 높이 조정
+        contentPanel.add(requestTextArea)
         panel.add(contentPanel, BorderLayout.CENTER)
+
+        // 패널의 크기를 동적으로 계산하도록 요청
+        panel.revalidate()
+        panel.repaint()
 
         return panel
     }
+
+
     // 주문 정보 패널 생성
     private fun createOrderInfoPanel(): JPanel {
         val panel = JPanel().apply {
@@ -447,34 +449,6 @@ class OrderDetailDialog(
     }
 
 
-    // 레이블과 텍스트 생성 함수
-    private fun createLabeledField(label: String, value: String, wide_section: Boolean = true): JPanel {
-        val labelPanel = JPanel().apply {
-            layout = FlowLayout(FlowLayout.LEFT)
-            background = Color.WHITE
-            add(JLabel(label).apply {
-                font = MyFont.Bold(20f)
-                foreground = Color.BLACK
-            })
-        }
-
-        val valuePanel = JPanel().apply {
-            layout = FlowLayout(FlowLayout.LEFT)
-            background = Color.WHITE
-            add(JLabel(value).apply {
-                font = MyFont.SemiBold(18f)
-                foreground = Color.BLACK
-            })
-        }
-
-        return JPanel(BorderLayout()).apply {
-            background = Color.WHITE
-            add(labelPanel, BorderLayout.WEST)
-            add(valuePanel, BorderLayout.CENTER)
-        }
-    }
-
-
     override fun addButtonsToTitleBar(panel: JPanel) {
         // 먼저 인쇄 버튼을 추가하고 그다음에 닫기 버튼 추가
         val printButton = FillRoundedButton(
@@ -517,28 +491,6 @@ class OrderDetailDialog(
         updateTitleBorder(170)
     }
 
-    //일정 텍스트 길이 넘어가면 줄바꿈 추가해주는 함수
-    private fun truncateTextForMultipleLines(text: String, maxWidth: Int, component: JComponent): String {
-        val fontMetrics: FontMetrics = component.getFontMetrics(component.font)
-        val words = text.split(" ")
 
-        var currentLine = ""
-        var finalText = "<html>"
-
-        for (word in words) {
-            // 현재 줄에 단어를 추가했을 때 너비가 maxWidth를 넘으면 줄바꿈 처리
-            if (fontMetrics.stringWidth(currentLine + " " + word) < maxWidth) {
-                currentLine += if (currentLine.isEmpty()) word else " $word"
-            } else {
-                // 줄이 넘치면 새로운 줄로 이동하고 <br> 추가
-                finalText += "$currentLine<br>"
-                currentLine = word  // 새로운 줄에 단어 시작
-            }
-        }
-
-        // 마지막 줄 추가
-        finalText += currentLine + "</html>"
-        return finalText
-    }
 
 }
