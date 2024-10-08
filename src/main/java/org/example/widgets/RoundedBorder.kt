@@ -51,9 +51,14 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
     private var isSelected: Boolean = false  // 버튼 선택 여부를 추적하는 변수
     lateinit var button: JButton  // 나중에 생성된 버튼을 저장할 변수
 
+    private var selectedBackgroundColor: Color = MyColor.SELECTED_BACKGROUND_COLOR
+    private var unselectedBackgroundColor: Color = MyColor.UNSELECTED_BACKGROUND_COLOR
+    private var selectedTextColor: Color = MyColor.SELECTED_TEXT_COLOR
+    private var unselectedTextColor: Color = MyColor.GREY600
+
     // 둥근 테두리 적용
     override fun getBorderInsets(c: Component): Insets {
-        return Insets(radius + 1, radius + 1, radius + 2, radius)
+        return Insets(radius / 4 + 1, radius / 4 + 1, radius / 4 + 2, radius / 4)
     }
 
     override fun isBorderOpaque(): Boolean {
@@ -70,16 +75,16 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
     fun setButtonStyle(selected: Boolean) {
         isSelected = selected
         if (this::button.isInitialized) {  // 버튼이 초기화되었을 때만 작동
-            button.background = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
-            button.foreground = if (isSelected) MyColor.SELECTED_TEXT_COLOR else MyColor.GREY600
+            button.background = if (isSelected) selectedBackgroundColor else unselectedBackgroundColor
+            button.foreground = if (isSelected) selectedTextColor else unselectedTextColor
             button.border = SelectButtonRoundedBorder(radius).apply {
-                lineColor = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
+                lineColor = if (isSelected) selectedBackgroundColor else unselectedBackgroundColor
             }
             button.repaint()
         }
     }
 
-    // 둥근 버튼 생성 함수
+    // 둥근 버튼 생성 함수 (매개변수로 색상들을 받아서 설정)
     fun createRoundedButton(
         text: String,
         selectedColor: Color,
@@ -88,6 +93,13 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
         unselectedTextColor: Color,
         buttonSize: Dimension
     ): JButton {
+        // 매개변수로 받은 색상을 저장
+        selectedBackgroundColor = selectedColor
+        unselectedBackgroundColor = unselectedColor
+        this.selectedTextColor = selectedTextColor
+        this.unselectedTextColor = unselectedTextColor
+
+        // 버튼 생성
         button = object : JButton(text) {
             override fun paintComponent(g: Graphics) {
                 val g2 = g as Graphics2D
@@ -111,21 +123,22 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
             foreground = unselectedTextColor  // 초기 텍스트 색상 설정
             background = unselectedColor  // 초기 배경색 설정
             border = SelectButtonRoundedBorder(radius).apply {
-                lineColor = MyColor.UNSELECTED_BACKGROUND_COLOR  // 초기 테두리 색상 설정
+                lineColor = unselectedColor  // 초기 테두리 색상 설정
             }
+
             font = MyFont.Bold(24f)
             horizontalAlignment = SwingConstants.CENTER
-
 
             isFocusPainted = false // 포커스 테두리 비활성화
             isFocusable = false // 버튼이 포커스를 받을 수 없도록 설정
             setContentAreaFilled(false) // 배경 칠하기 비활성화
-            setBorderPainted(false) // 기본 테두리 제거 (필요시 추가)
+            setBorderPainted(false) // 기본 테두리 제거
         }
 
         return button  // 버튼을 리턴
     }
 }
+
 
 
 // 밖에 라인만 둥근 컴포넌트
