@@ -36,7 +36,7 @@ class CompletedState : OrderState {
                     borderWidth = 1,
                     textAlignment = SwingConstants.CENTER,
                     padding = Insets(10, 20, 10, 20),
-                    iconPath = "/print_icon.png",
+                    iconPath = "/print_icon_main.png",
                     buttonSize = Dimension(50, 50),
                     iconWidth = 45,
                     iconHeight = 45

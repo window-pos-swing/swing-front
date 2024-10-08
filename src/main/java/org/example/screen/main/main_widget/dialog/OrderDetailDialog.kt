@@ -5,6 +5,7 @@ import LoadImage
 import LoadImage.loadImage
 import org.example.MyFont
 import org.example.MyFont.Bold
+import org.example.model.Order
 import org.example.style.MyColor
 import org.example.widgets.FillRoundedButton
 import org.example.widgets.IconRoundBorder
@@ -20,8 +21,8 @@ import javax.swing.table.TableCellRenderer
 class OrderDetailDialog(
     parent: JFrame,
     title: String,
-    callback: ((Boolean) -> Unit)? = null
-) : CustomRoundedDialog(parent, title, 1000, 833, callback) {
+    order: Order,
+) : CustomRoundedDialog(parent, title, 1000, 833) {
 
     init {
         // 메인 패널을 생성하고, 내용을 넣음
@@ -32,21 +33,21 @@ class OrderDetailDialog(
         }
 
         // 배달 정보 패널 추가
-        val deliveryInfoPanel = createDeliveryInfoPanel().apply {
+        val deliveryInfoPanel = createDeliveryInfoPanel(order).apply {
             preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
             maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
         }
         mainPanel.add(deliveryInfoPanel)
 
         // 요청 사항 패널 추가
-        val storeRequestInfoPanel = createRequestInfoPanel("가게").apply {
+        val storeRequestInfoPanel = createRequestInfoPanel("가게" , order).apply {
             border = EmptyBorder(10, 0, 0, 0)
 //            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
 //            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
         }
         mainPanel.add(storeRequestInfoPanel)
 
-        val deliveryRequestInfoPanel = createRequestInfoPanel("배달").apply {
+        val deliveryRequestInfoPanel = createRequestInfoPanel("배달" , order).apply {
             border = EmptyBorder(10, 0, 0, 0)
 //            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
 //            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
@@ -54,10 +55,10 @@ class OrderDetailDialog(
         mainPanel.add(deliveryRequestInfoPanel)
 
         // 주문 정보 패널 추가
-        val orderInfoPanel = createOrderInfoPanel().apply {
+        val orderInfoPanel = createOrderInfoPanel(order).apply {
             border = EmptyBorder(10, 0, 0, 0)
-            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
-            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
+//            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
+//            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
         }
         mainPanel.add(orderInfoPanel)
 
@@ -90,7 +91,7 @@ class OrderDetailDialog(
 
 
     // 배달 정보 패널 생성
-    private fun createDeliveryInfoPanel(): JPanel {
+    private fun createDeliveryInfoPanel(order:Order): JPanel {
         val panel = JPanel().apply {
             layout = BorderLayout()
             background = Color.WHITE
@@ -149,7 +150,7 @@ class OrderDetailDialog(
             border = EmptyBorder(0, 20, 0, 20)
 
             // 주소 값 - JTextArea 사용
-            add(JTextArea("서울시 송파구 무슨빌라 어쩌구 저쩌구 고객주소 101호").apply {
+            add(JTextArea(order.address).apply {
                 font = MyFont.SemiBold(18f)
                 lineWrap = true   // 텍스트가 길어질 경우 줄바꿈 허용
                 wrapStyleWord = true  // 단어 단위로 줄바꿈
@@ -164,7 +165,7 @@ class OrderDetailDialog(
             add(Box.createVerticalStrut(15))
 
             // 연락처 값 - JLabel 사용
-            add(JLabel("050-1234-1234").apply {
+            add(JLabel(order.CustomerPhonenumber).apply {
                 font = MyFont.SemiBold(18f)
                 alignmentX = Component.LEFT_ALIGNMENT
                 alignmentY = Component.TOP_ALIGNMENT
@@ -174,7 +175,7 @@ class OrderDetailDialog(
             add(Box.createVerticalStrut(30))
 
             // 결제방법 값 - JLabel 사용
-            add(JLabel("꼬르륵 앱 결제 완료").apply {
+            add(JLabel(order.paymentMethod).apply {
                 font = MyFont.SemiBold(18f)
                 alignmentX = Component.LEFT_ALIGNMENT
                 alignmentY = Component.TOP_ALIGNMENT
@@ -208,7 +209,8 @@ class OrderDetailDialog(
             border = EmptyBorder(0, 20, 0, 20)
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
-            add(JLabel("24-09-09 AM 05:00").apply { font = MyFont.SemiBold(18f) })
+            val receivedTimeText = order.ReceivedTime?.toString() ?: "접수전"
+            add(JLabel(receivedTimeText).apply { font = MyFont.SemiBold(18f) })
             add(Box.createVerticalStrut(35))
             add(JLabel("20분").apply { font = MyFont.SemiBold(18f) })
             add(Box.createVerticalStrut(35))
@@ -229,7 +231,7 @@ class OrderDetailDialog(
         return panel
     }
 
-    fun createRequestInfoPanel(type: String): JPanel {
+    private fun createRequestInfoPanel(type: String, order:Order): JPanel {
         val panel = JPanel().apply {
             layout = BorderLayout()
             background = Color.WHITE
@@ -257,12 +259,9 @@ class OrderDetailDialog(
             )
         }
 
-        // 요청 사항 텍스트
-        val requestText = "요청사항입니다. 반드시 들어줘야함... 단무지 빼주세요 피클 많이 주세요 등등 테스트 요청사항 입니다 문앞에 두고가주세요 맵게 해주세요 맛있게 해주세요 여기에 텍스트를 입력합니다. 이 텍스트가 길어지면 자동으로 줄바꿈이 됩니다. 더 많은 내용을 입력해 보세요."
-
         // 요청 사항 텍스트를 JTextArea로 생성하여 추가
-        val requestTextArea = JTextArea(requestText).apply {
-            font = Font("Arial", Font.PLAIN, 18)
+        val requestTextArea = JTextArea(order.request).apply {
+            font = MyFont.Medium(18f)
             foreground = Color.BLACK
             background = Color.WHITE
             lineWrap = true  // 텍스트가 길어질 경우 줄바꿈 허용
@@ -285,7 +284,7 @@ class OrderDetailDialog(
 
 
     // 주문 정보 패널 생성
-    private fun createOrderInfoPanel(): JPanel {
+    private fun createOrderInfoPanel(order: Order): JPanel {
         val panel = JPanel().apply {
             layout = BorderLayout()
             background = Color.WHITE
@@ -303,194 +302,214 @@ class OrderDetailDialog(
         }
         panel.add(headerPanel, BorderLayout.NORTH)
 
-        // 세부 주문 정보 패널 (메뉴 테이블, 배달비, 총합)
+        // 세부 주문 정보 패널 (메뉴, 수량, 금액)
         val contentPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
-            border = BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(0, 0, 0, 0),  // 좌우 여백
-                LineBorder(MyColor.GREY400, 1)
+            border = CompoundBorder(
+                LineBorder(MyColor.GREY400, 1),  // 테두리 색상과 두께 설정
+                EmptyBorder(30, 10, 0, 10)  // 기본 내부 여백 설정
             )
         }
 
-        // 메뉴 테이블 데이터 설정
-        val tableData = arrayOf(
-            arrayOf("아메리카노", "2", "8000원"),
-            arrayOf("  • 사이즈업", "", "1000원"),
-            arrayOf("  • 샷추가", "", "1000원"),
-            arrayOf("에스프레소", "1", "4000원"),
-            arrayOf("배달비", "", "1000원"),
-            arrayOf("총합", "3", "15000원")
-        )
-
-        // 테이블 컬럼 설정
-        val columnNames = arrayOf("메뉴", "수량", "금액")
-
-        val customRenderer = object : DefaultTableCellRenderer() {
-            override fun getTableCellRendererComponent(
-                table: JTable?, value: Any?, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int
-            ): Component {
-                val cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column) as JLabel
-                cell.font = MyFont.Bold(22f)  // 셀 폰트 설정
-                cell.horizontalAlignment = when (column) {
-                    0 -> JLabel.LEFT  // 첫 번째 열(메뉴) 왼쪽 정렬
-                    1 -> JLabel.CENTER  // 두 번째 열(수량) 가운데 정렬
-                    2 -> JLabel.RIGHT  // 세 번째 열(금액) 오른쪽 정렬
-                    else -> JLabel.LEFT
-                }
-
-                // 메뉴와 금액 열에 여백 추가
-                if (column == 0) {
-                    cell.border = BorderFactory.createEmptyBorder(0, 10, 0, 0)  // 메뉴 열에 왼쪽 여백 추가
-                } else if (column == 2) {
-                    cell.border = BorderFactory.createEmptyBorder(0, 0, 0, 10)  // 금액 열에 오른쪽 여백 추가
-                } else {
-                    cell.border = BorderFactory.createEmptyBorder(0, 0, 0, 0)  // 나머지 셀에는 여백 없음
-                }
-
-                return cell
-            }
-        }
-
-// JTable에서 특정 행에만 구분선을 추가
-// 테이블 생성
-        val table = object : JTable(tableData, columnNames) {
-            override fun prepareRenderer(renderer: TableCellRenderer?, row: Int, column: Int): Component {
-                val cell = super.prepareRenderer(renderer, row, column) as JComponent
-                // 특정 행에만 구분선을 추가하는 로직
-                if (row == 3 || row == 4) {  // 에스프레소와 배달비 행에 구분선 추가
-                    cell.border = BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.GREY400)  // 하단 구분선
-                } else {
-                    cell.border = BorderFactory.createEmptyBorder()  // 나머지 행에는 구분선 없음
-                }
-                return cell
-            }
-
-            // 테이블이 수정되지 않도록 설정
-            override fun isCellEditable(row: Int, column: Int): Boolean {
-                return false  // 모든 셀에 대해 수정 불가
-            }
-        }.apply {
-            gridColor = MyColor.GREY400  // 기본적으로 가로줄을 표시
-            setShowVerticalLines(false)  // 세로 줄 제거
-            setShowHorizontalLines(false)  // 가로 구분선 표시
-            rowHeight = 50  // 각 행의 높이를 50 픽셀로 설정 (원하는 높이로 설정 가능)
-            tableHeader.reorderingAllowed = false  // 열 이동 불가
-        }
-
-
-        // 각 열에 커스텀 렌더러 적용
-        for (i in 0 until table.columnCount) {
-            table.columnModel.getColumn(i).cellRenderer = customRenderer
-        }
-
-        // 헤더의 폰트와 정렬을 MyFont.Medium으로 설정, 각 열에 맞는 정렬 설정
-        val headerRenderer = object : DefaultTableCellRenderer() {
-            override fun getTableCellRendererComponent(
-                table: JTable?, value: Any?, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int
-            ): Component {
-                val headerCell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column) as JLabel
-                headerCell.font = MyFont.Medium(16f)  // 헤더에 MyFont.Medium 적용
-                headerCell.horizontalAlignment = when (column) {
-                    0 -> JLabel.LEFT    // 메뉴 열은 왼쪽 정렬
-                    1 -> JLabel.CENTER  // 수량 열은 가운데 정렬
-                    2 -> JLabel.RIGHT   // 금액 열은 오른쪽 정렬
-                    else -> JLabel.CENTER
-                }
-
-                // 헤더의 메뉴에 왼쪽 여백 추가, 금액에 오른쪽 여백 추가
-                if (column == 0) {
-                    headerCell.border = BorderFactory.createEmptyBorder(0, 20, 0, 0)  // 메뉴 헤더 왼쪽 여백 추가
-                } else if (column == 2) {
-                    headerCell.border = BorderFactory.createEmptyBorder(0, 0, 0, 20)  // 금액 헤더 오른쪽 여백 추가
-                }
-
-                return headerCell
-            }
-        }
-
-        // 헤더에 커스텀 렌더러 적용
-        for (i in 0 until table.columnCount) {
-            table.tableHeader.columnModel.getColumn(i).headerRenderer = headerRenderer
-        }
-
-        // 테이블 높이 설정: 테이블의 모든 행과 헤더를 포함하는 높이로 설정
-        val tableHeight = table.rowHeight * table.rowCount + table.tableHeader.preferredSize.height
-        table.preferredSize = Dimension(900, tableHeight)
-
-        // 헤더 아래에 구분선을 추가
-        table.tableHeader.border = BorderFactory.createCompoundBorder(
-            BorderFactory.createEmptyBorder(0, 10, 0, 10),  // 좌우 여백 설정 (상, 좌, 하, 우)
-            BorderFactory.createMatteBorder(0, 0, 1, 0, MyColor.GREY400)  // 하단에만 구분선
-        )
-
-        // 테이블을 감싸는 tableContainer 패널을 사용하여 좌우 여백 적용
-        val tableContainer = JPanel(BorderLayout()).apply {
+        // 메뉴, 수량, 금액 정보를 담을 패널 생성
+        val orderInfoContainer = JPanel().apply {
+            layout = GridBagLayout()
             background = Color.WHITE
-            border = BorderFactory.createEmptyBorder(0, 10, 0, 10)  // 좌우에 10픽셀 여백 적용
-            add(table.tableHeader, BorderLayout.NORTH)  // 테이블 헤더 추가
-            add(table, BorderLayout.CENTER)  // 테이블 본문 추가
         }
 
-        // 총합 행에 텍스트 스타일 적용
-        val totalRow = table.getModel().getValueAt(5, 0) as String
-        val totalAmount = table.getModel().getValueAt(5, 2) as String
+        val constraints = GridBagConstraints().apply {
+            fill = GridBagConstraints.BOTH
+            weighty = 1.0
+            weighty = 0.0 // 여백 최소화
+            insets = Insets(0, 0, 0, 0)
+        }
 
-        // 총합 텍스트를 빨간색으로 처리
-        table.setValueAt("<html><b><font color='red'>$totalRow</font></b></html>", 5, 0)
-        table.setValueAt("<html><b><font color='red'>$totalAmount</font></b></html>", 5, 2)
+        val menuPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            background = Color.WHITE
+            alignmentX = Component.LEFT_ALIGNMENT
+        }
+        val quantityPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            background = Color.WHITE
+            alignmentX = Component.CENTER_ALIGNMENT
+        }
+        val pricePanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            background = Color.WHITE
+            alignmentX = Component.RIGHT_ALIGNMENT
+        }
 
-        // 테이블을 바로 추가 (스크롤 패널 없이)
-        contentPanel.add(tableContainer)
+        // 각 패널을 orderInfoContainer에 추가 (비율에 따라 크기 설정)
+        constraints.weightx = 0.7
+        constraints.gridx = 0
+        orderInfoContainer.add(menuPanel, constraints)
 
+        constraints.weightx = 0.1
+        constraints.gridx = 1
+        orderInfoContainer.add(quantityPanel, constraints)
+
+        constraints.weightx = 0.2
+        constraints.gridx = 2
+        orderInfoContainer.add(pricePanel, constraints)
+
+        // 메뉴, 수량, 금액 타이틀 추가
+        menuPanel.add(JLabel("메뉴").apply { font = MyFont.SemiBold(22f) })
+        quantityPanel.add(JLabel("수량").apply { font = MyFont.SemiBold(22f); alignmentX = Component.CENTER_ALIGNMENT })
+        pricePanel.add(JLabel("금액").apply { font = MyFont.SemiBold(22f); alignmentX = Component.RIGHT_ALIGNMENT })
+
+        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+
+        menuPanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
+            border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
+            maximumSize = Dimension(Int.MAX_VALUE, 1)
+        })
+        quantityPanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
+            border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
+            maximumSize = Dimension(Int.MAX_VALUE, 1)
+        })
+        pricePanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
+            border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
+            maximumSize = Dimension(Int.MAX_VALUE, 1)
+        })
+
+        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+
+        // order.menuList의 데이터를 순회하며 각 메뉴, 수량, 가격을 패널에 추가
+        order.menuList.forEach { menu ->
+            // 메뉴 이름 추가
+            menuPanel.add(JLabel(menu.menuName).apply {
+                font = MyFont.SemiBold(22f)
+            })
+
+            // 옵션 추가
+            menu.options.forEach { option ->
+                menuPanel.add(JLabel("  • ${option.optionName}").apply {
+                    font = MyFont.Regular(20f)
+                })
+            }
+
+            // 수량 추가
+            quantityPanel.add(JLabel(menu.count.toString()).apply {
+                font = MyFont.SemiBold(22f)
+                alignmentX = Component.CENTER_ALIGNMENT
+            })
+
+            // 옵션 수량은 빈 값으로 추가
+            menu.options.forEach {
+                quantityPanel.add(JLabel(" ").apply {
+                    font = MyFont.Regular(20f)
+                })
+            }
+
+            // 가격 추가
+            pricePanel.add(JLabel("${menu.price}원").apply {
+                font = MyFont.SemiBold(22f)
+                alignmentX = Component.RIGHT_ALIGNMENT
+            })
+
+            // 옵션 가격 추가
+            menu.options.forEach { option ->
+                pricePanel.add(JLabel("${option.optionPrice}원").apply {
+                    font = MyFont.Regular(20f)
+                    alignmentX = Component.RIGHT_ALIGNMENT
+                })
+            }
+
+            // 메뉴 사이클이 끝날 때 공백 추가
+            menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+            quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+            pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+
+        }
+
+        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+
+        menuPanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
+            border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
+            maximumSize = Dimension(Int.MAX_VALUE, 1)
+        })
+        quantityPanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
+            border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
+            maximumSize = Dimension(Int.MAX_VALUE, 1)
+        })
+        pricePanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
+            border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
+            maximumSize = Dimension(Int.MAX_VALUE, 1)
+        })
+
+        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+
+        // 배달비 추가
+        menuPanel.add(JLabel("배달비").apply {
+            font = MyFont.SemiBold(22f)
+        })
+        quantityPanel.add(JLabel(" ").apply {
+            font = MyFont.SemiBold(22f)
+        })
+        pricePanel.add(JLabel("${order.deliveryFee}원").apply {
+            font = MyFont.SemiBold(22f)
+            alignmentX = Component.RIGHT_ALIGNMENT
+        })
+
+        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+
+        // 구분선 추가
+        menuPanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
+            border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
+            maximumSize = Dimension(Int.MAX_VALUE, 1)
+        })
+        quantityPanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
+            border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
+            maximumSize = Dimension(Int.MAX_VALUE, 1)
+        })
+        pricePanel.add(JSeparator(SwingConstants.HORIZONTAL).apply {
+            border = LineBorder(MyColor.GREY400, 1) // 기존 테두리 추가
+            maximumSize = Dimension(Int.MAX_VALUE, 1)
+        })
+
+        menuPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        quantityPanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+        pricePanel.add(Box.createVerticalStrut(30)) // 10픽셀 높이의 공백 추가
+
+        // 총합 추가
+        val totalCount = order.menuList.sumOf { it.count }
+        val totalPrice = order.menuList.sumOf { it.price + it.options.sumOf { option -> option.optionPrice } } + order.deliveryFee
+
+        menuPanel.add(JLabel("총합").apply {
+            font = MyFont.Bold(22f)
+            foreground = Color.RED
+        })
+        quantityPanel.add(JLabel(totalCount.toString()).apply {
+            font = MyFont.Bold(22f)
+            foreground = Color.RED
+            alignmentX = Component.CENTER_ALIGNMENT
+        })
+        pricePanel.add(JLabel("${totalPrice}원").apply {
+            font = MyFont.Bold(22f)
+            foreground = Color.RED
+            alignmentX = Component.RIGHT_ALIGNMENT
+        })
+
+        // 전체 contentPanel에 orderInfoContainer 추가
+        contentPanel.add(orderInfoContainer)
+
+        // contentPanel을 panel에 추가
         panel.add(contentPanel, BorderLayout.CENTER)
 
         return panel
     }
-
-
-    override fun addButtonsToTitleBar(panel: JPanel) {
-        // 먼저 인쇄 버튼을 추가하고 그다음에 닫기 버튼 추가
-        val printButton = FillRoundedButton(
-            text = "인쇄하기",
-            borderColor = MyColor.GREY100,
-            backgroundColor = MyColor.GREY100,
-            textColor = MyColor.GREY600,
-            borderRadius = 20,
-            borderWidth = 1,
-            textAlignment = SwingConstants.CENTER,
-            padding = Insets(0, 16, 0, 16),
-            buttonSize = Dimension(136, 45),
-            customFont = MyFont.Bold(20f)
-        )
-
-        val closeButton = IconRoundBorder.createRoundedButton("/close_red_icon.png").apply {
-            preferredSize = Dimension(45, 45)
-            maximumSize = Dimension(45, 45)
-            minimumSize = Dimension(45, 45)
-
-            addActionListener {
-                dispose()
-            }
-        }
-
-        // 버튼 컨테이너에 인쇄 버튼과 닫기 버튼을 순서대로 추가
-        val buttonContainer = JPanel().apply {
-            layout = BoxLayout(this, BoxLayout.X_AXIS)
-            border = EmptyBorder(0, 0, 10, 0)
-            isOpaque = false
-            add(printButton)
-            add(Box.createHorizontalStrut(15))
-            add(closeButton)
-        }
-
-        // 버튼 컨테이너를 타이틀 패널의 오른쪽에 추가
-        panel.add(buttonContainer, BorderLayout.EAST)
-
-        // 타이틀 여백을 조정
-        updateTitleBorder(170)
-    }
-
 
 
 }
