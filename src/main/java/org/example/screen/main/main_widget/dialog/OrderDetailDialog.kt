@@ -1,7 +1,10 @@
 package org.example.screen.main.main_widget.dialog
 
 import CustomRoundedDialog
+import LoadImage
+import LoadImage.loadImage
 import org.example.MyFont
+import org.example.MyFont.Bold
 import org.example.style.MyColor
 import org.example.widgets.FillRoundedButton
 import org.example.widgets.IconRoundBorder
@@ -12,6 +15,7 @@ import javax.swing.border.EmptyBorder
 import javax.swing.border.LineBorder
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableCellRenderer
+
 
 class OrderDetailDialog(
     parent: JFrame,
@@ -92,7 +96,7 @@ class OrderDetailDialog(
             background = Color.WHITE
         }
 
-        // 아이콘 및 제목 추가
+        // 헤더 패널 추가
         val headerPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
             background = Color.WHITE
             add(JLabel(LoadImage.loadImage("/pin_icon.png", 20, 20)))
@@ -104,22 +108,112 @@ class OrderDetailDialog(
         }
         panel.add(headerPanel, BorderLayout.NORTH)
 
-        // 세부 배달 정보 패널
-        val contentPanel = JPanel(GridLayout(3, 2, 10, 0)).apply {
+        // contentPanel 생성 (좌우로 나뉨)
+        val contentPanel = JPanel(GridLayout(1, 2, 10, 0)).apply {
             background = Color.WHITE
-            border = LineBorder(MyColor.GREY400, 1)  // 여기만 테두리 추가
-            add(createLabeledField("주소", "서울시 송파구 무슨빌라 어쩌구 저쩌구 고객주소 101호 테스트 길이 입니다",false))
-            add(createLabeledField("접수 일시", "24-09-09 AM 05:00"))
-            add(createLabeledField("연락처", "050-1234-1234",false))
-            add(createLabeledField("예상 조리 시간 (라이더)", "20분"))
-            add(createLabeledField("결제 방법", "꼬르륵 앱 결제 완료",false))
-            add(createLabeledField("배달 예상 시간 (고객)", "45분"))
+            border = LineBorder(MyColor.GREY400, 1)  // 테두리 추가
+            preferredSize = Dimension(940, 250)
         }
 
-        panel.preferredSize = Dimension(940, 250)
-        panel.minimumSize = Dimension(940, 250)  // 최소 높이를 설정
-        panel.maximumSize = Dimension(940, 250)
+        // leftPanel 생성 (좌우로 나뉨)
+        val leftPanel = JPanel(BorderLayout()).apply {
+            border = LineBorder(Color.BLUE, 1)
+        }
 
+        // leftInleftPanel: 레이블 패널 (주소, 연락처, 결제방법)
+        val leftInleftPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            border = LineBorder(Color.GREEN, 1)
+            preferredSize = Dimension(80, 250)
+            maximumSize = Dimension(80, 250)
+            maximumSize = Dimension(80, 250)
+            add(JLabel("주소").apply { font = MyFont.Bold(20f) })
+            add(Box.createVerticalStrut(35))
+            add(JLabel("연락처").apply { font = MyFont.Bold(20f) })
+            add(Box.createVerticalStrut(30))
+            add(JLabel("결제방법").apply { font = MyFont.Bold(20f) })
+        }
+
+        // rigthInleftPanel: 실제 값 패널 (주소 값, 연락처 값, 결제방법 값)
+        val rigthInleftPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            border = LineBorder(Color.CYAN, 1)
+            alignmentX = Component.LEFT_ALIGNMENT
+
+            // 주소 값 - JTextArea 사용
+            add(JTextArea("서울시 송파구 무슨빌라 어쩌구 저쩌구 고객주소 101호").apply {
+                font = MyFont.SemiBold(18f)
+                lineWrap = true   // 텍스트가 길어질 경우 줄바꿈 허용
+                wrapStyleWord = true  // 단어 단위로 줄바꿈
+                isEditable = false
+                isOpaque = false
+                border = null
+                maximumSize = Dimension(400, 50) // 높이를 제한
+                alignmentX = Component.LEFT_ALIGNMENT
+                alignmentY = Component.TOP_ALIGNMENT
+            })
+
+            add(Box.createVerticalStrut(15))
+
+            // 연락처 값 - JLabel 사용
+            add(JLabel("050-1234-1234").apply {
+                font = MyFont.SemiBold(18f)
+                alignmentX = Component.LEFT_ALIGNMENT
+                alignmentY = Component.TOP_ALIGNMENT
+                maximumSize = Dimension(400, 30)
+            })
+
+            add(Box.createVerticalStrut(30))
+
+            // 결제방법 값 - JLabel 사용
+            add(JLabel("꼬르륵 앱 결제 완료").apply {
+                font = MyFont.SemiBold(18f)
+                alignmentX = Component.LEFT_ALIGNMENT
+                alignmentY = Component.TOP_ALIGNMENT
+                maximumSize = Dimension(400, 30)
+            })
+        }
+
+        // leftPanel에 leftInleftPanel과 rigthInleftPanel 추가
+        leftPanel.add(leftInleftPanel, BorderLayout.WEST)
+        leftPanel.add(rigthInleftPanel, BorderLayout.CENTER)
+
+        // rightPanel 생성 (좌우로 나뉨)
+        val rightPanel = JPanel(GridLayout(1, 2, 10, 0)).apply {
+            border = LineBorder(Color.RED, 1)
+        }
+
+        // leftInrightPanel: 레이블 패널 (접수일시, 예상조리시간, 배달예상시간)
+        val leftInrightPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            border = LineBorder(Color.MAGENTA, 1)
+            add(JLabel("접수 일시").apply { font = MyFont.Bold(20f) })
+            add(Box.createVerticalStrut(30))
+            add(JLabel("예상 조리 시간 (라이더)").apply { font = MyFont.Bold(20f) })
+            add(Box.createVerticalStrut(30))
+            add(JLabel("배달 예상 시간 (고객)").apply { font = MyFont.Bold(20f) })
+        }
+
+        // rightInrightPanel: 실제 값 패널 (접수일시 값, 예상조리시간 값, 배달예상시간 값)
+        val rightInrightPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            border = LineBorder(Color.YELLOW, 1)
+            add(JLabel("24-09-09 AM 05:00").apply { font = MyFont.SemiBold(18f) })
+            add(Box.createVerticalStrut(30))
+            add(JLabel("20분").apply { font = MyFont.SemiBold(18f) })
+            add(Box.createVerticalStrut(30))
+            add(JLabel("45분").apply { font = MyFont.SemiBold(18f) })
+        }
+
+        // rightPanel에 leftInrightPanel과 rightInrightPanel 추가
+        rightPanel.add(leftInrightPanel)
+        rightPanel.add(rightInrightPanel)
+
+        // contentPanel에 leftPanel과 rightPanel 추가
+        contentPanel.add(leftPanel)
+        contentPanel.add(rightPanel)
+
+        // panel에 contentPanel 추가
         panel.add(contentPanel, BorderLayout.CENTER)
 
         return panel
@@ -342,54 +436,30 @@ class OrderDetailDialog(
     }
 
 
-
-
-
-
-
-
     // 레이블과 텍스트 생성 함수
     private fun createLabeledField(label: String, value: String, wide_section: Boolean = true): JPanel {
-        return JPanel().apply {
-            layout = BoxLayout(this, BoxLayout.X_AXIS)  // 수평 레이아웃 사용
+        val labelPanel = JPanel().apply {
+            layout = FlowLayout(FlowLayout.LEFT)
             background = Color.WHITE
-            border = EmptyBorder(20, 20, 0, 20)
-
-            // 레이블 컴포넌트 설정
-            val labelComponent = JLabel(label).apply {
+            add(JLabel(label).apply {
                 font = MyFont.Bold(20f)
                 foreground = Color.BLACK
-                if (!wide_section) {
-                    preferredSize = Dimension(100, 20)
-                    maximumSize = Dimension(100, 20)
-                    minimumSize = Dimension(100, 20)
-                } else {
-                    preferredSize = Dimension(200, 20)
-                    maximumSize = Dimension(200, 20)
-                    minimumSize = Dimension(200, 20)
-                }
-                alignmentY = Component.TOP_ALIGNMENT // 수직 정렬을 맞추기 위해 상단 정렬
-            }
+            })
+        }
 
-            // 값 컴포넌트를 JTextArea로 변경하여 줄바꿈 허용
-            val valueComponent = JTextArea(value).apply {
+        val valuePanel = JPanel().apply {
+            layout = FlowLayout(FlowLayout.LEFT)
+            background = Color.WHITE
+            add(JLabel(value).apply {
                 font = MyFont.SemiBold(18f)
                 foreground = Color.BLACK
-                background = Color.WHITE
-                lineWrap = true  // 텍스트가 길어질 경우 줄바꿈 허용
-                wrapStyleWord = true
-                isEditable = false  // 수정 불가능하게 설정
-                isOpaque = false  // 배경을 투명하게 설정
-                border = null  // 불필요한 경계 제거
-                preferredSize = Dimension(250, 25)  // 원하는 크기로 지정
-                minimumSize = Dimension(250, 25)  // 최소 높이를 레이블과 동일하게 설정
-                alignmentY = Component.TOP_ALIGNMENT // 수직 정렬을 맞추기 위해 상단 정렬
-            }
+            })
+        }
 
-            // 컴포넌트 추가
-            add(labelComponent)
-            add(Box.createHorizontalStrut(10))  // 레이블과 값 사이에 여백 추가
-            add(valueComponent)
+        return JPanel(BorderLayout()).apply {
+            background = Color.WHITE
+            add(labelPanel, BorderLayout.WEST)
+            add(valuePanel, BorderLayout.CENTER)
         }
     }
 
