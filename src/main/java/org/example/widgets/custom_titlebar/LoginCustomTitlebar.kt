@@ -3,6 +3,7 @@ package org.example.widgets.custom_titlebar
 import org.example.MyFont
 import org.example.style.MyColor
 import org.example.widgets.IconRoundBorder
+import org.example.widgets.custom_titlebar.TitleDateUpdate.TitleDateUpdater
 import org.example.widgets.custom_titlebar.component_resizer.ComponentResizer
 import java.awt.*
 import java.awt.event.MouseAdapter
@@ -11,7 +12,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.swing.*
 
-class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
+class LoginCustomTitleBar(private val parentFrame: JFrame) : JPanel() {
 
     private var mouseX = 0
     private var mouseY = 0
@@ -37,6 +38,8 @@ class CustomTitleBar(private val parentFrame: JFrame) : JPanel() {
             border = BorderFactory.createEmptyBorder(0, 30, 0, 0)
         }
         add(titleLabel, BorderLayout.WEST)
+        //titlebar시간 TEXT UI업데이트 함수
+        TitleDateUpdater(titleLabel)
 
         // 오른쪽 버튼 패널 (FlowLayout을 사용하여 수평으로 가운데 정렬)
         val buttonPanel = JPanel().apply {

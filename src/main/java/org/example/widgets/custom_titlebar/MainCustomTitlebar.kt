@@ -3,6 +3,7 @@ package org.example.widgets.custom_titlebar
 import org.example.MyFont
 import org.example.SettingForm
 import org.example.widgets.IconRoundBorder
+import org.example.widgets.custom_titlebar.TitleDateUpdate.TitleDateUpdater
 import org.example.widgets.custom_titlebar.component_resizer.ComponentResizer
 import java.awt.*
 import java.awt.event.MouseAdapter
@@ -45,6 +46,9 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
             horizontalAlignment = SwingConstants.CENTER
         }
         add(titleLabel, BorderLayout.CENTER)
+
+        //titlebar시간 TEXT UI업데이트 함수
+        TitleDateUpdater(titleLabel)
 
         // 오른쪽 버튼 패널
         val buttonPanel = JPanel().apply {
