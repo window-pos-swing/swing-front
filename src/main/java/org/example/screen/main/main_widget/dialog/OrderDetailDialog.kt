@@ -8,6 +8,7 @@ import org.example.MyFont.Bold
 import org.example.model.Order
 import org.example.style.MyColor
 import org.example.widgets.FillRoundedButton
+import org.example.widgets.FillRoundedLabel
 import org.example.widgets.IconRoundBorder
 import java.awt.*
 import javax.swing.*
@@ -238,14 +239,49 @@ class OrderDetailDialog(
         }
 
         // 아이콘 및 제목 추가
-        val headerPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+        val headerPanel = JPanel(BorderLayout()).apply {
             background = Color.WHITE
-            add(JLabel(LoadImage.loadImage("/pin_icon.png", 20, 20)))
-            add(JLabel("${type} 요청 사항").apply {
-                font = MyFont.Bold(24f)
-                foreground = Color.BLACK
-                border = EmptyBorder(20, 0, 0, 0)
-            })
+
+            // 왼쪽에 아이콘과 제목 추가
+            val leftPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+                background = Color.WHITE
+                add(JLabel(LoadImage.loadImage("/pin_icon.png", 20, 20)))
+                add(JLabel("${type} 요청 사항").apply {
+                    font = MyFont.Bold(24f)
+                    foreground = Color.BLACK
+                    border = EmptyBorder(20, 0, 0, 0)
+                })
+            }
+            add(leftPanel, BorderLayout.WEST)
+
+            val spoonFork = if (order.spoonFork) "수저/포크 O" else "수저/포크 X"
+            val deliveryType = "비대면 배달"
+
+            // 오른쪽에 수저/포크 또는 배달 라벨 추가
+            val rightPanel = JPanel(FlowLayout(FlowLayout.RIGHT)).apply {
+                background = Color.WHITE
+                border = EmptyBorder(25, 0, 0, 0) // 라벨 주위 여백 설정
+                val labelText = if (type == "배달") deliveryType else spoonFork
+                val labelBackgroundColor = if (type == "배달") MyColor.PINK else MyColor.Yellow
+
+                add(
+                    FillRoundedLabel(
+                        text = labelText, // 라벨 텍스트 (배달 또는 수저/포크)
+                        borderColor = labelBackgroundColor, // 테두리 색상
+                        backgroundColor = labelBackgroundColor, // 배경색 설정
+                        textColor = Color.WHITE, // 텍스트 색상
+                        borderRadius = 30, // 라벨의 둥근 정도
+                        borderWidth = 2, // 테두리 두께
+                        textAlignment = SwingConstants.CENTER, // 텍스트 정렬
+                        padding = Insets(5, 10, 5, 10) // 패딩 (위, 왼쪽, 아래, 오른쪽)
+                    ).apply {
+                        font = MyFont.SemiBold(16f)
+                        preferredSize = Dimension(115, 28)  // 크기를 115x28로 설정
+                        maximumSize = Dimension(115, 28)
+                    }
+                )
+            }
+            add(rightPanel, BorderLayout.EAST)
         }
         panel.add(headerPanel, BorderLayout.NORTH)
 
@@ -281,7 +317,6 @@ class OrderDetailDialog(
 
         return panel
     }
-
 
     // 주문 정보 패널 생성
     private fun createOrderInfoPanel(order: Order): JPanel {
