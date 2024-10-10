@@ -80,6 +80,9 @@ class OrderDetailDialog(
             horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
             border = null  // 불필요한 테두리 없애기
         }
+        scrollPane.getViewport().addChangeListener {
+            scrollPane.repaint()
+        }
 
         // 스크롤 가능한 패널을 다이얼로그에 추가
         add(scrollPane)

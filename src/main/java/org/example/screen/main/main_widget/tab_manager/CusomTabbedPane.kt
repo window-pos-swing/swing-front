@@ -18,6 +18,7 @@ import org.example.view.states.CompletedState
 import org.example.view.states.PendingState
 import org.example.view.states.ProcessingState
 import org.example.view.states.RejectedState
+import org.example.widgets.OverlayManager
 import java.awt.*
 import java.awt.event.ItemEvent
 import javax.swing.*
@@ -26,6 +27,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     private var allOrders = mutableListOf<Order>()  // 모든 주문을 저장하는 리스트
 
     private var cardPanel: JPanel? = null  // 외부에서 전달받을 cardPanel을 nullable로 변경
+    private var overlayManager: OverlayManager = OverlayManager(parentFrame)
     private val menuPanel = JPanel()  // 탭 메뉴 패널 (세로로 정렬)
     private var orderCounter = 1 ;
     private val tabButtonMap = mutableMapOf<String, JPanel>()
@@ -203,6 +205,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             add(sendOrderButton)  // 버튼 추가
         }
         menuPanel.add(buttonPanel)
+
 
         // 메인 패널에 세로 탭 메뉴 추가
         add(menuPanel, BorderLayout.WEST)
@@ -764,11 +767,27 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         addMouseListener(object : java.awt.event.MouseAdapter() {
             override fun mouseClicked(e: java.awt.event.MouseEvent?) {
                 println("Detail Order #${order.orderNumber}")
+                // 다이얼로그가 열리기 전에 투명한 검은색 레이어 추가
+                overlayManager.addOverlayPanel()
+
+                // 다이얼로그 열기
                 val dialogTitle = getOrderDialogTitle(order)
-                OrderDetailDialog(SwingUtilities.getWindowAncestor(this@addOrderClickListener) as JFrame, dialogTitle,order = order)
+                val dialog = OrderDetailDialog(
+                    SwingUtilities.getWindowAncestor(this@addOrderClickListener) as JFrame,
+                    dialogTitle,
+                    order
+                )
+
+                // 다이얼로그가 닫힐 때 투명한 레이어 제거
+                dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
+                    override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                        overlayManager.removeOverlayPanel()
+                    }
+                })
             }
         })
     }
+
 
     // 주문 타입에 따른 다이얼로그 타이틀 설정 함수
     private fun getOrderDialogTitle(order: Order): String {
