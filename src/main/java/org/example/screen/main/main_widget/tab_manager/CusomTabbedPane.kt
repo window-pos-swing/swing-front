@@ -353,7 +353,15 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             val processingSubTabs = ProcessingSubTabs(this)
             cardPanel!!.add(processingSubTabs, "접수처리중 하위탭")
             cardLayout.show(cardPanel, "접수처리중 하위탭")
-        } else {
+        } else if(tabName == "접수완료") {
+            val completedSubTabs = CompletedSubTabs(this)
+            cardPanel!!.add(completedSubTabs, "접수완료 하위탭")
+            cardLayout.show(cardPanel, "접수완료 하위탭")
+        }else if(tabName == "주문거절"){
+            val rejectedSubTabs = RejectedSubTabs(this)
+            cardPanel!!.add(rejectedSubTabs, "주문거절 하위탭")
+            cardLayout.show(cardPanel, "주문거절 하위탭")
+        }else {
             cardLayout.show(cardPanel, tabName)
         }
 
