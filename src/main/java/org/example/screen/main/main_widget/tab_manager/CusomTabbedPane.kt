@@ -50,8 +50,9 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         }
     }
 
-    val processingSubTabs = ProcessingSubTabs(this)
-    val completedSubTabs = CompletedSubTabs(this)
+    var pendingSubTabs = PendingSubTabs(this)
+    var processingSubTabs = ProcessingSubTabs(this)
+    var completedSubTabs = CompletedSubTabs(this)
     val rejectedSubTabs = RejectedSubTabs(this)
 
     init {
@@ -264,7 +265,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         }, "전체보기")
 
         // 접수대기 탭에 PendingSubTabs 추가
-        val pendingSubTabs = PendingSubTabs(this)
         cardPanel.add(pendingSubTabs, "접수대기")
 
         // 접수처리중 탭에 ProcessingSubTabs 추가
@@ -348,21 +348,29 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         }
 
         if (tabName == "접수대기") {
-            val pendingSubTabs = PendingSubTabs(this)
+            pendingSubTabs.selectButton(pendingSubTabs.allOrdersButton)
+            filterPendingOrders()
             cardPanel!!.add(pendingSubTabs, "접수대기 하위탭")
             cardLayout.show(cardPanel, "접수대기 하위탭")
+
         } else if (tabName == "접수처리중") {
-            val processingSubTabs = ProcessingSubTabs(this)
+            processingSubTabs.selectButton(processingSubTabs.allOrdersButton)
+            filterProcessingOrders()
             cardPanel!!.add(processingSubTabs, "접수처리중 하위탭")
             cardLayout.show(cardPanel, "접수처리중 하위탭")
+
         } else if(tabName == "접수완료") {
-            val completedSubTabs = CompletedSubTabs(this)
+            completedSubTabs.selectButton(completedSubTabs.allOrdersButton)
+            filterCompletedOrders()
             cardPanel!!.add(completedSubTabs, "접수완료 하위탭")
             cardLayout.show(cardPanel, "접수완료 하위탭")
+
         }else if(tabName == "주문거절"){
-            val rejectedSubTabs = RejectedSubTabs(this)
+            rejectedSubTabs.selectButton(rejectedSubTabs.allRejectedButton)
+            filterRejectedOrders()
             cardPanel!!.add(rejectedSubTabs, "주문거절 하위탭")
             cardLayout.show(cardPanel, "주문거절 하위탭")
+
         }else {
             cardLayout.show(cardPanel, tabName)
         }
@@ -454,14 +462,17 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         pendingOrdersPanel.repaint()
     }
 
+
     // Pending 주문 목록을 새로 고침하는 함수
     fun refreshPendingOrders() {
         // pendingSubTabsState 값을 확인해 현재 선택된 서브탭에 맞춰 필터링 적용
+        println("refreshPendingOrders")
         if (pendingSubTabsState.isEmpty()) {
             filterPendingOrders()  // 전체보기일 때
         } else {
             filterPendingOrders(pendingSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
         }
+        pendingSubTabs.PendingSubTabsUpdateCounts()
     }
 
     fun filterProcessingOrders(orderType: String? = null) {
@@ -497,6 +508,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         } else {
             filterProcessingOrders(processingSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
         }
+        processingSubTabs.ProcessingSubTabsUpdateCounts()
     }
 
     fun filterCompletedOrders(orderType: String? = null) {
@@ -522,6 +534,16 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         // 레이아웃과 화면 갱신
         completedOrdersPanel.revalidate()
         completedOrdersPanel.repaint()
+    }
+
+    fun refreshCompletedOrders() {
+        // processingSubTabsState 값을 확인해 현재 선택된 서브탭에 맞춰 필터링 적용
+        if (completedSubTabsState.isEmpty()) {
+            filterProcessingOrders()  // 전체보기일 때
+        } else {
+            filterProcessingOrders(completedSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
+        }
+        completedSubTabs.CompletedSubTabsUpdateCounts()
     }
 
     fun filterRejectedOrders(rejectType: RejectedReasonType? = null) {
@@ -551,6 +573,16 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
         // 탭 타이틀 업데이트
         updateTabTitle(4, "주문거절", rejectedOrdersPanel.componentCount)
+    }
+
+    fun refreshRejectedOrders() {
+        // processingSubTabsState 값을 확인해 현재 선택된 서브탭에 맞춰 필터링 적용
+        if (rejectedSubTabsState.isEmpty()) {
+            filterProcessingOrders()  // 전체보기일 때
+        } else {
+            filterProcessingOrders(rejectedSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
+        }
+        rejectedSubTabs.RejectedSubTabsUpdateCounts()
     }
     //=================================================================================
 

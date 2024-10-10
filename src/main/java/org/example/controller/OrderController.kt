@@ -40,11 +40,11 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
             }
             is RejectedState -> {
                 moveOrderToReject(order)
+
             }
             is CompletedState -> {
                 moveOrderToCompleted(order)
             }
-
         }
     }
 
@@ -61,6 +61,12 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
 
         // 전체보기 탭에서 주문 UI를 업데이트 (삭제하지 않고 UI만 갱신)
         tabbedPane.updateOrderInAllOrders(order)  // 상태에 맞게 UI 업데이트
+
+        //주문대기탭 리프레쉬
+        tabbedPane.refreshPendingOrders()
+
+        //주문처리중탭 리프레쉬
+//        tabbedPane.refreshProcessingOrders() // * 이거 넣으면 전체보기탭에서 주문완료버튼, 재전송버튼 업데이트 안되는 이슈 있음
     }
     // 전체보기 탭에서 주문 UI 업데이트 (삭제 없이 UI만 갱신)
     private fun updateOrderUIInAllOrders(order: Order) {
@@ -78,7 +84,8 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         // 3. 주문완료 탭에 UI 추가
         val completedOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
         tabbedPane.addOrderToCompleted(completedOrderFrame)
-        tabbedPane.filterCompletedOrders()
+        tabbedPane.refreshCompletedOrders()
+        tabbedPane.refreshProcessingOrders()
     }
     //============================================================================
 
@@ -96,11 +103,13 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
                 println("주문이 고객에 의해 취소되었습니다.")
                 // 고객 취소에 맞는 UI 처리 추가 가능
             }
+
             RejectedReasonType.STORE_REJECT -> {
                 tabbedPane.removeOrderFromPending(order)
                 println("주문이 가게에 의해 거절되었습니다.")
                 // 가게 거절에 맞는 UI 처리 추가 가능
             }
+
             RejectedReasonType.STORE_CANCEL -> {
                 println("주문이 가게에 의해 취소되었습니다.")
                 tabbedPane.removeOrderFromProcessing(order)
@@ -111,6 +120,15 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         // 4. 주문거절 탭에 UI 추가
         val rejectedOrderFrame = tabbedPane.createOrderFrame(order)
         tabbedPane.addOrderToRejected(rejectedOrderFrame)
+
+        //5.주문대기탭 리프레쉬
+        tabbedPane.refreshPendingOrders()
+
+        //6.주문처리중탭 리프레쉬
+        tabbedPane.refreshProcessingOrders()
+
+        //7.주문거절탭 리프레쉬
+        tabbedPane.refreshRejectedOrders()
     }
     //===========================================================================
 
