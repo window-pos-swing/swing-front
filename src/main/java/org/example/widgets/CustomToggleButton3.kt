@@ -1,80 +1,90 @@
+import org.example.MyFont
+import org.example.style.MyColor
 import org.example.widgets.CustomToggleButton2
 import java.awt.*
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.awt.geom.RoundRectangle2D
 import javax.swing.*
 import javax.swing.border.AbstractBorder
 
-class CustomToggleButton3(text: String) : JToggleButton(text) {
+class CustomToggleButton3(
+    private val onSelectionChanged: (Int) -> Unit
+) : JToggleButton() {
+    var selectedIndex = 0
 
     init {
-        preferredSize = Dimension(200, 50)
-        font = Font("Arial", Font.BOLD, 16)
+        // 토글 버튼의 초기 상태를 OFF (false)로 설정
+        isOpaque = false
+        background = MyColor.DARK_RED
+        isSelected = true
         isFocusPainted = false
-        background = Color(240, 240, 240) // 기본 배경색
-        border = BorderFactory.createEmptyBorder(10, 20, 10, 20) // 여백 설정
-        horizontalAlignment = SwingConstants.CENTER
+        preferredSize = Dimension(680, 50)
+        maximumSize = Dimension(680, 50)
+        border = null // 경계선을 없앰
 
-        // 선택 시 배경색 및 텍스트 색상 변경
-        addChangeListener {
-            background = if (isSelected) Color(27, 43, 66) else Color(240, 240, 240)
-            foreground = if (isSelected) Color.WHITE else Color.DARK_GRAY
-        }
+        // 상태 변화에 따른 동작을 추가
+        addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent) {
+                val clickX = e.x
+                val buttonWidth = width / 3
 
-        // 둥근 모서리 및 테두리 설정
-        border = RoundedBorder(30)
+                // 클릭된 영역에 따라 selectedIndex 변경
+                selectedIndex = when {
+                    clickX < buttonWidth -> 0 // 왼쪽 버튼
+                    clickX < 2 * buttonWidth -> 1 // 가운데 버튼
+                    else -> 2 // 오른쪽 버튼
+                }
+                onSelectionChanged(selectedIndex)
+
+                repaint() // 상태 변경 후 다시 그리기
+            }
+        })
     }
 
-    // 둥근 테두리를 위한 클래스
-    private class RoundedBorder(private val radius: Int) : AbstractBorder() {
-        override fun paintBorder(
-            c: Component?, g: Graphics?, x: Int, y: Int, width: Int, height: Int
-        ) {
-            val g2 = g as Graphics2D
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+    override fun paintComponent(g: Graphics) {
+        val g2d = g as Graphics2D
+        val width = width
+        val height = height
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-            g2.color = Color.GRAY
-            g2.stroke = BasicStroke(2f)
-            g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius)
+        // 배경 색 그리기 (테두리 효과 방지)
+        g2d.color = MyColor.GREY200
+        g2d.fillRoundRect(0, 0, width, height, height, height)
+
+        // 선택된 상태에 따른 배경색 그리기
+        when (selectedIndex) {
+            0 -> { // 전체 선택
+                g2d.clipRect(0, 0, width / 3, height)
+                g2d.color = MyColor.DARK_NAVY
+                g2d.fillRoundRect(0, 0, width, height, height, height)
+            }
+            1 -> { // 평일 선택
+                g2d.clipRect(width / 3, 0, width / 3, height)
+                g2d.color = MyColor.DARK_NAVY
+                g2d.fillRoundRect(0, 0, width, height, height, height)
+            }
+            2 -> { // 주말 선택
+                g2d.clipRect(2 * width / 3, 0, width / 3, height)
+                g2d.color = MyColor.DARK_NAVY
+                g2d.fillRoundRect(0, 0, width, height, height, height)
+            }
         }
 
-        override fun getBorderInsets(c: Component?): Insets {
-            return Insets(radius / 2, radius / 2, radius / 2, radius / 2)
-        }
+        // 클립 리셋 및 텍스트 색상 처리
+        g2d.clip = null
+        g2d.font = MyFont.Bold(22f)
+        g2d.color = if (selectedIndex == 0) Color.WHITE else Color(137, 137, 137)
+        g2d.drawString("전체 선택", width / 6 - g2d.fontMetrics.stringWidth("전체 선택") / 2, height / 2 + g2d.fontMetrics.ascent / 3)
 
-        override fun isBorderOpaque(): Boolean {
-            return false
-        }
+        g2d.color = if (selectedIndex == 1) Color.WHITE else Color(137, 137, 137)
+        g2d.drawString("평일/주말 선택", width / 2 - g2d.fontMetrics.stringWidth("평일/주말 선택") / 2, height / 2 + g2d.fontMetrics.ascent / 3)
+
+        g2d.color = if (selectedIndex == 2) Color.WHITE else Color(137, 137, 137)
+        g2d.drawString("요일별 선택", 5 * width / 6 - g2d.fontMetrics.stringWidth("요일별 선택") / 2, height / 2 + g2d.fontMetrics.ascent / 3)
+
+        // 포커스와 관련된 그리기 동작을 제거
+        isFocusPainted = false
     }
 }
 
-// 메인 함수
-fun main() {
-    SwingUtilities.invokeLater {
-        val frame = JFrame("Direct Toggle Switch").apply {
-            defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-            layout = FlowLayout(FlowLayout.LEFT, 0, 0)
-            preferredSize = Dimension(680, 50)
-        }
-
-        // 세 개의 커스텀 토글 버튼 추가
-        val button1 = CustomToggleButton3("전체선택")
-        val button2 = CustomToggleButton3("평일/주말 선택")
-        val button3 = CustomToggleButton3("요일별 선택")
-
-        // 세 버튼을 버튼 그룹에 추가하여 동시에 하나만 선택 가능하게 설정
-        val buttonGroup = ButtonGroup().apply {
-            add(button1)
-            add(button2)
-            add(button3)
-        }
-
-        // 프레임에 버튼 추가
-        frame.add(button1)
-        frame.add(button2)
-        frame.add(button3)
-
-        // 프레임 설정
-        frame.pack()
-        frame.setLocationRelativeTo(null)
-        frame.isVisible = true
-    }
-}

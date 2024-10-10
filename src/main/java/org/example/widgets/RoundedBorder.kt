@@ -82,6 +82,35 @@ class IconRoundBorder2 {
 
             }
         }
+
+        // 둥근 테두리와 배경색을 가진 라벨을 만드는 함수
+        fun createRoundedLabel(text: String, backgroundColor: Color, cornerRadius: Int): JLabel {
+            return object : JLabel(text, CENTER) {
+                init {
+                    preferredSize = Dimension(100, 40)  // 기본 크기 설정
+                    isOpaque = false  // 기본 배경 제거
+                    foreground = Color.WHITE  // 텍스트 색상 설정
+                    font = MyFont.Bold(16f)  // 원하는 폰트 설정
+                    horizontalAlignment = CENTER  // 텍스트 가운데 정렬
+                }
+
+                override fun paintComponent(g: Graphics) {
+                    val g2 = g as Graphics2D
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+                    // 라벨의 둥근 배경을 전달받은 색으로 채움
+                    g2.color = backgroundColor
+                    g2.fillRoundRect(0, 0, width, height, cornerRadius, cornerRadius)
+
+                    // 텍스트를 그린 후 테두리를 그려줌
+                    super.paintComponent(g)
+
+                    // 테두리 그리기
+                    g2.color = backgroundColor
+                    g2.drawRoundRect(0, 0, width - 1, height - 1, cornerRadius, cornerRadius)
+                }
+            }
+        }
     }
 }
 
@@ -474,5 +503,58 @@ class PlusMinusButton(
             val imageY = (height - imageHeight) / 2
             g2.drawImage(it, imageX, imageY, null)  // 버튼 중앙에 이미지 그리기
         }
+    }
+}
+
+class RoundButton(text: String) : JButton(text) {
+    private var isSelected = true
+    var isClickable = false
+
+    init {
+        preferredSize = Dimension(55, 55)
+        isContentAreaFilled = false
+        isFocusPainted = false
+        isBorderPainted = false
+        horizontalAlignment = SwingConstants.CENTER
+        verticalAlignment = SwingConstants.CENTER
+
+        // 클릭 시 선택/해제 토글
+        addActionListener {
+            if (isClickable) { // 클릭 가능할 때만 동작
+                isSelected = !isSelected
+                setSelected(isSelected)
+            }
+        }
+    }
+
+    // 선택 상태 변경 함수
+    override fun setSelected(selected: Boolean) {
+        isSelected = selected
+//        println("색상 바로 변경되는가? : $isSelected")
+        repaint() // 상태 변경 시 다시 그리기
+    }
+
+    override fun paintComponent(g: Graphics) {
+        val g2d = g as Graphics2D
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 테두리 두께 설정
+        g2d.stroke = BasicStroke(3f)
+
+        // 선택 상태에 따라 원형 테두리 색상 설정
+        g2d.color = if (isSelected) Color(255, 177, 177) else Color.LIGHT_GRAY
+        g2d.drawOval(1, 1, width - 3, height - 3)
+
+        // 텍스트 설정
+        g2d.color = if (isSelected) Color(255, 177, 177) else Color.LIGHT_GRAY
+        val fm = g2d.fontMetrics
+        val textWidth = fm.stringWidth(text)
+        val textHeight = fm.ascent
+        g2d.drawString(text, (width - textWidth) / 2, (height + textHeight) / 2 - 2)
+    }
+
+    // 선택 상태 반환
+    override fun isSelected(): Boolean {
+        return isSelected
     }
 }

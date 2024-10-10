@@ -39,13 +39,6 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
         }
         regularHolidayPanel.add(regularHolidayLabel, BorderLayout.NORTH)
 
-        val gbcRegular = GridBagConstraints().apply {
-            gridx = 0
-            gridy = 0
-            fill = GridBagConstraints.HORIZONTAL
-            insets = Insets(0, 0, 10, 0)  // 제목과 패널 간 여백
-        }
-
         // 정기 휴무 패널
         val regularHoliday = RegularHoliday()
         regularHolidayPanel.add(regularHoliday, BorderLayout.CENTER)
