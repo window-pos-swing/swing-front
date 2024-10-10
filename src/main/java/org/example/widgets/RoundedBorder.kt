@@ -36,7 +36,7 @@ class IconRoundBorder {
                     super.paintComponent(g)
 
                     // 테두리 그리기
-                    g2.color = Color.LIGHT_GRAY
+                    g2.color = Color.white
                     g2.drawRoundRect(0, 0, width - 1, height - 1, 20, 20)
                 }
 
@@ -382,6 +382,54 @@ class RoundedPanel(
     }
 }
 
+class ThicknessRoundedPanel(
+    private val arcWidth: Int,
+    private val arcHeight: Int,
+    private val borderWidth: Float = 1f // 테두리 두께 기본값 1로 설정
+) : JPanel() {
+
+    init {
+        isOpaque = false  // 배경을 투명하게 설정
+    }
+
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 배경색 설정
+        g2.color = background
+
+        // 둥근 사각형 그리기
+        g2.fillRoundRect(0, 0, width, height, arcWidth, arcHeight)
+
+        super.paintComponent(g)
+    }
+
+    override fun paintBorder(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 테두리 두께 설정
+        g2.stroke = BasicStroke(borderWidth)
+
+        // 테두리 그리기
+        g2.color = foreground
+        g2.drawRoundRect(
+            (borderWidth / 2).toInt() , // 두께 보정을 위해 테두리 위치를 조정
+            (borderWidth / 2).toInt(),
+            (width - borderWidth).toInt() - 1,
+            (height - borderWidth).toInt() - 1,
+            arcWidth,
+            arcHeight
+        )
+    }
+
+    override fun getInsets(): Insets {
+        // 설정된 여백을 반환
+        return Insets(10, 10, 10, 10)
+    }
+}
+
 class CHRoundedPanel(private val arcWidth: Int, private val arcHeight: Int) : JPanel() {
     init {
         isOpaque = false  // 배경을 투명하게 설정
@@ -414,6 +462,7 @@ class CHRoundedPanel(private val arcWidth: Int, private val arcHeight: Int) : JP
         return Insets(10, 10, 10, 10)
     }
 }
+
 
 // RoundedBorder 클래스: 모서리가 둥근 테두리
 class RoundedBorder(private val radius: Int) : AbstractBorder() {
