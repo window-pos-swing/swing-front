@@ -1,6 +1,8 @@
 package org.example.screen.setting.centerPanel.breakTimePanel
 
 import org.example.MyFont
+import org.example.screen.setting.centerPanel.breakTimePanel.breakTime_modal.BreakTimeModalDialog
+import org.example.screen.setting.centerPanel.holidayPanel.holiday_modal.HolidayModalDialog
 import org.example.style.MyColor
 import org.example.widgets.RoundedButton
 import java.awt.*
@@ -67,7 +69,14 @@ class BreakTime: JPanel() {
         gbc.anchor = GridBagConstraints.EAST  // 오른쪽 정렬
         gbc.weightx = 1.0  // 오른쪽 끝까지 공간을 차지하도록
         gbc.fill = GridBagConstraints.NONE
-        val setButton = RoundedButton("설정")
+        val setButton = RoundedButton("설정").apply {
+            addActionListener {
+                val parentFrame = SwingUtilities.getWindowAncestor(this) as? JFrame
+                if (parentFrame != null) {
+                    BreakTimeModalDialog(parentFrame, "브레이크 타임 설정")
+                }
+            }
+        }
         add(setButton, gbc)
     }
 }
