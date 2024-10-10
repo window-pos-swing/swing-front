@@ -12,12 +12,12 @@ class BreakTimeModalDialog(parent: JFrame, title: String, callback: ((Boolean) -
     parent,
     title,
     1000,
-    580,
+    590,
     callback
 )  {
 
     init {
-        setSize(1000, 580)  // 다이얼로그 크기 설정
+        setSize(1000, 590)  // 다이얼로그 크기 설정
         setLocationRelativeTo(parent)
 
         // 설정 패널 구성 (전체 레이아웃은 GridBagLayout)
