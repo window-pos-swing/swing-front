@@ -16,7 +16,7 @@ class CustomToggleButton3(
     init {
         // 토글 버튼의 초기 상태를 OFF (false)로 설정
         isOpaque = false
-        background = MyColor.DARK_RED
+        background = Color(217, 217, 217)
         isSelected = true
         isFocusPainted = false
         preferredSize = Dimension(680, 50)

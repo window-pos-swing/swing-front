@@ -131,11 +131,8 @@ class AllDays : JPanel() {
         val mainPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
-            add(Box.createVerticalGlue()) // 상단 여백
             add(dayAndTimePanel)
-            add(Box.createVerticalStrut(20)) // 패널 간 간격
             add(bottomPanel)
-            add(Box.createVerticalGlue()) // 하단 여백
         }
 
         add(mainPanel, BorderLayout.CENTER)

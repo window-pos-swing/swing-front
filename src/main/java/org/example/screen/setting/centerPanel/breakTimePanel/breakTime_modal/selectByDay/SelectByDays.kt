@@ -80,21 +80,29 @@ class SelectByDays : JPanel() {
 
                 startHourCombo = RoundedComboBox(DefaultComboBoxModel(arrayOf("오전 0시", "오전 1시", "오전 2시", "오전 3시", "오전 4시", "오전 5시", "오전 6시", "오전 7시", "오전 8시", "오전 9시", "오전 10시", "오전 11시", "오후 12시", "오후 1시", "오후 2시", "오후 3시", "오후 4시", "오후 5시", "오후 6시", "오후 7시", "오후 8시", "오후 9시", "오후 10시", "오후 11시"))).apply {
                     preferredSize = Dimension(205, 50)
+                    maximumSize = Dimension(205, 50)
+                    minimumSize = Dimension(205, 50)
                     font = MyFont.Bold(20f)
                 }
 
                 startMinCombo = RoundedComboBox(DefaultComboBoxModel(arrayOf("00분", "15분", "30분", "45분"))).apply {
                     preferredSize = Dimension(125, 50)
+                    maximumSize = Dimension(125, 50)
+                    minimumSize = Dimension(125, 50)
                     font = MyFont.Bold(20f)
                 }
 
                 endHourCombo = RoundedComboBox(DefaultComboBoxModel(arrayOf("오전 0시", "오전 1시", "오전 2시", "오전 3시", "오전 4시", "오전 5시", "오전 6시", "오전 7시", "오전 8시", "오전 9시", "오전 10시", "오전 11시", "오후 12시", "오후 1시", "오후 2시", "오후 3시", "오후 4시", "오후 5시", "오후 6시", "오후 7시", "오후 8시", "오후 9시", "오후 10시", "오후 11시"))).apply {
                     preferredSize = Dimension(205, 50)
+                    maximumSize = Dimension(205, 50)
+                    minimumSize = Dimension(205, 50)
                     font = MyFont.Bold(20f)
                 }
 
                 endMinCombo = RoundedComboBox(DefaultComboBoxModel(arrayOf("00분", "15분", "30분", "45분"))).apply {
                     preferredSize = Dimension(125, 50)
+                    maximumSize = Dimension(125, 50)
+                    minimumSize = Dimension(125, 50)
                     font = MyFont.Bold(20f)
                 }
 
@@ -202,7 +210,7 @@ class SelectByDays : JPanel() {
 
             val allDaysLabel = IconRoundBorder2.createRoundedLabel(selectedDaysText, Color(255, 177, 177), 20).apply {
                 foreground = Color.WHITE
-                preferredSize = Dimension(100, 40)
+                preferredSize = Dimension(150, 40)
             }
 
             val timeRangeLabel = JLabel(timeRangeText).apply {
@@ -226,7 +234,7 @@ class SelectByDays : JPanel() {
 
                         if (selectedDay2.contains(selectedDay)) {
                             selectedDay2.remove(selectedDay)
-                            println(selectedDay2)
+//                            println(selectedDay2)
                         }
                         selectedDays.remove(selectedDay)
                         dayButtons.find { it.text == selectedDay }?.let { button ->
