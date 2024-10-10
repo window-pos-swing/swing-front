@@ -27,7 +27,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     private var allOrders = mutableListOf<Order>()  // 모든 주문을 저장하는 리스트
 
     private var cardPanel: JPanel? = null  // 외부에서 전달받을 cardPanel을 nullable로 변경
-    private var overlayManager: OverlayManager = OverlayManager(parentFrame)
+    private lateinit var overlayManager: OverlayManager
     private val menuPanel = JPanel()  // 탭 메뉴 패널 (세로로 정렬)
     private var orderCounter = 1 ;
     private val tabButtonMap = mutableMapOf<String, JPanel>()
@@ -140,7 +140,8 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
                     println("isDialogOpen: $isDialogOpen")  // 상태 확인용 출력
                     if (!isDialogOpen) {  // 다이얼로그가 열려있는지 확인
                         isDialogOpen = true
-                        PauseOperationsDialog(parentFrame, "영업 임시 중지", callback = { confirmed ->
+                        overlayManager.addOverlayPanel()
+                        PauseOperationsDialog(parentFrame,"영업 임시 중지", callback = { confirmed ->
                             if (confirmed) {
                                 isSelected = false // 사용자가 임시 중지를 확인한 경우 OFF로 변경
                             } else {
@@ -151,6 +152,8 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
                             addWindowListener(object : java.awt.event.WindowAdapter() {
                                 override fun windowClosed(e: java.awt.event.WindowEvent?) {
                                     isDialogOpen = false
+//                                    dialog.dispose()
+                                    overlayManager.removeOverlayPanel()
                                     println("isDialogOpen = false 실행")
                                 }
                             })
@@ -253,14 +256,14 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
 
             ),
-            state = org.example.view.states.PendingState()  // 초기 상태는 접수대기
+            state = org.example.view.states.PendingState(parentFrame,cardPanel)  // 초기 상태는 접수대기
         )
     }
 
     // 외부에서 cardPanel을 전달받는 함수
     fun setCardPanel(cardPanel: JPanel) {
         this.cardPanel = cardPanel
-
+        overlayManager = OverlayManager(parentFrame, cardPanel)
         // 전체보기 패널 추가
         cardPanel.add(JScrollPane(allOrdersPanel).apply {
             background = Color.WHITE

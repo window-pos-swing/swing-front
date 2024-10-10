@@ -13,109 +13,125 @@ import org.example.style.MyColor
 import org.example.view.components.BaseOrderPanel
 import org.example.widgets.FillRoundedButton
 import org.example.widgets.IconRoundBorder
+import org.example.widgets.OverlayManager
 import javax.swing.*
 import java.awt.*
 
-class PendingState : OrderState {
+class PendingState(private val parentFrame: JFrame? = null, private val cardPanel: JPanel? = null) : OrderState {
     override fun handle(order: Order) {
-        // 접수대기 상태에서 필요한 처리
         println("PendingState")
     }
 
     override fun getUI(order: Order): JPanel {
         return BaseOrderPanel(order).apply {
-            // headerPanel의 오른쪽에 버튼 추가
             val buttonPanel = JPanel().apply {
-                layout = BoxLayout(this, BoxLayout.X_AXIS)  // 수평 박스 레이아웃 설정
+                layout = BoxLayout(this, BoxLayout.X_AXIS)
                 background = Color.WHITE
 
-                // 프린터 버튼 추가
-                add(FillRoundedButton(
-                    text = "",
-                    borderColor = Color(230, 230, 230),
-                    backgroundColor = Color(230, 230, 230),
-                    textColor = Color.BLACK,
-                    borderRadius = 20,
-                    borderWidth = 1,
-                    textAlignment = SwingConstants.CENTER,
-                    padding = Insets(10, 20, 10, 20),
-                    iconPath = "/print_icon_main.png",
-                    buttonSize = Dimension(50, 50),
-                    iconWidth = 45,
-                    iconHeight = 45
-                ).apply {
-                    addActionListener {
-                        // 인쇄 기능 추가
-                        println("프린터 버튼 클릭")
-                    }
-                })
+                val overlayManager = cardPanel?.let { OverlayManager(parentFrame ?: SwingUtilities.getWindowAncestor(this@apply) as? JFrame ?: JFrame(), it) }
 
-                // 버튼 사이에 간격을 추가
+                add(createPrintButton())
                 add(Box.createRigidArea(Dimension(15, 0)))
-
-                // 주문 거절 버튼 추가
-                add(FillRoundedButton(
-                    text = "주문거절",
-                    borderColor = MyColor.GREY300,
-                    backgroundColor = MyColor.GREY300,
-                    textColor = Color.BLACK,
-                    borderRadius = 20,
-                    borderWidth = 1,
-                    textAlignment = SwingConstants.CENTER,
-                    padding = Insets(10, 20, 10, 20),
-                    buttonSize = Dimension(130, 50),
-                    customFont = MyFont.Bold(20f)
-                ).apply {
-                    addActionListener {
-                        OrderRejectCancelDialog(
-                            SwingUtilities.getWindowAncestor(this) as JFrame,
-                            "주문 거절 사유 선택",
-                            "주문 거절 사유를 선택해 주세요.",
-                            "주문 거절",
-                            onReject = { rejectReason ->
-                                val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_REJECT)
-                                rejectOrderCommand.execute()
-                            }
-                        )
-                    }
-                })
-
-                // 버튼 사이에 간격을 추가
-                add(Box.createRigidArea(Dimension(15, 0)))
-
-                // 접수하기 버튼 추가 (오른쪽 여백 없이)
-                add(FillRoundedButton(
-                    text = "접수하기",
-                    borderColor = MyColor.DARK_NAVY,
-                    backgroundColor = MyColor.DARK_NAVY,
-                    textColor = Color.WHITE,
-                    borderRadius = 20,
-                    borderWidth = 1,
-                    textAlignment = SwingConstants.CENTER,
-                    padding = Insets(10, 20, 10, 20),
-                    buttonSize = Dimension(130, 50),
-                    customFont = MyFont.Bold(20f)
-                ).apply {
-                    addActionListener {
-                        val parentFrame = SwingUtilities.getWindowAncestor(this) as JFrame
-                        val orderController = OrderController(CustomTabbedPane(parentFrame))
-                        EstimatedTimeDialog(
-                            parent = parentFrame,
-                            title = "예상 시간 선택",
-                            order = order,
-                            orderController = orderController
-                        )
-                    }
-                })
+                if (overlayManager != null) {
+                    add(createRejectButton(order, overlayManager))
+                    add(Box.createRigidArea(Dimension(15, 0)))
+                    add(createAcceptButton(order, overlayManager))
+                }
             }
 
-            // headerPanel의 오른쪽에 버튼 패널 추가
-            val headerPanel = components.find { it is JPanel && it.layout is BoxLayout } as JPanel?  // headerPanel 찾기
-            headerPanel?.add(Box.createHorizontalGlue())  // 오른쪽 정렬을 위해 추가
-            headerPanel?.add(buttonPanel)  // 버튼 패널을 headerPanel의 오른쪽에 추가
+            val headerPanel = components.find { it is JPanel && it.layout is BoxLayout } as JPanel?
+            headerPanel?.add(Box.createHorizontalGlue())
+            headerPanel?.add(buttonPanel)
+        }
+    }
+
+    private fun createPrintButton(): JButton {
+        return FillRoundedButton(
+            text = "",
+            borderColor = Color(230, 230, 230),
+            backgroundColor = Color(230, 230, 230),
+            textColor = Color.BLACK,
+            borderRadius = 20,
+            borderWidth = 1,
+            textAlignment = SwingConstants.CENTER,
+            padding = Insets(10, 20, 10, 20),
+            iconPath = "/print_icon_main.png",
+            buttonSize = Dimension(50, 50),
+            iconWidth = 45,
+            iconHeight = 45
+        ).apply {
+            addActionListener {
+                println("프린터 버튼 클릭")
+            }
+        }
+    }
+
+    private fun createRejectButton(order: Order, overlayManager: OverlayManager): JButton {
+        return FillRoundedButton(
+            text = "주문거절",
+            borderColor = MyColor.GREY300,
+            backgroundColor = MyColor.GREY300,
+            textColor = Color.BLACK,
+            borderRadius = 20,
+            borderWidth = 1,
+            textAlignment = SwingConstants.CENTER,
+            padding = Insets(10, 20, 10, 20),
+            buttonSize = Dimension(130, 50),
+            customFont = MyFont.Bold(20f)
+        ).apply {
+            addActionListener {
+                overlayManager.addOverlayPanel()
+                val dialog = OrderRejectCancelDialog(
+                    parentFrame ?: JFrame(),
+                    "주문 거절 사유 선택",
+                    "주문 거절 사유를 선택해 주세요.",
+                    "주문 거절",
+                    onReject = { rejectReason ->
+                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_REJECT)
+                        rejectOrderCommand.execute()
+                    }
+                )
+                dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
+                    override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                        overlayManager.removeOverlayPanel()
+                        dialog.dispose()
+                    }
+                })
+                dialog.isVisible = true
+            }
+        }
+    }
+
+    private fun createAcceptButton(order: Order, overlayManager: OverlayManager): JButton {
+        return FillRoundedButton(
+            text = "접수하기",
+            borderColor = MyColor.DARK_NAVY,
+            backgroundColor = MyColor.DARK_NAVY,
+            textColor = Color.WHITE,
+            borderRadius = 20,
+            borderWidth = 1,
+            textAlignment = SwingConstants.CENTER,
+            padding = Insets(10, 20, 10, 20),
+            buttonSize = Dimension(130, 50),
+            customFont = MyFont.Bold(20f)
+        ).apply {
+            addActionListener {
+                overlayManager.addOverlayPanel()
+                val dialog = EstimatedTimeDialog(
+                    parent = parentFrame ?: JFrame(),
+                    title = "예상 시간 선택",
+                    order = order,
+                    orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame()))
+                )
+                dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
+                    override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                        dialog.dispose()
+                        overlayManager.removeOverlayPanel()
+
+                    }
+                })
+                dialog.isVisible = true
+            }
         }
     }
 }
-
-
-

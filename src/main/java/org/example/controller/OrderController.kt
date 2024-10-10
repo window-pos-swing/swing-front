@@ -4,7 +4,6 @@ import org.example.command.RejectedReasonType
 import org.example.model.Order
 import org.example.observer.OrderObserver
 import org.example.view.states.CompletedState
-import org.example.view.states.PendingState
 import org.example.view.states.ProcessingState
 import org.example.view.states.RejectedState
 
