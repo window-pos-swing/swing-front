@@ -10,6 +10,7 @@ import org.example.view.components.BaseOrderPanel
 import org.example.widgets.AutoScalingLabel
 import org.example.widgets.CHRoundedPanel
 import org.example.widgets.FillRoundedButton
+import org.example.widgets.ThicknessRoundedPanel
 import java.awt.*
 import javax.swing.*
 
@@ -87,7 +88,7 @@ class RejectedState(
                 }
 
                 // 오른쪽 패널 (GridBagLayout 사용)
-                val rightPanel = CHRoundedPanel(30,30).apply {
+                val rightPanel = ThicknessRoundedPanel(30,30,2f).apply {
                     layout = GridBagLayout()  // 그리드 레이아웃 설정
                     preferredSize = Dimension(255, 234)  // rightPanel 크기 설정
                     isOpaque = true  // 패널을 불투명하게 설정
