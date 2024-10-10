@@ -17,7 +17,7 @@ class HolidayPanel: JPanel()  {
             gridy = 0
             weightx = 1.0
             fill = GridBagConstraints.HORIZONTAL
-            insets = Insets(17, 10, 0, 20)  // 여백 설정
+            insets = Insets(15, 10, 15, 20)  // 여백 설정
         }
 
         val panel = JPanel().apply {

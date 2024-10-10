@@ -54,7 +54,7 @@ class CookingCompletionTime : JPanel() {
         // 아이콘 경로 로드
         val watchIconPath = ImageIcon(javaClass.getResource("/watch.png"))
         val storeLabel = JLabel(watchIconPath).apply {
-            border = BorderFactory.createEmptyBorder(0, 30, 0, 10)  // 아이콘과 텍스트 사이 여백 추가
+            border = BorderFactory.createEmptyBorder(0, 25, 0, 10)  // 아이콘과 텍스트 사이 여백 추가
         }
 
         val label = JLabel("조리완료시간").apply {
@@ -73,7 +73,6 @@ class CookingCompletionTime : JPanel() {
                     }
                 }
             })
-
             border = BorderFactory.createEmptyBorder(15, 60, 15, 60)
         }
 
@@ -96,8 +95,7 @@ class CookingCompletionTime : JPanel() {
         val timeSelectionPanel = JPanel().apply {
             layout = FlowLayout(FlowLayout.CENTER)  // 시간 조절 버튼들 한 줄로 배치
             isOpaque = false
-//            background = Color.WHITE
-            border = BorderFactory.createEmptyBorder(5, 0, 20, 0)
+            border = BorderFactory.createEmptyBorder(0, 0, 20, 0)
             add(createTimeSelectionPanel())  // 시간 선택 패널 추가
         }
 
@@ -135,7 +133,7 @@ class CookingCompletionTime : JPanel() {
         // 둥근 시간 선택 패널 구성
          buttonPanel = RoundedPanel(30, 30).apply {
             background = Color.WHITE  // 배경을 흰색으로 설정
-            border = EmptyBorder(0, 15, 0, 15)
+            border = EmptyBorder(5, 15, 0, 15)
             preferredSize = Dimension(400, 80)  // 패널 크기를 305x90으로 설정
             layout = BorderLayout()
 

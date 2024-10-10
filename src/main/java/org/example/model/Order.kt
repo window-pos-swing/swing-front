@@ -2,21 +2,26 @@ package org.example.model
 
 import org.example.observer.OrderObserver
 import org.example.view.states.PendingState
-import org.example.view.states.ProcessingState
+import java.util.*
 import javax.swing.JPanel
 import javax.swing.Timer  // javax.swing.Timer 사용
+import kotlin.collections.ArrayList
 
+//접수일시, 예상조리시간, 배달예상시간,
 data class Order(
     val orderNumber: Int,
     val orderTime: String,
     val orderType: String,  // DELIVERY or TAKEOUT
     val request: String,
     val address: String,
+    val CustomerPhonenumber: String,
     val deliveryFee: Int,
     val spoonFork: Boolean,
+    val paymentMethod: String,
     val menuList: List<Menu>,
     var state: OrderState = PendingState(),  // 기본 상태는 접수대기
-    var elapsedTime: Int = 0
+    var elapsedTime: Int = 0,
+    var ReceivedTime: Date? = null,
 ) {
     var isCompleted: Boolean = false  // 주문 완료 여부
     var isResent: Boolean = false  // 배달 대행사로 주문번호 재전송 여부

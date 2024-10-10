@@ -31,7 +31,7 @@ class SettingForm : JFrame() {
         val settingsPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = MyColor.DARK_NAVY
-            border = BorderFactory.createEmptyBorder(20, 40, 20, 40)
+            border = BorderFactory.createEmptyBorder(10, 40, 20, 40)
             add(Box.createVerticalStrut(20))
         }
 
@@ -45,17 +45,14 @@ class SettingForm : JFrame() {
             // 경계선(JSeparator) 추가
             add(JSeparator(SwingConstants.HORIZONTAL).apply {
                 background = Color.WHITE  // 경계선 색상 설정
-                preferredSize = Dimension(1440, 1)  // 경계선 두께 설정
-                maximumSize = Dimension(1440, 1)  // 최대 크기도 설정
-                minimumSize = Dimension(1440, 1)  // 최소 크기도 설정
+                preferredSize = Dimension(1440, 1)
+                maximumSize = Dimension(Int.MAX_VALUE, 1)
             })
 
             val labelPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
                 background = MyColor.DARK_NAVY
-//                background = Color.RED
-                preferredSize = Dimension(1440, 65)  // 경계선 두께 설정
-                maximumSize = Dimension(1440, 65)  // 최대 크기도 설정
-                minimumSize = Dimension(1440, 65)  // 최소 크기도 설정
+                preferredSize = Dimension(1440, 65)
+                maximumSize = Dimension(Int.MAX_VALUE, 65)
                 add(JLabel("가게 기본 설정").apply {
                     font = MyFont.Bold(28f)
                     foreground = Color.WHITE  // 텍스트 색상 설정
@@ -63,7 +60,6 @@ class SettingForm : JFrame() {
 
                 })
             }
-
             // 경계선과 텍스트 패널을 추가
             add(labelPanel)
         }
@@ -79,10 +75,8 @@ class SettingForm : JFrame() {
             // "가게 기본 설정" 텍스트 추가 패널 (왼쪽 정렬을 위해 FlowLayout 사용)
             val labelPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
                 background = MyColor.DARK_NAVY
-//                background = Color.RED
-                preferredSize = Dimension(1440, 65)  // 경계선 두께 설정
-                maximumSize = Dimension(1440, 65)  // 최대 크기도 설정
-                minimumSize = Dimension(1440, 65)  // 최소 크기도 설정
+                preferredSize = Dimension(1440, 65)
+                maximumSize = Dimension(Int.MAX_VALUE, 65)
                 add(JLabel("POS기 설정").apply {
                     font = MyFont.Bold(28f)
                     foreground = Color.WHITE  // 텍스트 색상 설정

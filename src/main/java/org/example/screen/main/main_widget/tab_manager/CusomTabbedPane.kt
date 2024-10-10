@@ -214,8 +214,10 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             orderType = "DELIVERY",  // 포장 주문 TAKEOUT DELIVERY
             request = "문앞에 놔두고 가주세요, 아기가 자고있어요 절대 벨을 누르지 말아주세요. 집밑 비번 5555*입니다 . 조심히 와주세요 ",
             address = "대전 대화동 가온비즈타워 120 901호",
+            CustomerPhonenumber = "010-5199-2256",
             deliveryFee = 3000,
             spoonFork = false,
+            paymentMethod = "꼬르륵 앱 결제 완료",
             menuList = listOf(
                 Menu(
                     menuName = "해산물 ",
@@ -731,7 +733,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             override fun mouseClicked(e: java.awt.event.MouseEvent?) {
                 println("Detail Order #${order.orderNumber}")
                 val dialogTitle = getOrderDialogTitle(order)
-                OrderDetailDialog(SwingUtilities.getWindowAncestor(this@addOrderClickListener) as JFrame, dialogTitle)
+                OrderDetailDialog(SwingUtilities.getWindowAncestor(this@addOrderClickListener) as JFrame, dialogTitle,order = order)
             }
         })
     }

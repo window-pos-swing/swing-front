@@ -3,7 +3,6 @@ import javax.swing.*
 import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
 import java.awt.*
-import java.io.FileInputStream
 import java.io.InputStream
 import javax.sound.sampled.AudioSystem
 import javax.sound.sampled.FloatControl

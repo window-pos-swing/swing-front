@@ -90,22 +90,18 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             // 버튼에 클릭 리스너 추가
             allRejectedButton.button.addActionListener {
                 setSelectedButton(allRejectedButton)
-                println("Subtab Filter Changed: 거절전체")
                 tabbedPane.filterRejectedOrders()  // 거절 전체 보기 호출
             }
             customerCancelButton.button.addActionListener {
                 setSelectedButton(customerCancelButton)
-                println("Subtab Filter Changed: 고객취소")
                 tabbedPane.filterRejectedOrders(RejectedReasonType.CUSTOMER_CANCEL)  // 고객 취소만 필터링
             }
             storeRejectButton.button.addActionListener {
                 setSelectedButton(storeRejectButton)
-                println("Subtab Filter Changed: 가게거절")
                 tabbedPane.filterRejectedOrders(RejectedReasonType.STORE_REJECT)  // 가게 거절만 필터링
             }
             storeCancelButton.button.addActionListener {
                 setSelectedButton(storeCancelButton)
-                println("Subtab Filter Changed: 가게취소")
                 tabbedPane.filterRejectedOrders(RejectedReasonType.STORE_CANCEL)  // 가게 취소만 필터링
             }
 

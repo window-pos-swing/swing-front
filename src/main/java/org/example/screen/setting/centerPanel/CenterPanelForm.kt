@@ -31,9 +31,8 @@ class CenterPanelForm : RoundedPanel(30) {
 
         layout = GridBagLayout()
         background = MyColor.LOGIN_TITLEBAR
-        preferredSize = Dimension(1480, 460)
-        maximumSize = Dimension(1480, 460)  // 최대 크기도 설정
-        minimumSize = Dimension(1480, 460)  // 최소 크기도 설정
+        preferredSize = Dimension(1380, 460)
+        maximumSize = Dimension(Int.MAX_VALUE, 460)  // 최대 크기도 설정
 
         val gbc = GridBagConstraints().apply {
             gridx = 0
@@ -43,7 +42,6 @@ class CenterPanelForm : RoundedPanel(30) {
             weightx = 1.0
             weighty = 0.0
             fill = GridBagConstraints.BOTH
-            insets = Insets(0, 10, 0, 10)  // 여백 설정
             anchor = GridBagConstraints.CENTER  // 컴포넌트를 상단에 고정
         }
 
@@ -51,59 +49,70 @@ class CenterPanelForm : RoundedPanel(30) {
         gbc.gridx = 0  // 첫 번째 열
         gbc.gridy = 0  // 첫 번째 행
         gbc.gridwidth = 1  // 1칸 차지
-        gbc.insets = Insets(10, 0, 0, 0)  // 여백 설정
+        gbc.weightx = 0.47
+        gbc.insets = Insets(15, 10, 0, 10)
         add(CookingCompletionTime(), gbc)
 
         // 경계선 추가 (조리 완료 시간과 배달 예정 시간 사이)
         gbc.gridx = 1
         gbc.gridy = 0
         gbc.gridwidth = 1
-        add(createSeparator(SwingConstants.VERTICAL, 1, 80), gbc)
+        gbc.weightx = 0.01
+        gbc.insets = Insets(15, 10, 15, 0)
+        add(createSeparator(SwingConstants.VERTICAL, 1, 170), gbc)
 
         // 배달 방법 및 배달 예정 시간 패널 배치
-        gbc.gridx = 1  // 두 번째 열
+        gbc.gridx = 2  // 두 번째 열
         gbc.gridy = 0  // 첫 번째 행
         gbc.gridwidth = 1  // 1칸 차지
-        gbc.insets = Insets(10, 0, 0, 0)  // 여백 설정
+        gbc.weightx = 0.47
+        gbc.insets = Insets(15, 10, 0, 10)
         add(DeliveryMethodTime(), gbc)
 
         // 경계선 추가 (배달 방법과 브레이크 타임 사이)
         gbc.gridx = 0
         gbc.gridy = 1
         gbc.gridwidth = 3  // 전체 너비 차지
-        add(createSeparator(SwingConstants.HORIZONTAL, 1440, 1), gbc)
+        gbc.weightx = 0.0
+        gbc.insets = Insets(0, 10, 0, 10)
+        add(createSeparator(SwingConstants.HORIZONTAL, 1340, 1), gbc)
 
         // 브레이크 타임 패널 추가
         gbc.gridx = 0
         gbc.gridy = 1
         gbc.gridwidth = 3
         gbc.weighty = 0.0
+        gbc.insets = Insets(5, 10, 0, 10)
         add(BreakTime(), gbc)
 
         // 브레이크 타임 밑에 경계선 추가
         gbc.gridx = 0
         gbc.gridy = 2
         gbc.gridwidth = 3  // 패널 아래 경계선이 전체 가로를 차지하게 설정
-        add(createSeparator(SwingConstants.HORIZONTAL, 1440, 1), gbc)
+        gbc.insets = Insets(0, 10, 0, 10)
+        add(createSeparator(SwingConstants.HORIZONTAL, 1340, 1), gbc)
 
         // 영업 시간 패널 추가
         gbc.gridx = 0
         gbc.gridy = 2
         gbc.gridwidth = 3
         gbc.weighty = 0.0
+        gbc.insets = Insets(5, 10, 0, 10)
         add(OperateTime(), gbc)
 
         // 브레이크 타임 밑에 경계선 추가
         gbc.gridx = 0
         gbc.gridy = 3
         gbc.gridwidth = 3  // 패널 아래 경계선이 전체 가로를 차지하게 설정
-        add(createSeparator(SwingConstants.HORIZONTAL, 1440, 1), gbc)
+        gbc.insets = Insets(0, 10, 0, 10)
+        add(createSeparator(SwingConstants.HORIZONTAL, 1340, 1), gbc)
 
         // 휴무일 패널 추가
         gbc.gridx = 0
         gbc.gridy = 3
         gbc.gridwidth = 3
         gbc.weighty = 0.0
+        gbc.insets = Insets(0, 10, 0, 10)
         add(HolidayPanel(), gbc)
 
         // 빈 공간 추가: 상단 고정을 위해 아래쪽에 빈 패널을 추가하여 남은 공간을 차지하게 함
