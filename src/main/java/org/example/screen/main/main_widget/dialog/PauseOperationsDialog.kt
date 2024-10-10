@@ -12,6 +12,7 @@ import javax.swing.border.EmptyBorder
 
 class PauseOperationsDialog(
     parent: JFrame,
+    cardPanel : JPanel,
     title: String,
     private val callback: (Boolean) -> Unit
 ) : CustomRoundedDialog(parent, title, 1000, 465) {
@@ -103,7 +104,7 @@ class PauseOperationsDialog(
 
         // 다이얼로그 설정
         setSize(1000, 465)
-        setLocationRelativeTo(parent)
+        setLocationRelativeTo(cardPanel)
         isVisible = true
     }
 

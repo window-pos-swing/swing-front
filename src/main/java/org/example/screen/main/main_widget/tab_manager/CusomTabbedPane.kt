@@ -141,13 +141,14 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
                     if (!isDialogOpen) {  // 다이얼로그가 열려있는지 확인
                         isDialogOpen = true
                         overlayManager.addOverlayPanel()
-                        PauseOperationsDialog(parentFrame,"영업 임시 중지", callback = { confirmed ->
+                        PauseOperationsDialog(parentFrame, cardPanel!!, "영업 임시 중지", callback = { confirmed ->
                             if (confirmed) {
                                 isSelected = false // 사용자가 임시 중지를 확인한 경우 OFF로 변경
                             } else {
                                 isSelected = true // X 버튼으로 다이얼로그를 닫았을 때는 ON 상태로 유지
                             }
                         }).apply {
+                            setLocationRelativeTo(cardPanel)
                             // 다이얼로그가 닫힐 때 무조건 false로 리셋
                             addWindowListener(object : java.awt.event.WindowAdapter() {
                                 override fun windowClosed(e: java.awt.event.WindowEvent?) {
@@ -777,6 +778,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
                 val dialogTitle = getOrderDialogTitle(order)
                 val dialog = OrderDetailDialog(
                     SwingUtilities.getWindowAncestor(this@addOrderClickListener) as JFrame,
+                    cardPanel!!,
                     dialogTitle,
                     order
                 )

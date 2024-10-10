@@ -7,6 +7,7 @@ import javax.swing.border.EmptyBorder
 
 class OrderRejectCancelDialog(
     parent: JFrame,
+    cardPanel: JPanel,
     title: String,
     labelText: String,
     buttonText: String,
@@ -145,7 +146,7 @@ class OrderRejectCancelDialog(
 
         // 다이얼로그 크기 및 기본 설정
         setSize(1000, 465)
-        setLocationRelativeTo(parent)
+        setLocationRelativeTo(cardPanel)
         isVisible = true
     }
 }

@@ -13,6 +13,7 @@ import javax.swing.border.EmptyBorder
 
 class EstimatedTimeDialog(
     parent: JFrame,
+    cardPanel:JPanel,
     title: String,
     private val order: Order,  // 현재 주문 객체를 받도록 수정
     private val orderController: OrderController  // OrderController도 받도록 수정
@@ -43,7 +44,7 @@ class EstimatedTimeDialog(
             addActionListener {
                 // 시간 접수 로직 추가
                 // AcceptOrderCommand 실행
-                val acceptOrderCommand = AcceptOrderCommand(order, cookingTime, deliveryTime, orderController)
+                val acceptOrderCommand = AcceptOrderCommand(order, cookingTime, deliveryTime, orderController, parent,cardPanel)
                 acceptOrderCommand.execute()
 
                 dispose()  // 다이얼로그 닫기
@@ -64,7 +65,7 @@ class EstimatedTimeDialog(
 
         // 다이얼로그 설정
         setSize(1000, 465)
-        setLocationRelativeTo(parent)
+        setLocationRelativeTo(cardPanel)
         isVisible = true
     }
 

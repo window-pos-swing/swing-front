@@ -1,12 +1,9 @@
 package org.example.view.states
 
 
-import org.example.CustomTabbedPane
 import org.example.MyFont
-import org.example.command.RejectOrderCommand
 import org.example.model.Order
 import org.example.model.OrderState
-import org.example.screen.main.main_widget.dialog.EstimatedTimeDialog
 import org.example.style.MyColor
 import org.example.view.components.BaseOrderPanel
 import org.example.widgets.FillRoundedButton

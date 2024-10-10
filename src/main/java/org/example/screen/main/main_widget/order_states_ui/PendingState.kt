@@ -83,6 +83,7 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
                 overlayManager.addOverlayPanel()
                 val dialog = OrderRejectCancelDialog(
                     parentFrame ?: JFrame(),
+                    cardPanel = cardPanel!!,
                     "주문 거절 사유 선택",
                     "주문 거절 사유를 선택해 주세요.",
                     "주문 거절",
@@ -119,6 +120,7 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
                 overlayManager.addOverlayPanel()
                 val dialog = EstimatedTimeDialog(
                     parent = parentFrame ?: JFrame(),
+                    cardPanel = cardPanel!!,
                     title = "예상 시간 선택",
                     order = order,
                     orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame()))

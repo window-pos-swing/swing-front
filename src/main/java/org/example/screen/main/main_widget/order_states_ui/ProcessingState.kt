@@ -12,17 +12,20 @@ import org.example.observer.OrderObserver
 import org.example.style.MyColor
 import org.example.view.components.BaseOrderPanel
 import org.example.widgets.FillRoundedButton
+import org.example.widgets.OverlayManager
 import javax.swing.*
 import java.awt.*
 
-class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
+class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel) : OrderState, OrderEventListener {
     private lateinit var rightPanel: JPanel  // 버튼을 추가할 패널을 멤버로 선언
 
     override fun handle(order: Order) {
         // 주문 진행 처리 로직
         //order.startTimer(totalTime)  // 타이머 시작
     }
+    val overlayManager = cardPanel.let { OverlayManager(parentFrame, it) }
 
+    val _cardPanel = cardPanel
     override fun getUI(order: Order): JPanel {
         return BaseOrderPanel(order).apply {
             layout = BorderLayout()  // 전체 레이아웃을 BorderLayout으로 설정
@@ -113,8 +116,11 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
                         customFont = MyFont.Bold(28f)
                     ).apply {
                         addActionListener {
-                            OrderRejectCancelDialog(
+                            overlayManager?.addOverlayPanel()
+
+                            val dialog = OrderRejectCancelDialog(
                                 SwingUtilities.getWindowAncestor(this) as JFrame,
+                                _cardPanel,
                                 "주문 취소 사유 선택",
                                 "주문 취소 사유를 선택해 주세요.",
                                 "주문 취소",
@@ -123,6 +129,16 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
                                     rejectOrderCommand.execute()
                                 }
                             )
+
+                            // 다이얼로그가 닫힐 때 오버레이 패널 제거
+                            dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
+                                override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                                    overlayManager?.removeOverlayPanel()
+                                    dialog.dispose()
+                                }
+                            })
+                            // 다이얼로그 보이기
+                            dialog.isVisible = true
                         }
                     }
 
@@ -174,11 +190,11 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
 
         // 주문 번호에 따라 이벤트 타이머 설정
         if (order.orderNumber % 2 == 0) {
-            order.initializeEventTimer(3000) {
+            order.initializeEventTimer(7000) {
                 eventListener.onResendOrder(order)
             }
         } else {
-            order.initializeEventTimer(3000) {
+            order.initializeEventTimer(7000) {
                 eventListener.onCompleteOrder(order)
             }
         }
@@ -204,6 +220,7 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
             addActionListener {
                 OrderRejectCancelDialog(
                     SwingUtilities.getWindowAncestor(this) as JFrame,
+                    _cardPanel,
                     "주문 취소 사유 선택",
                     "주문 취소 사유를 선택해 주세요.",
                     "주문 취소",

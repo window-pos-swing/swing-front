@@ -21,6 +21,7 @@ import javax.swing.table.TableCellRenderer
 
 class OrderDetailDialog(
     parent: JFrame,
+    cardPanel: JPanel,
     title: String,
     order: Order,
 ) : CustomRoundedDialog(parent, title, 1000, 833) {
@@ -89,7 +90,7 @@ class OrderDetailDialog(
 
         // 다이얼로그 크기 설정
         setSize(1000, 833)
-        setLocationRelativeTo(parent)
+        setLocationRelativeTo(cardPanel)
         isVisible = true
     }
 
