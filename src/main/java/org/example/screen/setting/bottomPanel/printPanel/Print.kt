@@ -53,7 +53,6 @@ class Print : JPanel() {
             addActionListener {
                 val parentFrame = SwingUtilities.getWindowAncestor(this) as? JFrame
                 if (parentFrame != null) {
-                    // PrinterSettingDialog 호출
                     PrinterSettingDialog(parentFrame, "프린트 설정")
                 }
             }

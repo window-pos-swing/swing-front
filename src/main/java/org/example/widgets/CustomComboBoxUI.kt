@@ -46,7 +46,10 @@ class CustomComboBoxUI : BasicComboBoxUI() {
 }
 
 // 둥근 콤보박스 클래스
-class RoundedComboBox(model: ComboBoxModel<String>) : JComboBox<String>(model) {
+class RoundedComboBox(model: ComboBoxModel<String>,
+                      private val borderColor: Color = Color(86, 86, 86),  // 테두리 색상 (기본값 설정)
+                      private val borderWidth: Float = 1f  // 테두리 두께 (기본값 설정)
+    ) : JComboBox<String>(model) {
     init {
         setUI(CustomComboBoxUI())  // 커스텀 UI 적용
         border = BorderFactory.createEmptyBorder(5, 15, 5, 15)  // 안쪽 여백 설정
@@ -80,12 +83,48 @@ class RoundedComboBox(model: ComboBoxModel<String>) : JComboBox<String>(model) {
         g2.color = if (!isEnabled) MyColor.GREY100 else background
         g2.fillRoundRect(0, 0, width, height, 30, 30)
 
-        // 테두리 그리기
-        g2.color = Color(86, 86, 86)  // 테두리 색상 설정
-        g2.drawRoundRect(0, 0, width - 1, height - 1, 20, 20)
+        // 테두리 그리기 (외부에서 설정된 색상과 두께 사용 또는 기본값 사용)
+        g2.color = borderColor  // 외부에서 설정한 테두리 색상 사용
+        g2.stroke = BasicStroke(borderWidth)  // 외부에서 설정한 테두리 두께 사용
+        g2.drawRoundRect(0, 0, width - 1, height - 1, 30, 30)  // 둥근 테두리 그리기
 
         // 텍스트와 화살표를 포함하여 기본 렌더링
         super.paintComponent(g)
+    }
+}
+
+// 둥근 콤보박스 클래스
+class RoundedComboBox2(
+    private val model: String,
+    private val borderColor: Color = Color(86, 86, 86),  // 테두리 색상 (기본값 설정)
+    private val borderWidth: Float = 1f  // 테두리 두께 (기본값 설정)
+) : JPanel() {
+    init {
+        preferredSize = Dimension(160, 50)  // 크기 설정
+        background = Color.WHITE
+        isOpaque = false  // 불투명 설정 비활성화
+    }
+
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 둥근 배경 그리기
+        g2.color = if (!isEnabled) MyColor.GREY100 else background
+        g2.fillRoundRect(0, 0, width, height, 30, 30)
+
+        // 테두리 그리기 (외부에서 설정된 색상과 두께 사용 또는 기본값 사용)
+        g2.color = borderColor  // 외부에서 설정한 테두리 색상 사용
+        g2.stroke = BasicStroke(borderWidth)  // 외부에서 설정한 테두리 두께 사용
+        g2.drawRoundRect(0, 0, width - 1, height - 1, 30, 30)  // 둥근 테두리 그리기
+
+        // 텍스트 그리기
+        g2.font = Font("Arial", Font.BOLD, 18)  // 폰트 설정
+        g2.color = Color.DARK_GRAY  // 텍스트 색상 설정
+        val fm = g2.fontMetrics
+        val textX = 12  // 텍스트를 가운데 정렬
+        val textY = (height + fm.ascent) / 2 - 2
+        g2.drawString(model, textX, textY)  // 텍스트 그리기
     }
 }
 

@@ -3,6 +3,9 @@ package org.example.widgets
 import org.example.MyFont
 import org.example.style.MyColor
 import java.awt.*
+import java.awt.image.BufferedImage
+import java.io.File
+import javax.imageio.ImageIO
 import javax.swing.*
 import javax.swing.border.AbstractBorder
 import javax.swing.border.LineBorder
@@ -44,6 +47,44 @@ class IconRoundBorder {
         }
     }
 }
+
+class IconRoundBorder2 {
+    companion object {
+        // 둥근 테두리와 배경색을 가진 버튼을 만드는 함수
+        fun createRoundedButton(iconPath: String, backgroundColor: Color): JButton {
+            val icon = ImageIcon(javaClass.getResource(iconPath))  // 아이콘 로드
+
+            return object : JButton(icon) {
+                init {
+                    preferredSize = Dimension(40, 40)
+                    isContentAreaFilled = false  // 기본 내용 배경 제거
+                    isFocusPainted = false  // 포커스 표시 제거
+                    border = null
+                    cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                    margin = Insets(5, 5, 5, 5)  // 버튼과 테두리 사이에 여백 추가
+                }
+
+                override fun paintComponent(g: Graphics) {
+                    val g2 = g as Graphics2D
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+                    // 버튼의 둥근 배경을 전달받은 색으로 채움
+                    g2.color = backgroundColor  // 전달받은 배경색 사용
+                    g2.fillRoundRect(0, 0, width, height, 20, 20)
+
+                    // 버튼의 아이콘을 그린 후 테두리를 그려줌
+                    super.paintComponent(g)
+
+                    // 테두리 그리기
+                    g2.color = Color.LIGHT_GRAY
+                    g2.drawRoundRect(0, 0, width - 1, height - 1, 20, 20)
+                }
+
+            }
+        }
+    }
+}
+
 
 // 선택 버튼 스타일링
 class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY, 2, true) {
@@ -320,9 +361,6 @@ class FillRoundedButton(
     }
 }
 
-
-
-
 // 둥근 패널을 만들기 위한 커스텀 JPanel 클래스
 class RoundedPanel(private val arcWidth: Int, private val arcHeight: Int) : JPanel() {
     init {
@@ -389,10 +427,52 @@ class RoundedButton(text: String) : JButton(text) {
         val g2 = g as Graphics2D
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-        // 빨간색 배경을 그리기
         g2.color = Color(13, 130, 191)
         g2.fillRoundRect(0, 0, width, height, 20, 20)  // 둥근 모서리 배경
 
         super.paintComponent(g)  // 텍스트 및 기타 컴포넌트 렌더링
+    }
+}
+
+class PlusMinusButton(
+            private var imageFilePath: String,
+            private var borderColor: Color = Color(13, 130, 191),
+) : JButton() {
+    private var buttonImage: BufferedImage? = null  // 버튼 이미지
+
+    init {
+        // 이미지 파일을 로드
+        try {
+            buttonImage = ImageIO.read(File(imageFilePath))  // 파일에서 이미지 로드
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+
+        background = borderColor  // 배경색 설정
+        isFocusPainted = false  // 포커스 테두리 제거
+        isContentAreaFilled = false  // 배경을 채우도록 설정
+        isOpaque = false  // 불투명 설정
+        preferredSize = Dimension(50, 50)  // 버튼 크기 설정
+    }
+
+    override fun paintComponent(g: Graphics) {
+        super.paintComponent(g)
+
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 둥근 사각형 배경 그리기
+        g2.color = background
+        g2.fillRoundRect(0, 0, width, height, 20, 20)  // 둥근 모서리로 설정
+
+
+        // 이미지 그리기 (이미지의 크기를 버튼 중앙에 맞춤)
+        buttonImage?.let {
+            val imageWidth = it.width
+            val imageHeight = it.height
+            val imageX = (width - imageWidth) / 2
+            val imageY = (height - imageHeight) / 2
+            g2.drawImage(it, imageX, imageY, null)  // 버튼 중앙에 이미지 그리기
+        }
     }
 }

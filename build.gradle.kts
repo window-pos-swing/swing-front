@@ -28,6 +28,7 @@ dependencies {
 
     implementation("javazoom:jlayer:1.0.1")
 
+    implementation("com.github.lgooddatepicker:LGoodDatePicker:11.2.1")
 }
 
 tasks.test {
