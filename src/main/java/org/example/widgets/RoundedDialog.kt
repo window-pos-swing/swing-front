@@ -51,8 +51,7 @@ open class CustomRoundedDialog(
             minimumSize = Dimension(45, 45)
 
             addActionListener {
-                callback?.invoke(false)
-                dispose()
+                handleCloseButtonAction()
             }
         }
 
@@ -64,6 +63,11 @@ open class CustomRoundedDialog(
         }
 
         panel.add(buttonContainer, BorderLayout.EAST)
+    }
+
+    open fun handleCloseButtonAction() {
+        callback?.invoke(false)
+        dispose()
     }
 
     // 타이틀의 여백을 업데이트하는 함수 추가

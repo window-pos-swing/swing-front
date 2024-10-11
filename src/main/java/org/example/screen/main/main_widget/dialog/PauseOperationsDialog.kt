@@ -69,14 +69,14 @@ class PauseOperationsDialog(
 
         // 패널 클릭 리스너 등록
         thirtyMinutePanel.addMouseListener(object : java.awt.event.MouseAdapter() {
-            override fun mouseClicked(e: java.awt.event.MouseEvent?) {
+            override fun mousePressed(e: java.awt.event.MouseEvent?) {
                 activatePanel(thirtyMinutePanel)
                 deactivatePanel(timeSpecifiedPanel)
             }
         })
 
         timeSpecifiedPanel.addMouseListener(object : java.awt.event.MouseAdapter() {
-            override fun mouseClicked(e: java.awt.event.MouseEvent?) {
+            override fun mousePressed(e: java.awt.event.MouseEvent?) {
                 activatePanel(timeSpecifiedPanel)
                 deactivatePanel(thirtyMinutePanel)
             }
