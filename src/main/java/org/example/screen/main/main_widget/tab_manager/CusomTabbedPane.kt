@@ -329,7 +329,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
         // 클릭 이벤트를 추가하여 탭 변경
         panel.addMouseListener(object : java.awt.event.MouseAdapter() {
-            override fun mouseClicked(e: java.awt.event.MouseEvent?) {
+            override fun mousePressed(e: java.awt.event.MouseEvent?) {
                 setTab(tabName)
             }
         })
@@ -775,7 +775,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     // 주문 프레임에 클릭 리스너 추가하는 함수
     private fun JPanel.addOrderClickListener(order: Order) {
         addMouseListener(object : java.awt.event.MouseAdapter() {
-            override fun mouseClicked(e: java.awt.event.MouseEvent?) {
+            override fun mousePressed(e: java.awt.event.MouseEvent?) {
                 println("Detail Order #${order.orderNumber}")
                 // 다이얼로그가 열리기 전에 투명한 검은색 레이어 추가
                 overlayManager.addOverlayPanel()
