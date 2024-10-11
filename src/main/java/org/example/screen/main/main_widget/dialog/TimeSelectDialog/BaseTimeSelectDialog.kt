@@ -24,13 +24,13 @@ abstract class BaseTimeSelectionDialog(
     init {
         val mainPanel = JPanel(BorderLayout()).apply {
             background = Color.WHITE
-            border = EmptyBorder(20, 20, 20, 20)
+            border = EmptyBorder(30, 30, 30, 30)
         }
 
         val timeSelectionPanel = createTimeSelectionPanel()
 
         // 버튼 패널 생성
-        val buttonPanel = JPanel().apply {
+        val SubmitbuttonPanel = JPanel().apply {
             background = Color.WHITE
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             border = EmptyBorder(20, 0, 0, 0)
@@ -39,7 +39,7 @@ abstract class BaseTimeSelectionDialog(
         }
 
         mainPanel.add(timeSelectionPanel, BorderLayout.CENTER)
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH)
+        mainPanel.add(SubmitbuttonPanel, BorderLayout.SOUTH)
 
         add(mainPanel, BorderLayout.CENTER)
         pack()

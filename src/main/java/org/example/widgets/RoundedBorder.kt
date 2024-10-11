@@ -292,7 +292,7 @@ class FillRoundedButton(
     private val iconHeight: Int = 20,  // 아이콘 높이
     private val customFont: Font? = null  // 커스텀 폰트 설정
 ) : JButton() {
-
+    private var originalText: String = text  // 원본 텍스트를 저장
     init {
         isOpaque = false  // 배경을 직접 그리기 위해 투명하게 설정
         setContentAreaFilled(false)  // 기본 JButton의 배경 칠하기 기능 비활성화
@@ -310,7 +310,7 @@ class FillRoundedButton(
         val textHexColor = "#${Integer.toHexString(textColor.rgb).substring(2)}"  // 텍스트 색상을 HEX 형식으로 변환
 
         // HTML 텍스트로 폰트와 색상 적용, 줄바꿈 처리
-        this.text = "<html><center><span style='font-family:$fontFamily; font-size:${fontSize}px; color:$textHexColor;'>${text.replace("\n", "<br>")}</span></center></html>"
+        this.text = "<html><center><span style='font-family:$fontFamily; font-size:${fontSize}px; color:$textHexColor;'>${originalText.replace("\n", "<br>")}</span></center></html>"
 
         // 아이콘 설정
         if (iconPath != null) {
@@ -336,15 +336,24 @@ class FillRoundedButton(
         g2.color = backgroundColor
         g2.fillRoundRect(0, 0, width, height, borderRadius, borderRadius)
 
-        g2.color = borderColor
-        g2.stroke = BasicStroke(borderWidth.toFloat())
-        g2.drawRoundRect(borderWidth / 2, borderWidth / 2, width - borderWidth, height - borderWidth, borderRadius, borderRadius)
-
+        g2.color = textColor
         super.paintComponent(g)
     }
 
     override fun getPreferredSize(): Dimension {
         return buttonSize ?: super.getPreferredSize()
+    }
+
+
+    fun updateTextColor(newColor: Color) {
+        textColor = newColor
+        val textHexColor = "#${Integer.toHexString(newColor.rgb).substring(2)}"  // 텍스트 색상을 HEX 형식으로 변환
+        val fontFamily = customFont?.fontName ?: "Arial"
+        val fontSize = customFont?.size?.minus(4) ?: 16
+
+        // 원본 텍스트를 사용하여 HTML 텍스트로 폰트와 색상 적용, 줄바꿈 처리
+        this.text = "<html><center><span style='font-family:$fontFamily; font-size:${fontSize}px; color:$textHexColor;'>${originalText.replace("\n", "<br>")}</span></center></html>"
+        repaint()
     }
 }
 
