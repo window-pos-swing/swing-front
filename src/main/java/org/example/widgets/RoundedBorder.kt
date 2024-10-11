@@ -114,6 +114,51 @@ class IconRoundBorder2 {
     }
 }
 
+class IconRoundBorder3 {
+    companion object {
+        // 둥근 테두리와 배경색을 가진 버튼을 만드는 함수
+        fun createRoundedButton(text: String, activeColor: Color, cornerRadius: Int): JButton {
+            return object : JButton(text) {
+                private var isActive = false  // 버튼 상태를 나타내는 변수
+
+                init {
+                    preferredSize = Dimension(100, 40)
+                    isContentAreaFilled = false  // 기본 내용 배경 제거
+                    isFocusPainted = false  // 포커스 표시 제거
+                    border = null
+                    cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                    margin = Insets(5, 5, 5, 5)  // 버튼과 테두리 사이에 여백 추가
+                    foreground = Color.WHITE  // 텍스트 색상 설정
+                    font = MyFont.Bold(20f)
+
+                    // 클릭 이벤트 핸들러 추가
+                    addActionListener {
+                        isActive = !isActive  // 상태를 토글
+                        repaint()  // 버튼 다시 그리기
+                    }
+                }
+
+                override fun paintComponent(g: Graphics) {
+                    val g2 = g as Graphics2D
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+                    // 버튼의 배경색 설정 (활성화 상태에 따라 색상 변경)
+                    g2.color = if (isActive) activeColor else Color(217, 217, 217)
+                    g2.fillRoundRect(0, 0, width, height, cornerRadius, cornerRadius)
+                    foreground = if (isActive) Color.WHITE else Color(120, 120, 120)
+
+                    // 텍스트 그리기 전에 부모 클래스의 paintComponent 호출
+                    super.paintComponent(g)
+
+                    // 테두리 그리기
+                    g2.color = Color.LIGHT_GRAY
+                    g2.drawRoundRect(0, 0, width - 1, height - 1, cornerRadius, cornerRadius)
+                }
+            }
+        }
+    }
+}
+
 
 // 선택 버튼 스타일링
 class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY, 2, true) {
@@ -140,7 +185,8 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
     fun setButtonStyle(selected: Boolean) {
         isSelected = selected
         if (this::button.isInitialized) {  // 버튼이 초기화되었을 때만 작동
-            button.background = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
+            button.background =
+                if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
             button.foreground = if (isSelected) MyColor.SELECTED_TEXT_COLOR else MyColor.GREY600
             button.border = SelectButtonRoundedBorder(radius).apply {
                 lineColor = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
@@ -250,9 +296,13 @@ class OutLineRoundedLabel(
 
     override fun getPreferredSize(): Dimension {
         val preferredSize = super.getPreferredSize()
-        return Dimension(preferredSize.width + padding.left + padding.right, preferredSize.height + padding.top + padding.bottom)
+        return Dimension(
+            preferredSize.width + padding.left + padding.right,
+            preferredSize.height + padding.top + padding.bottom
+        )
     }
 }
+
 // 안에 꽉찬 둥근 라벨
 class FillRoundedLabel(
     text: String,
@@ -263,7 +313,7 @@ class FillRoundedLabel(
     private val borderWidth: Int,
     private val textAlignment: Int,  // 텍스트 정렬 (SwingConstants.LEFT, CENTER, RIGHT)
     private val padding: Insets  // 패딩을 위한 Insets
-) : JLabel(text , SwingConstants.LEFT) {
+) : JLabel(text, SwingConstants.LEFT) {
 
     init {
         isOpaque = false  // 배경을 직접 그릴 것이므로 투명하게 설정
@@ -277,11 +327,25 @@ class FillRoundedLabel(
 
         // 배경색과 테두리 먼저 그리기
         g2.color = backgroundColor
-        g2.fillRoundRect(borderWidth / 2, borderWidth / 2, width - borderWidth, height - borderWidth, borderRadius, borderRadius)
+        g2.fillRoundRect(
+            borderWidth / 2,
+            borderWidth / 2,
+            width - borderWidth,
+            height - borderWidth,
+            borderRadius,
+            borderRadius
+        )
 
         g2.color = borderColor
         g2.stroke = BasicStroke(borderWidth.toFloat())
-        g2.drawRoundRect(borderWidth / 2, borderWidth / 2, width - borderWidth, height - borderWidth, borderRadius, borderRadius)
+        g2.drawRoundRect(
+            borderWidth / 2,
+            borderWidth / 2,
+            width - borderWidth,
+            height - borderWidth,
+            borderRadius,
+            borderRadius
+        )
 
         // 텍스트 그리기 전에 정렬에 따른 X 좌표 조정
         val fontMetrics = g2.fontMetrics
@@ -352,7 +416,13 @@ class FillRoundedButton(
         val textHexColor = "#${Integer.toHexString(textColor.rgb).substring(2)}"  // 텍스트 색상을 HEX 형식으로 변환
 
         // HTML 텍스트로 폰트와 색상 적용, 줄바꿈 처리
-        this.text = "<html><center><span style='font-family:$fontFamily; font-size:${fontSize}px; color:$textHexColor;'>${text.replace("\n", "<br>")}</span></center></html>"
+        this.text =
+            "<html><center><span style='font-family:$fontFamily; font-size:${fontSize}px; color:$textHexColor;'>${
+                text.replace(
+                    "\n",
+                    "<br>"
+                )
+            }</span></center></html>"
 
         // 아이콘 설정
         if (iconPath != null) {
@@ -380,7 +450,14 @@ class FillRoundedButton(
 
         g2.color = borderColor
         g2.stroke = BasicStroke(borderWidth.toFloat())
-        g2.drawRoundRect(borderWidth / 2, borderWidth / 2, width - borderWidth, height - borderWidth, borderRadius, borderRadius)
+        g2.drawRoundRect(
+            borderWidth / 2,
+            borderWidth / 2,
+            width - borderWidth,
+            height - borderWidth,
+            borderRadius,
+            borderRadius
+        )
 
         super.paintComponent(g)
     }
@@ -464,8 +541,8 @@ class RoundedButton(text: String) : JButton(text) {
 }
 
 class PlusMinusButton(
-            private var imageFilePath: String,
-            private var borderColor: Color = Color(13, 130, 191),
+    private var imageFilePath: String,
+    private var borderColor: Color = Color(13, 130, 191),
 ) : JButton() {
     private var buttonImage: BufferedImage? = null  // 버튼 이미지
 
