@@ -9,7 +9,6 @@ import org.example.widgets.CHRoundedPanel
 import java.awt.*
 import javax.swing.*
 import javax.swing.border.EmptyBorder
-import javax.swing.border.LineBorder
 
 class PauseOperationsDialog(
     parent: JFrame,
@@ -32,8 +31,8 @@ class PauseOperationsDialog(
     private lateinit var hourComboBox: RoundedComboBox
     private lateinit var minuteComboBox: RoundedComboBox
 
-    private var cookingTime: Int = 30  // 기본 조리 시간 30분
-    private var deliveryTime: Int = 30  // 기본 배달 시간 30분
+    private var operatePauseFirst: Int = 30  // 기본 조리 시간 30분
+    private var operatePauseSecond: Int = 30  // 기본 배달 시간 30분
 
     init {
         isModal = true
@@ -93,9 +92,9 @@ class PauseOperationsDialog(
             foreground = MyColor.DARK_RED
             border = BorderFactory.createLineBorder(MyColor.DARK_RED)
             addActionListener {
-                println("조리시간: $cookingTime 분, 배달시간: $deliveryTime 분")
+                println("조리시간: $operatePauseFirst 분, 배달시간: $operatePauseSecond 분")
                 callback(true)
-                dispose()  // 다이얼로그 닫기
+                dispose()
             }
         }
 
@@ -414,8 +413,6 @@ class PauseOperationsDialog(
             gbc.anchor = GridBagConstraints.EAST  // 오른쪽 정렬
             add(buttonPanel, gbc)
 
-
-
             // comboPanel (오른쪽 배치)
             val comboPanel = JPanel().apply {
                 isOpaque = false
@@ -450,9 +447,9 @@ class PauseOperationsDialog(
     }
 
     // 30분단위 선택 패널 생성 함수
-    private fun createTimeSelectionPanel(titleText: String, subtitleText: String, isCookingTime: Boolean): JPanel {
+    private fun createTimeSelectionPanel(titleText: String, subtitleText: String, isoperatePauseFirst: Boolean): JPanel {
         // 시간 값 결정 (조리 시간/배달 시간)
-        val timeValue = if (isCookingTime) cookingTime else deliveryTime
+        val timeValue = if (isoperatePauseFirst) operatePauseFirst else operatePauseSecond
 
         val timeLabel = JLabel("${timeValue}분", SwingConstants.CENTER).apply {
             font = MyFont.Bold(38f)
@@ -466,7 +463,7 @@ class PauseOperationsDialog(
             isFocusPainted = false
             border = BorderFactory.createEmptyBorder()  // 테두리 제거
             cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)  // 커서를 손 모양으로 변경
-            addActionListener { adjustTime(timeLabel, -5, isCookingTime) }  // 5분 감소
+            addActionListener { adjustTime(timeLabel, -30, isoperatePauseFirst) }  // 5분 감소
         }
         val increaseButton = JButton(ImageIcon(javaClass.getResource("/plus_icon.png"))).apply {
             font = MyFont.Bold(36f)
@@ -474,7 +471,7 @@ class PauseOperationsDialog(
             isFocusPainted = false
             border = BorderFactory.createEmptyBorder()  // 테두리 제거
             cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)  // 커서를 손 모양으로 변경
-            addActionListener { adjustTime(timeLabel, 5, isCookingTime) }  // 5분 증가
+            addActionListener { adjustTime(timeLabel, 30, isoperatePauseFirst) }  // 5분 증가
         }
 
         // 둥근 시간 선택 패널 구성
@@ -533,15 +530,15 @@ class PauseOperationsDialog(
     }
 
     // 시간 조정 함수 (timeLabel의 값을 업데이트)
-    private fun adjustTime(timeLabel: JLabel, delta: Int, isCookingTime: Boolean) {
+    private fun adjustTime(timeLabel: JLabel, delta: Int, isoperatePauseFirst: Boolean) {
         val currentTime = timeLabel.text.replace("분", "").toInt()
         val newTime = (currentTime + delta).coerceAtLeast(5)  // 최소 5분으로 제한
 
         // 시간 값 업데이트
-        if (isCookingTime) {
-            cookingTime = newTime
+        if (isoperatePauseFirst) {
+            operatePauseFirst = newTime
         } else {
-            deliveryTime = newTime
+            operatePauseSecond = newTime
         }
 
         // 라벨 업데이트
