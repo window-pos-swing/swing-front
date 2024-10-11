@@ -558,3 +558,57 @@ class RoundButton(text: String) : JButton(text) {
         return isSelected
     }
 }
+
+
+class RoundButton2(text: String) : JButton(text) {
+    private var isSelected = true
+    var isClickable = false
+
+    init {
+        preferredSize = Dimension(150, 45)
+        isContentAreaFilled = false
+        isFocusPainted = false
+        isBorderPainted = false
+        horizontalAlignment = SwingConstants.CENTER
+        verticalAlignment = SwingConstants.CENTER
+
+        // 클릭 시 선택/해제 토글
+        addActionListener {
+            if (isClickable) { // 클릭 가능할 때만 동작
+                isSelected = !isSelected
+                setSelected(isSelected)
+            }
+        }
+    }
+
+    // 선택 상태 변경 함수
+    override fun setSelected(selected: Boolean) {
+        isSelected = selected
+//        println("색상 바로 변경되는가? : $isSelected")
+        repaint() // 상태 변경 시 다시 그리기
+    }
+
+    override fun paintComponent(g: Graphics) {
+        val g2d = g as Graphics2D
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 테두리 두께 설정
+        g2d.stroke = BasicStroke(3f)
+
+        // 선택 상태에 따라 원형 테두리 색상 설정
+        g2d.color = if (isSelected) Color(255, 177, 177) else Color.LIGHT_GRAY
+        g2d.drawRoundRect(1, 1, width - 3, height - 3, 30, 30)
+
+        // 텍스트 설정
+        g2d.color = if (isSelected) Color(255, 177, 177) else Color.LIGHT_GRAY
+        val fm = g2d.fontMetrics
+        val textWidth = fm.stringWidth(text)
+        val textHeight = fm.ascent
+        g2d.drawString(text, (width - textWidth) / 2, (height + textHeight) / 2 - 2)
+    }
+
+    // 선택 상태 반환
+    override fun isSelected(): Boolean {
+        return isSelected
+    }
+}

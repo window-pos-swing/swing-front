@@ -65,7 +65,6 @@ class SelectByDays : JPanel() {
                                 setSelected(true)
                                 foreground = Color.GRAY
                             }
-
                         }
                     }
                     dayButtons.add(dayButton) // 요일 버튼을 리스트에 추가
@@ -75,7 +74,7 @@ class SelectByDays : JPanel() {
 
             // 시간 선택 패널
             val timePanel = JPanel().apply {
-                layout = FlowLayout(FlowLayout.CENTER, 10, 0)
+                layout = FlowLayout(FlowLayout.CENTER, 10, 10)
                 background = Color.WHITE
 
                 startHourCombo = RoundedComboBox(DefaultComboBoxModel(arrayOf("오전 0시", "오전 1시", "오전 2시", "오전 3시", "오전 4시", "오전 5시", "오전 6시", "오전 7시", "오전 8시", "오전 9시", "오전 10시", "오전 11시", "오후 12시", "오후 1시", "오후 2시", "오후 3시", "오후 4시", "오후 5시", "오후 6시", "오후 7시", "오후 8시", "오후 9시", "오후 10시", "오후 11시"))).apply {
@@ -189,7 +188,7 @@ class SelectByDays : JPanel() {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
             add(dayAndTimePanel)
-            add(Box.createVerticalStrut(20))
+//            add(Box.createVerticalStrut(10))
             add(scrollPane)
         }
 
