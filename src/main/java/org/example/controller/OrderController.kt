@@ -64,6 +64,7 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         //주문대기탭 리프레쉬
         tabbedPane.refreshPendingOrders()
 
+        tabbedPane.ProcessingSubTabsCountUpdate()
         //주문처리중탭 리프레쉬
 //        tabbedPane.refreshProcessingOrders() // * 이거 넣으면 전체보기탭에서 주문완료버튼, 재전송버튼 업데이트 안되는 이슈 있음
     }

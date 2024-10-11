@@ -518,6 +518,10 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         processingSubTabs.ProcessingSubTabsUpdateCounts()
     }
 
+    fun ProcessingSubTabsCountUpdate(){
+        processingSubTabs.ProcessingSubTabsUpdateCounts()
+    }
+
     fun filterCompletedOrders(orderType: String? = null) {
         completedSubTabsState = orderType ?: ""  // null이면 전체보기 서브탭 상태로 설정
 
