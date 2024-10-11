@@ -1,22 +1,16 @@
 package org.example.screen.main.main_widget.dialog
 
 import CustomRoundedDialog
-import LoadImage
-import LoadImage.loadImage
-import org.example.MyFont
-import org.example.MyFont.Bold
+import org.example.util.LoadImage
+import org.example.util.MyFont
 import org.example.model.Order
 import org.example.style.MyColor
-import org.example.widgets.FillRoundedButton
 import org.example.widgets.FillRoundedLabel
-import org.example.widgets.IconRoundBorder
 import java.awt.*
 import javax.swing.*
 import javax.swing.border.CompoundBorder
 import javax.swing.border.EmptyBorder
 import javax.swing.border.LineBorder
-import javax.swing.table.DefaultTableCellRenderer
-import javax.swing.table.TableCellRenderer
 
 
 class OrderDetailDialog(

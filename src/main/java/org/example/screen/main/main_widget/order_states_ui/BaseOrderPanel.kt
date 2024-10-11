@@ -1,8 +1,9 @@
 package org.example.view.components
 
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.model.Order
 import org.example.style.MyColor
+import org.example.util.LoadImage
 import org.example.widgets.FillRoundedLabel
 import org.example.widgets.OutLineRoundedLabel
 import javax.swing.*

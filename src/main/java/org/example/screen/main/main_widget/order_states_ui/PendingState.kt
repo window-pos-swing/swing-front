@@ -3,16 +3,15 @@ package org.example.view.states
 import OrderController
 import OrderRejectCancelDialog
 import org.example.CustomTabbedPane
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.command.RejectOrderCommand
 import org.example.command.RejectedReasonType
 import org.example.model.Order
 import org.example.model.OrderState
-import org.example.screen.main.main_widget.dialog.EstimatedTimeDialog
+import org.example.screen.main.main_widget.dialog.TimeSelectDialog.CookTimeDialog
 import org.example.style.MyColor
 import org.example.view.components.BaseOrderPanel
 import org.example.widgets.FillRoundedButton
-import org.example.widgets.IconRoundBorder
 import org.example.widgets.OverlayManager
 import javax.swing.*
 import java.awt.*
@@ -118,18 +117,17 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
         ).apply {
             addActionListener {
                 overlayManager.addOverlayPanel()
-                val dialog = EstimatedTimeDialog(
+                val dialog = CookTimeDialog(
                     parent = parentFrame ?: JFrame(),
                     cardPanel = cardPanel!!,
-                    title = "예상 시간 선택",
                     order = order,
-                    orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame()))
+                    orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                    overlayManager = overlayManager
                 )
                 dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
                     override fun windowClosed(e: java.awt.event.WindowEvent?) {
                         dialog.dispose()
-                        overlayManager.removeOverlayPanel()
-
+                        //overlayManager.removeOverlayPanel() // DeliveryTimeDialog에서 overlayManager를 관리하므로 여기서 제거하지 않음
                     }
                 })
                 dialog.isVisible = true

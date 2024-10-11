@@ -14,6 +14,8 @@ import org.example.screen.main.main_widget.tab_manager.pandding_sub_tabs.Pending
 import org.example.screen.main.main_widget.tab_manager.processing_sub_tabs.ProcessingSubTabs
 import org.example.screen.main.main_widget.tab_manager.rejected_sub_tabs.RejectedSubTabs
 import org.example.style.MyColor
+import org.example.util.LoadImage
+import org.example.util.MyFont
 import org.example.view.states.CompletedState
 import org.example.view.states.PendingState
 import org.example.view.states.ProcessingState
@@ -515,6 +517,10 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         } else {
             filterProcessingOrders(processingSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
         }
+        processingSubTabs.ProcessingSubTabsUpdateCounts()
+    }
+
+    fun ProcessingSubTabsCountUpdate(){
         processingSubTabs.ProcessingSubTabsUpdateCounts()
     }
 

@@ -1,7 +1,7 @@
 
 import javax.swing.*
 import java.awt.*
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.style.MyColor
 
 

@@ -8,7 +8,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import org.example.style.MyColor;
-import org.example.MyFont;
+import org.example.util.MyFont;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

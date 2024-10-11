@@ -1,4 +1,4 @@
-package org.example
+package org.example.util
 
 import java.awt.Font  // Font 클래스 임포트
 import java.awt.FontFormatException
