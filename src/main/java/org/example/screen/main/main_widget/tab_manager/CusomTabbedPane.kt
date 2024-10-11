@@ -150,7 +150,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
                                 isSelected = true // X 버튼으로 다이얼로그를 닫았을 때는 ON 상태로 유지
                             }
                         }).apply {
-                            setLocationRelativeTo(cardPanel)
+//                            setLocationRelativeTo(cardPanel)
                             // 다이얼로그가 닫힐 때 무조건 false로 리셋
                             addWindowListener(object : java.awt.event.WindowAdapter() {
                                 override fun windowClosed(e: java.awt.event.WindowEvent?) {
@@ -165,8 +165,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
                 }
             }
         }
-
-
 
         // 패널에 토글 버튼 추가
         togglePanel.add(customToggleButton)
@@ -187,7 +185,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         // 하단에 운영시간 패널 추가
         menuPanel.add(Box.createVerticalGlue())  // 기존 컴포넌트와 하단 운영시간 사이 공간 확보
         menuPanel.add(operationPanel)
-
 
         // 주문발송테스트 버튼 추가
         val sendOrderButton = JButton("주문발송테스트").apply {
@@ -443,7 +440,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             println("Error updating tab title: ${e.message}")
         }
     }
-
 
     //[Filter] ========================================================================
     fun filterPendingOrders(orderType: String? = null) {
