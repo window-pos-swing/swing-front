@@ -54,7 +54,6 @@ class CustomToggleButton : JToggleButton() {
         // 포커스와 관련된 그리기 동작을 제거
         isFocusPainted = false
     }
-
 }
 
 fun main() {

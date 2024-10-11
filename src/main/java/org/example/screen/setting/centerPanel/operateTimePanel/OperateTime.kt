@@ -1,6 +1,7 @@
 package org.example.screen.setting.centerPanel.operateTimePanel
 
 import org.example.util.MyFont
+import org.example.screen.setting.centerPanel.operateTimePanel.operateTime_modal.OperateTimeModalDialog
 import org.example.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*
@@ -66,7 +67,14 @@ class OperateTime: JPanel() {
         gbc.anchor = GridBagConstraints.EAST  // 오른쪽 정렬
         gbc.weightx = 1.0  // 오른쪽 끝까지 공간을 차지하도록
         gbc.fill = GridBagConstraints.NONE
-        val setButton = RoundedButton("설정")
+        val setButton = RoundedButton("설정").apply {
+            addActionListener {
+                val parentFrame = SwingUtilities.getWindowAncestor(this) as? JFrame
+                if (parentFrame != null) {
+                    OperateTimeModalDialog(parentFrame, "영업 시간 설정")
+                }
+            }
+        }
         add(setButton, gbc)
     }
 }
