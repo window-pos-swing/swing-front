@@ -20,7 +20,7 @@ class WeekDaysAndWeekEnds : JPanel() {
     private var selectedDays = mutableSetOf<String>()
     private val selectedDay2 = mutableSetOf<String>()
     private val bottomPanel: JPanel = JPanel()
-    val selectThis = arrayOf("평일", "토요일", "일요알")
+    val selectThis = arrayOf("평일", "주말")
 
     init {
         layout = BorderLayout()
