@@ -1,7 +1,7 @@
 package org.example.view.states
 
 
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.model.Order
 import org.example.model.OrderState
 import org.example.style.MyColor

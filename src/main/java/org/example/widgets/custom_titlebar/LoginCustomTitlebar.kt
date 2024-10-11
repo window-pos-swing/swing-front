@@ -1,6 +1,6 @@
 package org.example.widgets.custom_titlebar
 
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.style.MyColor
 import org.example.widgets.IconRoundBorder
 import org.example.widgets.custom_titlebar.TitleDateUpdate.TitleDateUpdater

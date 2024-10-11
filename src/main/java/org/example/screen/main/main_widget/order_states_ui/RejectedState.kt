@@ -1,14 +1,13 @@
 package org.example.view.states
 
 
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.command.RejectedReasonType
 import org.example.model.Order
 import org.example.model.OrderState
 import org.example.style.MyColor
 import org.example.view.components.BaseOrderPanel
 import org.example.widgets.AutoScalingLabel
-import org.example.widgets.CHRoundedPanel
 import org.example.widgets.FillRoundedButton
 import org.example.widgets.ThicknessRoundedPanel
 import java.awt.*

@@ -1,3 +1,5 @@
+package org.example.util
+
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import java.awt.Image

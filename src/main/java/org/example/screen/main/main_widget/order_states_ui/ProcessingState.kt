@@ -1,7 +1,7 @@
 package org.example.view.states
 import OrderRejectCancelDialog
 import RoundedProgressBar
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.command.CompletedOrderCommand
 import org.example.command.RejectOrderCommand
 import org.example.command.RejectedReasonType

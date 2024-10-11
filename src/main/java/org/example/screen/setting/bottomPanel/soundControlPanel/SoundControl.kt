@@ -1,7 +1,7 @@
 package org.example.screen.setting.bottomPanel.soundControlPanel
 
 import VolumeControlPanel
-import org.example.MyFont
+import org.example.util.MyFont
 import java.awt.*
 import javax.swing.BorderFactory
 import javax.swing.ImageIcon

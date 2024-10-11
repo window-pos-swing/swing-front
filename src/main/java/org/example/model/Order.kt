@@ -22,6 +22,8 @@ data class Order(
     var state: OrderState = PendingState(),  // 기본 상태는 접수대기
     var elapsedTime: Int = 0,
     var ReceivedTime: Date? = null,
+    var cookTime: Int = 0,
+    var deliveryTime: Int = 0,
 ) {
     var isCompleted: Boolean = false  // 주문 완료 여부
     var isResent: Boolean = false  // 배달 대행사로 주문번호 재전송 여부

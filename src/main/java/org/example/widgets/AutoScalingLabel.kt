@@ -1,6 +1,6 @@
 package org.example.widgets
 
-import org.example.MyFont
+import org.example.util.MyFont
 import java.awt.FontMetrics
 import java.awt.Graphics
 import javax.swing.JLabel

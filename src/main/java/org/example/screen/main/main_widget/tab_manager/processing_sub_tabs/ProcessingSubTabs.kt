@@ -122,7 +122,6 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     }
 
     fun ProcessingSubTabsUpdateCounts() {
-        println("[Pendding Sub Tab] updateCounts")
         // 모든 주문 중 현재 PendingState(접수대기) 상태인 것들만 필터링
         val ProcessingOrders = tabbedPane.getAllOrders().filter { it.state is ProcessingState }
 

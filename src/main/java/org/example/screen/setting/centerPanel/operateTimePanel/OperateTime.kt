@@ -1,7 +1,6 @@
 package org.example.screen.setting.centerPanel.operateTimePanel
 
-import org.example.MyFont
-import org.example.style.MyColor
+import org.example.util.MyFont
 import org.example.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*

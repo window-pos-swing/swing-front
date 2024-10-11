@@ -2,7 +2,7 @@ package org.example.screen.main.main_widget.dialog
 
 import CustomRoundedDialog
 import RoundedComboBox
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.style.MyColor
 import org.example.widgets.FillRoundedButton
 import org.example.widgets.CHRoundedPanel
