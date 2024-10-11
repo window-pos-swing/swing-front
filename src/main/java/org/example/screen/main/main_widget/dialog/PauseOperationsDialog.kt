@@ -2,16 +2,17 @@ package org.example.screen.main.main_widget.dialog
 
 import CustomRoundedDialog
 import RoundedComboBox
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.style.MyColor
 import org.example.widgets.FillRoundedButton
-import org.example.widgets.RoundedPanel
+import org.example.widgets.CHRoundedPanel
 import java.awt.*
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 
 class PauseOperationsDialog(
     parent: JFrame,
+    cardPanel : JPanel,
     title: String,
     private val callback: (Boolean) -> Unit
 ) : CustomRoundedDialog(parent, title, 1000, 465) {
@@ -103,7 +104,7 @@ class PauseOperationsDialog(
 
         // 다이얼로그 설정
         setSize(1000, 465)
-        setLocationRelativeTo(parent)
+        setLocationRelativeTo(cardPanel)
         isVisible = true
     }
 
@@ -347,7 +348,7 @@ class PauseOperationsDialog(
         }
 
         // 메인 패널을 둥글게 만들기 위해 RoundedPanel 사용
-        val mainPanel = RoundedPanel(30, 30).apply {
+        val mainPanel = CHRoundedPanel(30, 30).apply {
             background = MyColor.DARK_NAVY
             preferredSize = Dimension(460, 230)  // 패널 크기 조정
             layout = GridBagLayout()
@@ -448,7 +449,7 @@ class PauseOperationsDialog(
         }
 
         // 둥근 시간 선택 패널 구성
-        val buttonPanel = RoundedPanel(30, 30).apply {
+        val buttonPanel = CHRoundedPanel(30, 30).apply {
             background = Color.WHITE  // 배경을 흰색으로 설정
             border = EmptyBorder(0, 15, 0, 15)
             preferredSize = Dimension(305, 90)  // 패널 크기를 305x90으로 설정
@@ -460,7 +461,7 @@ class PauseOperationsDialog(
         }
 
         // 메인 패널을 둥글게 만들기 위해 RoundedPanel 사용
-        val mainPanel = RoundedPanel(30, 30).apply {
+        val mainPanel = CHRoundedPanel(30, 30).apply {
             background = MyColor.DARK_NAVY
             preferredSize = Dimension(460, 258)  // 패널 크기를 설정
             layout = GridBagLayout()

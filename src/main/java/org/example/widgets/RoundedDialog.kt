@@ -1,4 +1,4 @@
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.widgets.IconRoundBorder
 import java.awt.*
 import java.awt.geom.RoundRectangle2D

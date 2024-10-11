@@ -1,9 +1,10 @@
 package org.example.view.states
 import OrderRejectCancelDialog
 import RoundedProgressBar
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.command.CompletedOrderCommand
 import org.example.command.RejectOrderCommand
+import org.example.command.RejectedReasonType
 import org.example.`interface`.OrderEventListener
 import org.example.model.Order
 import org.example.model.OrderState
@@ -11,17 +12,20 @@ import org.example.observer.OrderObserver
 import org.example.style.MyColor
 import org.example.view.components.BaseOrderPanel
 import org.example.widgets.FillRoundedButton
+import org.example.widgets.OverlayManager
 import javax.swing.*
 import java.awt.*
 
-class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
+class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel) : OrderState, OrderEventListener {
     private lateinit var rightPanel: JPanel  // 버튼을 추가할 패널을 멤버로 선언
 
     override fun handle(order: Order) {
         // 주문 진행 처리 로직
         //order.startTimer(totalTime)  // 타이머 시작
     }
+    val overlayManager = cardPanel.let { OverlayManager(parentFrame, it) }
 
+    val _cardPanel = cardPanel
     override fun getUI(order: Order): JPanel {
         return BaseOrderPanel(order).apply {
             layout = BorderLayout()  // 전체 레이아웃을 BorderLayout으로 설정
@@ -30,7 +34,7 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
 
             // 1. headerPanel의 오른쪽에 프린트 버튼 추가
             val buttonPanel = JPanel().apply {
-                layout = FlowLayout(FlowLayout.RIGHT, 15, 0)  // 오른쪽 정렬
+                layout = FlowLayout(FlowLayout.RIGHT, 0, 0)  // 오른쪽 정렬
                 background = Color.WHITE  // 배경색 설정
                 border = BorderFactory.createEmptyBorder(15, 0, 0, 0)
 
@@ -45,7 +49,7 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
                     borderWidth = 1,
                     textAlignment = SwingConstants.CENTER,
                     padding = Insets(10, 20, 10, 20),
-                    iconPath = "/print_icon.png",
+                    iconPath = "/print_icon_main.png",
                     buttonSize = Dimension(50, 50),
                     iconWidth = 45,
                     iconHeight = 45
@@ -112,16 +116,29 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
                         customFont = MyFont.Bold(28f)
                     ).apply {
                         addActionListener {
-                            OrderRejectCancelDialog(
+                            overlayManager?.addOverlayPanel()
+
+                            val dialog = OrderRejectCancelDialog(
                                 SwingUtilities.getWindowAncestor(this) as JFrame,
+                                _cardPanel,
                                 "주문 취소 사유 선택",
                                 "주문 취소 사유를 선택해 주세요.",
                                 "주문 취소",
                                 onReject = { rejectReason ->
-                                    val rejectOrderCommand = RejectOrderCommand(order, rejectReason, this@ProcessingState)
+                                    val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_CANCEL)
                                     rejectOrderCommand.execute()
                                 }
                             )
+
+                            // 다이얼로그가 닫힐 때 오버레이 패널 제거
+                            dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
+                                override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                                    overlayManager?.removeOverlayPanel()
+                                    dialog.dispose()
+                                }
+                            })
+                            // 다이얼로그 보이기
+                            dialog.isVisible = true
                         }
                     }
 
@@ -132,7 +149,7 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
 
                     // GridBagConstraints로 각 컴포넌트를 독립적으로 배치
                     add(cancelButton, gbc.apply { gridy = 0 })  // 첫 번째 행에 주문 취소 버튼 배치
-                    add(Box.createRigidArea(Dimension(0, 0)), gbc.apply { gridy = 1 })  // 간격을 2px로 줄임
+                    add(Box.createRigidArea(Dimension(0, 0)), gbc.apply { gridy = 1 })
                     add(roundedProgressBar, gbc.apply { gridy = 2 })  // 두 번째 행에 프로그레스바 배치
 
                     // 프로그레스바 업데이트 로직
@@ -173,11 +190,11 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
 
         // 주문 번호에 따라 이벤트 타이머 설정
         if (order.orderNumber % 2 == 0) {
-            order.initializeEventTimer(5000) {
+            order.initializeEventTimer(7000) {
                 eventListener.onResendOrder(order)
             }
         } else {
-            order.initializeEventTimer(5000) {
+            order.initializeEventTimer(7000) {
                 eventListener.onCompleteOrder(order)
             }
         }
@@ -203,11 +220,12 @@ class ProcessingState(val totalTime: Int) : OrderState, OrderEventListener {
             addActionListener {
                 OrderRejectCancelDialog(
                     SwingUtilities.getWindowAncestor(this) as JFrame,
+                    _cardPanel,
                     "주문 취소 사유 선택",
                     "주문 취소 사유를 선택해 주세요.",
                     "주문 취소",
                     onReject = { rejectReason ->
-                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason, this@ProcessingState)
+                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason , RejectedReasonType.STORE_CANCEL)
                         rejectOrderCommand.execute()
                     }
                 )

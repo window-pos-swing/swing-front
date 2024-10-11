@@ -1,6 +1,6 @@
 package org.example.widgets
 
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.style.MyColor
 import java.awt.*
 import java.awt.image.BufferedImage
@@ -39,7 +39,7 @@ class IconRoundBorder {
                     super.paintComponent(g)
 
                     // 테두리 그리기
-                    g2.color = Color.LIGHT_GRAY
+                    g2.color = Color.white
                     g2.drawRoundRect(0, 0, width - 1, height - 1, 20, 20)
                 }
 
@@ -166,9 +166,14 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
     private var isSelected: Boolean = false  // 버튼 선택 여부를 추적하는 변수
     lateinit var button: JButton  // 나중에 생성된 버튼을 저장할 변수
 
+    private var selectedBackgroundColor: Color = MyColor.SELECTED_BACKGROUND_COLOR
+    private var unselectedBackgroundColor: Color = MyColor.UNSELECTED_BACKGROUND_COLOR
+    private var selectedTextColor: Color = MyColor.SELECTED_TEXT_COLOR
+    private var unselectedTextColor: Color = MyColor.GREY600
+
     // 둥근 테두리 적용
     override fun getBorderInsets(c: Component): Insets {
-        return Insets(radius + 1, radius + 1, radius + 2, radius)
+        return Insets(radius / 4 + 1, radius / 4 + 1, radius / 4 + 2, radius / 4)
     }
 
     override fun isBorderOpaque(): Boolean {
@@ -185,9 +190,8 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
     fun setButtonStyle(selected: Boolean) {
         isSelected = selected
         if (this::button.isInitialized) {  // 버튼이 초기화되었을 때만 작동
-            button.background =
-                if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
-            button.foreground = if (isSelected) MyColor.SELECTED_TEXT_COLOR else MyColor.GREY600
+            button.background = if (isSelected) selectedBackgroundColor else unselectedBackgroundColor
+            button.foreground = if (isSelected) selectedTextColor else unselectedTextColor
             button.border = SelectButtonRoundedBorder(radius).apply {
                 lineColor = if (isSelected) MyColor.SELECTED_BACKGROUND_COLOR else MyColor.UNSELECTED_BACKGROUND_COLOR
             }
@@ -204,6 +208,13 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
         unselectedTextColor: Color,
         buttonSize: Dimension
     ): JButton {
+        // 매개변수로 받은 색상을 저장
+        selectedBackgroundColor = selectedColor
+        unselectedBackgroundColor = unselectedColor
+        this.selectedTextColor = selectedTextColor
+        this.unselectedTextColor = unselectedTextColor
+
+        // 버튼 생성
         button = object : JButton(text) {
             override fun paintComponent(g: Graphics) {
                 val g2 = g as Graphics2D
@@ -227,16 +238,16 @@ class SelectButtonRoundedBorder(private val radius: Int) : LineBorder(Color.GRAY
             foreground = unselectedTextColor  // 초기 텍스트 색상 설정
             background = unselectedColor  // 초기 배경색 설정
             border = SelectButtonRoundedBorder(radius).apply {
-                lineColor = MyColor.UNSELECTED_BACKGROUND_COLOR  // 초기 테두리 색상 설정
+                lineColor = unselectedColor  // 초기 테두리 색상 설정
             }
+
             font = MyFont.Bold(24f)
             horizontalAlignment = SwingConstants.CENTER
-
 
             isFocusPainted = false // 포커스 테두리 비활성화
             isFocusable = false // 버튼이 포커스를 받을 수 없도록 설정
             setContentAreaFilled(false) // 배경 칠하기 비활성화
-            setBorderPainted(false) // 기본 테두리 제거 (필요시 추가)
+            setBorderPainted(false) // 기본 테두리 제거
         }
 
         return button  // 버튼을 리턴
@@ -265,18 +276,19 @@ class OutLineRoundedLabel(
         // 안티앨리어싱 활성화 (부드러운 테두리)
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-        // 패널 크기 가져오기
-        val width = width
-        val height = height
-
         // 라벨의 둥근 테두리 그리기
+        val adjustedX = 1
+        val adjustedY = 1
+        val adjustedWidth = width - 2
+        val adjustedHeight = height - 2
+
         g2.color = borderColor
         g2.stroke = BasicStroke(borderWidth.toFloat())
         g2.drawRoundRect(
-            borderWidth / 2,
-            borderWidth / 2,
-            width - borderWidth,
-            height - borderWidth,
+            adjustedX,
+            adjustedY,
+            adjustedWidth,
+            adjustedHeight,
             borderRadius,
             borderRadius
         )
@@ -296,14 +308,12 @@ class OutLineRoundedLabel(
 
     override fun getPreferredSize(): Dimension {
         val preferredSize = super.getPreferredSize()
-        return Dimension(
-            preferredSize.width + padding.left + padding.right,
-            preferredSize.height + padding.top + padding.bottom
-        )
+        return Dimension(preferredSize.width + padding.left + padding.right, preferredSize.height + padding.top + padding.bottom)
     }
 }
 
 // 안에 꽉찬 둥근 라벨
+
 class FillRoundedLabel(
     text: String,
     private val borderColor: Color,
@@ -325,27 +335,9 @@ class FillRoundedLabel(
         val g2 = g as Graphics2D
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-        // 배경색과 테두리 먼저 그리기
+        // 배경색 그리기 (아래쪽 잘림을 보정하기 위해 높이를 1 증가)
         g2.color = backgroundColor
-        g2.fillRoundRect(
-            borderWidth / 2,
-            borderWidth / 2,
-            width - borderWidth,
-            height - borderWidth,
-            borderRadius,
-            borderRadius
-        )
-
-        g2.color = borderColor
-        g2.stroke = BasicStroke(borderWidth.toFloat())
-        g2.drawRoundRect(
-            borderWidth / 2,
-            borderWidth / 2,
-            width - borderWidth,
-            height - borderWidth,
-            borderRadius,
-            borderRadius
-        )
+        g2.fillRoundRect(borderWidth / 2, borderWidth / 2, width - borderWidth - 1, height - borderWidth - 1, borderRadius, borderRadius)
 
         // 텍스트 그리기 전에 정렬에 따른 X 좌표 조정
         val fontMetrics = g2.fontMetrics
@@ -354,11 +346,28 @@ class FillRoundedLabel(
             SwingConstants.RIGHT -> width - padding.right - fontMetrics.stringWidth(text) // 오른쪽 정렬일 때 패딩 적용
             else -> (width - fontMetrics.stringWidth(text)) / 2  // 가운데 정렬일 때 패딩 무시
         }
-        val textY = (height - fontMetrics.height) / 2 + fontMetrics.ascent // 수직 중앙 정렬
+        val textY = (height - fontMetrics.height) / 2 + fontMetrics.ascent - 1 // 수직 중앙 정렬
 
         // 텍스트 색상과 글꼴 설정
         g2.color = textColor
         g2.drawString(text, textX, textY)
+    }
+
+    override fun paintBorder(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 테두리 그리기 (아래쪽 잘림을 보정하기 위해 높이를 1 증가)
+        g2.color = borderColor
+        g2.stroke = BasicStroke(borderWidth.toFloat())
+        g2.drawRoundRect(
+            borderWidth / 2,
+            borderWidth / 2,
+            width - borderWidth - 1,
+            height - borderWidth - 1,
+            borderRadius,
+            borderRadius
+        )
     }
 
     override fun getInsets(): Insets {
@@ -416,13 +425,7 @@ class FillRoundedButton(
         val textHexColor = "#${Integer.toHexString(textColor.rgb).substring(2)}"  // 텍스트 색상을 HEX 형식으로 변환
 
         // HTML 텍스트로 폰트와 색상 적용, 줄바꿈 처리
-        this.text =
-            "<html><center><span style='font-family:$fontFamily; font-size:${fontSize}px; color:$textHexColor;'>${
-                text.replace(
-                    "\n",
-                    "<br>"
-                )
-            }</span></center></html>"
+        this.text = "<html><center><span style='font-family:$fontFamily; font-size:${fontSize}px; color:$textHexColor;'>${text.replace("\n", "<br>")}</span></center></html>"
 
         // 아이콘 설정
         if (iconPath != null) {
@@ -450,14 +453,7 @@ class FillRoundedButton(
 
         g2.color = borderColor
         g2.stroke = BasicStroke(borderWidth.toFloat())
-        g2.drawRoundRect(
-            borderWidth / 2,
-            borderWidth / 2,
-            width - borderWidth,
-            height - borderWidth,
-            borderRadius,
-            borderRadius
-        )
+        g2.drawRoundRect(borderWidth / 2, borderWidth / 2, width - borderWidth, height - borderWidth, borderRadius, borderRadius)
 
         super.paintComponent(g)
     }
@@ -467,8 +463,15 @@ class FillRoundedButton(
     }
 }
 
+
+
+
 // 둥근 패널을 만들기 위한 커스텀 JPanel 클래스
-class RoundedPanel(private val arcWidth: Int, private val arcHeight: Int) : JPanel() {
+class RoundedPanel(
+    private val arcWidth: Int,
+    private val arcHeight: Int,
+) : JPanel() {
+
     init {
         isOpaque = false  // 배경을 투명하게 설정
     }
@@ -495,6 +498,88 @@ class RoundedPanel(private val arcWidth: Int, private val arcHeight: Int) : JPan
         g2.drawRoundRect(0, 0, width - 1, height - 1, arcWidth, arcHeight)
     }
 }
+
+class ThicknessRoundedPanel(
+    private val arcWidth: Int,
+    private val arcHeight: Int,
+    private val borderWidth: Float = 1f // 테두리 두께 기본값 1로 설정
+) : JPanel() {
+
+    init {
+        isOpaque = false  // 배경을 투명하게 설정
+    }
+
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 배경색 설정
+        g2.color = background
+
+        // 둥근 사각형 그리기
+        g2.fillRoundRect(0, 0, width, height, arcWidth, arcHeight)
+
+        super.paintComponent(g)
+    }
+
+    override fun paintBorder(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 테두리 두께 설정
+        g2.stroke = BasicStroke(borderWidth)
+
+        // 테두리 그리기
+        g2.color = foreground
+        g2.drawRoundRect(
+            (borderWidth / 2).toInt() , // 두께 보정을 위해 테두리 위치를 조정
+            (borderWidth / 2).toInt(),
+            (width - borderWidth).toInt() - 1,
+            (height - borderWidth).toInt() - 1,
+            arcWidth,
+            arcHeight
+        )
+    }
+
+    override fun getInsets(): Insets {
+        // 설정된 여백을 반환
+        return Insets(10, 10, 10, 10)
+    }
+}
+
+class CHRoundedPanel(private val arcWidth: Int, private val arcHeight: Int) : JPanel() {
+    init {
+        isOpaque = false  // 배경을 투명하게 설정
+    }
+
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 배경색 설정
+        g2.color = background
+
+        // 둥근 사각형 그리기
+        g2.fillRoundRect(0, 0, width, height, arcWidth, arcHeight)
+
+        super.paintComponent(g)
+    }
+
+    override fun paintBorder(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 테두리 그리기
+        g2.color = foreground
+        g2.drawRoundRect(0, 0, width - 1, height - 1, arcWidth, arcHeight)
+    }
+
+    override fun getInsets(): Insets {
+        // 설정된 여백을 반환
+        return Insets(10, 10, 10, 10)
+    }
+}
+
 
 // RoundedBorder 클래스: 모서리가 둥근 테두리
 class RoundedBorder(private val radius: Int) : AbstractBorder() {

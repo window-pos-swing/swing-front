@@ -1,6 +1,6 @@
 package org.example.screen.setting.centerPanel.holidayPanel
 
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.screen.setting.centerPanel.holidayPanel.holiday_modal.HolidayModalDialog
 import org.example.style.MyColor
 import org.example.widgets.RoundedButton

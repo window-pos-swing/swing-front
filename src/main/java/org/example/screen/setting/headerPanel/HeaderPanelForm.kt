@@ -1,13 +1,9 @@
 package org.example.screen.setting.headerPanel
 
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.style.MyColor
-import org.example.widgets.IconRoundBorder
 import java.awt.*
 import javax.swing.*
-import javax.swing.border.CompoundBorder
-import javax.swing.border.EmptyBorder
-import javax.swing.border.LineBorder
 
 // 세팅에서 가장 상단 패널
 class HeaderPanelForm : JPanel() {

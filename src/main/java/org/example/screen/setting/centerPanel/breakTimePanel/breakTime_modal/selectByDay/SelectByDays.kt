@@ -1,7 +1,7 @@
 package org.example.screen.setting.centerPanel.breakTimePanel.breakTime_modal.selectByDay
 
 import RoundedComboBox
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.style.MyColor
 import org.example.widgets.IconRoundBorder2
 import org.example.widgets.RoundButton

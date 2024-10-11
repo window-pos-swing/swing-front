@@ -1,6 +1,6 @@
 package org.example.screen.setting.bottomPanel.SoftwarePanel
 
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*

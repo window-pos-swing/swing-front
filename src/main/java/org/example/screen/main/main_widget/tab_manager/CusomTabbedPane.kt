@@ -3,6 +3,7 @@ package org.example
 import CustomToggleButton
 import OrderController
 import RoundedProgressBar
+import org.example.command.RejectedReasonType
 import org.example.model.MenuOption
 import org.example.model.Menu
 import org.example.model.Order
@@ -11,22 +12,24 @@ import org.example.screen.main.main_widget.dialog.PauseOperationsDialog
 import org.example.screen.main.main_widget.tab_manager.completed_sub_tabs.CompletedSubTabs
 import org.example.screen.main.main_widget.tab_manager.pandding_sub_tabs.PendingSubTabs
 import org.example.screen.main.main_widget.tab_manager.processing_sub_tabs.ProcessingSubTabs
+import org.example.screen.main.main_widget.tab_manager.rejected_sub_tabs.RejectedSubTabs
 import org.example.style.MyColor
+import org.example.util.LoadImage
+import org.example.util.MyFont
 import org.example.view.states.CompletedState
 import org.example.view.states.PendingState
 import org.example.view.states.ProcessingState
+import org.example.view.states.RejectedState
+import org.example.widgets.OverlayManager
 import java.awt.*
 import java.awt.event.ItemEvent
 import javax.swing.*
 
 class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     private var allOrders = mutableListOf<Order>()  // 모든 주문을 저장하는 리스트
-    private val pendingOrders = mutableListOf<Order>()  // 접수대기 주문 저장
-    private val processingOrders = mutableListOf<Order>()  // 접수처리중 주문 저장
-    private val completedOrders = mutableListOf<Order>()  // 접수완료 주문 저장
-    private val rejectedOrders = mutableListOf<Order>()  // 주문거절 주문 저장
 
     private var cardPanel: JPanel? = null  // 외부에서 전달받을 cardPanel을 nullable로 변경
+    private lateinit var overlayManager: OverlayManager
     private val menuPanel = JPanel()  // 탭 메뉴 패널 (세로로 정렬)
     private var orderCounter = 1 ;
     private val tabButtonMap = mutableMapOf<String, JPanel>()
@@ -36,6 +39,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     var pendingSubTabsState = ""
     var processingSubTabsState = ""
     var completedSubTabsState = ""
+    var rejectedSubTabsState = ""
 
     // UI 패널들 (각 탭별로 구분)
     private val allOrdersPanel = createOrderPanel()
@@ -50,8 +54,10 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         }
     }
 
-    val processingSubTabs = ProcessingSubTabs(this)
-    val completedSubTabs = CompletedSubTabs(this)
+    var pendingSubTabs = PendingSubTabs(this)
+    var processingSubTabs = ProcessingSubTabs(this)
+    var completedSubTabs = CompletedSubTabs(this)
+    val rejectedSubTabs = RejectedSubTabs(this)
 
     init {
         layout = BorderLayout()
@@ -102,7 +108,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         val operationPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = MyColor.DARK_RED
-            border = BorderFactory.createEmptyBorder(20, 0, 20, 0)  // 상하 여백 추가
+            border = BorderFactory.createEmptyBorder(10, 0, 20, 0)  // 상하 여백 추가
         }
 
         // 운영시간 레이블 추가
@@ -120,6 +126,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             isOpaque = true  // 패널을 불투명하게 설정하여 배경색이 적용되도록 함
             preferredSize = Dimension(120, 40)
             maximumSize = Dimension(120, 40)
+            minimumSize = Dimension(120,40)
             alignmentX = CENTER_ALIGNMENT
 
         }
@@ -135,17 +142,21 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
                     println("isDialogOpen: $isDialogOpen")  // 상태 확인용 출력
                     if (!isDialogOpen) {  // 다이얼로그가 열려있는지 확인
                         isDialogOpen = true
-                        PauseOperationsDialog(parentFrame, "영업 임시 중지", callback = { confirmed ->
+                        overlayManager.addOverlayPanel()
+                        PauseOperationsDialog(parentFrame, cardPanel!!, "영업 임시 중지", callback = { confirmed ->
                             if (confirmed) {
                                 isSelected = false // 사용자가 임시 중지를 확인한 경우 OFF로 변경
                             } else {
                                 isSelected = true // X 버튼으로 다이얼로그를 닫았을 때는 ON 상태로 유지
                             }
                         }).apply {
+                            setLocationRelativeTo(cardPanel)
                             // 다이얼로그가 닫힐 때 무조건 false로 리셋
                             addWindowListener(object : java.awt.event.WindowAdapter() {
                                 override fun windowClosed(e: java.awt.event.WindowEvent?) {
                                     isDialogOpen = false
+//                                    dialog.dispose()
+                                    overlayManager.removeOverlayPanel()
                                     println("isDialogOpen = false 실행")
                                 }
                             })
@@ -201,6 +212,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         }
         menuPanel.add(buttonPanel)
 
+
         // 메인 패널에 세로 탭 메뉴 추가
         add(menuPanel, BorderLayout.WEST)
     }
@@ -212,8 +224,10 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             orderType = "DELIVERY",  // 포장 주문 TAKEOUT DELIVERY
             request = "문앞에 놔두고 가주세요, 아기가 자고있어요 절대 벨을 누르지 말아주세요. 집밑 비번 5555*입니다 . 조심히 와주세요 ",
             address = "대전 대화동 가온비즈타워 120 901호",
+            CustomerPhonenumber = "010-5199-2256",
             deliveryFee = 3000,
             spoonFork = false,
+            paymentMethod = "꼬르륵 앱 결제 완료",
             menuList = listOf(
                 Menu(
                     menuName = "해산물 ",
@@ -245,14 +259,14 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
 
             ),
-            state = org.example.view.states.PendingState()  // 초기 상태는 접수대기
+            state = org.example.view.states.PendingState(parentFrame,cardPanel)  // 초기 상태는 접수대기
         )
     }
 
     // 외부에서 cardPanel을 전달받는 함수
     fun setCardPanel(cardPanel: JPanel) {
         this.cardPanel = cardPanel
-
+        overlayManager = OverlayManager(parentFrame, cardPanel)
         // 전체보기 패널 추가
         cardPanel.add(JScrollPane(allOrdersPanel).apply {
             background = Color.WHITE
@@ -260,7 +274,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         }, "전체보기")
 
         // 접수대기 탭에 PendingSubTabs 추가
-        val pendingSubTabs = PendingSubTabs(this)
         cardPanel.add(pendingSubTabs, "접수대기")
 
         // 접수처리중 탭에 ProcessingSubTabs 추가
@@ -269,7 +282,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
         // 나머지 탭 추가
         cardPanel.add(completedSubTabs, "접수완료")
-        cardPanel.add(JScrollPane(rejectedOrdersPanel), "주문거절")
+        cardPanel.add(rejectedSubTabs, "주문거절")
 
         // 기본 선택된 탭 설정
         setTab("전체보기")
@@ -344,14 +357,30 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         }
 
         if (tabName == "접수대기") {
-            val pendingSubTabs = PendingSubTabs(this)
+            pendingSubTabs.selectButton(pendingSubTabs.allOrdersButton)
+            filterPendingOrders()
             cardPanel!!.add(pendingSubTabs, "접수대기 하위탭")
             cardLayout.show(cardPanel, "접수대기 하위탭")
+
         } else if (tabName == "접수처리중") {
-            val processingSubTabs = ProcessingSubTabs(this)
+            processingSubTabs.selectButton(processingSubTabs.allOrdersButton)
+            filterProcessingOrders()
             cardPanel!!.add(processingSubTabs, "접수처리중 하위탭")
             cardLayout.show(cardPanel, "접수처리중 하위탭")
-        } else {
+
+        } else if(tabName == "접수완료") {
+            completedSubTabs.selectButton(completedSubTabs.allOrdersButton)
+            filterCompletedOrders()
+            cardPanel!!.add(completedSubTabs, "접수완료 하위탭")
+            cardLayout.show(cardPanel, "접수완료 하위탭")
+
+        }else if(tabName == "주문거절"){
+            rejectedSubTabs.selectButton(rejectedSubTabs.allRejectedButton)
+            filterRejectedOrders()
+            cardPanel!!.add(rejectedSubTabs, "주문거절 하위탭")
+            cardLayout.show(cardPanel, "주문거절 하위탭")
+
+        }else {
             cardLayout.show(cardPanel, tabName)
         }
 
@@ -416,7 +445,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     }
 
 
-
+    //[Filter] ========================================================================
     fun filterPendingOrders(orderType: String? = null) {
         pendingSubTabsState = orderType ?: ""  // null이면 전체보기 서브탭 상태로 설정
 
@@ -442,14 +471,17 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         pendingOrdersPanel.repaint()
     }
 
+
     // Pending 주문 목록을 새로 고침하는 함수
     fun refreshPendingOrders() {
         // pendingSubTabsState 값을 확인해 현재 선택된 서브탭에 맞춰 필터링 적용
+        println("refreshPendingOrders")
         if (pendingSubTabsState.isEmpty()) {
             filterPendingOrders()  // 전체보기일 때
         } else {
             filterPendingOrders(pendingSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
         }
+        pendingSubTabs.PendingSubTabsUpdateCounts()
     }
 
     fun filterProcessingOrders(orderType: String? = null) {
@@ -485,6 +517,11 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         } else {
             filterProcessingOrders(processingSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
         }
+        processingSubTabs.ProcessingSubTabsUpdateCounts()
+    }
+
+    fun ProcessingSubTabsCountUpdate(){
+        processingSubTabs.ProcessingSubTabsUpdateCounts()
     }
 
     fun filterCompletedOrders(orderType: String? = null) {
@@ -511,6 +548,57 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         completedOrdersPanel.revalidate()
         completedOrdersPanel.repaint()
     }
+
+    fun refreshCompletedOrders() {
+        // processingSubTabsState 값을 확인해 현재 선택된 서브탭에 맞춰 필터링 적용
+        if (completedSubTabsState.isEmpty()) {
+            filterProcessingOrders()  // 전체보기일 때
+        } else {
+            filterProcessingOrders(completedSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
+        }
+        completedSubTabs.CompletedSubTabsUpdateCounts()
+    }
+
+    fun filterRejectedOrders(rejectType: RejectedReasonType? = null) {
+        // rejectedSubTabsState 값을 업데이트
+        rejectedSubTabsState = rejectType?.name ?: ""  // null이면 전체보기 상태로 설정
+
+        rejectedOrdersPanel.removeAll()  // 기존 패널 비우기
+
+        // 주문 타입에 따른 필터링: rejectType이 null이면 전체보기, 아니면 해당 거절 타입으로 필터링
+        val filteredOrders = if (rejectType == null) {
+            allOrders.filter { it.state is RejectedState }  // 전체 거절 주문
+        } else {
+            allOrders.filter { it.state is RejectedState && (it.state as RejectedState).rejectType == rejectType }
+        }
+
+        // 필터링된 주문을 패널에 추가
+        filteredOrders.forEach { order ->
+            val orderFrame = createOrderFrame(order)
+            orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
+            rejectedOrdersPanel.add(orderFrame)
+            rejectedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
+        }
+
+        // 패널을 갱신
+        rejectedOrdersPanel.revalidate()
+        rejectedOrdersPanel.repaint()
+
+        // 탭 타이틀 업데이트
+        updateTabTitle(4, "주문거절", rejectedOrdersPanel.componentCount)
+    }
+
+    fun refreshRejectedOrders() {
+        // processingSubTabsState 값을 확인해 현재 선택된 서브탭에 맞춰 필터링 적용
+        if (rejectedSubTabsState.isEmpty()) {
+            filterProcessingOrders()  // 전체보기일 때
+        } else {
+            filterProcessingOrders(rejectedSubTabsState)  // 서브탭이 선택되어 있을 때 해당 필터 적용
+        }
+        rejectedSubTabs.RejectedSubTabsUpdateCounts()
+    }
+    //=================================================================================
+
 
     // [ADD] =========================================================================
     fun addOrderToPending(orderFrame: JPanel) {
@@ -562,7 +650,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         allOrdersPanel.repaint()
         updateTabTitle(0, "전체보기", allOrdersPanel.componentCount)
     }
-
     //================================================================================
 
 
@@ -600,7 +687,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             .filterIsInstance<JPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }
 //        println("updateOrderInAllOrders 전체보기 업데이트 상태 : ${order.state}")
-        if (order.state is PendingState || order.state is CompletedState) {
+        if (order.state is PendingState || order.state is CompletedState || order.state is RejectedState) {
             frameToUpdate?.border = BorderFactory.createCompoundBorder()
         }else{
             frameToUpdate?.border = BorderFactory.createCompoundBorder(
@@ -616,7 +703,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             it.repaint()
         }
     }
-
     //================================================================================
 
     // CustomTabbedPane 클래스에 해당 주문이 이미 처리중 상태인지 확인하는 메서드 추가
@@ -691,11 +777,28 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         addMouseListener(object : java.awt.event.MouseAdapter() {
             override fun mouseClicked(e: java.awt.event.MouseEvent?) {
                 println("Detail Order #${order.orderNumber}")
+                // 다이얼로그가 열리기 전에 투명한 검은색 레이어 추가
+                overlayManager.addOverlayPanel()
+
+                // 다이얼로그 열기
                 val dialogTitle = getOrderDialogTitle(order)
-                OrderDetailDialog(SwingUtilities.getWindowAncestor(this@addOrderClickListener) as JFrame, dialogTitle)
+                val dialog = OrderDetailDialog(
+                    SwingUtilities.getWindowAncestor(this@addOrderClickListener) as JFrame,
+                    cardPanel!!,
+                    dialogTitle,
+                    order
+                )
+
+                // 다이얼로그가 닫힐 때 투명한 레이어 제거
+                dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
+                    override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                        overlayManager.removeOverlayPanel()
+                    }
+                })
             }
         })
     }
+
 
     // 주문 타입에 따른 다이얼로그 타이틀 설정 함수
     private fun getOrderDialogTitle(order: Order): String {

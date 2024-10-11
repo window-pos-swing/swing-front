@@ -1,7 +1,7 @@
 package org.example.screen.setting.centerPanel.holidayPanel.holiday_modal
 
 import CustomRoundedDialog
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.screen.setting.centerPanel.holidayPanel.holiday_modal.regularHoliday.RegularHoliday
 import org.example.screen.setting.centerPanel.holidayPanel.holiday_modal.temporaryHoliday.TemporaryHoliday
 import org.example.style.MyColor

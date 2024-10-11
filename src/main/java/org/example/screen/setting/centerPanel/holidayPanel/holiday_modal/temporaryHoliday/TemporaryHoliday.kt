@@ -3,7 +3,7 @@ package org.example.screen.setting.centerPanel.holidayPanel.holiday_modal.tempor
 import RoundedComboBox2
 import com.github.lgooddatepicker.components.DatePicker
 import com.github.lgooddatepicker.components.DatePickerSettings
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.widgets.IconRoundBorder2
 import java.awt.*
 import java.time.format.DateTimeFormatter

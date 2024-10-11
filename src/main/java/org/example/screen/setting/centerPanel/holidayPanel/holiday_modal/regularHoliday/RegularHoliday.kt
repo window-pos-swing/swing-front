@@ -2,10 +2,8 @@ package org.example.screen.setting.centerPanel.holidayPanel.holiday_modal.regula
 
 import RoundedComboBox
 import RoundedComboBox2
-import org.example.MyFont
-import org.example.widgets.IconRoundBorder
+import org.example.util.MyFont
 import org.example.widgets.IconRoundBorder2
-import org.example.widgets.PlusMinusButton
 import java.awt.*
 import javax.swing.*
 

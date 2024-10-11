@@ -3,13 +3,11 @@ package org.example.widgets;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
 
-import org.example.MyFont;
+import org.example.util.MyFont;
 import org.example.style.MyColor;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

@@ -1,6 +1,6 @@
 package org.example.screen.setting.centerPanel.deliveryMethodTimePanel
 
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.style.MyColor
 import org.example.widgets.RoundedPanel
 import org.example.widgets.SwitchButton

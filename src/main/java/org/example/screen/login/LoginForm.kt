@@ -1,10 +1,10 @@
 package org.example.screen.login
 
-import LoadImage.loadImage
+import org.example.util.LoadImage.loadImage
 import org.example.MainForm
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.style.MyColor
-import org.example.widgets.custom_titlebar.CustomTitleBar
+import org.example.widgets.custom_titlebar.LoginCustomTitleBar
 import org.example.widgets.JCheckBoxCustom // 커스텀 체크박스 위젯 임포트
 import org.example.widgets.PasswordField // 커스텀 패스워드 필드 위젯 임포트
 import org.example.widgets.TextField // 커스텀 텍스트 필드 위젯 임포트
@@ -31,8 +31,8 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         layout = BorderLayout()
 
         // 커스텀 타이틀바 추가
-        val customTitleBar = CustomTitleBar(this)
-        add(customTitleBar, BorderLayout.NORTH)  // 타이틀바를 명확하게 NORTH에 추가
+        val loginCustomTitleBar = LoginCustomTitleBar(this)
+        add(loginCustomTitleBar, BorderLayout.NORTH)  // 타이틀바를 명확하게 NORTH에 추가
 
         mainPanel = JPanel()
         idField = TextField("가맹점 웹 아이디", Color.WHITE)
@@ -56,7 +56,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
 """.trimIndent())
 
 // 로고 이미지 설정
-        val logoIcon = loadImage("/Logo.png", 100, 100) // LoadImage 함수 사용
+        val logoIcon = loadImage("/Logo.png", 100, 100) // org.example.util.LoadImage 함수 사용
         logoLabel = JLabel(logoIcon)
         findInfoLabel = JLabel("아이디/비밀번호 찾기")
 
@@ -85,7 +85,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         logoPanel.background = MyColor.DARK_NAVY
 
         // 로고 설정
-        val logoIcon = loadImage("/Logo.png", 100, 100) // LoadImage 함수 사용
+        val logoIcon = loadImage("/Logo.png", 100, 100) // org.example.util.LoadImage 함수 사용
         val logoLabel = JLabel(logoIcon)
         logoLabel.horizontalAlignment = JLabel.LEFT // 왼쪽 정렬
         logoPanel.add(logoLabel, BorderLayout.WEST) // 로고를 패널의 왼쪽에 배치

@@ -4,6 +4,7 @@ import org.example.screen.setting.bottomPanel.BottomPanelForm
 import org.example.screen.setting.centerPanel.CenterPanelForm
 import org.example.screen.setting.headerPanel.HeaderPanelForm
 import org.example.style.MyColor
+import org.example.util.MyFont
 import org.example.widgets.custom_titlebar.SettingCustomTitlebar
 import java.awt.*
 import javax.swing.*

@@ -2,7 +2,7 @@ package org.example.screen.setting.centerPanel.breakTimePanel.breakTime_modal
 
 import CustomRoundedDialog
 import CustomToggleButton3
-import org.example.MyFont
+import org.example.util.MyFont
 import org.example.screen.setting.centerPanel.breakTimePanel.breakTime_modal.allDays.AllDays
 import org.example.screen.setting.centerPanel.breakTimePanel.breakTime_modal.selectByDay.SelectByDays
 import org.example.screen.setting.centerPanel.breakTimePanel.breakTime_modal.weekDaysAndWeekEnds.WeekDaysAndWeekEnds

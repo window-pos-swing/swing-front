@@ -1,12 +1,9 @@
 package org.example.view.states
 
 
-import org.example.CustomTabbedPane
-import org.example.MyFont
-import org.example.command.RejectOrderCommand
+import org.example.util.MyFont
 import org.example.model.Order
 import org.example.model.OrderState
-import org.example.screen.main.main_widget.dialog.EstimatedTimeDialog
 import org.example.style.MyColor
 import org.example.view.components.BaseOrderPanel
 import org.example.widgets.FillRoundedButton
@@ -22,10 +19,8 @@ class CompletedState : OrderState {
         return BaseOrderPanel(order).apply {
             // headerPanel의 오른쪽에 버튼 추가
             val buttonPanel = JPanel().apply {
-                layout = FlowLayout(FlowLayout.RIGHT, 15, 0)  // FlowLayout을 사용하여 버튼 크기 조정 가능하게 설정
-                background = Color.WHITE  // 배경색 설정
-
-                border = BorderFactory.createEmptyBorder(15,0,0,0)
+                layout = BoxLayout(this, BoxLayout.X_AXIS)  // 수평 박스 레이아웃 설정
+                background = Color.WHITE
 
                 // 프린터 버튼
                 add(
@@ -38,7 +33,7 @@ class CompletedState : OrderState {
                     borderWidth = 1,
                     textAlignment = SwingConstants.CENTER,
                     padding = Insets(10, 20, 10, 20),
-                    iconPath = "/print_icon.png",
+                    iconPath = "/print_icon_main.png",
                     buttonSize = Dimension(50, 50),
                     iconWidth = 45,
                     iconHeight = 45
@@ -48,6 +43,9 @@ class CompletedState : OrderState {
                         println("프린터 버튼 클릭")
                     }
                 })
+
+                // 버튼 사이에 간격을 추가
+                add(Box.createRigidArea(Dimension(15, 0)))
 
                 // 접수하기 버튼
                 add(
