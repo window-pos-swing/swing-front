@@ -44,6 +44,7 @@ class CustomComboBoxUI : BasicComboBoxUI() {
         c?.border = BorderFactory.createEmptyBorder(5, 15, 5, 5)  // 안쪽 패딩 설정, 오른쪽 패딩 축소
     }
 }
+// model: ComboBoxModel<String>,
 
 // 둥근 콤보박스 클래스
 class RoundedComboBox(model: ComboBoxModel<String>,
@@ -92,7 +93,6 @@ class RoundedComboBox(model: ComboBoxModel<String>,
         super.paintComponent(g)
     }
 }
-
 // 둥근 콤보박스 클래스
 class RoundedComboBox2(
     private val model: String,
