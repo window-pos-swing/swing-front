@@ -2,6 +2,7 @@ package org.example.screen.main.main_widget.dialog.TimeSelectDialog
 
 import OrderController
 import org.example.model.Order
+import org.example.widgets.OverlayManager
 import javax.swing.*
 
 
@@ -9,7 +10,8 @@ class CookTimeDialog(
     private val parent: JFrame,
     private val cardPanel: JPanel,
     private val order: Order,
-    private val orderController: OrderController
+    private val orderController: OrderController,
+    private val overlayManager: OverlayManager
 ) : BaseTimeSelectionDialog(
     parent,
     cardPanel,
@@ -21,6 +23,6 @@ class CookTimeDialog(
 ) {
     override fun onSubmit(selectedTime: Int) {
         dispose()
-        DeliveryTimeDialog(parent, cardPanel, order, orderController , selectedTime).isVisible = true
+        DeliveryTimeDialog(parent, cardPanel, order, orderController , selectedTime ,overlayManager).isVisible = true
     }
 }

@@ -12,7 +12,7 @@ class OrderRejectCancelDialog(
     labelText: String,
     buttonText: String,
     private val onReject: (String) -> Unit
-) : CustomRoundedDialog(parent, title, 1000, 465) {
+) : CustomRoundedDialog(parent, title, 1000, 475) {
 
 
     private var selectedButton: SelectButtonRoundedBorder? = null
@@ -145,7 +145,7 @@ class OrderRejectCancelDialog(
         add(bottomPanel, BorderLayout.SOUTH)
 
         // 다이얼로그 크기 및 기본 설정
-        setSize(1000, 465)
+        setSize(1000, 475)
         setLocationRelativeTo(cardPanel)
         isVisible = true
     }

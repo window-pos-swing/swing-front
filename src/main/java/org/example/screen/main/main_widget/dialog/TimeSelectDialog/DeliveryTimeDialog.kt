@@ -4,6 +4,7 @@ import OrderController
 import org.example.command.AcceptOrderCommand
 
 import org.example.model.Order
+import org.example.widgets.OverlayManager
 import javax.swing.JFrame
 import javax.swing.JPanel
 
@@ -12,7 +13,8 @@ class DeliveryTimeDialog(
     private val cardPanel: JPanel,
     private val order: Order,
     private val orderController: OrderController,
-    private val cookTime: Int // 이전 다이얼로그에서 전달받은 조리 시간
+    private val cookTime: Int, // 이전 다이얼로그에서 전달받은 조리 시간
+    private val overlayManager: OverlayManager
 ) : BaseTimeSelectionDialog(
     parent,
     cardPanel,
@@ -28,6 +30,7 @@ class DeliveryTimeDialog(
         // 설정된 쿡타임과 배달시간을 출력
         println("[DeliveryTimeDialog] 설정된 조리 시간: ${order.cookTime}분")
         println("[DeliveryTimeDialog] 설정된 배달 시간: ${order.deliveryTime}분")
+        overlayManager.removeOverlayPanel() 
         dispose() // 다이얼로그 닫기
         AcceptOrderCommand(parent, cardPanel, order, orderController).execute() // 주문 상태 변경
     }

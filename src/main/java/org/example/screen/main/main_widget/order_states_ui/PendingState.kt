@@ -121,13 +121,13 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
                     parent = parentFrame ?: JFrame(),
                     cardPanel = cardPanel!!,
                     order = order,
-                    orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame()))
+                    orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                    overlayManager = overlayManager
                 )
                 dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
                     override fun windowClosed(e: java.awt.event.WindowEvent?) {
                         dialog.dispose()
-                        overlayManager.removeOverlayPanel()
-
+                        //overlayManager.removeOverlayPanel() // DeliveryTimeDialog에서 overlayManager를 관리하므로 여기서 제거하지 않음
                     }
                 })
                 dialog.isVisible = true
