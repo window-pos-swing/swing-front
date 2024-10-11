@@ -221,6 +221,7 @@ class WeekDaysAndWeekEnds : JPanel() {
 
             // 패널에 추가
             add(WeekDaysAndWeekEndsPanel)
+            add(Box.createVerticalStrut(10))
             add(timePanel)
             add(addButton)
             add(Box.createVerticalStrut(20))
