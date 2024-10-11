@@ -10,7 +10,7 @@ import java.awt.*
 import javax.swing.*
 
 class SettingForm : JFrame() {
-ㅎ
+
     init {
         // 기본 타이틀바 제거
         isUndecorated = true
