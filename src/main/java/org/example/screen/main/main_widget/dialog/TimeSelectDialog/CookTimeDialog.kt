@@ -25,4 +25,9 @@ class CookTimeDialog(
         dispose()
         DeliveryTimeDialog(parent, cardPanel, order, orderController , selectedTime ,overlayManager).isVisible = true
     }
+
+    override fun handleCloseButtonAction() {
+        overlayManager.removeOverlayPanel()
+        dispose()
+    }
 }
