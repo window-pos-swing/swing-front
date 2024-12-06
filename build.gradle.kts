@@ -3,7 +3,7 @@ plugins {
     kotlin("jvm") version "1.8.0"  // 최신 Kotlin 플러그인 버전으로 업데이트
 }
 
-group = "org.example"
+group = "org.grr"
 version = "1.0-SNAPSHOT"
 
 repositories {
