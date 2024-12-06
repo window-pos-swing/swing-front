@@ -22,7 +22,12 @@ class HeaderPanelForm : JPanel() {
         preferredSize = Dimension(1440, 80)  // 패널 크기 강제 설정
         maximumSize = Dimension(Int.MAX_VALUE, 80)  // 최대 크기도 설정
 
-        val titleLabel = JLabel("꼬르륵 식당 점주님").apply {
+//        회원정보 갖고오는 구문
+        val memberInfo = Storage.getMemberInfo()
+
+        val storeName = memberInfo?.optString("storeName", "점주님") ?: "점주님"
+
+        val titleLabel = JLabel("$storeName 점주님").apply {
             font = MyFont.Bold(44f)
             foreground = Color.WHITE
         }

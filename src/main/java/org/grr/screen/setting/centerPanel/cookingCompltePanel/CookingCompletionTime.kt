@@ -1,7 +1,8 @@
 package org.grr.screen.setting.centerPanel.cookingCompltePanel
 
-import org.grr.util.MyFont
+import org.grr.`object`.Storage
 import org.grr.style.MyColor
+import org.grr.util.MyFont
 import org.grr.widgets.RoundedPanel
 import org.grr.widgets.SwitchButton
 import org.grr.widgets.SwitchListener
@@ -51,6 +52,18 @@ class CookingCompletionTime : JPanel() {
 //            background = Color.RED
         }
 
+        //        회원정보 갖고오는 구문
+        val memberInfo = Storage.getMemberInfo()
+
+        val cookingCompletionTime = memberInfo
+            ?.optJSONObject("setting")
+            ?.optInt("estimatedCookingTime", 30) ?: 30
+
+        val cookingCompletionControl = memberInfo
+            ?.optJSONObject("setting")
+            ?.optBoolean("estimatedCookingTimeControl", false) ?: false
+        println(cookingCompletionControl)
+
         // 아이콘 경로 로드
         val watchIconPath = ImageIcon(javaClass.getResource("/watch.png"))
         val storeLabel = JLabel(watchIconPath).apply {
@@ -64,15 +77,19 @@ class CookingCompletionTime : JPanel() {
 
         // CustomToggleButton을 사용하여 토글 버튼 추가
         val toggleButton = SwitchButton().apply {
+            // 상태 변경 이벤트 추가 (토글 버튼 클릭 시)
             addEventSwitchSelected(object : SwitchListener {
                 override fun selectChange(isOn: Boolean) {
                     if (isOn) {
-                        enableTimeAdjustment(true)  // ON 상태에서는 시간 조절 가능
+                        enableTimeAdjustment(true)  // ON 상태로 변경
+                        println("조리 완료 시간 조절 가능 상태로 변경되었습니다.")
                     } else {
-                        enableTimeAdjustment(false)  // OFF 상태에서는 시간 조절 불가능
+                        enableTimeAdjustment(false)  // OFF 상태로 변경
+                        println("조리 완료 시간 조절 불가능 상태로 변경되었습니다.")
                     }
                 }
             })
+
             border = BorderFactory.createEmptyBorder(15, 60, 15, 60)
         }
 
@@ -96,7 +113,7 @@ class CookingCompletionTime : JPanel() {
             layout = FlowLayout(FlowLayout.CENTER)  // 시간 조절 버튼들 한 줄로 배치
             isOpaque = false
             border = BorderFactory.createEmptyBorder(0, 0, 20, 0)
-            add(createTimeSelectionPanel())  // 시간 선택 패널 추가
+            add(createTimeSelectionPanel(cookingCompletionTime))  // 시간 선택 패널 추가
         }
 
         // 패널들을 순서대로 추가
@@ -108,9 +125,10 @@ class CookingCompletionTime : JPanel() {
     }
 
     // 시간 선택 패널 생성
-    private fun createTimeSelectionPanel(): JPanel {
+    private fun createTimeSelectionPanel(cookingCompletionTime: Int): JPanel {
+
         // 클래스 레벨의 변수로 설정
-        timeLabel = JLabel("30분", SwingConstants.CENTER).apply {
+        timeLabel = JLabel("${cookingCompletionTime}분", SwingConstants.CENTER).apply {
             font = MyFont.Bold(38f)
             foreground = Color.RED
             preferredSize = Dimension(100, 50)

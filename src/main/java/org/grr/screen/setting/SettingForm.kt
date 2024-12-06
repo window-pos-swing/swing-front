@@ -1,4 +1,4 @@
-package org.grr
+package org.grr.screen.setting
 
 import org.grr.screen.setting.bottomPanel.BottomPanelForm
 import org.grr.screen.setting.centerPanel.CenterPanelForm
@@ -6,7 +6,10 @@ import org.grr.screen.setting.headerPanel.HeaderPanelForm
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.custom_titlebar.SettingCustomTitlebar
-import java.awt.*
+import java.awt.BorderLayout
+import java.awt.Color
+import java.awt.Dimension
+import java.awt.FlowLayout
 import javax.swing.*
 
 class SettingForm : JFrame() {

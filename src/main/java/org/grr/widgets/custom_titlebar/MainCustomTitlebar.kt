@@ -1,7 +1,7 @@
 package org.grr.widgets.custom_titlebar
 
 import org.grr.util.MyFont
-import org.grr.SettingForm
+import org.grr.screen.setting.SettingForm
 import org.grr.widgets.IconRoundBorder
 import org.grr.widgets.custom_titlebar.TitleDateUpdate.TitleDateUpdater
 import org.grr.widgets.custom_titlebar.component_resizer.ComponentResizer

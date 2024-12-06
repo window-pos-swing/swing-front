@@ -43,7 +43,7 @@ class MainForm : JFrame() {
                     val memberData = JSONObject(message.substringAfter(""))
                     Storage.saveMemberInfo(memberData)
 //                    회원정보 저장하는 스토리지 만들어야함
-                    println("현재 로그인한 회원 정보 ${message}")
+//                    println("현재 로그인한 회원 정보 ${message}")
                 } else {
 //                    회원 정보 저장 실패 시 에러
                     JOptionPane.showMessageDialog(this@MainForm, message, "오류", JOptionPane.ERROR_MESSAGE)
