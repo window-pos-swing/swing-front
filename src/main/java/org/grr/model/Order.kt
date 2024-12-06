@@ -1,7 +1,7 @@
 package org.grr.model
 
 import org.grr.observer.OrderObserver
-import org.grr.view.states.PendingState
+import org.grr.screen.main.main_widget.order_states_ui.PendingState
 import java.util.*
 import javax.swing.JPanel
 import javax.swing.Timer  // javax.swing.Timer 사용

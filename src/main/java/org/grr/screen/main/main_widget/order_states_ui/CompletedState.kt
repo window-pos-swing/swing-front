@@ -1,14 +1,18 @@
-package org.grr.view.states
+package org.grr.screen.main.main_widget.order_states_ui
 
 
-import org.grr.util.MyFont
 import org.grr.model.Order
 import org.grr.model.OrderState
 import org.grr.style.MyColor
-import org.grr.view.components.BaseOrderPanel
+import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedButton
-import java.awt.*
-import javax.swing.*
+import java.awt.Color
+import java.awt.Dimension
+import java.awt.Insets
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.JPanel
+import javax.swing.SwingConstants
 
 class CompletedState : OrderState {
     override fun handle(order: Order) {

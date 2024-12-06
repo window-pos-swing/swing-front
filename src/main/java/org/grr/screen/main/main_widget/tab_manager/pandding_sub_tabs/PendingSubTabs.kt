@@ -1,8 +1,8 @@
 package org.grr.screen.main.main_widget.tab_manager.pandding_sub_tabs
 
-import org.grr.CustomTabbedPane
+import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.style.MyColor
-import org.grr.view.states.PendingState
+import org.grr.screen.main.main_widget.order_states_ui.PendingState
 import org.grr.widgets.SelectButtonRoundedBorder
 import java.awt.Color
 import java.awt.Component

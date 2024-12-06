@@ -1,7 +1,6 @@
-package org.grr.view.states
+package org.grr.screen.main.main_widget.order_states_ui
 import OrderRejectCancelDialog
 import RoundedProgressBar
-import org.grr.util.MyFont
 import org.grr.command.CompletedOrderCommand
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
@@ -10,11 +9,11 @@ import org.grr.model.Order
 import org.grr.model.OrderState
 import org.grr.observer.OrderObserver
 import org.grr.style.MyColor
-import org.grr.view.components.BaseOrderPanel
+import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedButton
 import org.grr.widgets.OverlayManager
-import javax.swing.*
 import java.awt.*
+import javax.swing.*
 
 class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel) : OrderState, OrderEventListener {
     private lateinit var rightPanel: JPanel  // 버튼을 추가할 패널을 멤버로 선언

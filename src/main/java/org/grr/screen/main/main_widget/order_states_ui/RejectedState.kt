@@ -1,12 +1,11 @@
-package org.grr.view.states
+package org.grr.screen.main.main_widget.order_states_ui
 
 
-import org.grr.util.MyFont
 import org.grr.command.RejectedReasonType
 import org.grr.model.Order
 import org.grr.model.OrderState
 import org.grr.style.MyColor
-import org.grr.view.components.BaseOrderPanel
+import org.grr.util.MyFont
 import org.grr.widgets.AutoScalingLabel
 import org.grr.widgets.FillRoundedButton
 import org.grr.widgets.ThicknessRoundedPanel

@@ -1,11 +1,11 @@
 
-import org.grr.CustomTabbedPane
+import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.command.RejectedReasonType
 import org.grr.model.Order
 import org.grr.observer.OrderObserver
-import org.grr.view.states.CompletedState
-import org.grr.view.states.ProcessingState
-import org.grr.view.states.RejectedState
+import org.grr.screen.main.main_widget.order_states_ui.CompletedState
+import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
+import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 
 
 class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭과 직접 상호작용

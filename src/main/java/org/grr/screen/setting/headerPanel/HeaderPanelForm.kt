@@ -64,6 +64,8 @@ class HeaderPanelForm : JPanel() {
                             Storage.deleteToken()
 //                            저장된 로그인 정보 삭제
                             Storage.clearLoginInfo()
+//                            저장된 회원 정보 삭제
+                            Storage.clearMemberInfo()
 
                             val loginForm = LoginForm()
                             loginForm.isVisible = true

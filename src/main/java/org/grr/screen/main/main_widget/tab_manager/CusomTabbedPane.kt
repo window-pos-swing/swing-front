@@ -1,14 +1,18 @@
-package org.grr
+package org.grr.screen.main.main_widget.tab_manager
 
 import CustomToggleButton
 import OrderController
 import RoundedProgressBar
 import org.grr.command.RejectedReasonType
-import org.grr.model.MenuOption
 import org.grr.model.Menu
+import org.grr.model.MenuOption
 import org.grr.model.Order
 import org.grr.screen.main.main_widget.dialog.OrderDetailDialog
 import org.grr.screen.main.main_widget.dialog.PauseOperationsDialog
+import org.grr.screen.main.main_widget.order_states_ui.CompletedState
+import org.grr.screen.main.main_widget.order_states_ui.PendingState
+import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
+import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import org.grr.screen.main.main_widget.tab_manager.completed_sub_tabs.CompletedSubTabs
 import org.grr.screen.main.main_widget.tab_manager.pandding_sub_tabs.PendingSubTabs
 import org.grr.screen.main.main_widget.tab_manager.processing_sub_tabs.ProcessingSubTabs
@@ -16,10 +20,6 @@ import org.grr.screen.main.main_widget.tab_manager.rejected_sub_tabs.RejectedSub
 import org.grr.style.MyColor
 import org.grr.util.LoadImage
 import org.grr.util.MyFont
-import org.grr.view.states.CompletedState
-import org.grr.view.states.PendingState
-import org.grr.view.states.ProcessingState
-import org.grr.view.states.RejectedState
 import org.grr.widgets.OverlayManager
 import java.awt.*
 import java.awt.event.ItemEvent
@@ -256,7 +256,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
 
 
             ),
-            state = org.grr.view.states.PendingState(parentFrame,cardPanel)  // 초기 상태는 접수대기
+            state = PendingState(parentFrame,cardPanel)  // 초기 상태는 접수대기
         )
     }
 

@@ -2,8 +2,7 @@ package org.grr.command
 
 import Command
 import org.grr.model.Order
-import org.grr.model.OrderState
-import org.grr.view.states.RejectedState
+import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 
 enum class RejectedReasonType {
     CUSTOMER_CANCEL,

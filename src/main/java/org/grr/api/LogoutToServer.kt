@@ -41,7 +41,7 @@ class LogoutToServer {
                     Pair(false, "로그아웃 실패: ${response.message}")
                 }
             }
-        }  catch (e: IOException) {
+        } catch (e: IOException) {
             e.printStackTrace()
             return Pair(false, "서버 연결 실패: ${e.message}")
         }

@@ -1,13 +1,13 @@
-package org.grr.view.components
+package org.grr.screen.main.main_widget.order_states_ui
 
-import org.grr.util.MyFont
 import org.grr.model.Order
 import org.grr.style.MyColor
 import org.grr.util.LoadImage
+import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedLabel
 import org.grr.widgets.OutLineRoundedLabel
-import javax.swing.*
 import java.awt.*
+import javax.swing.*
 
 class BaseOrderPanel(order: Order) : JPanel() {
     // 패널들을 protected로 선언

@@ -2,9 +2,7 @@ package org.grr.command
 
 import Command
 import org.grr.model.Order
-import org.grr.model.OrderState
-import org.grr.view.states.CompletedState
-import org.grr.view.states.RejectedState
+import org.grr.screen.main.main_widget.order_states_ui.CompletedState
 
 class CompletedOrderCommand(
     private val order: Order,

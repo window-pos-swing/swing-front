@@ -1,14 +1,18 @@
 package org.grr.screen.main
 
-import org.grr.CustomTabbedPane
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.grr.api.CurrentLoginMemberToServer
+import org.grr.`object`.Storage
+import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.widgets.custom_titlebar.MainCustomTitlebar
+import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Color
 import java.awt.Dimension
-import javax.swing.BorderFactory
-import javax.swing.JFrame
-import javax.swing.JPanel
+import javax.swing.*
 
 
 class MainForm : JFrame() {
@@ -19,6 +23,33 @@ class MainForm : JFrame() {
         // 기존 타이틀바 제거 및 창 리사이즈 가능 설정
         isUndecorated = true
         isResizable = true  // 창 리사이즈 가능
+
+        /*
+            현재 로그인한 유저 서버에서 정보 갖고오는 구문
+        */
+        GlobalScope.launch {
+            println("회원 조회 시도 중...")
+
+            delay(500) // 0.5초 대기
+
+            val currentMember = CurrentLoginMemberToServer()
+            val (isSuccess, message) = currentMember.currentLoginMemberToServer()
+
+            delay(500) // 0.5초 대기
+
+            SwingUtilities.invokeLater {
+                if (isSuccess) {
+                    // JSON 형태의 회원 정보 추출
+                    val memberData = JSONObject(message.substringAfter(""))
+                    Storage.saveMemberInfo(memberData)
+//                    회원정보 저장하는 스토리지 만들어야함
+                    println("현재 로그인한 회원 정보 ${message}")
+                } else {
+//                    회원 정보 저장 실패 시 에러
+                    JOptionPane.showMessageDialog(this@MainForm, message, "오류", JOptionPane.ERROR_MESSAGE)
+                }
+            }
+        }
 
         // JFrame의 여백 제거
         rootPane.border = BorderFactory.createEmptyBorder()

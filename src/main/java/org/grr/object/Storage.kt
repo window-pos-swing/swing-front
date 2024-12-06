@@ -4,6 +4,35 @@ import org.json.JSONObject
 import java.io.File
 
 object Storage {
+
+    /*
+        현재 로그인한 회원 정보
+    */
+    private val memberInfo = File("memberInfo.json")
+    // 회원 정보 저장
+    fun saveMemberInfo(userInfo: JSONObject) {
+        memberInfo.writeText(userInfo.toString(4)) // JSON 형식으로 저장
+    }
+
+    // 회원 정보 불러오기
+    fun getMemberInfo(): JSONObject? {
+        return if (memberInfo.exists()) {
+            JSONObject(memberInfo.readText()) // JSON 객체로 변환
+        } else {
+            null // 파일이 없으면 null 반환
+        }
+    }
+
+    // 회원 정보 삭제
+    fun clearMemberInfo() {
+        if (memberInfo.exists()) {
+            memberInfo.delete()
+        }
+    }
+
+    /*
+        로그인 정보
+    */
     private val autoLogin = File("autoLogin.json")
 
     // 로그인 정보 저장
@@ -13,7 +42,7 @@ object Storage {
             put("password", password)
             put("autoCheck", autoCheck)
         }
-        autoLogin.writeText(jsonObject.toString())
+        autoLogin.writeText(jsonObject.toString(4))
     }
 
     // 저장된 로그인 정보 불러오기
@@ -35,6 +64,9 @@ object Storage {
         }
     }
 
+    /*
+        토큰
+    */
     private val accessTokenFile = File("accessToken.txt")
 //    private val refreshTokenFile = File("refreshToken.txt")
 

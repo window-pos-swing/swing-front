@@ -1,20 +1,21 @@
-package org.grr.view.states
+package org.grr.screen.main.main_widget.order_states_ui
 
 import OrderController
 import OrderRejectCancelDialog
-import org.grr.CustomTabbedPane
-import org.grr.util.MyFont
+import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
 import org.grr.model.Order
 import org.grr.model.OrderState
 import org.grr.screen.main.main_widget.dialog.TimeSelectDialog.CookTimeDialog
 import org.grr.style.MyColor
-import org.grr.view.components.BaseOrderPanel
+import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedButton
 import org.grr.widgets.OverlayManager
+import java.awt.Color
+import java.awt.Dimension
+import java.awt.Insets
 import javax.swing.*
-import java.awt.*
 
 class PendingState(private val parentFrame: JFrame? = null, private val cardPanel: JPanel? = null) : OrderState {
     override fun handle(order: Order) {

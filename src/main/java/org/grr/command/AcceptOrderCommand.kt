@@ -3,7 +3,7 @@ package org.grr.command
 import Command
 import OrderController
 import org.grr.model.Order
-import org.grr.view.states.ProcessingState
+import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
 import javax.swing.JFrame
 import javax.swing.JPanel
 
