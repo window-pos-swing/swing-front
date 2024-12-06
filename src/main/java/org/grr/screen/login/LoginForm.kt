@@ -34,7 +34,9 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         // JFrame의 레이아웃을 명시적으로 BorderLayout으로 설정
         layout = BorderLayout()
 
-        // 저장된 로그인 정보 확인
+         /*
+            저장된 로그인 정보 확인 및 자동로그인 기능
+         */
         val (savedEmail, savedPassword, autoCheck) = Storage.getLoginInfo()
         if (autoCheck) {
             // 저장된 아이디를 입력란에 표시
@@ -60,7 +62,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                 SwingUtilities.invokeLater {
                     if (isSuccess) {
                         // 새로운 토큰 저장
-                        Storage.saveToken(message)
+                        Storage.saveToken(savedEmail, message)
 
                         // 메인 화면으로 이동
                         val mainForm = MainForm()
@@ -101,7 +103,9 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
     </html>
 """.trimIndent()
         )
-//        로그인버튼 클릭 시 로그인 api 작동시키는 구문
+        /*
+            로그인버튼 클릭 시 로그인 api 작동시키는 구문
+        */
         loginButton.addActionListener {
             val email = idField.text
             val password = String(passwordField.password)
@@ -117,7 +121,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                     Storage.saveLoginInfo(email, password, autoLoginCheck)
 
 //                    로그인 시 토큰 저장 후 메인페이지 이동
-                    Storage.saveToken(message)
+                    Storage.saveToken(email, message)
                     val mainForm = MainForm()
                     mainForm.isVisible = true
                     this.dispose()
