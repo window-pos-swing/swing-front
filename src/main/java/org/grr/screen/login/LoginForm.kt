@@ -62,7 +62,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                 SwingUtilities.invokeLater {
                     if (isSuccess) {
                         // 새로운 토큰 저장
-                        Storage.saveToken(savedEmail, message)
+                        Storage.saveToken(message)
 
                         // 메인 화면으로 이동
                         val mainForm = MainForm()
@@ -121,7 +121,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                     Storage.saveLoginInfo(email, password, autoLoginCheck)
 
 //                    로그인 시 토큰 저장 후 메인페이지 이동
-                    Storage.saveToken(email, message)
+                    Storage.saveToken(message)
                     val mainForm = MainForm()
                     mainForm.isVisible = true
                     this.dispose()
