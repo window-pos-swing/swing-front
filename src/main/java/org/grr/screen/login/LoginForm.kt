@@ -68,7 +68,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                         this@LoginForm.dispose() // 로그인 창 닫기
                     } else {
                         // 로그인 실패 시 기본 로그인 화면 표시
-                        JOptionPane.showMessageDialog(this@LoginForm, "자동 로그인 실패", "오류", JOptionPane.ERROR_MESSAGE)
+                        JOptionPane.showMessageDialog(this@LoginForm, message, "오류", JOptionPane.ERROR_MESSAGE)
                     }
                 }
             }
