@@ -1,5 +1,10 @@
 package org.grr.screen.login
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.grr.api.LoginToServer
+import org.grr.`object`.Storage
 import org.grr.screen.main.MainForm
 import org.grr.style.MyColor
 import org.grr.util.LoadImage.loadImage
@@ -29,19 +34,61 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         // JFrame의 레이아웃을 명시적으로 BorderLayout으로 설정
         layout = BorderLayout()
 
+        // 저장된 로그인 정보 확인
+        val (savedEmail, savedPassword, autoCheck) = Storage.getLoginInfo()
+        if (autoCheck) {
+            // 저장된 아이디를 입력란에 표시
+            idField = TextField(savedEmail, Color.WHITE)
+
+            // 비밀번호 입력란에 비밀번호 길이만큼 * 표시
+            passwordField = PasswordField("*".repeat(savedPassword!!.length), Color.WHITE)
+
+//            자동로그인 체크란
+            autoLoginCheckBox = JCheckBoxCustom().apply {
+                isSelected = autoCheck
+            }
+            GlobalScope.launch {
+                println("자동 로그인 시도 중...")
+
+                delay(1000) // 1초 대기
+
+                val loginToServer = LoginToServer()
+                val (isSuccess, message) = loginToServer.loginToServer(savedEmail!!, savedPassword!!)
+
+                delay(1000) // 1초 대기
+
+                SwingUtilities.invokeLater {
+                    if (isSuccess) {
+                        // 새로운 토큰 저장
+                        Storage.saveToken(message)
+
+                        // 메인 화면으로 이동
+                        val mainForm = MainForm()
+                        mainForm.isVisible = true
+                        this@LoginForm.dispose() // 로그인 창 닫기
+                    } else {
+                        // 로그인 실패 시 기본 로그인 화면 표시
+                        JOptionPane.showMessageDialog(this@LoginForm, "자동 로그인 실패", "오류", JOptionPane.ERROR_MESSAGE)
+                    }
+                }
+            }
+        } else {
+            idField = TextField("가맹점 웹 아이디", Color.WHITE)
+            passwordField = PasswordField("가맹점 웹 비밀번호", Color.WHITE)
+            autoLoginCheckBox = JCheckBoxCustom()
+        }
+
         // 커스텀 타이틀바 추가
         val loginCustomTitleBar = LoginCustomTitleBar(this)
         add(loginCustomTitleBar, BorderLayout.NORTH)  // 타이틀바를 명확하게 NORTH에 추가
 
         mainPanel = JPanel()
-        idField = TextField("가맹점 웹 아이디", Color.WHITE)
-        passwordField = PasswordField("가맹점 웹 비밀번호", Color.WHITE)
-        autoLoginCheckBox = JCheckBoxCustom()
         loginButton = JButton("로그인")
 
         val customFont = MyFont.ExtraBold(48f)
         val fontFamily = customFont.fontName
-        titleLabel = JLabel("""
+        titleLabel = JLabel(
+            """
     <html>
         <table>
             <tr>
@@ -52,7 +99,34 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
             </tr>
         </table>
     </html>
-""".trimIndent())
+""".trimIndent()
+        )
+//        로그인버튼 클릭 시 로그인 api 작동시키는 구문
+        loginButton.addActionListener {
+            val email = idField.text
+            val password = String(passwordField.password)
+
+            if (email.isBlank() || password.isBlank()) {
+                JOptionPane.showMessageDialog(this, "아이디와 비밀번호를 입력해주세요.", "오류", JOptionPane.ERROR_MESSAGE)
+            } else {
+                val loginToServer = LoginToServer() // LoginToServer 인스턴스 생성
+                val (isSuccess, message) = loginToServer.loginToServer(email, password)
+
+                if (isSuccess) {
+                    val autoLoginCheck = autoLoginCheckBox.isSelected
+                    Storage.saveLoginInfo(email, password, autoLoginCheck)
+
+//                    로그인 시 토큰 저장 후 메인페이지 이동
+                    Storage.saveToken(message)
+                    val mainForm = MainForm()
+                    mainForm.isVisible = true
+                    this.dispose()
+                } else {
+//                    실패시 즉, this가 false일 경우
+                    JOptionPane.showMessageDialog(this, message, "오류", JOptionPane.ERROR_MESSAGE)
+                }
+            }
+        }
 
 // 로고 이미지 설정
         val logoIcon = loadImage("/Logo.png", 100, 100) // org.grr.util.LoadImage 함수 사용
@@ -199,11 +273,11 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         mainPanel.add(logoAndLoginPanel, mainGbc)
 
         // 로그인 버튼 리스너
-        loginButton.addActionListener {
-            val mainForm = MainForm()
-            mainForm.isVisible = true
-            this.dispose()
-        }
+//        loginButton.addActionListener {
+//            val mainForm = MainForm()
+//            mainForm.isVisible = true
+//            this.dispose()
+//        }
     }
 
     private fun addFooterPanel() {

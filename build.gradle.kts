@@ -29,6 +29,15 @@ dependencies {
     implementation("javazoom:jlayer:1.0.1")
 
     implementation("com.github.lgooddatepicker:LGoodDatePicker:11.2.1")
+
+//    okhttp
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+//    jsonObject
+    implementation("org.json:json:20240303")
+
+    // 코루틴
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
 }
 
 tasks.test {
