@@ -77,6 +77,9 @@ class CookingCompletionTime : JPanel() {
 
         // CustomToggleButton을 사용하여 토글 버튼 추가
         val toggleButton = SwitchButton().apply {
+
+            toggleOn(cookingCompletionControl)
+
             // 상태 변경 이벤트 추가 (토글 버튼 클릭 시)
             addEventSwitchSelected(object : SwitchListener {
                 override fun selectChange(isOn: Boolean) {
