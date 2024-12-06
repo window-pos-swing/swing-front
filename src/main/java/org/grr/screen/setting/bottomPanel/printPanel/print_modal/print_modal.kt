@@ -1,5 +1,6 @@
-import org.grr.util.MyFont
+
 import org.grr.style.MyColor
+import org.grr.util.MyFont
 import java.awt.*
 import javax.swing.*
 
@@ -399,11 +400,13 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
 
             // 체크박스 추가
             add(JCheckBox("영수증 출력").apply {
+                background = Color.WHITE
                 isSelected = true
                 font = MyFont.Bold(20f)
             })
 
             add(JCheckBox("주방주문서출력").apply {
+                background = Color.WHITE
                 isSelected = true
                 font = MyFont.Bold(20f)
             })

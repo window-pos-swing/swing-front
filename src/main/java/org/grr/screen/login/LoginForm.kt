@@ -1,6 +1,6 @@
 package org.grr.screen.login
 
-import org.grr.MainForm
+import org.grr.screen.main.MainForm
 import org.grr.style.MyColor
 import org.grr.util.LoadImage.loadImage
 import org.grr.util.MyFont

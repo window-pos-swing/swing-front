@@ -1,6 +1,6 @@
 package org.grr.widgets.custom_titlebar
 
-import org.grr.MainForm
+import org.grr.screen.main.MainForm
 import org.grr.util.MyFont
 import org.grr.style.MyColor
 import org.grr.widgets.IconRoundBorder

@@ -1,8 +1,14 @@
-package org.grr
+package org.grr.screen.main
 
+import org.grr.CustomTabbedPane
 import org.grr.widgets.custom_titlebar.MainCustomTitlebar
-import java.awt.*
-import javax.swing.*
+import java.awt.BorderLayout
+import java.awt.CardLayout
+import java.awt.Color
+import java.awt.Dimension
+import javax.swing.BorderFactory
+import javax.swing.JFrame
+import javax.swing.JPanel
 
 
 class MainForm : JFrame() {
