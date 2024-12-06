@@ -1,8 +1,17 @@
 package org.grr.screen.setting.headerPanel
 
-import org.grr.util.MyFont
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.grr.api.LogoutToServer
+import org.grr.`object`.Storage
+import org.grr.screen.login.LoginForm
 import org.grr.style.MyColor
-import java.awt.*
+import org.grr.util.MyFont
+import java.awt.BorderLayout
+import java.awt.Color
+import java.awt.Dimension
+import java.awt.FlowLayout
 import javax.swing.*
 
 // 세팅에서 가장 상단 패널
@@ -32,9 +41,41 @@ class HeaderPanelForm : JPanel() {
 
         val logoutButton = JButton("로그아웃").apply {
             preferredSize = Dimension(150, 50)
-            background = MyColor.DARK_NAVY
+            background = MyColor.GREY100
             font = MyFont.Bold(24f)
             isOpaque = true
+            /*
+                로그아웃을 진행하는 구문
+            */
+            addActionListener {
+                // 로그아웃 요청
+                val logoutToServer = LogoutToServer()
+                GlobalScope.launch {
+
+                    delay(500) // 0.5초 대기
+
+                    val (isSuccess, message) = logoutToServer.logoutToServer()
+
+                    delay(500) // 0.5초 대기
+
+                    SwingUtilities.invokeLater {
+                        if (isSuccess) {
+//                            토큰 삭제
+                            Storage.deleteToken()
+//                            저장된 로그인 정보 삭제
+                            Storage.clearLoginInfo()
+
+                            val loginForm = LoginForm()
+                            loginForm.isVisible = true
+
+                            val parentWindow = SwingUtilities.getWindowAncestor(this@apply)
+                            parentWindow?.dispose()
+                        } else {
+                            JOptionPane.showMessageDialog(this@apply, message, "오류", JOptionPane.ERROR_MESSAGE)
+                        }
+                    }
+                }
+            }
         }
 
         // 로그아웃 버튼을 패널에 넣어 정렬을 유지
