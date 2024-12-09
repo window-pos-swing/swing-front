@@ -1,12 +1,14 @@
 package org.grr.screen.setting.centerPanel.operateTimePanel
 
-import org.grr.util.MyFont
+import org.grr.`object`.Storage
+import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.operateTimePanel.operateTime_modal.OperateTimeModalDialog
+import org.grr.util.MyFont
 import org.grr.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*
 
-class OperateTime: JPanel() {
+class OperateTime : JPanel() {
     init {
         layout = GridBagLayout()
 //        background = Color.RED  // 배경색 설정
@@ -29,6 +31,20 @@ class OperateTime: JPanel() {
 //            background = Color.RED
         }
 
+        /*
+            회원정보 갖고오는 구문
+        */
+        val memberInfo = Storage.getMemberInfo()
+
+        val operateTime = memberInfo
+            ?.optJSONObject("setting")
+            ?.optJSONObject("businessHour")
+
+        operateTime?.let { TimeManager.initialize(operateTime) }
+        val formattedOperateTime = TimeManager.getFormattedBreakTimes()
+
+        println("운영 시간 ${formattedOperateTime}")
+
         // 아이콘 경로 로드
         val watchIconPath = ImageIcon(javaClass.getResource("/watch.png"))
         val storeLabel = JLabel(watchIconPath).apply {
@@ -42,7 +58,9 @@ class OperateTime: JPanel() {
         }
 
         panel.add(storeLabel)
-        panel.add(label)
+        panel.add(label).apply {
+            border = BorderFactory.createEmptyBorder(0, 0, 10, 0)
+        }
 
         // panel을 왼쪽 끝에 배치
         gbc.anchor = GridBagConstraints.WEST  // 왼쪽 정렬
@@ -55,8 +73,8 @@ class OperateTime: JPanel() {
         gbc.weightx = 1.0
         gbc.weighty = 1.0  // 수직으로도 공간 차지
         gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
-        val breakTimeLabel = JLabel("월~금 10:30 ~ 22:00 / 토 10:30 ~ 22:00 / 일 10:30 ~ 22:00").apply {
-            font = MyFont.Bold(32f)
+        val breakTimeLabel = JLabel(formattedOperateTime).apply {
+            font = MyFont.Bold(24f)
             foreground = Color.PINK
             horizontalAlignment = SwingConstants.CENTER
         }

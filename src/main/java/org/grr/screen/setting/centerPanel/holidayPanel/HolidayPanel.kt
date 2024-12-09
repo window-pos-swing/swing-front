@@ -1,13 +1,14 @@
 package org.grr.screen.setting.centerPanel.holidayPanel
 
-import org.grr.util.MyFont
+import org.grr.`object`.HolidayManager
+import org.grr.`object`.Storage
 import org.grr.screen.setting.centerPanel.holidayPanel.holiday_modal.HolidayModalDialog
-import org.grr.style.MyColor
+import org.grr.util.MyFont
 import org.grr.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*
 
-class HolidayPanel: JPanel()  {
+class HolidayPanel : JPanel() {
     init {
         layout = GridBagLayout()
 //        background = Color.RED  // 배경색 설정
@@ -30,6 +31,20 @@ class HolidayPanel: JPanel()  {
 //            background = Color.RED
         }
 
+        /*
+            회원정보 갖고오는 구문
+        */
+        val memberInfo = Storage.getMemberInfo()
+
+        val holidayTime = memberInfo
+            ?.optJSONObject("setting")
+            ?.optJSONArray("holidayList")
+
+        val formattedHoliday = holidayTime?.let { HolidayManager.parseHolidays(holidayTime) }
+        println("휴무일 ${formattedHoliday}")
+
+        val visibleHoliday = formattedHoliday?.split("임시")?.firstOrNull()?.trim()
+
         // 아이콘 경로 로드
         val watchIconPath = ImageIcon(javaClass.getResource("/closedDay.png"))
         val storeLabel = JLabel(watchIconPath).apply {
@@ -43,7 +58,9 @@ class HolidayPanel: JPanel()  {
         }
 
         panel.add(storeLabel)
-        panel.add(label)
+        panel.add(label).apply {
+            border = BorderFactory.createEmptyBorder(0, 0, 10, 0)
+        }
 
         // panel을 왼쪽 끝에 배치
         gbc.anchor = GridBagConstraints.WEST  // 왼쪽 정렬
@@ -56,8 +73,8 @@ class HolidayPanel: JPanel()  {
         gbc.weightx = 1.0
         gbc.weighty = 1.0  // 수직으로도 공간 차지
         gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
-        val breakTimeLabel = JLabel("매월 둘째, 셋째 토요일").apply {
-            font = MyFont.Bold(32f)
+        val breakTimeLabel = JLabel(visibleHoliday).apply {
+            font = MyFont.Bold(24f)
             foreground = Color.PINK
             horizontalAlignment = SwingConstants.CENTER
         }

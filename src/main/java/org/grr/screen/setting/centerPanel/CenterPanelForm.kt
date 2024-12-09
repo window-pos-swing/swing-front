@@ -7,7 +7,9 @@ import org.grr.screen.setting.centerPanel.holidayPanel.HolidayPanel
 import org.grr.screen.setting.centerPanel.operateTimePanel.OperateTime
 import org.grr.style.MyColor
 import java.awt.*
-import javax.swing.*
+import javax.swing.JPanel
+import javax.swing.JSeparator
+import javax.swing.SwingConstants
 
 open class RoundedPanel(private val radius: Int) : JPanel() {
     init {
@@ -112,13 +114,13 @@ class CenterPanelForm : RoundedPanel(30) {
         gbc.gridy = 3
         gbc.gridwidth = 3
         gbc.weighty = 0.0
-        gbc.insets = Insets(0, 10, 0, 10)
+        gbc.insets = Insets(5, 10, 0, 10)
         add(HolidayPanel(), gbc)
 
         // 빈 공간 추가: 상단 고정을 위해 아래쪽에 빈 패널을 추가하여 남은 공간을 차지하게 함
-        gbc.gridy = 4
-        gbc.weighty = 1.0  // 빈 공간이 남은 공간을 차지하도록 설정
-        add(JPanel().apply { isOpaque = false }, gbc)  // 빈 패널 추가
+//        gbc.gridy = 4
+//        gbc.weighty = 1.0  // 빈 공간이 남은 공간을 차지하도록 설정
+//        add(JPanel().apply { isOpaque = false }, gbc)  // 빈 패널 추가
     }
 
     private fun createSeparator(orientation: Int, width: Int, height: Int): JSeparator {

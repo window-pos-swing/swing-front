@@ -1,7 +1,9 @@
 package org.grr.screen.setting.centerPanel.deliveryMethodTimePanel
 
-import org.grr.util.MyFont
+import org.grr.`object`.Storage
 import org.grr.style.MyColor
+import org.grr.util.MyFont
+import org.grr.widgets.RoundedButton
 import org.grr.widgets.RoundedPanel
 import org.grr.widgets.SwitchButton
 import org.grr.widgets.SwitchListener
@@ -38,7 +40,11 @@ class DeliveryMethodTime : JPanel() {
     private lateinit var timeLabel: JLabel  // 배달 예정 시간 라벨
     private lateinit var decreaseButton: TransparentButton  // 시간 감소 버튼
     private lateinit var increaseButton: TransparentButton  // 시간 증가 버튼
+    private lateinit var setButton: RoundedButton  // 저장 버튼
     private lateinit var buttonPanel: RoundedPanel
+
+    private var initialDeliveryCompletionTime: Int = 40  // 초기 배달완료시간
+    private var currentDeliveryCompletionTime: Int = 40  // 현재 배달완료시간
 
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -50,6 +56,19 @@ class DeliveryMethodTime : JPanel() {
             isOpaque = false
 //            background = Color.RED
         }
+
+        //        회원정보 갖고오는 구문
+        val memberInfo = Storage.getMemberInfo()
+
+        initialDeliveryCompletionTime = memberInfo
+            ?.optJSONObject("setting")
+            ?.optInt("estimatedArrivalTime", 40) ?: 40
+
+        currentDeliveryCompletionTime = initialDeliveryCompletionTime
+
+        val deliveryCompletionControl = memberInfo
+            ?.optJSONObject("setting")
+            ?.optBoolean("estimatedArrivalTimeControl", false) ?: false
 
         // 배달 아이콘 경로 로드
         val deliveryIconPath = ImageIcon(javaClass.getResource("/delivery.png"))
@@ -67,6 +86,9 @@ class DeliveryMethodTime : JPanel() {
 
         // CustomToggleButton을 사용하여 토글 버튼 추가
         val toggleButton = SwitchButton().apply {
+
+            toggleOn(deliveryCompletionControl)
+
             addEventSwitchSelected(object : SwitchListener {
                 override fun selectChange(isOn: Boolean) {
                     if (isOn) {
@@ -92,15 +114,29 @@ class DeliveryMethodTime : JPanel() {
             add(toggleButton)
         }
 
+        // 저장 버튼을 오른쪽에 배치
+        setButton = RoundedButton("저장").apply {
+            isEnabled = false
+            addActionListener {
+                saveCookingCompletionTime()
+            }
+        }
+        val rightPanel = JPanel().apply {
+            layout = FlowLayout(FlowLayout.RIGHT, 0, 0)  // 오른쪽 정렬
+            isOpaque = false
+            add(setButton)
+        }
+
         // 배달 방법과 토글 버튼을 한 줄에 추가
         topPanel.add(leftPanel, BorderLayout.WEST)  // 왼쪽 끝에 배치
+        topPanel.add(rightPanel, BorderLayout.EAST)  // 오른쪽 끝에 저장 버튼 배치
 
         // 시간 선택 패널
         val timeSelectionPanel = JPanel().apply {
             layout = FlowLayout(FlowLayout.CENTER)  // 시간 조절 버튼들 한 줄로 배치
             isOpaque = false
             border = BorderFactory.createEmptyBorder(0, 0, 20, 0)
-            add(createTimeSelectionPanel())  // 시간 선택 패널 추가
+            add(createTimeSelectionPanel(currentDeliveryCompletionTime))  // 시간 선택 패널 추가
         }
 
         // 패널들을 순서대로 추가
@@ -112,9 +148,9 @@ class DeliveryMethodTime : JPanel() {
     }
 
     // 시간 선택 패널 생성
-    private fun createTimeSelectionPanel(): JPanel {
+    private fun createTimeSelectionPanel(deliveryCompletionTime: Int): JPanel {
         // 클래스 레벨의 변수로 설정
-        timeLabel = JLabel("30분", SwingConstants.CENTER).apply {
+        timeLabel = JLabel("${deliveryCompletionTime}분", SwingConstants.CENTER).apply {
             font = MyFont.Bold(38f)
             foreground = Color.RED
             preferredSize = Dimension(100, 50)
@@ -161,9 +197,9 @@ class DeliveryMethodTime : JPanel() {
 
     // 시간 조정 함수 (timeLabel의 값을 업데이트)
     private fun adjustTime(timeLabel: JLabel, delta: Int) {
-        val currentTime = timeLabel.text.replace("분", "").toInt()
-        val newTime = (currentTime + delta).coerceAtLeast(5)  // 최소 5분으로 제한
-        timeLabel.text = "${newTime}분"
+        currentDeliveryCompletionTime = (currentDeliveryCompletionTime + delta).coerceAtLeast(5)
+        timeLabel.text = "${currentDeliveryCompletionTime}분"
+        updateSaveButtonState()
     }
 
     // 시간 조절 가능 여부 설정 함수
@@ -187,5 +223,17 @@ class DeliveryMethodTime : JPanel() {
             decreaseButton.alpha = 1.0f  // 50% 투명도
             increaseButton.alpha = 1.0f
         }
+    }
+
+    private fun saveCookingCompletionTime() {
+        println("저장 완료: $currentDeliveryCompletionTime")
+        initialDeliveryCompletionTime = currentDeliveryCompletionTime
+        updateSaveButtonState()
+    }
+
+    private fun updateSaveButtonState() {
+        val isChanged = currentDeliveryCompletionTime != initialDeliveryCompletionTime
+        setButton.isEnabled = isChanged
+        setButton.foreground = if (isChanged) Color.WHITE else Color.GRAY
     }
 }

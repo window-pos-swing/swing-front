@@ -1,14 +1,14 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel
 
-import org.grr.util.MyFont
+import org.grr.`object`.Storage
+import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.BreakTimeModalDialog
-import org.grr.screen.setting.centerPanel.holidayPanel.holiday_modal.HolidayModalDialog
-import org.grr.style.MyColor
+import org.grr.util.MyFont
 import org.grr.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*
 
-class BreakTime: JPanel() {
+class BreakTime : JPanel() {
     init {
         layout = GridBagLayout()
 //        background = Color.RED  // 배경색 설정
@@ -31,9 +31,24 @@ class BreakTime: JPanel() {
 //            background = Color.RED
         }
 
+        /*
+            회원정보 갖고오는 구문
+        */
+        val memberInfo = Storage.getMemberInfo()
+
+        val breakTime = memberInfo
+            ?.optJSONObject("setting")
+            ?.optJSONObject("breakTime")
+
+        breakTime?.let { TimeManager.initialize(it) }
+        val formattedBreakTime = TimeManager.getFormattedBreakTimes()
+
+        println("브레이크 타임 ${formattedBreakTime}")
+
         // 아이콘 경로 로드
         val watchIconPath = ImageIcon(javaClass.getResource("/watch.png"))
         val storeLabel = JLabel(watchIconPath).apply {
+            font = MyFont.Bold(26f)
             border = BorderFactory.createEmptyBorder(0, 10, 0, 10)  // 아이콘과 텍스트 사이 여백 추가
         }
 
@@ -44,7 +59,9 @@ class BreakTime: JPanel() {
         }
 
         panel.add(storeLabel)
-        panel.add(label)
+        panel.add(label).apply {
+            border = BorderFactory.createEmptyBorder(0, 0, 10, 0)
+        }
 
         // panel을 왼쪽 끝에 배치
         gbc.anchor = GridBagConstraints.WEST  // 왼쪽 정렬
@@ -57,8 +74,8 @@ class BreakTime: JPanel() {
         gbc.weightx = 1.0
         gbc.weighty = 1.0  // 수직으로도 공간 차지
         gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
-        val breakTimeLabel = JLabel("14:00 ~ 15:00").apply {
-            font = MyFont.Bold(32f)
+        val breakTimeLabel = JLabel(formattedBreakTime).apply {
+            font = MyFont.Bold(24f)
             foreground = Color.PINK
             horizontalAlignment = SwingConstants.CENTER
         }
