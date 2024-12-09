@@ -1,15 +1,14 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.weekDaysAndWeekEnds
 
 import RoundedComboBox
-import org.grr.util.MyFont
 import org.grr.style.MyColor
-import org.grr.widgets.IconRoundBorder2
+import org.grr.util.MyFont
 import org.grr.widgets.RoundButton2
 import org.grr.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*
 
-class WeekDaysAndWeekEnds : JPanel() {
+class WeekDaysAndWeekEnds(private val onAdd: (String, String) -> Unit) : JPanel() {
     private var isWeekDays = false
     private var isWeekEnds = false
     private var startHourCombo: JComboBox<String>
@@ -203,8 +202,9 @@ class WeekDaysAndWeekEnds : JPanel() {
 
                     // 선택된 시간 값을 사용하여 timeRangeText 생성
                     val timeRangeText = "$startHour $startMin ~ $endHour $endMin"
-//                    println("선택된 시간: $timeRangeText")
-                    addButtonPanel(selectButtonText, timeRangeText) // 하단 패널에 추가
+//                    println("WeekDaysAndWeekEnds 추가된 데이터: $selectButtonText, $timeRangeText")
+                    onAdd(selectButtonText, timeRangeText)
+//                    addButtonPanel(selectButtonText, timeRangeText) // 하단 패널에 추가
                     selectedDay2.addAll(selectedDays)
 
                     // 평일/주말 상태 설정
@@ -227,101 +227,14 @@ class WeekDaysAndWeekEnds : JPanel() {
             add(Box.createVerticalStrut(20))
         }
 
-        // 하단 패널 설정
-        bottomPanel.layout = BoxLayout(bottomPanel, BoxLayout.Y_AXIS)
-        bottomPanel.background = Color.WHITE
 
         // 메인 패널 구성
         val mainPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
             add(topPanel)
-//            add(Box.createVerticalStrut(10))
-            add(bottomPanel)
         }
 
         add(mainPanel, BorderLayout.CENTER)
-    }
-
-    private fun addButtonPanel(selectedButtonText: String, timeRangeText: String) {
-        lateinit var itemPanel: JPanel
-
-        itemPanel = JPanel().apply {
-            preferredSize = Dimension(940, 60)
-            maximumSize = Dimension(940, 60)
-            minimumSize = Dimension(940, 60)
-            layout = BorderLayout()
-            background = Color.WHITE
-            border = BorderFactory.createLineBorder(Color.GRAY, 1)
-
-            val allDaysLabel = IconRoundBorder2.createRoundedLabel(selectedButtonText, Color(255, 177, 177), 20).apply {
-                foreground = Color.WHITE
-                preferredSize = Dimension(150, 40)
-            }
-
-            val timeRangeLabel = JLabel(timeRangeText).apply {
-                font = MyFont.Bold(24f)
-            }
-
-            val deleteButton = RoundedButton("삭제").apply {
-                font = MyFont.Bold(18f)
-                preferredSize = Dimension(100, 35)
-
-
-                addActionListener {
-                    bottomPanel.remove(itemPanel)
-                    bottomPanel.revalidate()
-                    bottomPanel.repaint()
-
-                    val selectedButtonTextList = selectedButtonText.split(", ")
-
-                    selectedButtonTextList.forEach { selectedButton ->
-
-                        if (selectedDay2.contains(selectedButton)) {
-                            selectedDay2.remove(selectedButton)
-                        }
-
-                        selectedDays.remove(selectedButton)
-                        dayButtons.find { it.text == selectedButton }?.let { button ->
-                            button.isEnabled = true
-                            button.foreground = Color(255, 177, 177) // 원래 색상으로 복원
-                            button.background = Color(255, 177, 177)
-                            button.setSelected(true)
-                        }
-
-                        // '평일'과 '주말' 상태 구분하여 변경
-                        if (selectedButton.contains("평일")) {
-                            // 다른 항목에 '평일'이 포함되어 있지 않은 경우에만 isWeekDays를 false로 변경
-                            if (!selectedDay2.any { it.contains("평일") }) {
-                                isWeekDays = false
-                            }
-                        }
-                        if (selectedButton.contains("주말")) {
-                            // 다른 항목에 '주말'이 포함되어 있지 않은 경우에만 isWeekEnds를 false로 변경
-                            if (!selectedDay2.any { it.contains("주말") }) {
-                                isWeekEnds = false
-                            }
-                        }
-                    }
-                }
-            }
-
-            val rightPanel = JPanel(FlowLayout(FlowLayout.RIGHT, 10, 10)).apply {
-                background = Color.WHITE
-                add(deleteButton)
-            }
-
-            val centerPanel = JPanel(FlowLayout(FlowLayout.LEFT, 10, 10)).apply {
-                background = Color.WHITE
-                add(allDaysLabel)
-                add(timeRangeLabel)
-            }
-
-            add(centerPanel, BorderLayout.CENTER)
-            add(rightPanel, BorderLayout.EAST)
-        }
-        bottomPanel.add(itemPanel)
-        bottomPanel.revalidate()
-        bottomPanel.repaint()
     }
 }

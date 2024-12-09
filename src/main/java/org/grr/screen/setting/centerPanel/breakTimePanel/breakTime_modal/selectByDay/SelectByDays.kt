@@ -1,15 +1,14 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.selectByDay
 
 import RoundedComboBox
-import org.grr.util.MyFont
 import org.grr.style.MyColor
-import org.grr.widgets.IconRoundBorder2
+import org.grr.util.MyFont
 import org.grr.widgets.RoundButton
 import org.grr.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*
 
-class SelectByDays : JPanel() {
+class SelectByDays(private val onAdd: (String, String) -> Unit) : JPanel() {
     private var itemCount = 0
     private var startHourCombo: JComboBox<String>
     private var startMinCombo: JComboBox<String>
@@ -154,33 +153,19 @@ class SelectByDays : JPanel() {
 
                     // 선택된 시간과 요일을 사용하여 timeRangeText 생성
                     val timeRangeText = "$startHour $startMin ~ $endHour $endMin"
-                    addBottomPanel(daysText, timeRangeText) // 하단 패널에 추가
+//                    addBottomPanel(daysText, timeRangeText) // 하단 패널에 추가
+//                    println("SelectByDays 추가된 데이터: $daysText, $timeRangeText")
+                    onAdd(daysText, timeRangeText)
                     selectedDay2.addAll(selectedDays)
-                    itemCount++
-
                     selectedDays.clear()
+                    itemCount++
                 }
             }
 
             // 패널에 추가
             add(dayPanel)
             add(timePanel)
-            add(addButton)
             add(Box.createVerticalStrut(20))
-        }
-
-        // 하단 패널 설정
-        bottomPanel.layout = BoxLayout(bottomPanel, BoxLayout.Y_AXIS)
-        bottomPanel.background = Color.WHITE
-
-        // 하단 패널을 스크롤 가능한 JScrollPane에 추가
-        val scrollPane = JScrollPane(bottomPanel).apply {
-            verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
-            horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
-            border = BorderFactory.createEmptyBorder()
-            preferredSize = Dimension(950, 190)
-            maximumSize = Dimension(950, 190)
-            minimumSize = Dimension(950, 190)
         }
 
         // 메인 패널 구성
@@ -188,81 +173,8 @@ class SelectByDays : JPanel() {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
             add(dayAndTimePanel)
-//            add(Box.createVerticalStrut(10))
-            add(scrollPane)
         }
 
         add(mainPanel, BorderLayout.CENTER)
-    }
-
-    // 하단 패널에 아이템 추가 함수
-    private fun addBottomPanel(selectedDaysText: String, timeRangeText: String) {
-        lateinit var itemPanel: JPanel
-
-        itemPanel = JPanel().apply {
-            preferredSize = Dimension(940, 60)
-            maximumSize = Dimension(940, 60)
-            minimumSize = Dimension(940, 60)
-            layout = BorderLayout()
-            background = Color.WHITE
-            border = BorderFactory.createLineBorder(Color.GRAY, 1)
-
-            val allDaysLabel = IconRoundBorder2.createRoundedLabel(selectedDaysText, Color(255, 177, 177), 20).apply {
-                foreground = Color.WHITE
-                preferredSize = Dimension(150, 40)
-            }
-
-            val timeRangeLabel = JLabel(timeRangeText).apply {
-                font = MyFont.Bold(24f)
-            }
-
-            val deleteButton = RoundedButton("삭제").apply {
-                font = MyFont.Bold(18f)
-                preferredSize = Dimension(100, 35)
-                addActionListener {
-
-                    bottomPanel.remove(itemPanel)
-                    bottomPanel.revalidate()
-                    bottomPanel.repaint()
-                    itemCount--
-
-                    // 선택된 요일 텍스트를 콤마로 구분하여 리스트로 변환
-                    val selectedDaysList = selectedDaysText.split(", ")
-                    // 비활성화된 요일 버튼을 다시 활성화하고 색상 복원, 그리고 리스트에서 제거
-                    selectedDaysList.forEach { selectedDay ->
-
-                        if (selectedDay2.contains(selectedDay)) {
-                            selectedDay2.remove(selectedDay)
-//                            println(selectedDay2)
-                        }
-                        selectedDays.remove(selectedDay)
-                        dayButtons.find { it.text == selectedDay }?.let { button ->
-                            button.isEnabled = true
-                            button.foreground = Color(255, 177, 177) // 원래 색상으로 복원
-                            button.background = Color(255, 177, 177)
-                            button.setSelected(true)
-                        }
-                    }
-                }
-            }
-
-            val rightPanel = JPanel(FlowLayout(FlowLayout.RIGHT, 10, 10)).apply {
-                background = Color.WHITE
-                add(deleteButton)
-            }
-
-            val centerPanel = JPanel(FlowLayout(FlowLayout.LEFT, 10, 10)).apply {
-                background = Color.WHITE
-                add(allDaysLabel)
-                add(timeRangeLabel)
-            }
-
-            add(centerPanel, BorderLayout.CENTER)
-            add(rightPanel, BorderLayout.EAST)
-        }
-
-        bottomPanel.add(itemPanel)
-        bottomPanel.revalidate()
-        bottomPanel.repaint()
     }
 }

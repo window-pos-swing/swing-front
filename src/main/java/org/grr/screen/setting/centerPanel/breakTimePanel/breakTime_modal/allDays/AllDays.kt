@@ -1,21 +1,20 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.allDays
 
 import RoundedComboBox
-import org.grr.util.MyFont
 import org.grr.style.MyColor
-import org.grr.widgets.IconRoundBorder2
+import org.grr.util.MyFont
 import org.grr.widgets.RoundButton
 import org.grr.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*
 
-class AllDays : JPanel() {
+class AllDays(private val onAdd: (String, String) -> Unit) : JPanel() {
     private var isItemAdded = false
     private var startHourCombo: JComboBox<String>
     private var startMinCombo: JComboBox<String>
     private var endHourCombo: JComboBox<String>
     private var endMinCombo: JComboBox<String>
-    private val bottomPanel: JPanel = JPanel()
+
 
     init {
         layout = BorderLayout()
@@ -110,8 +109,9 @@ class AllDays : JPanel() {
 
                     // 선택된 시간 값을 사용하여 timeRangeText 생성
                     val timeRangeText = "$startHour $startMin ~ $endHour $endMin"
-//                    println("선택된 시간: $timeRangeText")
-                    addBottomPanel(timeRangeText) // 하단 패널에 추가
+//                    addBottomPanel(timeRangeText) // 하단 패널에 추가
+//                    println("AllDays 추가된 데이터: 전체요일, $timeRangeText")
+                    onAdd("전체요일", timeRangeText)
                     isItemAdded = true
                 }
             }
@@ -123,75 +123,82 @@ class AllDays : JPanel() {
             add(Box.createVerticalStrut(20))
         }
 
-        // 하단 패널 설정
-        bottomPanel.layout = BoxLayout(bottomPanel, BoxLayout.Y_AXIS)
-        bottomPanel.background = Color.WHITE
-
         // 메인 패널 구성
         val mainPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
             add(dayAndTimePanel)
-            add(bottomPanel)
         }
 
         add(mainPanel, BorderLayout.CENTER)
     }
 
-
     // 하단 패널에 아이템 추가 함수
-    private fun addBottomPanel(timeRangeText: String) {
-        lateinit var itemPanel: JPanel // 외부에 선언하여 참조 가능하게 설정
+//    private fun addBottomPanel(timeRangeText: String) {
+//        lateinit var itemPanel: JPanel // 외부에 선언하여 참조 가능하게 설정
+//
+//        itemPanel = JPanel().apply {
+//            preferredSize = Dimension(940, 60)
+//            maximumSize = Dimension(940, 60)
+//            minimumSize = Dimension(940, 60)
+//            layout = BorderLayout()
+//            background = Color.WHITE
+//            border = BorderFactory.createLineBorder(Color.GRAY, 1) // 외곽선
+//
+//            val allDaysLabel = IconRoundBorder2.createRoundedLabel("전체요일", Color(255, 177, 177), 20).apply {
+//                foreground = Color.WHITE
+//                preferredSize = Dimension(100, 40)
+//            }
+//
+//            val timeRangeLabel = JLabel(timeRangeText).apply {
+//                font = MyFont.Bold(24f)
+//            }
+//
+//            val deleteButton = RoundedButton("삭제").apply {
+//                font = MyFont.Bold(18f)
+//                preferredSize = Dimension(100, 35)
+//                addActionListener {
+//                    // bottomPanel에서 itemPanel을 제거
+//                    bottomPanel.remove(itemPanel) // 부모 패널인 bottomPanel에서 itemPanel을 제거
+//                    bottomPanel.revalidate() // 레이아웃 다시 계산
+//                    bottomPanel.repaint() // 화면 다시 그리기
+//                    isItemAdded = false // 아이템 추가 상태 초기화
+//                }
+//            }
+//
+//            // 삭제 버튼을 오른쪽에 배치
+//            val rightPanel = JPanel(FlowLayout(FlowLayout.RIGHT, 10, 10)).apply {
+//                background = Color.WHITE
+//                add(deleteButton)
+//            }
+//
+//            // 중앙 패널에 라벨과 시간 범위 추가
+//            val centerPanel = JPanel(FlowLayout(FlowLayout.LEFT, 10, 10)).apply {
+//                background = Color.WHITE
+//                add(allDaysLabel)
+//                add(timeRangeLabel)
+//            }
+//
+//            add(centerPanel, BorderLayout.CENTER)
+//            add(rightPanel, BorderLayout.EAST)
+//        }
+//
+//        // bottomPanel에 itemPanel을 추가
+//        bottomPanel.add(itemPanel)
+//        bottomPanel.revalidate() // 레이아웃 다시 계산
+//        bottomPanel.repaint() // 화면 다시 그리기
+//    }
 
-        itemPanel = JPanel().apply {
-            preferredSize = Dimension(940, 60)
-            maximumSize = Dimension(940, 60)
-            minimumSize = Dimension(940, 60)
-            layout = BorderLayout()
-            background = Color.WHITE
-            border = BorderFactory.createLineBorder(Color.GRAY, 1) // 외곽선
-
-            val allDaysLabel = IconRoundBorder2.createRoundedLabel("전체요일", Color(255, 177, 177), 20).apply {
-                foreground = Color.WHITE
-                preferredSize = Dimension(100, 40)
-            }
-
-            val timeRangeLabel = JLabel(timeRangeText).apply {
-                font = MyFont.Bold(24f)
-            }
-
-            val deleteButton = RoundedButton("삭제").apply {
-                font = MyFont.Bold(18f)
-                preferredSize = Dimension(100, 35)
-                addActionListener {
-                    // bottomPanel에서 itemPanel을 제거
-                    bottomPanel.remove(itemPanel) // 부모 패널인 bottomPanel에서 itemPanel을 제거
-                    bottomPanel.revalidate() // 레이아웃 다시 계산
-                    bottomPanel.repaint() // 화면 다시 그리기
-                    isItemAdded = false // 아이템 추가 상태 초기화
-                }
-            }
-
-            // 삭제 버튼을 오른쪽에 배치
-            val rightPanel = JPanel(FlowLayout(FlowLayout.RIGHT, 10, 10)).apply {
-                background = Color.WHITE
-                add(deleteButton)
-            }
-
-            // 중앙 패널에 라벨과 시간 범위 추가
-            val centerPanel = JPanel(FlowLayout(FlowLayout.LEFT, 10, 10)).apply {
-                background = Color.WHITE
-                add(allDaysLabel)
-                add(timeRangeLabel)
-            }
-
-            add(centerPanel, BorderLayout.CENTER)
-            add(rightPanel, BorderLayout.EAST)
+    fun getBreakTime(): Pair<String, String>? {
+        // 추가된 시간 데이터를 반환
+        return if (isItemAdded) {
+            val startHour = startHourCombo.selectedItem?.toString() ?: "오전 0시"
+            val startMin = startMinCombo.selectedItem?.toString() ?: "00분"
+            val endHour = endHourCombo.selectedItem?.toString() ?: "오전 0시"
+            val endMin = endMinCombo.selectedItem?.toString() ?: "00분"
+            Pair("$startHour $startMin", "$endHour $endMin")
+        } else {
+            null
         }
-
-        // bottomPanel에 itemPanel을 추가
-        bottomPanel.add(itemPanel)
-        bottomPanel.revalidate() // 레이아웃 다시 계산
-        bottomPanel.repaint() // 화면 다시 그리기
     }
 }
