@@ -1,5 +1,6 @@
 package org.grr.screen.setting.centerPanel.deliveryMethodTimePanel
 
+import org.grr.api.SettingToServer
 import org.grr.`object`.Storage
 import org.grr.style.MyColor
 import org.grr.util.MyFont
@@ -45,6 +46,8 @@ class DeliveryMethodTime : JPanel() {
 
     private var initialDeliveryCompletionTime: Int = 40  // 초기 배달완료시간
     private var currentDeliveryCompletionTime: Int = 40  // 현재 배달완료시간
+    private var initialDeliveryCompletionControl: Boolean = false
+    private var deliveryCompletionControl: Boolean = false
 
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -66,9 +69,11 @@ class DeliveryMethodTime : JPanel() {
 
         currentDeliveryCompletionTime = initialDeliveryCompletionTime
 
-        val deliveryCompletionControl = memberInfo
+        initialDeliveryCompletionControl = memberInfo
             ?.optJSONObject("setting")
             ?.optBoolean("estimatedArrivalTimeControl", false) ?: false
+
+        deliveryCompletionControl = initialDeliveryCompletionControl
 
         // 배달 아이콘 경로 로드
         val deliveryIconPath = ImageIcon(javaClass.getResource("/delivery.png"))
@@ -91,11 +96,9 @@ class DeliveryMethodTime : JPanel() {
 
             addEventSwitchSelected(object : SwitchListener {
                 override fun selectChange(isOn: Boolean) {
-                    if (isOn) {
-                        enableTimeAdjustment(true)  // ON 상태에서는 시간 조절 가능
-                    } else {
-                        enableTimeAdjustment(false)  // OFF 상태에서는 시간 조절 불가능
-                    }
+                    deliveryCompletionControl = isOn
+                    enableTimeAdjustment(isOn)
+                    updateSaveButtonState()
                 }
             })
 
@@ -118,7 +121,7 @@ class DeliveryMethodTime : JPanel() {
         setButton = RoundedButton("저장").apply {
             isEnabled = false
             addActionListener {
-                saveCookingCompletionTime()
+                saveDeliveryCompletionTime()
             }
         }
         val rightPanel = JPanel().apply {
@@ -209,7 +212,7 @@ class DeliveryMethodTime : JPanel() {
         timeLabel.isEnabled = isEnabled
 
         if (!isEnabled) {
-            timeLabel.foreground =  Color.GRAY  // 비활성화 시 색상을 회색으로 변경
+            timeLabel.foreground = Color.GRAY  // 비활성화 시 색상을 회색으로 변경
             buttonPanel.background = MyColor.DARK_NAVY
 
             // 버튼의 투명도를 연하게 적용
@@ -225,14 +228,25 @@ class DeliveryMethodTime : JPanel() {
         }
     }
 
-    private fun saveCookingCompletionTime() {
-        println("저장 완료: $currentDeliveryCompletionTime")
-        initialDeliveryCompletionTime = currentDeliveryCompletionTime
-        updateSaveButtonState()
+    /*
+        서버 api 연결부분
+    */
+    private fun saveDeliveryCompletionTime() {
+        val settingToServer = SettingToServer()
+        val result = settingToServer.deliveryTimeToServer(deliveryCompletionControl, currentDeliveryCompletionTime)
+        if (result.first) {
+//            JOptionPane.showMessageDialog(this, "배달 예상 시간이 업데이트되/**/었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE)
+            initialDeliveryCompletionTime = currentDeliveryCompletionTime
+            initialDeliveryCompletionControl = deliveryCompletionControl
+            updateSaveButtonState()
+        } else {
+            JOptionPane.showMessageDialog(this, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
+        }
     }
 
     private fun updateSaveButtonState() {
-        val isChanged = currentDeliveryCompletionTime != initialDeliveryCompletionTime
+        val isChanged = currentDeliveryCompletionTime != initialDeliveryCompletionTime ||
+                deliveryCompletionControl != initialDeliveryCompletionControl
         setButton.isEnabled = isChanged
         setButton.foreground = if (isChanged) Color.WHITE else Color.GRAY
     }

@@ -30,12 +30,12 @@ class MainForm : JFrame() {
         GlobalScope.launch {
             println("회원 조회 시도 중...")
 
-            delay(500) // 0.5초 대기
+            delay(300) // 0.3초 대기
 
             val currentMember = CurrentLoginMemberToServer()
             val (isSuccess, message) = currentMember.currentLoginMemberToServer()
 
-            delay(500) // 0.5초 대기
+            delay(300) // 0.3초 대기
 
             SwingUtilities.invokeLater {
                 if (isSuccess) {

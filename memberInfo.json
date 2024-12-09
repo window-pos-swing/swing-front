@@ -120,64 +120,17 @@
                 0
             ]
         },
-        "estimatedCookingTime": 20,
+        "estimatedCookingTime": 25,
         "businessStatus": "END",
         "id": 1,
-        "holidayList": [
-            {
-                "holidayType": "WEEKLY",
-                "daysOfMonth": [],
-                "specificDates": [],
-                "id": 1,
-                "daysOfWeek": [5],
-                "weeksOfMonth": [3]
-            },
-            {
-                "holidayType": "WEEKLY",
-                "daysOfMonth": [],
-                "specificDates": [],
-                "id": 2,
-                "daysOfWeek": [1],
-                "weeksOfMonth": [1]
-            },
-            {
-                "holidayType": "MONTHLY",
-                "daysOfMonth": [
-                    15,
-                    20
-                ],
-                "specificDates": [],
-                "id": 3,
-                "daysOfWeek": [],
-                "weeksOfMonth": []
-            },
-            {
-                "holidayType": "SPECIFIC_DATE",
-                "daysOfMonth": [],
-                "specificDates": [
-                    {
-                        "third": 25,
-                        "first": 2024,
-                        "second": 12
-                    },
-                    {
-                        "third": 1,
-                        "first": 2025,
-                        "second": 1
-                    }
-                ],
-                "id": 4,
-                "daysOfWeek": [],
-                "weeksOfMonth": []
-            }
-        ],
-        "estimatedArrivalTime": 40,
+        "holidayList": [],
+        "estimatedArrivalTime": 50,
         "estimatedCookingTimeControl": true,
         "businessPauseEndTime": [
             2024,
             12,
             10
         ],
-        "estimatedArrivalTimeControl": true
+        "estimatedArrivalTimeControl": false
     }
 }

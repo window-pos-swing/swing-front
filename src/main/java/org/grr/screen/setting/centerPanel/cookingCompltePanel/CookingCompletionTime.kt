@@ -1,5 +1,6 @@
 package org.grr.screen.setting.centerPanel.cookingCompltePanel
 
+import org.grr.api.SettingToServer
 import org.grr.`object`.Storage
 import org.grr.style.MyColor
 import org.grr.util.MyFont
@@ -45,6 +46,8 @@ class CookingCompletionTime : JPanel() {
 
     private var initialCookingCompletionTime: Int = 30  // 초기 조리완료시간
     private var currentCookingCompletionTime: Int = 30  // 현재 조리완료시간
+    private var initialCookingCompletionControl: Boolean = false
+    private var cookingCompletionControl: Boolean = false
 
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -66,9 +69,11 @@ class CookingCompletionTime : JPanel() {
 
         currentCookingCompletionTime = initialCookingCompletionTime
 
-        val cookingCompletionControl = memberInfo
+        initialCookingCompletionControl = memberInfo
             ?.optJSONObject("setting")
             ?.optBoolean("estimatedCookingTimeControl", false) ?: false
+
+        cookingCompletionControl = initialCookingCompletionControl
 
         // 아이콘 경로 로드
         val watchIconPath = ImageIcon(javaClass.getResource("/watch.png"))
@@ -89,13 +94,9 @@ class CookingCompletionTime : JPanel() {
             // 상태 변경 이벤트 추가 (토글 버튼 클릭 시)
             addEventSwitchSelected(object : SwitchListener {
                 override fun selectChange(isOn: Boolean) {
-                    if (isOn) {
-                        enableTimeAdjustment(true)  // ON 상태로 변경
-//                        println("조리 완료 시간 조절 가능 상태로 변경되었습니다.")
-                    } else {
-                        enableTimeAdjustment(false)  // OFF 상태로 변경
-//                        println("조리 완료 시간 조절 불가능 상태로 변경되었습니다.")
-                    }
+                    cookingCompletionControl = isOn
+                    enableTimeAdjustment(isOn)
+                    updateSaveButtonState()
                 }
             })
 
@@ -226,14 +227,25 @@ class CookingCompletionTime : JPanel() {
         }
     }
 
+    /*
+        서버 api 연결부분
+    */
     private fun saveCookingCompletionTime() {
-        println("저장 완료: $currentCookingCompletionTime")
-        initialCookingCompletionTime = currentCookingCompletionTime
-        updateSaveButtonState()
+        val settingToServer = SettingToServer()
+        val result = settingToServer.cookingTimeToServer(cookingCompletionControl, currentCookingCompletionTime)
+        if (result.first) {
+//            JOptionPane.showMessageDialog(this, "조리 완료 시간이 업데이트되었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE)
+            initialCookingCompletionTime = currentCookingCompletionTime
+            initialCookingCompletionControl = cookingCompletionControl
+            updateSaveButtonState()
+        } else {
+            JOptionPane.showMessageDialog(this, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
+        }
     }
 
     private fun updateSaveButtonState() {
-        val isChanged = currentCookingCompletionTime != initialCookingCompletionTime
+        val isChanged = currentCookingCompletionTime != initialCookingCompletionTime ||
+                cookingCompletionControl != initialCookingCompletionControl
         setButton.isEnabled = isChanged
         setButton.foreground = if (isChanged) Color.WHITE else Color.GRAY
     }

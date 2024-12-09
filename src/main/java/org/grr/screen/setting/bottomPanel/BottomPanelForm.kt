@@ -1,12 +1,9 @@
 package org.grr.screen.setting.bottomPanel
 
-import PrinterSettingDialog
 import org.grr.screen.setting.bottomPanel.SoftwarePanel.Software
 import org.grr.screen.setting.bottomPanel.printPanel.Print
 import org.grr.screen.setting.bottomPanel.soundControlPanel.SoundControl
 import org.grr.screen.setting.centerPanel.RoundedPanel
-import org.grr.screen.setting.centerPanel.cookingCompltePanel.CookingCompletionTime
-import org.grr.screen.setting.centerPanel.deliveryMethodTimePanel.DeliveryMethodTime
 import org.grr.style.MyColor
 import java.awt.*
 import javax.swing.JPanel
