@@ -14,7 +14,6 @@ class SelectByDays(private val onAdd: (String, String) -> Unit) : JPanel() {
     private var startMinCombo: JComboBox<String>
     private var endHourCombo: JComboBox<String>
     private var endMinCombo: JComboBox<String>
-    private val bottomPanel: JPanel = JPanel()
     private val dayButtons = mutableListOf<RoundButton>()
     private var selectedDays = mutableSetOf<String>()
     private val selectedDay2 = mutableSetOf<String>()
@@ -165,8 +164,10 @@ class SelectByDays(private val onAdd: (String, String) -> Unit) : JPanel() {
             // 패널에 추가
             add(dayPanel)
             add(timePanel)
+            add(addButton)
             add(Box.createVerticalStrut(20))
         }
+
 
         // 메인 패널 구성
         val mainPanel = JPanel().apply {

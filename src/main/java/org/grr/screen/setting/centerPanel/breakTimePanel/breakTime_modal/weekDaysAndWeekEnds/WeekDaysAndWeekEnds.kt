@@ -18,7 +18,6 @@ class WeekDaysAndWeekEnds(private val onAdd: (String, String) -> Unit) : JPanel(
     private val dayButtons = mutableListOf<RoundButton2>()
     private var selectedDays = mutableSetOf<String>()
     private val selectedDay2 = mutableSetOf<String>()
-    private val bottomPanel: JPanel = JPanel()
     val selectThis = arrayOf("평일", "주말")
 
     init {
