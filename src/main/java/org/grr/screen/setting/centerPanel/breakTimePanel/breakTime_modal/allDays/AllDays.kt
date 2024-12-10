@@ -8,7 +8,9 @@ import org.grr.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*
 
-class AllDays(private val onAdd: (String, String) -> Unit) : JPanel() {
+class AllDays(
+    private val onAdd: (String, String) -> Unit
+) : JPanel() {
     private var isItemAdded = false
     private var startHourCombo: JComboBox<String>
     private var startMinCombo: JComboBox<String>
@@ -95,10 +97,6 @@ class AllDays(private val onAdd: (String, String) -> Unit) : JPanel() {
                 font = MyFont.Bold(18f)
 
                 addActionListener {
-                    if (isItemAdded) {
-                        JOptionPane.showMessageDialog(this@AllDays, "최대 하나의 항목만 추가할 수 있습니다.")
-                        return@addActionListener
-                    }
 
                     // 시간 유효성 검사
                     val startHour = startHourCombo.selectedItem?.toString() ?: "오전 0시"

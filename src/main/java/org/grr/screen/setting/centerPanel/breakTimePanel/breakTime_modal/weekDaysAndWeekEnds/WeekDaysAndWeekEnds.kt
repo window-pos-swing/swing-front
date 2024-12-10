@@ -8,7 +8,9 @@ import org.grr.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*
 
-class WeekDaysAndWeekEnds(private val onAdd: (String, String) -> Unit) : JPanel() {
+class WeekDaysAndWeekEnds(
+    private val onAdd: (String, String) -> Unit
+) : JPanel() {
     private var isWeekDays = false
     private var isWeekEnds = false
     private var startHourCombo: JComboBox<String>
@@ -47,11 +49,6 @@ class WeekDaysAndWeekEnds(private val onAdd: (String, String) -> Unit) : JPanel(
                         font = MyFont.Bold(20f)
 
                         addActionListener {
-                            if (selectedDay2.contains(select) && !selectedDays.contains(select)) {
-                                JOptionPane.showMessageDialog(this@WeekDaysAndWeekEnds, "이미 선택된 요일입니다.")
-                                setSelected(true)
-                                return@addActionListener // 추가하지 않고 종료
-                            }
 
                             if (selectedDays.contains(select)) {
                                 selectedDays.remove(select)
@@ -176,20 +173,6 @@ class WeekDaysAndWeekEnds(private val onAdd: (String, String) -> Unit) : JPanel(
                 font = MyFont.Bold(18f)
 
                 addActionListener {
-                    if (selectedDays.contains("평일") && isWeekDays) {
-                        JOptionPane.showMessageDialog(this@WeekDaysAndWeekEnds, "평일은 이미 추가되었습니다.")
-                        return@addActionListener
-                    }
-                    if (selectedDays.contains("주말") && isWeekEnds) {
-                        JOptionPane.showMessageDialog(this@WeekDaysAndWeekEnds, "주말은 이미 추가되었습니다.")
-                        return@addActionListener
-                    }
-
-                    // 선택된 요일이 없으면 경고 메시지
-                    if (selectedDays.isEmpty()) {
-                        JOptionPane.showMessageDialog(this@WeekDaysAndWeekEnds, "적어도 하나의 버튼을 선택해야 합니다.")
-                        return@addActionListener
-                    }
 
                     val selectButtonText = selectedDays.joinToString(", ") { it }
 

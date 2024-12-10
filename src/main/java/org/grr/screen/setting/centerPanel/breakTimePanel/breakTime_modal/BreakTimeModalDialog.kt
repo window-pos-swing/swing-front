@@ -139,9 +139,38 @@ class BreakTimeModalDialog(
 
     private fun addBottomPanel(labelText: String, timeRangeText: String) {
         lateinit var itemPanel: JPanel
+        // 선택된 요일이 없으면 에러 메시지 표시
+        if (labelText.isBlank() || labelText == "") {
+            JOptionPane.showMessageDialog(this, "요일을 하나 이상 선택해야 합니다.")
+            return
+        }
 
-        if (breakTimeDataList.any { it.labelText == labelText && it.timeRangeText == timeRangeText }) {
-            JOptionPane.showMessageDialog(this, "이미 선택된 요일과 시간입니다.")
+        val conflicting = breakTimeDataList.any { existingData ->
+            val existingDays = existingData.labelText.split(", ").toSet()
+            val newDays = labelText.split(", ").toSet()
+
+            // 충돌 조건: 기존 요일과 새로운 요일이 서로 중복되거나 상위/하위 집합 관계인 경우
+            existingDays.intersect(newDays).isNotEmpty() ||
+                    newDays.contains("평일") && existingDays.any { it in arrayOf("월", "화", "수", "목", "금") } ||
+                    newDays.contains("주말") && existingDays.any { it in arrayOf("토", "일") } ||
+                    existingDays.contains("평일") && newDays.any { it in arrayOf("월", "화", "수", "목", "금") } ||
+                    existingDays.contains("주말") && newDays.any { it in arrayOf("토", "일") }
+        }
+
+        // "전체요일" 처리: 하나라도 요일이 추가된 상태에서는 추가하지 못함
+        if (labelText == "전체요일" && breakTimeDataList.isNotEmpty()) {
+            JOptionPane.showMessageDialog(this, "하나 이상의 요일이 선택된 상태에서는 '전체요일'을 추가할 수 없습니다.")
+            return
+        }
+
+        // 기존에 "전체요일"이 추가되어 있다면 다른 요일 추가 불가
+        if (breakTimeDataList.any { it.labelText == "전체요일" }) {
+            JOptionPane.showMessageDialog(this, "'전체요일'이 이미 추가된 상태에서는 다른 요일을 추가할 수 없습니다.")
+            return
+        }
+
+        if (conflicting) {
+            JOptionPane.showMessageDialog(this, "선택된 요일과 충돌하는 항목이 이미 존재합니다.")
             return
         }
 

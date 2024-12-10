@@ -8,7 +8,9 @@ import org.grr.widgets.RoundedButton
 import java.awt.*
 import javax.swing.*
 
-class SelectByDays(private val onAdd: (String, String) -> Unit) : JPanel() {
+class SelectByDays(
+    private val onAdd: (String, String) -> Unit
+) : JPanel() {
     private var itemCount = 0
     private var startHourCombo: JComboBox<String>
     private var startMinCombo: JComboBox<String>
@@ -121,12 +123,6 @@ class SelectByDays(private val onAdd: (String, String) -> Unit) : JPanel() {
                 addActionListener {
                     if (itemCount >= 7) {
                         JOptionPane.showMessageDialog(this@SelectByDays, "최대 7개의 항목만 추가할 수 있습니다.")
-                        return@addActionListener
-                    }
-
-                    // 선택된 요일이 없으면 경고 메시지
-                    if (selectedDays.isEmpty()) {
-                        JOptionPane.showMessageDialog(this@SelectByDays, "적어도 하나의 요일을 선택해야 합니다.")
                         return@addActionListener
                     }
 
