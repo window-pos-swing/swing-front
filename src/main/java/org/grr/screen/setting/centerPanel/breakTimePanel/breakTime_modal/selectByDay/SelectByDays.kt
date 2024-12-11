@@ -1,6 +1,7 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.selectByDay
 
 import RoundedComboBox
+import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton
 import org.grr.style.MyColor
 import org.grr.util.MyFont
@@ -17,7 +18,7 @@ class SelectByDays(
     private var startMinCombo: JComboBox<String>
     private var endHourCombo: JComboBox<String>
     private var endMinCombo: JComboBox<String>
-    val days = arrayOf("월","화","수","목","금","토","일")
+    val days = arrayOf("월", "화", "수", "목", "금", "토", "일")
 
     init {
         layout = BorderLayout()
@@ -43,13 +44,41 @@ class SelectByDays(
                     val dayButton = RoundButton(day).apply {
                         isClickable = true
 
-                        // 쉼표로 나누어진 selectedDay2에 포함 여부 확인
+                        // 평일과 주말 요일 그룹
+                        val weekdays = arrayOf("월", "화", "수", "목", "금")
+                        val weekends = arrayOf("토", "일")
+
+                        // 평일 또는 주말이 포함되어 있는지 확인
+                        val isWeekdaysIncluded = ShareButton.selectedDay2.any { selectedDay ->
+                            selectedDay.split(", ").map { it.trim() }.contains("평일")
+                        }
+                        val isWeekendsIncluded = ShareButton.selectedDay2.any { selectedDay ->
+                            selectedDay.split(", ").map { it.trim() }.contains("주말")
+                        }
+
+                        val isWeekdaysIncluded2 = ShareButton.selectedDays.any { selectedDay ->
+                            selectedDay.split(", ").map { it.trim() }.contains("평일")
+                        }
+                        val isWeekendsIncluded2 = ShareButton.selectedDays.any { selectedDay ->
+                            selectedDay.split(", ").map { it.trim() }.contains("주말")
+                        }
+
+                        // 현재 요일이 포함 여부 확인
                         val isDayIncluded = ShareButton.selectedDay2.any { selectedDay ->
                             selectedDay.split(", ").map { it.trim() }.contains(day)
                         }
 
-                        // 포함된 경우 버튼을 회색으로 표시하고 비활성화
-                        if (isDayIncluded) {
+                        // 버튼 비활성화 조건
+                        if ((isWeekdaysIncluded2 && weekdays.contains(day)) ||
+                            (isWeekendsIncluded2 && weekends.contains(day)) ||
+                            ShareButton.selectedDays.contains(day)
+                        ) {
+                            isSelected = false
+                            foreground = Color.GRAY
+                        } else if ((isWeekdaysIncluded && weekdays.contains(day)) ||
+                            (isWeekendsIncluded && weekends.contains(day)) ||
+                            isDayIncluded
+                        ) {
                             isEnabled = false
                             foreground = Color.GRAY
                         } else {
@@ -58,15 +87,19 @@ class SelectByDays(
 
                         font = MyFont.Bold(20f)
 
-                        // 선택 불가능하게 설정
-                        if (ShareButton.selectedDay2.contains(day)) {
-                            isEnabled = false // 버튼 비활성화
-                        }
-
                         addActionListener {
-//                            val list = ShareButton.selectedDay2
-//
-//                            println("요일 확인 ${list}")
+                            if ((isWeekdaysIncluded2 && weekdays.contains(day)) ||
+                                (isWeekendsIncluded2 && weekends.contains(day))
+                            ) {
+                                setSelected(true)
+                                return@addActionListener
+                            }
+
+                            if (TimeManager.check(day.trim())) {
+//                                JOptionPane.showMessageDialog(this, "선택된 요일과 충돌하는 항목이 이미 존재합니다.")
+                                setSelected(true)
+                                return@addActionListener
+                            }
 
                             // 이미 추가된 요일일 경우 선택 불가능
                             if (ShareButton.selectedDay2.contains(day.trim())) {
@@ -79,7 +112,7 @@ class SelectByDays(
                             if (ShareButton.selectedDays.contains(day)) {
                                 ShareButton.selectedDays.remove(day)
                                 setSelected(false)
-//                                foreground = Color(255, 177, 177)
+                                foreground = Color(255, 177, 177)
                             } else {
                                 ShareButton.selectedDays.add(day)
                                 setSelected(true)
@@ -97,7 +130,36 @@ class SelectByDays(
                 layout = FlowLayout(FlowLayout.CENTER, 10, 10)
                 background = Color.WHITE
 
-                startHourCombo = RoundedComboBox(DefaultComboBoxModel(arrayOf("오전 0시", "오전 1시", "오전 2시", "오전 3시", "오전 4시", "오전 5시", "오전 6시", "오전 7시", "오전 8시", "오전 9시", "오전 10시", "오전 11시", "오후 12시", "오후 1시", "오후 2시", "오후 3시", "오후 4시", "오후 5시", "오후 6시", "오후 7시", "오후 8시", "오후 9시", "오후 10시", "오후 11시"))).apply {
+                startHourCombo = RoundedComboBox(
+                    DefaultComboBoxModel(
+                        arrayOf(
+                            "오전 0시",
+                            "오전 1시",
+                            "오전 2시",
+                            "오전 3시",
+                            "오전 4시",
+                            "오전 5시",
+                            "오전 6시",
+                            "오전 7시",
+                            "오전 8시",
+                            "오전 9시",
+                            "오전 10시",
+                            "오전 11시",
+                            "오후 12시",
+                            "오후 1시",
+                            "오후 2시",
+                            "오후 3시",
+                            "오후 4시",
+                            "오후 5시",
+                            "오후 6시",
+                            "오후 7시",
+                            "오후 8시",
+                            "오후 9시",
+                            "오후 10시",
+                            "오후 11시"
+                        )
+                    )
+                ).apply {
                     preferredSize = Dimension(205, 50)
                     maximumSize = Dimension(205, 50)
                     minimumSize = Dimension(205, 50)
@@ -111,7 +173,36 @@ class SelectByDays(
                     font = MyFont.Bold(20f)
                 }
 
-                endHourCombo = RoundedComboBox(DefaultComboBoxModel(arrayOf("오전 0시", "오전 1시", "오전 2시", "오전 3시", "오전 4시", "오전 5시", "오전 6시", "오전 7시", "오전 8시", "오전 9시", "오전 10시", "오전 11시", "오후 12시", "오후 1시", "오후 2시", "오후 3시", "오후 4시", "오후 5시", "오후 6시", "오후 7시", "오후 8시", "오후 9시", "오후 10시", "오후 11시"))).apply {
+                endHourCombo = RoundedComboBox(
+                    DefaultComboBoxModel(
+                        arrayOf(
+                            "오전 0시",
+                            "오전 1시",
+                            "오전 2시",
+                            "오전 3시",
+                            "오전 4시",
+                            "오전 5시",
+                            "오전 6시",
+                            "오전 7시",
+                            "오전 8시",
+                            "오전 9시",
+                            "오전 10시",
+                            "오전 11시",
+                            "오후 12시",
+                            "오후 1시",
+                            "오후 2시",
+                            "오후 3시",
+                            "오후 4시",
+                            "오후 5시",
+                            "오후 6시",
+                            "오후 7시",
+                            "오후 8시",
+                            "오후 9시",
+                            "오후 10시",
+                            "오후 11시"
+                        )
+                    )
+                ).apply {
                     preferredSize = Dimension(205, 50)
                     maximumSize = Dimension(205, 50)
                     minimumSize = Dimension(205, 50)

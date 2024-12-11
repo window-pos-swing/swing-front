@@ -1,8 +1,27 @@
 package org.grr.`object`
 
+import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.BreakTimeData
 import org.json.JSONObject
 
 object TimeManager {
+    val breakTimeDataList = mutableListOf<BreakTimeData>()
+
+    fun check(labelText: String): Boolean {
+        val conflicting = breakTimeDataList.any { existingData ->
+            val existingDays = existingData.labelText.split(", ").toSet()
+            val newDays = labelText.split(", ").toSet()
+
+            // 충돌 조건: 기존 요일과 새로운 요일이 서로 중복되거나 상위/하위 집합 관계인 경우
+            existingDays.intersect(newDays).isNotEmpty() ||
+                    newDays.contains("평일") && existingDays.any { it in arrayOf("월", "화", "수", "목", "금") } ||
+                    newDays.contains("주말") && existingDays.any { it in arrayOf("토", "일") } ||
+                    existingDays.contains("평일") && newDays.any { it in arrayOf("월", "화", "수", "목", "금") } ||
+                    existingDays.contains("주말") && newDays.any { it in arrayOf("토", "일") }
+        }
+
+        return conflicting
+    }
+
     private val weekdays = listOf("monday", "tuesday", "wednesday", "thursday", "friday")
     private val weekends = listOf("saturday", "sunday")
     private val days = weekdays + weekends

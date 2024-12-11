@@ -2,6 +2,7 @@ package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal
 
 import CustomRoundedDialog
 import CustomToggleButton3
+import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.allDays.AllDays
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.selectByDay.SelectByDays
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.weekDaysAndWeekEnds.WeekDaysAndWeekEnds
@@ -19,9 +20,6 @@ class BreakTimeModalDialog(
     title: String,
     callback: ((Boolean) -> Unit)? = null
 ) : CustomRoundedDialog(parent, title, 1000, 700, callback) {
-
-    private val breakTimeDataList = mutableListOf<BreakTimeData>()
-    val selectThis = arrayOf("전체요일", "평일", "주말", "월", "화", "수", "목", "금", "토", "일")
     private var currentPanel: JPanel? = null
     private val bottomPanel = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -145,7 +143,7 @@ class BreakTimeModalDialog(
             return
         }
 
-        val conflicting = breakTimeDataList.any { existingData ->
+        val conflicting = TimeManager.breakTimeDataList.any { existingData ->
             val existingDays = existingData.labelText.split(", ").toSet()
             val newDays = labelText.split(", ").toSet()
 
@@ -158,13 +156,13 @@ class BreakTimeModalDialog(
         }
 
         // "전체요일" 처리: 하나라도 요일이 추가된 상태에서는 추가하지 못함
-        if (labelText == "전체요일" && breakTimeDataList.isNotEmpty()) {
+        if (labelText == "전체요일" && TimeManager.breakTimeDataList.isNotEmpty()) {
             JOptionPane.showMessageDialog(this, "하나 이상의 요일이 선택된 상태에서는 '전체요일'을 추가할 수 없습니다.")
             return
         }
 
         // 기존에 "전체요일"이 추가되어 있다면 다른 요일 추가 불가
-        if (breakTimeDataList.any { it.labelText == "전체요일" }) {
+        if (TimeManager.breakTimeDataList.any { it.labelText == "전체요일" }) {
             JOptionPane.showMessageDialog(this, "'전체요일'이 이미 추가된 상태에서는 다른 요일을 추가할 수 없습니다.")
             return
         }
@@ -175,7 +173,7 @@ class BreakTimeModalDialog(
         }
 
         val breakTimeData = BreakTimeData(labelText, timeRangeText)
-        breakTimeDataList.add(breakTimeData)
+        TimeManager.breakTimeDataList.add(breakTimeData)
 
         itemPanel = JPanel().apply {
             preferredSize = Dimension(940, 60)
@@ -201,20 +199,30 @@ class BreakTimeModalDialog(
                     bottomPanel.revalidate()
                     bottomPanel.repaint()
 
-                    // 쉼표로 구분된 요일을 개별적으로 삭제
-                    breakTimeData.labelText.split(", ").forEach { day ->
-                        ShareButton.selectedDay2.remove(day) // 각 요일을 제거
+                    val weekdays = arrayOf("월", "화", "수", "목", "금")
+                    val weekends = arrayOf("토", "일")
 
-                        ShareButton.dayButtons.forEach { button ->
-                            if (button.text == day) {
-                                button.isEnabled = true // 버튼 활성화
-                                button.setSelected(true) // 선택 상태 복구
-                                button.repaint() // UI 다시 그리기
-                            }
-                        }
+                    // 쉼표로 구분된 요일을 개별적으로 삭제
+                    val deletedDays = breakTimeData.labelText.split(", ")
+                    deletedDays.forEach { day ->
+                        ShareButton.selectedDay2.remove(day) // 각 요일을 제거
+                        restoreButtonState(day)
                     }
 
-                    breakTimeDataList.remove(breakTimeData)
+                    // 평일과 주말 복구 조건 처리
+                    if (deletedDays.contains("평일")) {
+                        weekdays.forEach { restoreButtonState(it) }
+                    } else if (deletedDays.any { weekdays.contains(it) }) {
+                        restoreButtonState("평일")
+                    }
+
+                    if (deletedDays.contains("주말")) {
+                        weekends.forEach { restoreButtonState(it) }
+                    } else if (deletedDays.any { weekends.contains(it) }) {
+                        restoreButtonState("주말")
+                    }
+
+                    TimeManager.breakTimeDataList.remove(breakTimeData)
                     println("삭제된 데이터: $breakTimeData")
                     printAllBreakTimes()
                 }
@@ -243,12 +251,31 @@ class BreakTimeModalDialog(
         printAllBreakTimes()
     }
 
+//    버튼 되돌리는 구문
+    private fun restoreButtonState(day: String) {
+        ShareButton.dayButtons.forEach { button ->
+            if (button.text == day) {
+                button.isEnabled = true
+                button.setSelected(true)
+                button.repaint()
+            }
+        }
+
+        ShareButton.dayButtons2.forEach { button ->
+            if (button.text == day) {
+                button.isEnabled = true
+                button.setSelected(true)
+                button.repaint()
+            }
+        }
+    }
+
     private fun printAllBreakTimes() {
-        if (breakTimeDataList.isEmpty()) {
+        if (TimeManager.breakTimeDataList.isEmpty()) {
             println("저장된 브레이크 타임 데이터가 없습니다.")
         } else {
             println("저장된 브레이크 타임 데이터:")
-            breakTimeDataList.forEach { println("요일: ${it.labelText}, 시간: ${it.timeRangeText}") }
+            TimeManager.breakTimeDataList.forEach { println("요일: ${it.labelText}, 시간: ${it.timeRangeText}") }
         }
     }
 

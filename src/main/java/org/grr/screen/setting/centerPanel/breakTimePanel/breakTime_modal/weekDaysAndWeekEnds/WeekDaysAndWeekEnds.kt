@@ -1,6 +1,9 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.weekDaysAndWeekEnds
 
 import RoundedComboBox
+import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton
+import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton.selectedDay2
+import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton.selectedDays
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.RoundButton2
@@ -17,9 +20,6 @@ class WeekDaysAndWeekEnds(
     private var startMinCombo: JComboBox<String>
     private var endHourCombo: JComboBox<String>
     private var endMinCombo: JComboBox<String>
-    private val dayButtons = mutableListOf<RoundButton2>()
-    private var selectedDays = mutableSetOf<String>()
-    private val selectedDay2 = mutableSetOf<String>()
     val selectThis = arrayOf("평일", "주말")
 
     init {
@@ -45,10 +45,70 @@ class WeekDaysAndWeekEnds(
                 for (select in selectThis) {
                     val selectButton = RoundButton2(select).apply {
                         isClickable = true
-                        foreground = Color(255, 177, 177)
                         font = MyFont.Bold(20f)
 
+                        // 평일과 주말 요일 그룹
+                        val weekdays = arrayOf("월", "화", "수", "목", "금")
+                        val weekends = arrayOf("토", "일")
+
+//                        각 요일이 포함되어 있는지 확인
+                        val isWeekdaysIncluded = weekdays.any { day ->
+                            selectedDay2.any { selectedDay ->
+                                selectedDay.split(", ").map { it.trim() }.contains(day)
+                            }
+                        }
+                        val isWeekendsIncluded = weekends.any { day ->
+                            selectedDay2.any { selectedDay ->
+                                selectedDay.split(", ").map { it.trim() }.contains(day)
+                            }
+                        }
+
+                        val isWeekdaysIncluded2 = weekdays.any { day ->
+                            selectedDays.any { selectedDay ->
+                                selectedDay.split(", ").map { it.trim() }.contains(day)
+                            }
+                        }
+                        val isWeekendsIncluded2 = weekends.any { day ->
+                            selectedDays.any { selectedDay ->
+                                selectedDay.split(", ").map { it.trim() }.contains(day)
+                            }
+                        }
+
+//                        평일, 주말 포함 여부 확인
+                        val isDayIncluded = selectedDay2.any { selectedDay ->
+                            selectedDay.split(", ").map { it.trim() }.contains(select)
+                        }
+
+                        if ((select == "평일" && isWeekdaysIncluded2) ||
+                            (select == "주말" && isWeekendsIncluded2) ||
+                            selectedDays.contains(select)
+                        ) {
+                            isSelected = false
+//                            isEnabled = false
+                            foreground = Color.GRAY
+                        } else if ((select == "평일" && isWeekdaysIncluded) ||
+                            (select == "주말" && isWeekendsIncluded) ||
+                            isDayIncluded
+                        ) {
+                            isEnabled = false
+                            foreground = Color.GRAY
+                        } else {
+                            foreground = Color(255, 177, 177)
+                        }
+
                         addActionListener {
+                            if ((select == "평일" && isWeekdaysIncluded2) ||
+                                (select == "주말" && isWeekendsIncluded2)) {
+                                setSelected(true)
+                                return@addActionListener
+                            }
+
+                            if (selectedDay2.contains(select) && select == "평일" ||
+                                selectedDay2.contains(select) && select == "주말") {
+//                                JOptionPane.showMessageDialog(this, "선택된 요일과 충돌하는 항목이 이미 존재합니다.")
+                                setSelected(true)
+                                return@addActionListener
+                            }
 
                             if (selectedDays.contains(select)) {
                                 selectedDays.remove(select)
@@ -59,9 +119,11 @@ class WeekDaysAndWeekEnds(
                                 setSelected(true)
                                 foreground = Color.GRAY
                             }
+                            println("개같은거 1 ${selectedDays}")
+                            println("개같은거 2 ${selectedDay2}")
                         }
                     }
-                    dayButtons.add(selectButton)
+                    ShareButton.dayButtons2.add(selectButton)
                     add(selectButton)
                 }
             }
@@ -184,11 +246,9 @@ class WeekDaysAndWeekEnds(
 
                     // 선택된 시간 값을 사용하여 timeRangeText 생성
                     val timeRangeText = "$startHour $startMin ~ $endHour $endMin"
-//                    println("WeekDaysAndWeekEnds 추가된 데이터: $selectButtonText, $timeRangeText")
                     onAdd(selectButtonText, timeRangeText)
-//                    addButtonPanel(selectButtonText, timeRangeText) // 하단 패널에 추가
                     selectedDay2.addAll(selectedDays)
-
+                    selectedDays.clear()
                     // 평일/주말 상태 설정
                     if (selectedDays.contains("평일")) {
                         isWeekDays = true
@@ -196,8 +256,6 @@ class WeekDaysAndWeekEnds(
                     if (selectedDays.contains("주말")) {
                         isWeekEnds = true
                     }
-
-                    selectedDays.clear()
                 }
             }
 
