@@ -1,7 +1,7 @@
 package org.grr.widgets
 
-import org.grr.util.MyFont
 import org.grr.style.MyColor
+import org.grr.util.MyFont
 import java.awt.*
 import java.awt.image.BufferedImage
 import java.io.File
@@ -712,12 +712,25 @@ class RoundButton(text: String) : JButton(text) {
         // 테두리 두께 설정
         g2d.stroke = BasicStroke(3f)
 
+        // 색상 설정: isEnabled와 isSelected 상태에 따라 색상 변경
+        val borderColor = when {
+            !isEnabled -> Color.LIGHT_GRAY // 비활성화 상태
+            isSelected -> Color(255, 177, 177) // 선택된 상태
+            else -> Color.LIGHT_GRAY // 기본 상태
+        }
+
+        val textColor = when {
+            !isEnabled -> Color.LIGHT_GRAY // 비활성화 상태
+            isSelected -> Color(255, 177, 177) // 선택된 상태
+            else -> Color.LIGHT_GRAY // 기본 상태
+        }
+
         // 선택 상태에 따라 원형 테두리 색상 설정
-        g2d.color = if (isSelected) Color(255, 177, 177) else Color.LIGHT_GRAY
+        g2d.color = borderColor
         g2d.drawOval(1, 1, width - 3, height - 3)
 
         // 텍스트 설정
-        g2d.color = if (isSelected) Color(255, 177, 177) else Color.LIGHT_GRAY
+        g2d.color = textColor
         val fm = g2d.fontMetrics
         val textWidth = fm.stringWidth(text)
         val textHeight = fm.ascent

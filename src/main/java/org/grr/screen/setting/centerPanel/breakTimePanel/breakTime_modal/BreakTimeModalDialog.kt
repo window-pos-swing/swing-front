@@ -201,6 +201,19 @@ class BreakTimeModalDialog(
                     bottomPanel.revalidate()
                     bottomPanel.repaint()
 
+                    // 쉼표로 구분된 요일을 개별적으로 삭제
+                    breakTimeData.labelText.split(", ").forEach { day ->
+                        ShareButton.selectedDay2.remove(day) // 각 요일을 제거
+
+                        ShareButton.dayButtons.forEach { button ->
+                            if (button.text == day) {
+                                button.isEnabled = true // 버튼 활성화
+                                button.setSelected(true) // 선택 상태 복구
+                                button.repaint() // UI 다시 그리기
+                            }
+                        }
+                    }
+
                     breakTimeDataList.remove(breakTimeData)
                     println("삭제된 데이터: $breakTimeData")
                     printAllBreakTimes()

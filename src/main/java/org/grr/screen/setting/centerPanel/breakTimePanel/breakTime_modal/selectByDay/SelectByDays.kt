@@ -1,6 +1,7 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.selectByDay
 
 import RoundedComboBox
+import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.RoundButton
@@ -16,9 +17,6 @@ class SelectByDays(
     private var startMinCombo: JComboBox<String>
     private var endHourCombo: JComboBox<String>
     private var endMinCombo: JComboBox<String>
-    private val dayButtons = mutableListOf<RoundButton>()
-    private var selectedDays = mutableSetOf<String>()
-    private val selectedDay2 = mutableSetOf<String>()
     val days = arrayOf("월","화","수","목","금","토","일")
 
     init {
@@ -44,30 +42,52 @@ class SelectByDays(
                 for (day in days) {
                     val dayButton = RoundButton(day).apply {
                         isClickable = true
-                        foreground = Color(255, 177, 177)
+
+                        // 쉼표로 나누어진 selectedDay2에 포함 여부 확인
+                        val isDayIncluded = ShareButton.selectedDay2.any { selectedDay ->
+                            selectedDay.split(", ").map { it.trim() }.contains(day)
+                        }
+
+                        // 포함된 경우 버튼을 회색으로 표시하고 비활성화
+                        if (isDayIncluded) {
+                            isEnabled = false
+                            foreground = Color.GRAY
+                        } else {
+                            foreground = Color(255, 177, 177)
+                        }
+
                         font = MyFont.Bold(20f)
 
+                        // 선택 불가능하게 설정
+                        if (ShareButton.selectedDay2.contains(day)) {
+                            isEnabled = false // 버튼 비활성화
+                        }
+
                         addActionListener {
+//                            val list = ShareButton.selectedDay2
+//
+//                            println("요일 확인 ${list}")
+
                             // 이미 추가된 요일일 경우 선택 불가능
-                            if (selectedDay2.contains(day.trim())) {
-                                JOptionPane.showMessageDialog(this@SelectByDays, "이미 추가된 요일입니다.")
+                            if (ShareButton.selectedDay2.contains(day.trim())) {
+//                                JOptionPane.showMessageDialog(this@SelectByDays, "이미 추가된 요일입니다.")
                                 setSelected(true)
                                 return@addActionListener // 추가하지 않고 종료
                             }
 
                             // 선택된 요일을 토글
-                            if (selectedDays.contains(day)) {
-                                selectedDays.remove(day)
+                            if (ShareButton.selectedDays.contains(day)) {
+                                ShareButton.selectedDays.remove(day)
                                 setSelected(false)
-                                foreground = Color(255, 177, 177)
+//                                foreground = Color(255, 177, 177)
                             } else {
-                                selectedDays.add(day)
+                                ShareButton.selectedDays.add(day)
                                 setSelected(true)
                                 foreground = Color.GRAY
                             }
                         }
                     }
-                    dayButtons.add(dayButton) // 요일 버튼을 리스트에 추가
+                    ShareButton.dayButtons.add(dayButton)
                     add(dayButton)
                 }
             }
@@ -127,7 +147,7 @@ class SelectByDays(
                     }
 
                     // selectedDays를 daysOrder의 순서에 맞게 정렬
-                    val sortedSelectedDays = selectedDays.sortedWith(Comparator { day1, day2 ->
+                    val sortedSelectedDays = ShareButton.selectedDays.sortedWith(Comparator { day1, day2 ->
                         days.indexOf(day1) - days.indexOf(day2)
                     })
 
@@ -135,7 +155,7 @@ class SelectByDays(
                     val daysText = sortedSelectedDays.joinToString(", ")
 
                     // 이미 추가된 요일이 있는지 검사
-                    if (selectedDay2.any { day -> selectedDays.contains(day) }) {
+                    if (ShareButton.selectedDay2.any { day -> ShareButton.selectedDays.contains(day) }) {
                         JOptionPane.showMessageDialog(this@SelectByDays, "이미 추가된 요일이 있습니다.")
                         return@addActionListener
                     }
@@ -148,11 +168,9 @@ class SelectByDays(
 
                     // 선택된 시간과 요일을 사용하여 timeRangeText 생성
                     val timeRangeText = "$startHour $startMin ~ $endHour $endMin"
-//                    addBottomPanel(daysText, timeRangeText) // 하단 패널에 추가
-//                    println("SelectByDays 추가된 데이터: $daysText, $timeRangeText")
                     onAdd(daysText, timeRangeText)
-                    selectedDay2.addAll(selectedDays)
-                    selectedDays.clear()
+                    ShareButton.selectedDay2.addAll(ShareButton.selectedDays)
+                    ShareButton.selectedDays.clear()
                     itemCount++
                 }
             }
