@@ -1,6 +1,7 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.allDays
 
 import RoundedComboBox
+import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.RoundButton
@@ -32,6 +33,8 @@ class AllDays(
                 BorderFactory.createLineBorder(MyColor.LIGHT_GREY, 1) // 외곽선
             )
 
+
+
             // 상단 요일 버튼 패널
             val dayPanel = JPanel().apply {
                 layout = FlowLayout(FlowLayout.CENTER, 20, 15)
@@ -41,8 +44,13 @@ class AllDays(
                 for (day in days) {
                     val dayButton = RoundButton(day).apply {
                         isClickable = false
-                        foreground = Color(255, 177, 177)
                         font = MyFont.Bold(20f)
+                        if (ShareButton.selectedDay2.isNotEmpty()) {
+                            isEnabled = false
+                            foreground = Color.GRAY
+                        } else {
+                            foreground = Color(255, 177, 177)
+                        }
                     }
                     add(dayButton)
                 }
@@ -98,6 +106,11 @@ class AllDays(
 
                 addActionListener {
 
+                    if (ShareButton.selectedDay2.isNotEmpty()) {
+                        JOptionPane.showMessageDialog(this@AllDays, "이미 추가된 요일이 있습니다.")
+                        return@addActionListener
+                    }
+
                     // 시간 유효성 검사
                     val startHour = startHourCombo.selectedItem?.toString() ?: "오전 0시"
                     val startMin = startMinCombo.selectedItem?.toString() ?: "00분"
@@ -106,9 +119,8 @@ class AllDays(
 
                     // 선택된 시간 값을 사용하여 timeRangeText 생성
                     val timeRangeText = "$startHour $startMin ~ $endHour $endMin"
-//                    addBottomPanel(timeRangeText) // 하단 패널에 추가
-//                    println("AllDays 추가된 데이터: 전체요일, $timeRangeText")
                     onAdd("전체요일", timeRangeText)
+                    ShareButton.selectedDay2.add("전체요일")
                     isItemAdded = true
                 }
             }

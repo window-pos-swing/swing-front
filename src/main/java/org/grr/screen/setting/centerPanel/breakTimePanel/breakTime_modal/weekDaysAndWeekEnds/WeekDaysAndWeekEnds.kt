@@ -88,7 +88,8 @@ class WeekDaysAndWeekEnds(
                             foreground = Color.GRAY
                         } else if ((select == "평일" && isWeekdaysIncluded) ||
                             (select == "주말" && isWeekendsIncluded) ||
-                            isDayIncluded
+                            isDayIncluded ||
+                            selectedDay2.contains("전체요일")
                         ) {
                             isEnabled = false
                             foreground = Color.GRAY
@@ -119,8 +120,6 @@ class WeekDaysAndWeekEnds(
                                 setSelected(true)
                                 foreground = Color.GRAY
                             }
-                            println("개같은거 1 ${selectedDays}")
-                            println("개같은거 2 ${selectedDay2}")
                         }
                     }
                     ShareButton.dayButtons2.add(selectButton)

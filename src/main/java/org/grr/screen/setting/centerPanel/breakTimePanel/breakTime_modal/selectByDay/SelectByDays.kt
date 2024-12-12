@@ -77,7 +77,8 @@ class SelectByDays(
                             foreground = Color.GRAY
                         } else if ((isWeekdaysIncluded && weekdays.contains(day)) ||
                             (isWeekendsIncluded && weekends.contains(day)) ||
-                            isDayIncluded
+                            isDayIncluded ||
+                            ShareButton.selectedDay2.contains("전체요일")
                         ) {
                             isEnabled = false
                             foreground = Color.GRAY
