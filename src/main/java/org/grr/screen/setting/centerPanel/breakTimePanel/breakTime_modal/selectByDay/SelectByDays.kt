@@ -49,11 +49,11 @@ class SelectByDays(
                         val weekends = arrayOf("토", "일")
 
                         // 평일 또는 주말이 포함되어 있는지 확인
-                        val isWeekdaysIncluded = ShareButton.selectedDay2.any { selectedDay ->
-                            selectedDay.split(", ").map { it.trim() }.contains("평일")
+                        val isWeekdaysIncluded = TimeManager.breakTimeDataList.any { selectedDay ->
+                            selectedDay.labelText.split(", ").map { it.trim() }.contains("평일")
                         }
-                        val isWeekendsIncluded = ShareButton.selectedDay2.any { selectedDay ->
-                            selectedDay.split(", ").map { it.trim() }.contains("주말")
+                        val isWeekendsIncluded = TimeManager.breakTimeDataList.any { selectedDay ->
+                            selectedDay.labelText.split(", ").map { it.trim() }.contains("주말")
                         }
 
                         val isWeekdaysIncluded2 = ShareButton.selectedDays.any { selectedDay ->
@@ -64,8 +64,8 @@ class SelectByDays(
                         }
 
                         // 현재 요일이 포함 여부 확인
-                        val isDayIncluded = ShareButton.selectedDay2.any { selectedDay ->
-                            selectedDay.split(", ").map { it.trim() }.contains(day)
+                        val isDayIncluded = TimeManager.breakTimeDataList.any { selectedDay ->
+                            selectedDay.labelText.split(", ").map { it.trim() }.contains(day)
                         }
 
                         // 버튼 비활성화 조건
@@ -78,7 +78,7 @@ class SelectByDays(
                         } else if ((isWeekdaysIncluded && weekdays.contains(day)) ||
                             (isWeekendsIncluded && weekends.contains(day)) ||
                             isDayIncluded ||
-                            ShareButton.selectedDay2.contains("전체요일")
+                            TimeManager.breakTimeDataList.any { it.labelText == "전체요일" }
                         ) {
                             isEnabled = false
                             foreground = Color.GRAY
@@ -103,7 +103,7 @@ class SelectByDays(
                             }
 
                             // 이미 추가된 요일일 경우 선택 불가능
-                            if (ShareButton.selectedDay2.contains(day.trim())) {
+                            if (TimeManager.breakTimeDataList.any { it.labelText == day.trim() } ) {
 //                                JOptionPane.showMessageDialog(this@SelectByDays, "이미 추가된 요일입니다.")
                                 setSelected(true)
                                 return@addActionListener // 추가하지 않고 종료
@@ -247,7 +247,7 @@ class SelectByDays(
                     val daysText = sortedSelectedDays.joinToString(", ")
 
                     // 이미 추가된 요일이 있는지 검사
-                    if (ShareButton.selectedDay2.any { day -> ShareButton.selectedDays.contains(day) }) {
+                    if (TimeManager.breakTimeDataList.any { day -> ShareButton.selectedDays.contains(day.labelText) }) {
                         JOptionPane.showMessageDialog(this@SelectByDays, "이미 추가된 요일이 있습니다.")
                         return@addActionListener
                     }
@@ -261,7 +261,7 @@ class SelectByDays(
                     // 선택된 시간과 요일을 사용하여 timeRangeText 생성
                     val timeRangeText = "$startHour $startMin ~ $endHour $endMin"
                     onAdd(daysText, timeRangeText)
-                    ShareButton.selectedDay2.addAll(ShareButton.selectedDays)
+//                    ShareButton.selectedDay2.addAll(ShareButton.selectedDays)
                     ShareButton.selectedDays.clear()
                     itemCount++
                 }

@@ -26,27 +26,43 @@ object TimeManager {
     private val weekends = listOf("saturday", "sunday")
     private val days = weekdays + weekends
 
-    // 요일별로 정리된 시간대 데이터를 저장
-    private val times = mutableMapOf<String, MutableList<String>>()
+    // 요일별로 정리된 오전/오후 시간대 데이터를 저장
+    private val timeRanges = mutableMapOf<String, MutableList<String>>()
 
     // 초기화 메서드: JSON 데이터를 받아 처리
     fun initialize(jsonData: JSONObject) {
-        times.clear() // 기존 데이터 초기화
+        timeRanges.clear()
 
         days.forEach { day ->
             val startTime = jsonData.optJSONArray("${day}StartTime")
             val endTime = jsonData.optJSONArray("${day}EndTime")
 
             if (startTime != null && endTime != null) {
-                val timeRange = "${startTime.getInt(0)}:${startTime.getInt(1).toString().padStart(2, '0')} ~ " +
-                        "${endTime.getInt(0)}:${endTime.getInt(1).toString().padStart(2, '0')} "
-                times.computeIfAbsent(timeRange) { mutableListOf() }.add(day)
+                val startHour = startTime.getInt(0)
+                val startMinute = startTime.getInt(1)
+                val endHour = endTime.getInt(0)
+                val endMinute = endTime.getInt(1)
+
+                val timeRange = "${if (startHour < 12) "오전" else "오후"} ${startHour % 12}시 ${startMinute.toString().padStart(2, '0')}분 ~ " +
+                        "${if (endHour < 12) "오전" else "오후"} ${endHour % 12}시 ${endMinute.toString().padStart(2, '0')}분 "
+
+                timeRanges.computeIfAbsent(timeRange) { mutableListOf() }.add(day)
             }
         }
     }
 
     // 정리된 데이터를 포맷팅하여 반환
     fun getFormattedBreakTimes(): String {
+        val result = mutableListOf<String>()
+
+        // 시간대 처리
+        val formattedTimes = formatTimes(timeRanges)
+        result.addAll(formattedTimes)
+
+        return result.joinToString("\n")
+    }
+
+    private fun formatTimes(times: Map<String, List<String>>): List<String> {
         val result = mutableListOf<String>()
 
         // 평일 처리
@@ -71,7 +87,7 @@ object TimeManager {
             result.add("$dayNames: $timeRange")
         }
 
-        return result.joinToString("\n")
+        return result
     }
 
     // 영어 요일을 한글 요일로 변환

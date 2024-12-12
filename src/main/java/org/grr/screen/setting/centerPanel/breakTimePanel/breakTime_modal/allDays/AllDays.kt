@@ -1,7 +1,7 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.allDays
 
 import RoundedComboBox
-import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton
+import org.grr.`object`.TimeManager
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.RoundButton
@@ -33,8 +33,6 @@ class AllDays(
                 BorderFactory.createLineBorder(MyColor.LIGHT_GREY, 1) // 외곽선
             )
 
-
-
             // 상단 요일 버튼 패널
             val dayPanel = JPanel().apply {
                 layout = FlowLayout(FlowLayout.CENTER, 20, 15)
@@ -45,7 +43,7 @@ class AllDays(
                     val dayButton = RoundButton(day).apply {
                         isClickable = false
                         font = MyFont.Bold(20f)
-                        if (ShareButton.selectedDay2.isNotEmpty()) {
+                        if (TimeManager.breakTimeDataList.isNotEmpty()) {
                             isEnabled = false
                             foreground = Color.GRAY
                         } else {
@@ -106,7 +104,7 @@ class AllDays(
 
                 addActionListener {
 
-                    if (ShareButton.selectedDay2.isNotEmpty()) {
+                    if (TimeManager.breakTimeDataList.isNotEmpty()) {
                         JOptionPane.showMessageDialog(this@AllDays, "이미 추가된 요일이 있습니다.")
                         return@addActionListener
                     }
@@ -120,7 +118,6 @@ class AllDays(
                     // 선택된 시간 값을 사용하여 timeRangeText 생성
                     val timeRangeText = "$startHour $startMin ~ $endHour $endMin"
                     onAdd("전체요일", timeRangeText)
-                    ShareButton.selectedDay2.add("전체요일")
                     isItemAdded = true
                 }
             }
@@ -140,18 +137,5 @@ class AllDays(
         }
 
         add(mainPanel, BorderLayout.CENTER)
-    }
-
-    fun getBreakTime(): Pair<String, String>? {
-        // 추가된 시간 데이터를 반환
-        return if (isItemAdded) {
-            val startHour = startHourCombo.selectedItem?.toString() ?: "오전 0시"
-            val startMin = startMinCombo.selectedItem?.toString() ?: "00분"
-            val endHour = endHourCombo.selectedItem?.toString() ?: "오전 0시"
-            val endMin = endMinCombo.selectedItem?.toString() ?: "00분"
-            Pair("$startHour $startMin", "$endHour $endMin")
-        } else {
-            null
-        }
     }
 }

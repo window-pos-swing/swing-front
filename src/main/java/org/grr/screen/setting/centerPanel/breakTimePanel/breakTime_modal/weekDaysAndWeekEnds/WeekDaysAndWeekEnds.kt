@@ -1,8 +1,8 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.weekDaysAndWeekEnds
 
 import RoundedComboBox
+import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton
-import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton.selectedDay2
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton.selectedDays
 import org.grr.style.MyColor
 import org.grr.util.MyFont
@@ -53,13 +53,13 @@ class WeekDaysAndWeekEnds(
 
 //                        각 요일이 포함되어 있는지 확인
                         val isWeekdaysIncluded = weekdays.any { day ->
-                            selectedDay2.any { selectedDay ->
-                                selectedDay.split(", ").map { it.trim() }.contains(day)
+                            TimeManager.breakTimeDataList.any { selectedDay ->
+                                selectedDay.labelText.split(", ").map { it.trim() }.contains(day)
                             }
                         }
                         val isWeekendsIncluded = weekends.any { day ->
-                            selectedDay2.any { selectedDay ->
-                                selectedDay.split(", ").map { it.trim() }.contains(day)
+                            TimeManager.breakTimeDataList.any { selectedDay ->
+                                selectedDay.labelText.split(", ").map { it.trim() }.contains(day)
                             }
                         }
 
@@ -75,8 +75,8 @@ class WeekDaysAndWeekEnds(
                         }
 
 //                        평일, 주말 포함 여부 확인
-                        val isDayIncluded = selectedDay2.any { selectedDay ->
-                            selectedDay.split(", ").map { it.trim() }.contains(select)
+                        val isDayIncluded = TimeManager.breakTimeDataList.any { selectedDay ->
+                            selectedDay.labelText.split(", ").map { it.trim() }.contains(select)
                         }
 
                         if ((select == "평일" && isWeekdaysIncluded2) ||
@@ -89,7 +89,7 @@ class WeekDaysAndWeekEnds(
                         } else if ((select == "평일" && isWeekdaysIncluded) ||
                             (select == "주말" && isWeekendsIncluded) ||
                             isDayIncluded ||
-                            selectedDay2.contains("전체요일")
+                            TimeManager.breakTimeDataList.any { it.labelText == "전체요일" }
                         ) {
                             isEnabled = false
                             foreground = Color.GRAY
@@ -104,8 +104,8 @@ class WeekDaysAndWeekEnds(
                                 return@addActionListener
                             }
 
-                            if (selectedDay2.contains(select) && select == "평일" ||
-                                selectedDay2.contains(select) && select == "주말") {
+                            if (TimeManager.breakTimeDataList.any { it.labelText == select } && select == "평일" ||
+                                TimeManager.breakTimeDataList.any { it.labelText == select } && select == "주말") {
 //                                JOptionPane.showMessageDialog(this, "선택된 요일과 충돌하는 항목이 이미 존재합니다.")
                                 setSelected(true)
                                 return@addActionListener
@@ -246,7 +246,7 @@ class WeekDaysAndWeekEnds(
                     // 선택된 시간 값을 사용하여 timeRangeText 생성
                     val timeRangeText = "$startHour $startMin ~ $endHour $endMin"
                     onAdd(selectButtonText, timeRangeText)
-                    selectedDay2.addAll(selectedDays)
+//                    selectedDay2.addAll(selectedDays)
                     selectedDays.clear()
                     // 평일/주말 상태 설정
                     if (selectedDays.contains("평일")) {

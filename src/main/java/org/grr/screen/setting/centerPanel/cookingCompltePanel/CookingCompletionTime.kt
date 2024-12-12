@@ -82,7 +82,7 @@ class CookingCompletionTime : JPanel() {
         }
 
         val label = JLabel("조리완료시간").apply {
-            font = MyFont.Bold(26f)
+            font = MyFont.Bold(20f)
             foreground = Color.WHITE
         }
 

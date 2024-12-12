@@ -85,7 +85,7 @@ class DeliveryMethodTime : JPanel() {
         }
 
         val label = JLabel("배달 예정 시간").apply {
-            font = MyFont.Bold(26f)
+            font = MyFont.Bold(20f)
             foreground = Color.WHITE
         }
 

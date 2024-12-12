@@ -53,7 +53,7 @@ class HolidayPanel : JPanel() {
 
         // "브레이크 타임" 라벨
         val label = JLabel("휴무일").apply {
-            font = MyFont.Bold(26f)
+            font = MyFont.Bold(20f)
             foreground = Color.WHITE
         }
 
@@ -74,7 +74,7 @@ class HolidayPanel : JPanel() {
         gbc.weighty = 1.0  // 수직으로도 공간 차지
         gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
         val breakTimeLabel = JLabel(visibleHoliday).apply {
-            font = MyFont.Bold(24f)
+            font = MyFont.Bold(18f)
             foreground = Color.PINK
             horizontalAlignment = SwingConstants.CENTER
         }

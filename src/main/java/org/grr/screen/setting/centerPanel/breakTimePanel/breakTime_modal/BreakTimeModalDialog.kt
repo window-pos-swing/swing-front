@@ -2,6 +2,7 @@ package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal
 
 import CustomRoundedDialog
 import CustomToggleButton3
+import org.grr.`object`.Storage
 import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.allDays.AllDays
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.selectByDay.SelectByDays
@@ -28,13 +29,47 @@ class BreakTimeModalDialog(
     }
 
     init {
+        TimeManager.breakTimeDataList.clear()
         setSize(1000, 700)  // 다이얼로그 크기 설정
         setLocationRelativeTo(parent)
         background = Color.WHITE
 
-        println("담겨있는 데이터 확인 ${printAllBreakTimes()}")
-        TimeManager.breakTimeDataList.forEach {
-            getBottomPanel(it.labelText, it.timeRangeText)
+        //        회원정보 갖고오는 구문
+        val memberInfo = Storage.getMemberInfo()
+
+        val breakTime = memberInfo
+            ?.optJSONObject("setting")
+            ?.optJSONObject("breakTime")
+
+        breakTime?.let {
+            // TimeManager 초기화
+            TimeManager.initialize(it)
+
+            // 포맷된 데이터를 가져옴
+            val formattedBreakTime = TimeManager.getFormattedBreakTimes()
+
+//            println("브레이크 타임:\n$formattedBreakTime")
+
+            // 포맷된 데이터를 줄 단위로 나누어 패널에 추가
+            formattedBreakTime.split("\n").forEach { line ->
+                val parts = line.split(": ", limit = 2) // "평일: 14:00 ~ 15:00" 등 분리
+                if (parts.size == 2) {
+                    val labelText = parts[0]
+                    val timeRangeText = parts[1]
+
+                    // 패널 추가
+                    getBottomPanel(labelText, timeRangeText)
+
+                    // 데이터 리스트에 추가 (중복 확인 없이 로드)
+                    val isAlreadyAdded = TimeManager.breakTimeDataList.any {
+                        it.labelText == labelText && it.timeRangeText == timeRangeText
+                    }
+
+                    if (!isAlreadyAdded) {
+                        TimeManager.breakTimeDataList.add(BreakTimeData(labelText, timeRangeText))
+                    }
+                }
+            }
         }
 
         // 중앙 패널
@@ -148,8 +183,8 @@ class BreakTimeModalDialog(
     */
     private fun getBottomPanel(labelText: String, timeRangeText: String) {
         lateinit var itemPanel: JPanel
-
         val breakTimeData = BreakTimeData(labelText, timeRangeText)
+
         itemPanel = JPanel().apply {
             preferredSize = Dimension(940, 60)
             maximumSize = Dimension(940, 60)
@@ -160,7 +195,7 @@ class BreakTimeModalDialog(
 
             val label = IconRoundBorder2.createRoundedLabel(labelText, Color(255, 177, 177), 20).apply {
                 foreground = Color.WHITE
-                preferredSize = Dimension(150, 40)
+                preferredSize = Dimension(200, 40)
                 font = MyFont.Bold(20f)
             }
 
@@ -180,7 +215,6 @@ class BreakTimeModalDialog(
                     // 쉼표로 구분된 요일을 개별적으로 삭제
                     val deletedDays = breakTimeData.labelText.split(", ")
                     deletedDays.forEach { day ->
-                        ShareButton.selectedDay2.remove(day) // 각 요일을 제거
                         restoreButtonState(day)
                     }
 
@@ -284,10 +318,9 @@ class BreakTimeModalDialog(
 
             val label = IconRoundBorder2.createRoundedLabel(labelText, Color(255, 177, 177), 20).apply {
                 foreground = Color.WHITE
-                preferredSize = Dimension(150, 40)
+                preferredSize = Dimension(200, 40)
                 font = MyFont.Bold(20f)
             }
-
 
             val timeLabel = JLabel(timeRangeText).apply { font = MyFont.Bold(24f) }
 
@@ -303,9 +336,8 @@ class BreakTimeModalDialog(
                     val weekends = arrayOf("토", "일")
 
                     // 쉼표로 구분된 요일을 개별적으로 삭제
-                    val deletedDays = breakTimeData.labelText.split(", ")
+                    val deletedDays = breakTimeData.labelText.split(",")
                     deletedDays.forEach { day ->
-                        ShareButton.selectedDay2.remove(day) // 각 요일을 제거
                         restoreButtonState(day)
                     }
 
@@ -353,9 +385,6 @@ class BreakTimeModalDialog(
         bottomPanel.add(itemPanel)
         bottomPanel.revalidate() // 레이아웃 다시 계산
         bottomPanel.repaint()    // 화면 다시 그리기
-
-        println("현재 저장된 데이터:")
-        printAllBreakTimes()
     }
 
     //    버튼 되돌리는 구문

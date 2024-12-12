@@ -35,15 +35,11 @@ class BreakTime : JPanel() {
             회원정보 갖고오는 구문
         */
         val memberInfo = Storage.getMemberInfo()
-
         val breakTime = memberInfo
             ?.optJSONObject("setting")
             ?.optJSONObject("breakTime")
-
         breakTime?.let { TimeManager.initialize(it) }
         val formattedBreakTime = TimeManager.getFormattedBreakTimes()
-
-        println("브레이크 타임 ${formattedBreakTime}")
 
         // 아이콘 경로 로드
         val watchIconPath = ImageIcon(javaClass.getResource("/watch.png"))
@@ -54,7 +50,7 @@ class BreakTime : JPanel() {
 
         // "브레이크 타임" 라벨
         val label = JLabel("브레이크 타임").apply {
-            font = MyFont.Bold(26f)
+            font = MyFont.Bold(20f)
             foreground = Color.WHITE
         }
 
@@ -75,7 +71,7 @@ class BreakTime : JPanel() {
         gbc.weighty = 1.0  // 수직으로도 공간 차지
         gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
         val breakTimeLabel = JLabel(formattedBreakTime).apply {
-            font = MyFont.Bold(24f)
+            font = MyFont.Bold(18f)
             foreground = Color.PINK
             horizontalAlignment = SwingConstants.CENTER
         }

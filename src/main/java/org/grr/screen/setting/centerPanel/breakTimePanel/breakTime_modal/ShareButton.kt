@@ -8,5 +8,5 @@ object ShareButton {
     val dayButtons2: MutableList<RoundButton2> = mutableListOf()
 
     val selectedDays = mutableSetOf<String>()
-    val selectedDay2 = mutableSetOf<String>()
+//    val selectedDay2 = mutableSetOf<String>()
 }
