@@ -67,7 +67,7 @@
         "businessPauseStartTime": [
             2024,
             12,
-            12
+            13
         ],
         "businessHour": {
             "wednesdayStartTime": [
@@ -176,7 +176,7 @@
         "businessPauseEndTime": [
             2024,
             12,
-            13
+            14
         ],
         "estimatedArrivalTimeControl": true
     }
