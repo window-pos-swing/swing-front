@@ -32,6 +32,8 @@ dependencies {
 
 //    okhttp
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+//    json
+    implementation("com.google.code.gson:gson:2.11.0")
 //    jsonObject
     implementation("org.json:json:20240303")
 
@@ -41,6 +43,9 @@ dependencies {
 
     // firebase
     implementation("com.google.firebase:firebase-admin:9.4.2")
+
+//    slf4j
+    testImplementation("org.slf4j:slf4j-simple:2.0.16")
 }
 
 tasks.test {
