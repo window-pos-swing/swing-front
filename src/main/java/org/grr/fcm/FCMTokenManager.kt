@@ -50,8 +50,6 @@ class FCMTokenManager {
         val requestBody = RequestBody.create("application/json".toMediaType(), jsonRequest)
         val request = Request.Builder().url(url).post(requestBody).build()
 
-        println("Firebase 토큰 요청 중...")
-
         try {
             client.newCall(request).execute().use { response ->
                 val responseBody = response.body?.string()

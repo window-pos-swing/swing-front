@@ -4,6 +4,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.grr.api.CurrentLoginMemberToServer
+import org.grr.api.FcmTokenToServer
 import org.grr.fcm.FCMTokenManager
 import org.grr.`object`.Storage
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
@@ -32,6 +33,13 @@ class MainForm : JFrame() {
             println("회원 조회 시도 및 firebase 토큰 초기화 중...")
             val fcmManager = FCMTokenManager() // Firebase 초기화 및 토큰 생성
             val firebaseToken = fcmManager.getTokenFromFirebase()
+            val fcmTokenToServer = FcmTokenToServer()
+            val result = fcmTokenToServer.sendTokenToServer(firebaseToken!!)
+            if (result.first) {
+                println("토큰 전송 성공")
+            } else {
+                println("토큰 전송 실패")
+            }
 
             // 토큰 콘솔 출력
             if (firebaseToken != null) {

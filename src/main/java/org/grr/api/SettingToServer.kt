@@ -11,9 +11,6 @@ import java.io.IOException
 
 class SettingToServer {
 
-//    브레이크 타임 업데이트 구문
-
-
     //    도착예정시간 업데이트 구문
     fun deliveryTimeToServer(estimatedDeliveryTimeControl: Boolean, estimatedDeliveryTime: Int): Pair<Boolean, String> {
         val client = OkHttpClient()
