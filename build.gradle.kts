@@ -38,6 +38,9 @@ dependencies {
     // 코루틴
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
+
+    // firebase
+    implementation("com.google.firebase:firebase-admin:9.4.2")
 }
 
 tasks.test {
