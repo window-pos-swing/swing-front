@@ -6,12 +6,14 @@ import kotlinx.coroutines.launch
 import org.grr.api.CurrentLoginMemberToServer
 import org.grr.`object`.Storage
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
+import org.grr.websocket.PosWebSocketClient
 import org.grr.widgets.custom_titlebar.MainCustomTitlebar
 import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Color
 import java.awt.Dimension
+import java.net.URI
 import javax.swing.*
 
 
@@ -41,14 +43,20 @@ class MainForm : JFrame() {
                     // JSON 형태의 회원 정보 추출
                     val memberData = JSONObject(message.substringAfter(""))
                     Storage.saveMemberInfo(memberData)
-//                    회원정보 저장하는 스토리지 만들어야함
-//                    println("현재 로그인한 회원 정보 ${message}")
                 } else {
 //                    회원 정보 저장 실패 시 에러
                     JOptionPane.showMessageDialog(this@MainForm, message, "오류", JOptionPane.ERROR_MESSAGE)
                 }
             }
         }
+
+        val memberInfo = Storage.getMemberInfo()
+        val email = memberInfo
+            ?.optString("email")
+
+        // WebSocket 클라이언트 설정
+        val webSocketClient = PosWebSocketClient(URI("ws://localhost:8081/ws/orders?uid=${email}"))
+        webSocketClient.connect()
 
         // JFrame의 여백 제거
         rootPane.border = BorderFactory.createEmptyBorder()

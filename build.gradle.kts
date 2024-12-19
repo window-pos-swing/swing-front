@@ -44,6 +44,9 @@ dependencies {
 //    // firebase
 //    implementation("com.google.firebase:firebase-admin:9.4.2")
 
+//    websocket
+    implementation("org.java-websocket:Java-WebSocket:1.6.0")
+
 //    slf4j
     testImplementation("org.slf4j:slf4j-simple:2.0.16")
 }
