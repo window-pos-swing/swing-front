@@ -3,7 +3,7 @@ package org.grr.screen.main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.grr.api.CurrentLoginMemberToServer
+import org.grr.api.CurrentLoginStoreMemberToServer
 import org.grr.`object`.Storage
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.websocket.PosWebSocketClient
@@ -33,8 +33,8 @@ class MainForm : JFrame() {
 
             delay(300) // 0.3초 대기
 
-            val currentMember = CurrentLoginMemberToServer()
-            val (isSuccess, message) = currentMember.currentLoginMemberToServer()
+            val currentMember = CurrentLoginStoreMemberToServer()
+            val (isSuccess, message) = currentMember.currentLoginStoreMemberToServer()
 
             delay(300) // 0.3초 대기
 

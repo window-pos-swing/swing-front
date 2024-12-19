@@ -20,7 +20,7 @@ class LoginToServer {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v0/member/login")
+            .url("${Api.BASE_URL}/api/v0/storeMember/login")
             .post(requestBody)
             .build()
 

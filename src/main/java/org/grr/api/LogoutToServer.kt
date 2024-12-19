@@ -17,7 +17,7 @@ class LogoutToServer {
         val accessToken = Storage.getToken()
 
         val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v1/member/logout") // 로그아웃 엔드포인트
+            .url("${Api.BASE_URL}/api/v1/storeMember/logout") // 로그아웃 엔드포인트
             .post(RequestBody.create("application/json; charset=utf-8".toMediaType(), "{}")) // 빈 요청 바디
             .addHeader("Authorization", accessToken!!) // 토큰 헤더 추가
             .build()

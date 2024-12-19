@@ -7,15 +7,15 @@ import org.grr.`object`.Storage
 import org.json.JSONObject
 import java.io.IOException
 
-class CurrentLoginMemberToServer {
+class CurrentLoginStoreMemberToServer {
 
-    fun currentLoginMemberToServer(): Pair<Boolean, String> {
+    fun currentLoginStoreMemberToServer(): Pair<Boolean, String> {
         val client = OkHttpClient()
         //        토큰
         val accessToken = Storage.getToken()
 
         val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v1/member/current-login") // 현재 로그인 회원 엔드포인트
+            .url("${Api.BASE_URL}/api/v1/storeMember/current-login") // 현재 로그인 회원 엔드포인트
             .get() // 빈 요청 바디
             .addHeader("Authorization", accessToken!!) // 토큰 헤더 추가
             .build()
@@ -33,8 +33,8 @@ class CurrentLoginMemberToServer {
                         Pair(false, errorMessage)
                     } else {
 //                        회원 정보 갖고오기 성공했을때
-                        val currentMemberData = jsonResponse.getJSONObject("data")
-                        Pair(true, "${currentMemberData}")
+                        val currentstoreMemberData = jsonResponse.getJSONObject("data")
+                        Pair(true, "${currentstoreMemberData}")
                     }
                 } else {
                     Pair(false, "회원 조회 실패: ${response.message}")
