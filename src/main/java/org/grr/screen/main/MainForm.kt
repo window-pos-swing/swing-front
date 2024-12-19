@@ -4,8 +4,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.grr.api.CurrentLoginMemberToServer
-import org.grr.api.FcmTokenToServer
-import org.grr.fcm.FCMTokenManager
 import org.grr.`object`.Storage
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.widgets.custom_titlebar.MainCustomTitlebar
@@ -30,23 +28,6 @@ class MainForm : JFrame() {
             현재 로그인한 유저 서버에서 정보 갖고오는 구문
         */
         GlobalScope.launch {
-            println("회원 조회 시도 및 firebase 토큰 초기화 중...")
-            val fcmManager = FCMTokenManager() // Firebase 초기화 및 토큰 생성
-            val firebaseToken = fcmManager.getTokenFromFirebase()
-            val fcmTokenToServer = FcmTokenToServer()
-            val result = fcmTokenToServer.sendTokenToServer(firebaseToken!!)
-            if (result.first) {
-                println("토큰 전송 성공")
-            } else {
-                println("토큰 전송 실패")
-            }
-
-            // 토큰 콘솔 출력
-            if (firebaseToken != null) {
-                println("발급된 Firebase 토큰: $firebaseToken")
-            } else {
-                println("Firebase 토큰 발급 실패")
-            }
 
             delay(300) // 0.3초 대기
 

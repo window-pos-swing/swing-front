@@ -41,8 +41,8 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
 
-    // firebase
-    implementation("com.google.firebase:firebase-admin:9.4.2")
+//    // firebase
+//    implementation("com.google.firebase:firebase-admin:9.4.2")
 
 //    slf4j
     testImplementation("org.slf4j:slf4j-simple:2.0.16")
