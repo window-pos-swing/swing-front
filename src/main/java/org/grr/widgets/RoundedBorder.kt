@@ -313,7 +313,6 @@ class OutLineRoundedLabel(
 }
 
 // 안에 꽉찬 둥근 라벨
-
 class FillRoundedLabel(
     text: String,
     private val borderColor: Color,
@@ -322,7 +321,7 @@ class FillRoundedLabel(
     private val borderRadius: Int,
     private val borderWidth: Int,
     private val textAlignment: Int,  // 텍스트 정렬 (SwingConstants.LEFT, CENTER, RIGHT)
-    private val padding: Insets  // 패딩을 위한 Insets
+    var padding: Insets  // 패딩을 위한 Insets
 ) : JLabel(text, SwingConstants.LEFT) {
 
     init {
@@ -405,7 +404,7 @@ class FillRoundedButton(
     private val buttonSize: Dimension? = null,  // 버튼 크기 설정 추가
     private val iconWidth: Int = 20,  // 아이콘 너비
     private val iconHeight: Int = 20,  // 아이콘 높이
-    private val customFont: Font? = null  // 커스텀 폰트 설정
+    public val customFont: Font? = null  // 커스텀 폰트 설정
 ) : JButton() {
     private var originalText: String = text  // 원본 텍스트를 저장
     init {
