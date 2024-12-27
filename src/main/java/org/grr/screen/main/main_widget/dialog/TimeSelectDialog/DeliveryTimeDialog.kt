@@ -25,13 +25,20 @@ class DeliveryTimeDialog(
     subText = "배달 도착 예상시간을 설정해주세요"
 ) {
     override fun onSubmit(selectedTime: Int) {
+        dispose() // 다이얼로그 닫기
         order.deliveryTime = selectedTime
         order.cookTime = cookTime
         // 설정된 쿡타임과 배달시간을 출력
         println("[DeliveryTimeDialog] 설정된 조리 시간: ${order.cookTime}분")
         println("[DeliveryTimeDialog] 설정된 배달 시간: ${order.deliveryTime}분")
-        overlayManager.removeOverlayPanel() 
-        dispose() // 다이얼로그 닫기
-        AcceptOrderCommand(parent, cardPanel, order, orderController).execute() // 주문 상태 변경
+        overlayManager.removeOverlayPanel()
+        AcceptOrderCommand(parent, cardPanel, order, orderController, takeType = "delivery").execute() // 주문 상태 변경
+        handleCloseButtonAction()
+    }
+
+    //오버레이 닫기
+    override fun handleCloseButtonAction() {
+        overlayManager.removeOverlayPanel() // 오버레이 닫기
+        dispose()
     }
 }

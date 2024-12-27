@@ -675,7 +675,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     }
 
     fun updateOrderInAllOrders(order: Order ) {
-        println("updateOrderInAllOrders : ${order.orderNumber}")
+        println("updateOrderInAllOrders : #${order.orderNumber}")
         val frameToUpdate = allOrdersPanel.components
             .filterIsInstance<JPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }

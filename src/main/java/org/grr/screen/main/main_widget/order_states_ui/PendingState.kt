@@ -2,12 +2,15 @@ package org.grr.screen.main.main_widget.order_states_ui
 
 import OrderController
 import OrderRejectCancelDialog
+import org.grr.command.AcceptOrderCommand
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
 import org.grr.model.Order
 import org.grr.model.OrderState
+import org.grr.model.SettingModel
 import org.grr.screen.main.main_widget.dialog.TimeSelectDialog.CookTimeDialog
+import org.grr.screen.main.main_widget.dialog.TimeSelectDialog.DeliveryTimeDialog
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedButton
@@ -117,21 +120,145 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
             customFont = MyFont.Bold(20f)
         ).apply {
             addActionListener {
-                overlayManager.addOverlayPanel()
-                val dialog = CookTimeDialog(
-                    parent = parentFrame ?: JFrame(),
-                    cardPanel = cardPanel!!,
-                    order = order,
-                    orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
-                    overlayManager = overlayManager
-                )
-                dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
-                    override fun windowClosed(e: java.awt.event.WindowEvent?) {
-                        dialog.dispose()
-                        //overlayManager.removeOverlayPanel() // DeliveryTimeDialog에서 overlayManager를 관리하므로 여기서 제거하지 않음
+                //delivery & takeOut
+                //어떤 다이얼로그를 띄워줘야할까 판별하는 부분
+                statusOfDialog("delivery" , overlayManager, order)
+            }
+        }
+    }
+
+    //어떤 다이얼로그를 띄워줘야할까 판별하는 부분
+    private fun statusOfDialog(takeType: String, overlayManager: OverlayManager, order: Order) {
+        val deliveryDialogType = when {
+            SettingModel.cookingTimeControl && !SettingModel.deliveryTimeControl-> "CookONDeliveryOFF"
+            SettingModel.deliveryTimeControl && !SettingModel.cookingTimeControl -> "DeliveryONCookOFF"
+            SettingModel.cookingTimeControl && SettingModel.deliveryTimeControl -> "AllON"
+            !SettingModel.cookingTimeControl && !SettingModel.deliveryTimeControl -> "AllOFF"
+            else -> ""
+        }
+
+        val takeOutDialogType = when {
+            SettingModel.cookingTimeControl -> "CookON"
+            !SettingModel.cookingTimeControl -> "CookOFF"
+            else -> ""
+        }
+
+        when (takeType) {
+            // ===============[포장 주문 처리] ======================
+            "takeOut" -> {
+                when(takeOutDialogType) {
+                    "CookOFF" -> {
+                        //요리시간 다이얼로그만 띄워줌
+                        println("[$takeType] CookOFF ...")
+                        overlayManager.addOverlayPanel()
+                        val dialog = CookTimeDialog(
+                            parent = parentFrame ?: JFrame(),
+                            cardPanel = cardPanel!!,
+                            order = order,
+                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            overlayManager = overlayManager,
+                            takeType = takeType
+                        )
+                        dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
+                            override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                                dialog.dispose()
+                            }
+                        })
+                        dialog.isVisible = true
                     }
-                })
-                dialog.isVisible = true
+                    "CookON" -> {
+                        println("[$takeType] CookON ...")
+
+                        AcceptOrderCommand(
+                            parent = parentFrame ?: JFrame(),
+                            cardPanel = cardPanel!!,
+                            order = order,
+                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            takeType = takeType,
+                            cookTime = SettingModel.cookingTime
+                        ).execute() // 주문 상태 변경
+                    }
+                }
+
+
+            }
+            // ===============[배달 주문 처리] ======================
+            "delivery" -> {
+                when (deliveryDialogType) {
+                    "CookONDeliveryOFF" -> {
+                        println("[$takeType] CookONDeliveryOFF ...")
+                        overlayManager.addOverlayPanel()
+                        val dialog = DeliveryTimeDialog(
+                            parent = parentFrame ?: JFrame(),
+                            cardPanel = cardPanel!!,
+                            order = order,
+                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            SettingModel.cookingTime ,
+                            overlayManager = overlayManager
+                        )
+                        dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
+                            override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                                dialog.dispose()
+                                overlayManager.removeOverlayPanel()
+                            }
+                        })
+                        dialog.isVisible = true
+
+                    }
+
+                    "DeliveryONCookOFF" -> {
+                        println("[$takeType] DeliveryONCookOFF ...")
+                        overlayManager.addOverlayPanel()
+                        val dialog = CookTimeDialog(
+                            parent = parentFrame ?: JFrame(),
+                            cardPanel = cardPanel!!,
+                            order = order,
+                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            overlayManager = overlayManager,
+                            takeType = takeType
+                        )
+                        dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
+                            override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                                dialog.dispose()
+                            }
+                        })
+                        dialog.isVisible = true
+                    }
+
+                    "AllON" -> {
+                        println("[$takeType] AllON ...")
+                        order.deliveryTime = SettingModel.deliveryTime
+                        AcceptOrderCommand(
+                            parent = parentFrame ?: JFrame(),
+                            cardPanel = cardPanel!!,
+                            order = order,
+                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            takeType = takeType,
+                            cookTime = SettingModel.cookingTime
+                        ).execute() // 주문 상태 변경
+                    }
+
+                    "AllOFF" -> {
+                        println("[$takeType] AllOFF ...")
+                        overlayManager.addOverlayPanel()
+                        val dialog = CookTimeDialog(
+                            parent = parentFrame ?: JFrame(),
+                            cardPanel = cardPanel!!,
+                            order = order,
+                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            overlayManager = overlayManager,
+                            takeType = takeType
+                        )
+                        dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
+                            override fun windowClosed(e: java.awt.event.WindowEvent?) {
+                                dialog.dispose()
+                                //overlayManager.removeOverlayPanel() // DeliveryTimeDialog에서 overlayManager를 관리하므로 여기서 제거하지 않음
+                            }
+                        })
+                        dialog.isVisible = true
+                    }
+
+                }
             }
         }
     }
