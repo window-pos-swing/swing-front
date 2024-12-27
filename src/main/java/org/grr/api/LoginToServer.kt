@@ -7,6 +7,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.grr.`object`.Api
 import org.json.JSONObject
 import java.io.IOException
+import javax.swing.JOptionPane
 
 class LoginToServer {
 
@@ -20,10 +21,12 @@ class LoginToServer {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v0/storeMember/login")
+            .url("${Api.BASE_URL}/api/v0/store-member/login")
             .post(requestBody)
             .build()
 
+        println("requestBody : $requestBody");
+        println("request : $request");
         try {
             client.newCall(request).execute().use { response ->
 //                성공했을때. 200일때
@@ -37,6 +40,10 @@ class LoginToServer {
                         Pair(false, errorMessage)
                     } else {
 //                    로그인 성공했을때
+                        if(jsonResponse["resultCode"] != 200) {
+                            println("[jsonResponse]: $jsonResponse");
+                            JOptionPane.showMessageDialog(null, jsonResponse["resultMessage"], "오류", JOptionPane.ERROR_MESSAGE)
+                        }
                         val accessToken = jsonResponse.getJSONObject("data").getString("authorization")
                         Pair(true, accessToken)
                     }

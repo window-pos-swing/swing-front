@@ -4,6 +4,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.grr.api.CurrentLoginStoreMemberToServer
+import org.grr.model.SettingModel
 import org.grr.`object`.Storage
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.websocket.PosWebSocketClient
@@ -25,7 +26,6 @@ class MainForm : JFrame() {
         // 기존 타이틀바 제거 및 창 리사이즈 가능 설정
         isUndecorated = true
         isResizable = true  // 창 리사이즈 가능
-
         /*
             현재 로그인한 유저 서버에서 정보 갖고오는 구문
         */
@@ -49,7 +49,8 @@ class MainForm : JFrame() {
                 }
             }
         }
-
+        //로컬 요리/배달 데이터 초기화
+        SettingModel.loadCookDeliveryTime()
         val memberInfo = Storage.getMemberInfo()
         val email = memberInfo
             ?.optString("email")

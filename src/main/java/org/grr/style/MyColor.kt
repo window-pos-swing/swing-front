@@ -27,7 +27,6 @@ object MyColor {
     val Yellow = Color(244,172,0)
 
     val LIGHT_BLUE = Color(13,130,191)
-
     val LIGHT_BLUE_14 = Color(13,130,191,14)
 
     val SELECTED_TEXT_COLOR = Color.WHITE

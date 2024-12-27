@@ -253,8 +253,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
                         MenuOption("차돌박이", 4000)
                     )
                 ),
-
-
             ),
             state = PendingState(parentFrame,cardPanel)  // 초기 상태는 접수대기
         )
@@ -274,7 +272,6 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         cardPanel.add(pendingSubTabs, "접수대기")
 
         // 접수처리중 탭에 ProcessingSubTabs 추가
-
         cardPanel.add(processingSubTabs, "접수처리중")
 
         // 나머지 탭 추가

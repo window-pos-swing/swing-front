@@ -1,6 +1,7 @@
 package org.grr.screen.setting.centerPanel.deliveryMethodTimePanel
 
 import org.grr.api.SettingToServer
+import org.grr.model.SettingModel
 import org.grr.`object`.Storage
 import org.grr.style.MyColor
 import org.grr.util.MyFont
@@ -44,9 +45,7 @@ class DeliveryMethodTime : JPanel() {
     private lateinit var setButton: RoundedButton  // 저장 버튼
     private lateinit var buttonPanel: RoundedPanel
 
-    private var initialDeliveryCompletionTime: Int = 40  // 초기 배달완료시간
     private var currentDeliveryCompletionTime: Int = 40  // 현재 배달완료시간
-    private var initialDeliveryCompletionControl: Boolean = false
     private var deliveryCompletionControl: Boolean = false
 
     init {
@@ -63,17 +62,9 @@ class DeliveryMethodTime : JPanel() {
         //        회원정보 갖고오는 구문
         val memberInfo = Storage.getMemberInfo()
 
-        initialDeliveryCompletionTime = memberInfo
-            ?.optJSONObject("setting")
-            ?.optInt("estimatedArrivalTime", 40) ?: 40
+        currentDeliveryCompletionTime = SettingModel.deliveryTime
 
-        currentDeliveryCompletionTime = initialDeliveryCompletionTime
-
-        initialDeliveryCompletionControl = memberInfo
-            ?.optJSONObject("setting")
-            ?.optBoolean("estimatedArrivalTimeControl", false) ?: false
-
-        deliveryCompletionControl = initialDeliveryCompletionControl
+        deliveryCompletionControl = SettingModel.deliveryTimeControl
 
         // 배달 아이콘 경로 로드
         val deliveryIconPath = ImageIcon(javaClass.getResource("/delivery.png"))
@@ -236,17 +227,18 @@ class DeliveryMethodTime : JPanel() {
         val result = settingToServer.deliveryTimeToServer(deliveryCompletionControl, currentDeliveryCompletionTime)
         if (result.first) {
 //            JOptionPane.showMessageDialog(this, "배달 예상 시간이 업데이트되/**/었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE)
-            initialDeliveryCompletionTime = currentDeliveryCompletionTime
-            initialDeliveryCompletionControl = deliveryCompletionControl
+            SettingModel.deliveryTime = currentDeliveryCompletionTime
+            SettingModel.deliveryTimeControl = deliveryCompletionControl
             updateSaveButtonState()
+            SettingModel.updateLocalDelivery()//로컬에 정보 업데이트
         } else {
             JOptionPane.showMessageDialog(this, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
         }
     }
 
     private fun updateSaveButtonState() {
-        val isChanged = currentDeliveryCompletionTime != initialDeliveryCompletionTime ||
-                deliveryCompletionControl != initialDeliveryCompletionControl
+        val isChanged = currentDeliveryCompletionTime != SettingModel.deliveryTime ||
+                deliveryCompletionControl != SettingModel.deliveryTimeControl
         setButton.isEnabled = isChanged
         setButton.foreground = if (isChanged) Color.WHITE else Color.GRAY
     }
