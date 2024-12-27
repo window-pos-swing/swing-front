@@ -396,15 +396,15 @@ class FillRoundedButton(
     var borderColor: Color,
     var backgroundColor: Color,  // var로 변경하여 값 변경 가능하게 수정
     var textColor: Color,        // var로 변경하여 값 변경 가능하게 수정
+    val customFont: Font? = null,  // 커스텀 폰트 설정
     private val borderRadius: Int,
     private val borderWidth: Int,
     private val textAlignment: Int,
-    private val padding: Insets,
+    var padding: Insets,
     private val iconPath: String? = null,  // 아이콘 경로 (없으면 텍스트만)
     private val buttonSize: Dimension? = null,  // 버튼 크기 설정 추가
     private val iconWidth: Int = 20,  // 아이콘 너비
     private val iconHeight: Int = 20,  // 아이콘 높이
-    public val customFont: Font? = null  // 커스텀 폰트 설정
 ) : JButton() {
     private var originalText: String = text  // 원본 텍스트를 저장
     init {
