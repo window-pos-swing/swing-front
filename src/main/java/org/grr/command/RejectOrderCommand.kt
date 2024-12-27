@@ -7,7 +7,7 @@ import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 enum class RejectedReasonType {
     CUSTOMER_CANCEL,
     STORE_REJECT,
-    STORE_CANCEL
+    REFUND
 }
 
 class RejectOrderCommand(

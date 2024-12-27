@@ -110,8 +110,8 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
                 // 가게 거절에 맞는 UI 처리 추가 가능
             }
 
-            RejectedReasonType.STORE_CANCEL -> {
-                println("주문이 가게에 의해 취소되었습니다.")
+            RejectedReasonType.REFUND -> {
+                println("주문이 환불 되었습니다.")
                 tabbedPane.removeOrderFromProcessing(order)
                 // 가게 취소에 맞는 UI 처리 추가 가능
             }

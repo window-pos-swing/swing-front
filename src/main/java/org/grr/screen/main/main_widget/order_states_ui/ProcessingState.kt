@@ -124,7 +124,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
                                 "주문 취소 사유를 선택해 주세요.",
                                 "주문 취소",
                                 onReject = { rejectReason ->
-                                    val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_CANCEL)
+                                    val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_REJECT)
                                     rejectOrderCommand.execute()
                                 }
                             )
@@ -224,7 +224,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
                     "주문 취소 사유를 선택해 주세요.",
                     "주문 취소",
                     onReject = { rejectReason ->
-                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason , RejectedReasonType.STORE_CANCEL)
+                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason , RejectedReasonType.STORE_REJECT)
                         rejectOrderCommand.execute()
                     }
                 )

@@ -219,7 +219,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             orderNumber = orderCounter++,  // 주문 번호 증가
             orderTime = "14:20",
             orderType = "DELIVERY",  // 포장 주문 TAKEOUT DELIVERY
-            request = "문앞에 놔두고 가주세요, 아기가 자고있어요 절대 벨을 누르지 말아주세요. 집밑 비번 5555*입니다 . 조심히 와주세요 ",
+            request = "문앞에 놔두고 가주세요, 아기가 자고있어요 절대 벨을 누르지 말아주세요. 집밑 비번 5555*입니다 . 비가 많이오니 조심히 와주세요 감사합니다 ",
             address = "대전 대화동 가온비즈타워 120 901호",
             CustomerPhonenumber = "010-5199-2256",
             deliveryFee = 3000,
@@ -369,7 +369,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
             cardLayout.show(cardPanel, "접수완료 하위탭")
 
         }else if(tabName == "주문거절"){
-            rejectedSubTabs.selectButton(rejectedSubTabs.allRejectedButton)
+            rejectedSubTabs.selectButton(rejectedSubTabs.storeRejectButton)
             filterRejectedOrders()
             cardPanel!!.add(rejectedSubTabs, "주문거절 하위탭")
             cardLayout.show(cardPanel, "주문거절 하위탭")

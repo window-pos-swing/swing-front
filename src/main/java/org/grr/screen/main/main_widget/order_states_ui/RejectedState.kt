@@ -21,8 +21,8 @@ class RejectedState(
     fun rejectTypeFormat(): String {
         return when (rejectType) {
             RejectedReasonType.CUSTOMER_CANCEL -> "고객접수거절"
+            RejectedReasonType.REFUND -> "환불"
             RejectedReasonType.STORE_REJECT -> "가게접수거절"
-            RejectedReasonType.STORE_CANCEL -> "가게접수취소"
         }
     }
     override fun handle(order: Order) {

@@ -19,13 +19,12 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     private var totalCount = 0
     private var customerCancelCount = 0
     private var storeRejectCount = 0
-    private var storeCancelCount = 0
+    private var refundCount = 0
 
     // 버튼들을 클래스 멤버 변수로 선언
-    val allRejectedButton = SelectButtonRoundedBorder(50)
+    val storeRejectButton = SelectButtonRoundedBorder(50)
     private val customerCancelButton = SelectButtonRoundedBorder(50)
-    private val storeRejectButton = SelectButtonRoundedBorder(50)
-    private val storeCancelButton = SelectButtonRoundedBorder(50)
+    private val refundButton = SelectButtonRoundedBorder(50)
 
 
     init {
@@ -42,26 +41,6 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             background = Color.WHITE
 
             // SelectButtonRoundedBorder 사용하여 버튼 생성
-            allRejectedButton.apply {
-                createRoundedButton(
-                    "거절전체",
-                    MyColor.DARK_RED, //선택 버튼 배경 색상
-                    MyColor.UNSELECTED_BACKGROUND_COLOR,
-                    MyColor.SELECTED_TEXT_COLOR,
-                    MyColor.GREY600,
-                    Dimension(160, 60)
-                )
-            }
-            customerCancelButton.apply {
-                createRoundedButton(
-                    "고객취소",
-                    MyColor.DARK_RED,//선택 버튼 배경 색상
-                    MyColor.UNSELECTED_BACKGROUND_COLOR,
-                    MyColor.SELECTED_TEXT_COLOR,
-                    MyColor.GREY600,
-                    Dimension(160, 60)
-                )
-            }
             storeRejectButton.apply {
                 createRoundedButton(
                     "가게거절",
@@ -72,9 +51,21 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                     Dimension(160, 60)
                 )
             }
-            storeCancelButton.apply {
+
+            customerCancelButton.apply {
                 createRoundedButton(
-                    "가게취소",
+                    "고객취소",
+                    MyColor.DARK_RED,//선택 버튼 배경 색상
+                    MyColor.UNSELECTED_BACKGROUND_COLOR,
+                    MyColor.SELECTED_TEXT_COLOR,
+                    MyColor.GREY600,
+                    Dimension(160, 60)
+                )
+            }
+
+            refundButton.apply {
+                createRoundedButton(
+                    "환불",
                     MyColor.DARK_RED,//선택 버튼 배경 색상
                     MyColor.UNSELECTED_BACKGROUND_COLOR,
                     MyColor.SELECTED_TEXT_COLOR,
@@ -84,34 +75,29 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             }
 
             // 버튼 간 간격 추가
-            add(allRejectedButton.button)
-            add(Box.createRigidArea(Dimension(10, 0)))
-            add(customerCancelButton.button)
             add(Box.createRigidArea(Dimension(10, 0)))
             add(storeRejectButton.button)
             add(Box.createRigidArea(Dimension(10, 0)))
-            add(storeCancelButton.button)
+            add(customerCancelButton.button)
+            add(Box.createRigidArea(Dimension(10, 0)))
+            add(refundButton.button)
 
             // 버튼에 클릭 리스너 추가
-            allRejectedButton.button.addActionListener {
-                selectButton(allRejectedButton)
-                tabbedPane.filterRejectedOrders()  // 거절 전체 보기 호출
+            storeRejectButton.button.addActionListener {
+                selectButton(storeRejectButton)
+                tabbedPane.filterRejectedOrders(RejectedReasonType.STORE_REJECT)  // 가게 거절만 필터링
             }
             customerCancelButton.button.addActionListener {
                 selectButton(customerCancelButton)
                 tabbedPane.filterRejectedOrders(RejectedReasonType.CUSTOMER_CANCEL)  // 고객 취소만 필터링
             }
-            storeRejectButton.button.addActionListener {
-                selectButton(storeRejectButton)
-                tabbedPane.filterRejectedOrders(RejectedReasonType.STORE_REJECT)  // 가게 거절만 필터링
-            }
-            storeCancelButton.button.addActionListener {
-                selectButton(storeCancelButton)
-                tabbedPane.filterRejectedOrders(RejectedReasonType.STORE_CANCEL)  // 가게 취소만 필터링
+            refundButton.button.addActionListener {
+                selectButton(refundButton)
+                tabbedPane.filterRejectedOrders(RejectedReasonType.REFUND)  // 가게 취소만 필터링
             }
 
             // 초기 선택된 버튼 설정 (거절 전체보기)
-            selectButton(allRejectedButton)
+            selectButton(storeRejectButton)
         }
 
         add(buttonPanel)
@@ -153,14 +139,13 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             (it.state as RejectedState).rejectType == RejectedReasonType.STORE_REJECT
         }.size
 
-        storeCancelCount = RejectedOrders.filter {
-            (it.state as RejectedState).rejectType == RejectedReasonType.STORE_CANCEL
+        refundCount = RejectedOrders.filter {
+            (it.state as RejectedState).rejectType == RejectedReasonType.REFUND
         }.size
 
         // 버튼의 텍스트 업데이트
-        allRejectedButton.button.text = "거절전체  $totalCount"
         customerCancelButton.button.text = "고객취소  $customerCancelCount"
         storeRejectButton.button.text = "가게거절  $storeRejectCount"
-        storeCancelButton.button.text = "가게취소  $storeCancelCount"
+        refundButton.button.text = "환불  $refundCount"
     }
 }
