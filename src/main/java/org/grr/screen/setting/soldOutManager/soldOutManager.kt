@@ -7,8 +7,12 @@ import java.awt.*
 import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
+import javax.swing.table.TableCellEditor
+import javax.swing.table.TableCellRenderer
 
 class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품절 관리", 1350, 800) {
+    // 독립적인 복사본 데이터를 저장
+    private val copiedMenuCategories: MutableList<MenuCategory> = mutableListOf()
 
     private val tableModel: DefaultTableModel
     private val menuTable: JTable
@@ -34,6 +38,11 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
             })
             val categories = MenuData.createSampleData() // 샘플 데이터 생성
 
+            // 원본 데이터를 깊은 복사하여 복사본 생성
+            copiedMenuCategories.addAll(categories.map { category ->
+                category.copy(menuList = category.menuList.map { it.copy() })
+            })
+
             // DefaultComboBoxModel 생성 및 카테고리 추가
             val categoryModel = DefaultComboBoxModel<String>().apply {
                 addElement("전체") // 기본값
@@ -50,9 +59,9 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
                 font = MyFont.Bold(22f)
                 addActionListener {
                     if (isFilteringSoldOut) {
-                        filterSoldOut(categories) // 품절 필터링
+                        filterSoldOut(copiedMenuCategories) // 품절 필터링
                     } else {
-                        updateTable(categories) // 전체 상품 보기
+                        updateTable(copiedMenuCategories) // 전체 상품 보기
                     }
                 }
             }
@@ -76,12 +85,12 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
                 addActionListener {
                     if (!isFilteringSoldOut) {
                         // 품절 상품 필터링 동작
-                        filterSoldOut(categories)
+                        filterSoldOut(copiedMenuCategories)
                         backgroundColor = MyColor.LIGHT_BLUE
                         borderColor = MyColor.LIGHT_BLUE
                     } else {
                         // 모든 상품 보기 동작
-                        updateTable(categories)
+                        updateTable(copiedMenuCategories)
                         backgroundColor = MyColor.LIGHT_GREY2
                         borderColor = MyColor.LIGHT_GREY2
                     }
@@ -138,12 +147,114 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
             columnModel.getColumn(1).preferredWidth = (totalWidth * 4 / totalWeight).toInt() // 메뉴 그룹
             columnModel.getColumn(2).preferredWidth = (totalWidth * 10 / totalWeight).toInt() // 메뉴 이름
 
+            // "품절 관리" 열에 버튼 렌더러와 에디터 추가
+            val buttonRendererEditor = object : AbstractCellEditor(), TableCellRenderer, TableCellEditor {
+                private val button = FillRoundedButton(
+                    text = "",
+                    borderColor = Color.BLACK,
+                    backgroundColor = Color.LIGHT_GRAY,
+                    textColor = Color.WHITE,
+                    borderRadius = 40,
+                    borderWidth = 1,
+                    textAlignment = SwingConstants.CENTER,
+                    padding = Insets(8, 16, 8, 16),
+                    buttonSize = Dimension(185, 50),
+                    customFont = MyFont.Bold(22f)
+                )
+
+                private var currentValue: Boolean = false // 현재 셀 상태를 저장
+                private var currentRow: Int = -1 // 현재 행 번호
+
+                override fun getTableCellRendererComponent(
+                    table: JTable,
+                    value: Any?,
+                    isSelected: Boolean,
+                    hasFocus: Boolean,
+                    row: Int,
+                    column: Int
+                ): Component {
+                    currentValue = value as Boolean
+                    updateButtonAppearance()
+                    return button
+                }
+
+                override fun getTableCellEditorComponent(
+                    table: JTable,
+                    value: Any?,
+                    isSelected: Boolean,
+                    row: Int,
+                    column: Int
+                ): Component {
+                    currentValue = value as Boolean
+                    currentRow = row // 현재 행 저장
+
+                    // 기존 ActionListener 제거
+                    for (listener in button.actionListeners) {
+                        button.removeActionListener(listener)
+                    }
+
+                    // 버튼 클릭 시 상태 변경 및 복사본 데이터 업데이트
+                    button.addActionListener {
+                        // 현재 상태 출력 (Before)
+                        println("Before update: Row $currentRow, Value: $currentValue")
+
+                        // 테이블에서 현재 메뉴 정보를 가져옴
+                        val categoryName = table.getValueAt(currentRow, 1) as String
+                        val menuName = table.getValueAt(currentRow, 2) as String
+
+                        val category = copiedMenuCategories.find { it.categoryName == categoryName }
+                        val menu = category?.menuList?.find { it.menuName == menuName }
+
+                        if (menu != null) {
+                            // Before 상태 출력
+                            println("Before  : $menu")
+
+                            // 버튼 상태 반전에 따라 isSoldOut 값 설정
+                            menu.isSoldOut = !menu.isSoldOut
+                            currentValue = menu.isSoldOut
+                            // After 상태 출력
+                            println("After   : $menu")
+
+                            // 테이블 모델 값 업데이트
+                            val model = table.model as DefaultTableModel
+                            model.setValueAt(menu.isSoldOut, currentRow, 0)
+
+                            // 테이블 셀 강제 렌더링
+                            model.fireTableCellUpdated(currentRow, 0)
+
+                            // 테이블 UI 강제 갱신
+                            table.repaint()
+                            table.revalidate()
+                        } else {
+                            println("Error: Menu not found in copiedMenuCategories!")
+                        }
+
+                        fireEditingStopped() // 편집 종료
+                    }
+
+
+                    return button
+                }
+
+                override fun getCellEditorValue(): Any {
+                    return currentValue // 변경된 상태 반환
+                }
+
+                private fun updateButtonAppearance() {
+                    button.text = if (currentValue) "품절" else "판매"
+                    button.backgroundColor = if (currentValue) Color.PINK else Color.LIGHT_GRAY
+                }
+            }
+
+            columnModel.getColumn(0).apply {
+                cellRenderer = buttonRendererEditor
+                cellEditor = buttonRendererEditor
+            }
 
             // 셀 렌더러 설정 (품절 관리, 메뉴 그룹만 가운데 정렬)
             val centerRenderer = DefaultTableCellRenderer().apply {
                 horizontalAlignment = JLabel.CENTER
             }
-            columnModel.getColumn(0).cellRenderer = centerRenderer // 품절 관리
             columnModel.getColumn(1).cellRenderer = centerRenderer // 메뉴 그룹
 
             // [메뉴 이름] 열의 왼쪽 여백 추가
@@ -186,7 +297,11 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
             padding = Insets(8, 16, 8, 16),  // 패딩 줄이기
             buttonSize = Dimension(300, 60),
             customFont = MyFont.Bold(26f)  // 버튼 글자 크기 줄임
-        )
+        ).apply {
+            addActionListener {
+                println("Submitting copied data: $copiedMenuCategories")
+            }
+        }
         //만든 등록 버튼을 패널에 추가
         val buttonPanel = JPanel().apply {
             border = BorderFactory.createEmptyBorder(20, 0, 0, 0)
@@ -196,7 +311,7 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
         mainPanel.add(buttonPanel, BorderLayout.SOUTH)
 
         // 초기 데이터 로드
-        updateTable(MenuData.createSampleData())
+        updateTable(copiedMenuCategories)
 
         setSize(1350, 800)
         setLocationRelativeTo(parent)
@@ -212,7 +327,7 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
                 category.menuList.forEach { menu ->
                     tableModel.addRow(
                         arrayOf(
-                            if (menu.isSoldOut) "품절" else "판매",
+                            menu.isSoldOut,
                             category.categoryName,
                             menu.menuName
                         )
@@ -233,7 +348,7 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
                 category.menuList.filter { it.isSoldOut }.forEach { menu ->
                     tableModel.addRow(
                         arrayOf(
-                            "품절",
+                            menu.isSoldOut,
                             category.categoryName,
                             menu.menuName
                         )
