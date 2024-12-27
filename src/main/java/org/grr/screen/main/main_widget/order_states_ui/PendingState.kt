@@ -129,11 +129,13 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
 
     //어떤 다이얼로그를 띄워줘야할까 판별하는 부분
     private fun statusOfDialog(takeType: String, overlayManager: OverlayManager, order: Order) {
+        val allOff = !SettingModel.cookingTimeControl && !SettingModel.deliveryTimeControl
+        val allOn = SettingModel.cookingTimeControl && SettingModel.deliveryTimeControl
         val deliveryDialogType = when {
             SettingModel.cookingTimeControl && !SettingModel.deliveryTimeControl-> "CookONDeliveryOFF"
             SettingModel.deliveryTimeControl && !SettingModel.cookingTimeControl -> "DeliveryONCookOFF"
-            SettingModel.cookingTimeControl && SettingModel.deliveryTimeControl -> "AllON"
-            !SettingModel.cookingTimeControl && !SettingModel.deliveryTimeControl -> "AllOFF"
+            allOff-> "AllOFF"
+            allOn -> "AllON"
             else -> ""
         }
 

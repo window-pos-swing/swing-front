@@ -24,9 +24,6 @@ class LoginToServer {
             .url("${Api.BASE_URL}/api/v0/store-member/login")
             .post(requestBody)
             .build()
-
-        println("requestBody : $requestBody");
-        println("request : $request");
         try {
             client.newCall(request).execute().use { response ->
 //                성공했을때. 200일때

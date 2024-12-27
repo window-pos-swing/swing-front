@@ -113,7 +113,7 @@ class OrderDetailDialog(
             background = Color.WHITE
             border = CompoundBorder(
                 LineBorder(MyColor.GREY400, 1), // 기존 테두리 추가
-                EmptyBorder(10, 10, 10, 10) // 안쪽 패딩 10씩 추가
+                EmptyBorder(10, 10, 0, 10) // 안쪽 패딩 10씩 추가
             )
             preferredSize = Dimension(940, 182) // 원하는 높이와 너비 설정
             minimumSize = Dimension(940, 182) // 최소 높이와 너비 설정
@@ -349,7 +349,7 @@ class OrderDetailDialog(
         val orderInfoContainer = JPanel().apply {
             layout = GridBagLayout()
             background = Color.WHITE
-            border = EmptyBorder(0, 0, -15, 0)  // 기본 내부 여백 설정
+            border = EmptyBorder(0, 0, 10, 0)  // 기본 내부 여백 설정
 
         }
 
