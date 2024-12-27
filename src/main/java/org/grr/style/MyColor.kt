@@ -28,6 +28,8 @@ object MyColor {
 
     val LIGHT_BLUE = Color(13,130,191)
 
+    val LIGHT_BLUE_14 = Color(13,130,191,14)
+
     val SELECTED_TEXT_COLOR = Color.WHITE
 
     val UNSELECTED_TEXT_COLOR = GREY500   // 명확하게 GREY500과 연결

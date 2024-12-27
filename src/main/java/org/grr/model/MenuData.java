@@ -20,6 +20,16 @@ public class MenuData {
                         new SoldOutMenu(301, "햄 샌드위치", false),
                         new SoldOutMenu(302, "치킨 샌드위치", true),
                         new SoldOutMenu(303, "클럽 샌드위치", false)
+                ))),
+                new MenuCategory(4, "치킨", new ArrayList<>(Arrays.asList(
+                        new SoldOutMenu(301, "후라이드 치킨", false),
+                        new SoldOutMenu(302, "매운 치킨", true),
+                        new SoldOutMenu(303, "간장 치킨", false)
+                ))),
+                new MenuCategory(5, "햄버거", new ArrayList<>(Arrays.asList(
+                        new SoldOutMenu(301, "싸이버거", false),
+                        new SoldOutMenu(302, "와퍼버거", true),
+                        new SoldOutMenu(303, "한우버거", false)
                 )))
         );
     }
