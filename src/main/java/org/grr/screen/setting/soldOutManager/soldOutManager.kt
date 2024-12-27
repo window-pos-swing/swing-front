@@ -103,11 +103,16 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
         mainPanel.add(filterPanel, BorderLayout.NORTH)
 
         // [테이블] 품절 관리, 메뉴 그룹, 메뉴 이름
-        tableModel = DefaultTableModel(arrayOf("품절 관리", "메뉴 그룹", "메뉴 이름"), 0)
+        tableModel = object : DefaultTableModel(arrayOf("품절 관리", "메뉴 그룹", "메뉴 이름"), 0) {
+            override fun isCellEditable(row: Int, column: Int): Boolean {
+                return column == 0  // "품절 관리" 열만 편집 가능
+            }
+        }
         menuTable = JTable(tableModel).apply {
             rowHeight = 60
             font = MyFont.SemiBold(20f)
-
+            columnModel.getColumn(1).cellEditor = null // "메뉴 그룹"
+            columnModel.getColumn(2).cellEditor = null // "메뉴 이름"
             // 테이블 헤더 커스텀 렌더러
             val headerRenderer = object : DefaultTableCellRenderer() {
                 override fun getTableCellRendererComponent(
@@ -154,11 +159,11 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
                     borderColor = Color.BLACK,
                     backgroundColor = Color.LIGHT_GRAY,
                     textColor = Color.WHITE,
-                    borderRadius = 40,
+                    borderRadius = 6,
                     borderWidth = 1,
                     textAlignment = SwingConstants.CENTER,
-                    padding = Insets(8, 16, 8, 16),
-                    buttonSize = Dimension(185, 50),
+                    padding = Insets(0, 0, 0, 0),
+                    buttonSize = Dimension(120, 40),
                     customFont = MyFont.Bold(22f)
                 )
 
@@ -241,6 +246,12 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
                 }
 
                 private fun updateButtonAppearance() {
+                    //품절 판매 버튼 UI는 여기서 변경 해주어야함
+                    button.font = MyFont.Bold(22f)
+                    button.preferredSize = Dimension(100, 40) // 버튼 크기 설정
+                    button.minimumSize = Dimension(100, 40) // 최소 크기
+                    button.maximumSize = Dimension(100, 40) // 최대 크기
+                    button.foreground = Color.WHITE
                     button.text = if (currentValue) "품절" else "판매"
                     button.backgroundColor = if (currentValue) Color.PINK else Color.LIGHT_GRAY
                 }
