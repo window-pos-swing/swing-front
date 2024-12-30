@@ -144,8 +144,8 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }.size
 
         // 버튼의 텍스트 업데이트
-        customerCancelButton.button.text = "고객취소  $customerCancelCount"
-        storeRejectButton.button.text = "가게거절  $storeRejectCount"
-        refundButton.button.text = "환불  $refundCount"
+        customerCancelButton.button.text = "고객취소"
+        storeRejectButton.button.text = "가게거절"
+        refundButton.button.text = "환불"
     }
 }
