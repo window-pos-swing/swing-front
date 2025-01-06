@@ -4,6 +4,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okio.use
 import org.grr.`object`.Api
 import org.json.JSONObject
 import java.io.IOException
@@ -20,7 +21,7 @@ class LoginToServer {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v0/storeMember/login")
+            .url("${Api.BASE_URL}/api/v0/store-member/login")
             .post(requestBody)
             .build()
 
@@ -36,6 +37,7 @@ class LoginToServer {
                         val errorMessage = jsonResponse.getString("resultMessage")
                         Pair(false, errorMessage)
                     } else {
+                        println("데이터 확인 ${jsonResponse.getJSONObject("data")}")
 //                    로그인 성공했을때
                         val accessToken = jsonResponse.getJSONObject("data").getString("authorization")
                         Pair(true, accessToken)

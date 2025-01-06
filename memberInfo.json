@@ -65,9 +65,9 @@
             ]
         },
         "businessPauseStartTime": [
-            2024,
-            12,
-            19
+            2025,
+            1,
+            6
         ],
         "businessHour": {
             "wednesdayStartTime": [
@@ -174,9 +174,9 @@
         "estimatedArrivalTime": 40,
         "estimatedCookingTimeControl": true,
         "businessPauseEndTime": [
-            2024,
-            12,
-            20
+            2025,
+            1,
+            7
         ],
         "estimatedArrivalTimeControl": true
     }

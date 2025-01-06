@@ -2,6 +2,7 @@ package org.grr.api
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okio.use
 import org.grr.`object`.Api
 import org.grr.`object`.Storage
 import org.json.JSONObject
@@ -15,7 +16,7 @@ class CurrentLoginStoreMemberToServer {
         val accessToken = Storage.getToken()
 
         val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v1/storeMember/current-login") // 현재 로그인 회원 엔드포인트
+            .url("${Api.BASE_URL}/api/v1/store-member/current-login") // 현재 로그인 회원 엔드포인트
             .get() // 빈 요청 바디
             .addHeader("Authorization", accessToken!!) // 토큰 헤더 추가
             .build()

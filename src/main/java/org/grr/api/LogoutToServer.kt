@@ -4,6 +4,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okio.use
 import org.grr.`object`.Api
 import org.grr.`object`.Storage
 import org.json.JSONObject
@@ -17,7 +18,7 @@ class LogoutToServer {
         val accessToken = Storage.getToken()
 
         val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v1/storeMember/logout") // 로그아웃 엔드포인트
+            .url("${Api.BASE_URL}/api/v1/store-member/logout") // 로그아웃 엔드포인트
             .post(RequestBody.create("application/json; charset=utf-8".toMediaType(), "{}")) // 빈 요청 바디
             .addHeader("Authorization", accessToken!!) // 토큰 헤더 추가
             .build()
