@@ -1,13 +1,18 @@
 package org.grr.model;
 
 import org.grr.`object`.Storage
+import org.grr.`object`.TimeManager
 import org.json.JSONObject
+import javax.swing.JLabel
+import javax.swing.JPanel
 
 object SettingModel {
-    var cookingTime: Int = 0
-    var cookingTimeControl: Boolean = false
-    var deliveryTime: Int = 0
-    var deliveryTimeControl: Boolean = false
+    var cookingTime: Int = 0 // 조리 시간
+    var cookingTimeControl: Boolean = false // 조리 시간 (자동여부)
+    var deliveryTime: Int = 0 // 배달 시간
+    var deliveryTimeControl: Boolean = false // 배달 시간 (자동여부)
+    var breakTime: String = "" // 브레이크 타임
+    var operateTime: String = ""
 
     val memberInfo = Storage.getMemberInfo()
 
@@ -44,7 +49,7 @@ object SettingModel {
         updatedMemberInfo.put("setting", settings)
         Storage.saveMemberInfo(updatedMemberInfo) // 업데이트된 데이터를 저장
 
-        println("요리 정보 업데이트됨: 요리시간=$cookingTime, 요리시간 on/off=$cookingTimeControl")
+        println("[요리 정보 업데이트] 요리시간=$cookingTime, 요리시간 on/off=$cookingTimeControl")
     }
 
     // 로컬에 배달정보 업데이트
@@ -58,6 +63,77 @@ object SettingModel {
         updatedMemberInfo.put("setting", settings)
         Storage.saveMemberInfo(updatedMemberInfo) // 업데이트된 데이터를 저장
 
-        println("배달 정보 업데이트됨: 배달시간=$deliveryTime, 배달시간 on/off=$deliveryTimeControl")
+        println("[배달 정보 업데이트] 배달시간=$deliveryTime, 배달시간 on/off=$deliveryTimeControl")
+    }
+
+    // 브레이크 타임 정보 초기화
+    fun loadBreakTime() {
+        val myBreakTime = memberInfo
+            ?.optJSONObject("setting")
+            ?.optJSONObject("breakTime")
+
+        myBreakTime?.let {
+            // TimeManager 초기화
+            TimeManager.initialize(it)
+
+            // 포맷된 데이터를 가져옴
+            val formattedBreakTime = TimeManager.getFormattedBreakTimes()
+            breakTime = formattedBreakTime;
+            }
+        println("[브레이크 타임 정보 로드]")
+        println(breakTime)
+    }
+
+    // 브레이크 타임 정보 업데이트
+    fun saveBreakTime(breakTimeJson : JSONObject) {
+        val updatedMemberInfo = memberInfo ?: JSONObject()
+        val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
+
+        println("저장된 데이터:")
+        println(breakTimeJson)
+
+        // 여기에서 breakTimeString 데이터를 JSON으로 변환하여 저장
+        settings.put("breakTime", breakTimeJson)
+        updatedMemberInfo.put("setting", settings)
+        Storage.saveMemberInfo(updatedMemberInfo)
+
+        println("[브레이크 타임 정보 업데이트 완료]")
+        loadBreakTime()
+    }
+
+
+    //운영시간 정보 초기화
+    fun loadOperateTime() {
+        val myOperateTime = memberInfo
+            ?.optJSONObject("setting")
+            ?.optJSONObject("businessHour")
+
+        myOperateTime?.let {
+            // TimeManager 초기화
+            TimeManager.initialize(it)
+
+            // 포맷된 데이터를 가져옴
+            val formattedBreakTime = TimeManager.getFormattedBreakTimes()
+            operateTime = formattedBreakTime;
+        }
+        println("[운영시간 정보 로드]")
+        println(operateTime)
+    }
+
+
+    // 운영시간 정보 업데이트
+    fun saveOperateTime(operateTimeJson: JSONObject) {
+        val updatedMemberInfo = memberInfo ?: JSONObject()
+        val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
+
+        println("저장된 데이터:")
+        println(operateTimeJson)
+
+        settings.put("businessHour", operateTimeJson)
+        updatedMemberInfo.put("setting", settings)
+        Storage.saveMemberInfo(updatedMemberInfo)
+
+        println("[운영시간 정보 업데이트 완료]")
+        loadOperateTime()
     }
 }

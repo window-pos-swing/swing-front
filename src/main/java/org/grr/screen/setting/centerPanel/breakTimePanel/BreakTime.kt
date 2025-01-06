@@ -1,5 +1,6 @@
 package org.grr.screen.setting.centerPanel.breakTimePanel
 
+import org.grr.model.SettingModel
 import org.grr.`object`.Storage
 import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.BreakTimeModalDialog
@@ -9,6 +10,8 @@ import java.awt.*
 import javax.swing.*
 
 class BreakTime : JPanel() {
+    private val breakTimeLabel: JLabel
+
     init {
         layout = GridBagLayout()
 //        background = Color.RED  // 배경색 설정
@@ -31,15 +34,6 @@ class BreakTime : JPanel() {
 //            background = Color.RED
         }
 
-        /*
-            회원정보 갖고오는 구문
-        */
-        val memberInfo = Storage.getMemberInfo()
-        val breakTime = memberInfo
-            ?.optJSONObject("setting")
-            ?.optJSONObject("breakTime")
-        breakTime?.let { TimeManager.initialize(it) }
-        val formattedBreakTime = TimeManager.getFormattedBreakTimes()
 
         // 아이콘 경로 로드
         val watchIconPath = ImageIcon(javaClass.getResource("/watch.png"))
@@ -70,7 +64,7 @@ class BreakTime : JPanel() {
         gbc.weightx = 1.0
         gbc.weighty = 1.0  // 수직으로도 공간 차지
         gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
-        val breakTimeLabel = JLabel(formattedBreakTime).apply {
+        breakTimeLabel = JLabel(SettingModel.breakTime).apply {
             font = MyFont.Bold(18f)
             foreground = Color.PINK
             horizontalAlignment = SwingConstants.CENTER
@@ -86,10 +80,18 @@ class BreakTime : JPanel() {
             addActionListener {
                 val parentFrame = SwingUtilities.getWindowAncestor(this) as? JFrame
                 if (parentFrame != null) {
-                    BreakTimeModalDialog(parentFrame, "브레이크 타임 설정")
+                    BreakTimeModalDialog(parentFrame, "브레이크 타임 설정") {
+                        isUpdated -> if(isUpdated) updateBreakTimeLabel()
+                    }
                 }
             }
         }
         add(setButton, gbc)
+    }
+
+    private fun updateBreakTimeLabel() {
+        breakTimeLabel.text = SettingModel.breakTime
+        revalidate() // 레이아웃 다시 계산
+        repaint() // 화면 다시 그리기
     }
 }

@@ -65,21 +65,32 @@ object TimeManager {
     private fun formatTimes(times: Map<String, List<String>>): List<String> {
         val result = mutableListOf<String>()
 
+        // 전체 요일 처리
+        val allDaysGroup = times.filter { (_, days) -> days.containsAll(weekdays + weekends) && days.size == weekdays.size + weekends.size }
+        allDaysGroup.forEach { (timeRange, _) ->
+            result.add("전체요일: $timeRange")
+        }
+
         // 평일 처리
-        val weekdaysGroup = times.filter { (_, days) -> days.containsAll(weekdays) && days.size == weekdays.size }
+        val weekdaysGroup = times.filter { (_, days) ->
+            days.containsAll(weekdays) && days.size == weekdays.size && !days.containsAll(weekends)
+        }
         weekdaysGroup.forEach { (timeRange, _) ->
             result.add("평일: $timeRange")
         }
 
         // 주말 처리
-        val weekendsGroup = times.filter { (_, days) -> days.containsAll(weekends) && days.size == weekends.size }
+        val weekendsGroup = times.filter { (_, days) ->
+            days.containsAll(weekends) && days.size == weekends.size && !days.containsAll(weekdays)
+        }
         weekendsGroup.forEach { (timeRange, _) ->
             result.add("주말: $timeRange")
         }
 
         // 나머지 요일 처리
         val otherDaysGroup = times.filter { (_, days) ->
-            !(days.containsAll(weekdays) && days.size == weekdays.size) &&
+            !(days.containsAll(weekdays + weekends) && days.size == weekdays.size + weekends.size) &&
+                    !(days.containsAll(weekdays) && days.size == weekdays.size) &&
                     !(days.containsAll(weekends) && days.size == weekends.size)
         }
         otherDaysGroup.forEach { (timeRange, days) ->
@@ -89,6 +100,7 @@ object TimeManager {
 
         return result
     }
+
 
     // 영어 요일을 한글 요일로 변환
     private fun mapDayToKorean(day: String): String {
@@ -103,4 +115,77 @@ object TimeManager {
             else -> day
         }
     }
+
+    ///저장할때 사용
+    // 포맷된 데이터를 언포맷팅하여 JSON으로 변환
+    fun unformatBreakTimes(formattedData: String): JSONObject {
+        val breakTimeJson = JSONObject()
+        val lines = formattedData.split("\n")
+
+        for (line in lines) {
+            val parts = line.split(": ", limit = 2)
+            if (parts.size == 2) {
+                val daysText = parts[0]
+                val timeRange = parts[1]
+
+                // 전체 요일, 평일, 주말 등의 처리
+                val days = when (daysText) {
+                    "전체요일" -> weekdays + weekends // 전체 요일 처리
+                    "평일" -> weekdays
+                    "주말" -> weekends
+                    else -> daysText.split(", ").map { mapKoreanToDay(it) }
+                }
+
+                val timeParts = timeRange.split(" ~ ")
+                if (timeParts.size == 2) {
+                    val startTime = parseKoreanTime(timeParts[0].trim())
+                    val endTime = parseKoreanTime(timeParts[1].trim())
+
+                    days.forEach { day ->
+                        breakTimeJson.put("${day}StartTime", listOf(startTime.first, startTime.second))
+                        breakTimeJson.put("${day}EndTime", listOf(endTime.first, endTime.second))
+                    }
+                }
+            }
+        }
+
+        return breakTimeJson
+    }
+
+    // 한국어 요일을 영어 요일로 변환
+    private fun mapKoreanToDay(koreanDay: String): String {
+        return when (koreanDay) {
+            "월" -> "monday"
+            "화" -> "tuesday"
+            "수" -> "wednesday"
+            "목" -> "thursday"
+            "금" -> "friday"
+            "토" -> "saturday"
+            "일" -> "sunday"
+            else -> koreanDay
+        }
+    }
+
+    // 한국어 시간 문자열을 시간 값으로 변환
+    private fun parseKoreanTime(timeString: String): Pair<Int, Int> {
+        val isPM = timeString.contains("오후")
+        val cleanTime = timeString
+            .replace("오전", "")
+            .replace("오후", "")
+            .replace("시", ":")
+            .replace("분", "")
+            .trim() // 공백 제거
+        val parts = cleanTime.split(":")
+
+        if (parts.size != 2) {
+            throw IllegalArgumentException("Invalid time format: $timeString")
+        }
+
+        val hour = parts[0].trim().toInt() + if (isPM && parts[0].trim().toInt() != 12) 12 else 0
+        val minute = parts[1].trim().toInt()
+
+        return Pair(hour, minute)
+    }
+
+
 }

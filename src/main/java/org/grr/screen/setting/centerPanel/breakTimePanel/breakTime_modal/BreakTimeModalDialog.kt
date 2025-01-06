@@ -2,6 +2,7 @@ package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal
 
 import CustomRoundedDialog
 import CustomToggleButton3
+import org.grr.model.SettingModel
 import org.grr.`object`.Storage
 import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.allDays.AllDays
@@ -34,24 +35,9 @@ class BreakTimeModalDialog(
         setLocationRelativeTo(parent)
         background = Color.WHITE
 
-        //        회원정보 갖고오는 구문
-        val memberInfo = Storage.getMemberInfo()
 
-        val breakTime = memberInfo
-            ?.optJSONObject("setting")
-            ?.optJSONObject("breakTime")
-
-        breakTime?.let {
-            // TimeManager 초기화
-            TimeManager.initialize(it)
-
-            // 포맷된 데이터를 가져옴
-            val formattedBreakTime = TimeManager.getFormattedBreakTimes()
-
-//            println("브레이크 타임:\n$formattedBreakTime")
-
-            // 포맷된 데이터를 줄 단위로 나누어 패널에 추가
-            formattedBreakTime.split("\n").forEach { line ->
+        // 포맷된 데이터를 줄 단위로 나누어 패널에 추가
+        SettingModel.breakTime.split("\n").forEach { line ->
                 val parts = line.split(": ", limit = 2) // "평일: 14:00 ~ 15:00" 등 분리
                 if (parts.size == 2) {
                     val labelText = parts[0]
@@ -69,7 +55,6 @@ class BreakTimeModalDialog(
                         TimeManager.breakTimeDataList.add(BreakTimeData(labelText, timeRangeText))
                     }
                 }
-            }
         }
 
         // 중앙 패널
@@ -144,6 +129,8 @@ class BreakTimeModalDialog(
 
             addActionListener {
                 saveBreakTime()
+                callback?.invoke(true) // 업데이트 완료 신호
+                dispose() // Dialog 닫기
             }
         }
 
@@ -410,19 +397,39 @@ class BreakTimeModalDialog(
         if (TimeManager.breakTimeDataList.isEmpty()) {
             println("저장된 브레이크 타임 데이터가 없습니다.")
         } else {
-            println("저장된 브레이크 타임 데이터:")
+            println("저장된 브레이크 타임 데이터")
             TimeManager.breakTimeDataList.forEach { println("요일: ${it.labelText}, 시간: ${it.timeRangeText}") }
         }
     }
 
     private fun saveBreakTime() {
-        println("저장된 데이터:")
+        val formattedData = StringBuilder()
+
+        // `bottomPanel`에서 데이터를 가져와 포맷 데이터를 생성
         for (component in bottomPanel.components) {
             if (component is JPanel) {
                 val centerPanel = component.getComponent(0) as? JPanel
                 val labels = centerPanel?.components?.filterIsInstance<JLabel>()
-                labels?.forEach { println(it.text) }
+
+                if (labels != null && labels.size >= 2) {
+                    val labelText = labels[0].text.trim() // 요일 정보
+                    val timeRangeText = labels[1].text.trim() // 시간 범위
+
+                    formattedData.append("$labelText: $timeRangeText\n")
+                }
             }
         }
+
+        // 포맷된 데이터를 출력
+        val formattedString = formattedData.toString().trim()
+        println("Formatted Data:\n$formattedString")
+
+        // UNFormat을 적용하여 JSON으로 변환
+        val unformattedJson = TimeManager.unformatBreakTimes(formattedString)
+        println("UNFormatted JSON:\n${unformattedJson.toString(2)}")
+
+        SettingModel.saveBreakTime(unformattedJson);
     }
+
+
 }

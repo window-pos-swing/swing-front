@@ -43,14 +43,19 @@ class MainForm : JFrame() {
                     // JSON 형태의 회원 정보 추출
                     val memberData = JSONObject(message.substringAfter(""))
                     Storage.saveMemberInfo(memberData)
+                    //로컬 요리/배달 데이터 초기화
+                    println("===============================")
+                    SettingModel.loadCookDeliveryTime()
+                    SettingModel.loadBreakTime()
+                    SettingModel.loadOperateTime()
+                    println("===============================")
                 } else {
 //                    회원 정보 저장 실패 시 에러
                     JOptionPane.showMessageDialog(this@MainForm, message, "오류", JOptionPane.ERROR_MESSAGE)
                 }
             }
         }
-        //로컬 요리/배달 데이터 초기화
-        SettingModel.loadCookDeliveryTime()
+
         val memberInfo = Storage.getMemberInfo()
         val email = memberInfo
             ?.optString("email")

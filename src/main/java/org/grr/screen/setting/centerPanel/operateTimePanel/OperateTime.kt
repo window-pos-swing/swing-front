@@ -1,5 +1,6 @@
 package org.grr.screen.setting.centerPanel.operateTimePanel
 
+import org.grr.model.SettingModel
 import org.grr.`object`.Storage
 import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.operateTimePanel.operateTime_modal.OperateTimeModalDialog
@@ -9,6 +10,7 @@ import java.awt.*
 import javax.swing.*
 
 class OperateTime : JPanel() {
+    private val operateTimeLabel: JLabel
     init {
         layout = GridBagLayout()
 //        background = Color.RED  // 배경색 설정
@@ -30,20 +32,6 @@ class OperateTime : JPanel() {
             maximumSize = Dimension(190, 40)  // 최대 크기 고정
 //            background = Color.RED
         }
-
-        /*
-            회원정보 갖고오는 구문
-        */
-        val memberInfo = Storage.getMemberInfo()
-
-        val operateTime = memberInfo
-            ?.optJSONObject("setting")
-            ?.optJSONObject("businessHour")
-
-        operateTime?.let { TimeManager.initialize(operateTime) }
-        val formattedOperateTime = TimeManager.getFormattedBreakTimes()
-
-        println("운영 시간 ${formattedOperateTime}")
 
         // 아이콘 경로 로드
         val watchIconPath = ImageIcon(javaClass.getResource("/watch.png"))
@@ -73,12 +61,12 @@ class OperateTime : JPanel() {
         gbc.weightx = 1.0
         gbc.weighty = 1.0  // 수직으로도 공간 차지
         gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
-        val breakTimeLabel = JLabel(formattedOperateTime).apply {
+        operateTimeLabel = JLabel(SettingModel.operateTime).apply {
             font = MyFont.Bold(18f)
             foreground = Color.PINK
             horizontalAlignment = SwingConstants.CENTER
         }
-        add(breakTimeLabel, gbc)
+        add(operateTimeLabel, gbc)
 
         // 설정 버튼을 오른쪽 끝에 배치
         gbc.gridx = 2
@@ -89,10 +77,19 @@ class OperateTime : JPanel() {
             addActionListener {
                 val parentFrame = SwingUtilities.getWindowAncestor(this) as? JFrame
                 if (parentFrame != null) {
-                    OperateTimeModalDialog(parentFrame, "영업 시간 설정")
+                    OperateTimeModalDialog(parentFrame, "영업 시간 설정") {
+                        isUpdated -> if(isUpdated) updateOperateTimeLabel()
+                    }
                 }
             }
         }
         add(setButton, gbc)
+    }
+
+    private fun updateOperateTimeLabel() {
+        operateTimeLabel.text = SettingModel.operateTime
+        revalidate() // 레이아웃 다시 계산
+        repaint() // 화면 다시 그리기
+        print("updateOperateTimeLabel")
     }
 }
