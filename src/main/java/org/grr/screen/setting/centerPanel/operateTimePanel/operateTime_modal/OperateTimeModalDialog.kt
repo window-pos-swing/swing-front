@@ -2,6 +2,7 @@ package org.grr.screen.setting.centerPanel.operateTimePanel.operateTime_modal
 
 import CustomRoundedDialog
 import CustomToggleButton3
+import org.grr.api.SettingToServer
 import org.grr.model.SettingModel
 import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.BreakTimeData
@@ -434,6 +435,14 @@ class OperateTimeModalDialog(parent: JFrame, title: String, callback: ((Boolean)
         val unformattedJson = TimeManager.unformatBreakTimes(formattedString)
         println("UNFormatted JSON:\n${unformattedJson.toString(2)}")
 
-        SettingModel.saveOperateTime(unformattedJson);
+        SettingModel.saveOperateTime(unformattedJson)
+
+        val settingToServer = SettingToServer()
+        val result = settingToServer.settingUpdateToServer()
+        if (result.first) {
+            JOptionPane.showMessageDialog(this, "영업시간이 업데이트되었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE)
+        } else {
+            JOptionPane.showMessageDialog(this, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
+        }
     }
 }

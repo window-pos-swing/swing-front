@@ -3,8 +3,6 @@ package org.grr.model;
 import org.grr.`object`.Storage
 import org.grr.`object`.TimeManager
 import org.json.JSONObject
-import javax.swing.JLabel
-import javax.swing.JPanel
 
 object SettingModel {
     var cookingTime: Int = 0 // 조리 시간

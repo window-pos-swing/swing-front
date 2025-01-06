@@ -2,6 +2,7 @@ package org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal
 
 import CustomRoundedDialog
 import CustomToggleButton3
+import org.grr.api.SettingToServer
 import org.grr.model.SettingModel
 import org.grr.`object`.Storage
 import org.grr.`object`.TimeManager
@@ -38,23 +39,23 @@ class BreakTimeModalDialog(
 
         // 포맷된 데이터를 줄 단위로 나누어 패널에 추가
         SettingModel.breakTime.split("\n").forEach { line ->
-                val parts = line.split(": ", limit = 2) // "평일: 14:00 ~ 15:00" 등 분리
-                if (parts.size == 2) {
-                    val labelText = parts[0]
-                    val timeRangeText = parts[1]
+            val parts = line.split(": ", limit = 2) // "평일: 14:00 ~ 15:00" 등 분리
+            if (parts.size == 2) {
+                val labelText = parts[0]
+                val timeRangeText = parts[1]
 
-                    // 패널 추가
-                    getBottomPanel(labelText, timeRangeText)
+                // 패널 추가
+                getBottomPanel(labelText, timeRangeText)
 
-                    // 데이터 리스트에 추가 (중복 확인 없이 로드)
-                    val isAlreadyAdded = TimeManager.breakTimeDataList.any {
-                        it.labelText == labelText && it.timeRangeText == timeRangeText
-                    }
-
-                    if (!isAlreadyAdded) {
-                        TimeManager.breakTimeDataList.add(BreakTimeData(labelText, timeRangeText))
-                    }
+                // 데이터 리스트에 추가 (중복 확인 없이 로드)
+                val isAlreadyAdded = TimeManager.breakTimeDataList.any {
+                    it.labelText == labelText && it.timeRangeText == timeRangeText
                 }
+
+                if (!isAlreadyAdded) {
+                    TimeManager.breakTimeDataList.add(BreakTimeData(labelText, timeRangeText))
+                }
+            }
         }
 
         // 중앙 패널
@@ -404,7 +405,6 @@ class BreakTimeModalDialog(
 
     private fun saveBreakTime() {
         val formattedData = StringBuilder()
-
         // `bottomPanel`에서 데이터를 가져와 포맷 데이터를 생성
         for (component in bottomPanel.components) {
             if (component is JPanel) {
@@ -428,7 +428,15 @@ class BreakTimeModalDialog(
         val unformattedJson = TimeManager.unformatBreakTimes(formattedString)
         println("UNFormatted JSON:\n${unformattedJson.toString(2)}")
 
-        SettingModel.saveBreakTime(unformattedJson);
+        SettingModel.saveBreakTime(unformattedJson)
+
+        val settingToServer = SettingToServer()
+        val result = settingToServer.settingUpdateToServer()
+        if (result.first) {
+            JOptionPane.showMessageDialog(this, "브레이크 시간이 업데이트되었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE)
+        } else {
+            JOptionPane.showMessageDialog(this, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
+        }
     }
 
 
