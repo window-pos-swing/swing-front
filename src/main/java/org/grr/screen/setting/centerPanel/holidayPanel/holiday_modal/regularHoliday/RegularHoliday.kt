@@ -23,7 +23,7 @@ class RegularHoliday: JPanel() {
         }
 
         // 첫 번째 행 - 요일 및 주차 선택
-        val weekComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("매월 첫째", "매월 둘째", "매월 셋째", "매월 넷째")), Color(13, 130, 191), 2f).apply {
+        val weekComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("매월 첫째", "매월 둘째", "매월 셋째", "매월 넷째", "매월 다섯째")), Color(13, 130, 191), 2f).apply {
             preferredSize = Dimension(160, 50)
             font = MyFont.Bold(18f)
         }
