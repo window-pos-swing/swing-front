@@ -71,7 +71,7 @@ object HolidayManager {
 
         if (weeklyHolidays.isNotEmpty()) {
             weeklyHolidays.forEach { (week, days) ->
-                val weekText = if (week == -1) "" else "${mapWeekToKorean(week)}째 주:"
+                val weekText = if (week == -1) "" else "매월 ${mapWeekToKorean(week)}째:"
                 result.add("$weekText ${days.distinct().joinToString(", ")}  ")
             }
         }
@@ -87,13 +87,13 @@ object HolidayManager {
 
     private fun mapDayToKorean(day: Int): String {
         return when (day) {
-            1 -> "월"
-            2 -> "화"
-            3 -> "수"
-            4 -> "목"
-            5 -> "금"
-            6 -> "토"
-            7 -> "일"
+            1 -> "월요일"
+            2 -> "화요일"
+            3 -> "수요일"
+            4 -> "목요일"
+            5 -> "금요일"
+            6 -> "토요일"
+            7 -> "일요일"
             else -> "알 수 없음"
         }
     }

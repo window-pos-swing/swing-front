@@ -118,6 +118,7 @@ class TemporaryHoliday : JPanel() {
                 }
 
                 // 임시 휴무 추가
+                //EX] addTemporaryHoliday( "2024-12-25" , "2025-01-01" )
                 addTemporaryHoliday(startDate.toString(), endDate.toString())
             }
         }, gbc)
@@ -171,7 +172,7 @@ class TemporaryHoliday : JPanel() {
     }
 
     // 선택된 임시 휴무를 추가하는 메서드
-    private fun addTemporaryHoliday(startDate: String, endDate: String) {
+    fun addTemporaryHoliday(startDate: String, endDate: String) {
         val gbc = GridBagConstraints().apply {
             gridy = holidayCount
             fill = GridBagConstraints.HORIZONTAL

@@ -1,5 +1,6 @@
 package org.grr.model;
 
+import org.grr.`object`.HolidayManager
 import org.grr.`object`.Storage
 import org.grr.`object`.TimeManager
 import org.json.JSONObject
@@ -11,6 +12,8 @@ object SettingModel {
     var deliveryTimeControl: Boolean = false // 배달 시간 (자동여부)
     var breakTime: String = "" // 브레이크 타임
     var operateTime: String = ""
+    var regularHoliday : String = ""
+    var temporaryHoliday : String = ""
 
     val memberInfo = Storage.getMemberInfo()
 
@@ -133,5 +136,46 @@ object SettingModel {
 
         println("[운영시간 정보 업데이트 완료]")
         loadOperateTime()
+    }
+
+    fun loadHoliday() {
+        val holidayListJsonArray = memberInfo
+            ?.optJSONObject("setting")
+            ?.optJSONArray("holidayList")
+
+        if (holidayListJsonArray != null) {
+            // HolidayManager를 통해 휴일 데이터를 파싱합니다.
+            val formattedHoliday = HolidayManager.parseHolidays(holidayListJsonArray)
+
+            println("[휴무일 정보 로드]")
+            println("포맷된 휴무일: $formattedHoliday")
+
+            // 주간 휴일과 임시 휴일 데이터를 각각 추출
+            val (regular, temporary) = splitHolidayData(formattedHoliday)
+
+            regularHoliday = regular
+            temporaryHoliday = temporary
+
+            println("[주간 휴무일] $regularHoliday")
+            println("[임시 휴무일] $temporaryHoliday")
+        } else {
+            println("[휴무일 정보 로드 실패] 설정된 휴무일 데이터가 없습니다.")
+        }
+    }
+
+    // 포맷된 휴일 데이터를 주간과 임시로 나눔
+    private fun splitHolidayData(formattedHoliday: String): Pair<String, String> {
+        val beforeMonthly = formattedHoliday.split("월간").firstOrNull()?.trim() ?: ""
+        val temporaryHoliday = formattedHoliday.split("임시").getOrNull(1)?.trim()?.let {
+            "임시 $it"
+        } ?: ""
+
+        return Pair(beforeMonthly, temporaryHoliday)
+    }
+
+
+
+    fun saveHoliday() {
+
     }
 }

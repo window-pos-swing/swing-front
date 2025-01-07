@@ -50,6 +50,7 @@ class RegularHoliday: JPanel() {
                 // 버튼이 눌렸을 때 선택된 값 출력
                 val selectedWeek = weekComboBox.selectedItem as String
                 val selectedDay = dayComboBox.selectedItem as String
+                //EX] addHolidayItem( "매월첫째" , "월요일" )
                 addHolidayItem(selectedWeek, selectedDay)
             }
         }
@@ -70,7 +71,7 @@ class RegularHoliday: JPanel() {
     }
 
     // 선택된 항목을 UI에 추가하는 메서드
-    private fun addHolidayItem(week: String, day: String) {
+    fun addHolidayItem(week: String, day: String) {
         val gbc = GridBagConstraints().apply {
             gridy = holidayCount
             weightx = 1.0

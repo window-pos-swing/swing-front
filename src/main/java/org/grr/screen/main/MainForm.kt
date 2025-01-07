@@ -48,6 +48,7 @@ class MainForm : JFrame() {
                     SettingModel.loadCookDeliveryTime()
                     SettingModel.loadBreakTime()
                     SettingModel.loadOperateTime()
+                    SettingModel.loadHoliday()
                     println("===============================")
                 } else {
 //                    회원 정보 저장 실패 시 에러

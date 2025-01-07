@@ -1,6 +1,7 @@
 package org.grr.screen.setting.centerPanel.holidayPanel.holiday_modal
 
 import CustomRoundedDialog
+import org.grr.model.SettingModel
 import org.grr.util.MyFont
 import org.grr.screen.setting.centerPanel.holidayPanel.holiday_modal.regularHoliday.RegularHoliday
 import org.grr.screen.setting.centerPanel.holidayPanel.holiday_modal.temporaryHoliday.TemporaryHoliday
@@ -43,6 +44,20 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
         val regularHoliday = RegularHoliday()
         regularHolidayPanel.add(regularHoliday, BorderLayout.CENTER)
 
+        //기존 저장된 정기휴무 초기화
+        val regularHolidayData = SettingModel.regularHoliday.split("\n").filter { it.isNotBlank() }
+
+        for (line in regularHolidayData) {
+            val parts = line.split(":").map { it.trim() } // "매월 셋째: 금요일" 같은 형식
+
+            if (parts.size == 2) {
+                val week = parts[0] // "매월 셋째"
+                val day = parts[1]  // "금요일"
+
+                regularHoliday.addHolidayItem(week, day)
+            }
+        }
+
         // 임시 휴무 패널과 텍스트 묶기
         val temporaryHolidayPanel = JPanel(BorderLayout()).apply {
             background = Color.WHITE
@@ -58,6 +73,25 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
         // 임시 휴무 패널
         val temporaryHoliday = TemporaryHoliday()
         temporaryHolidayPanel.add(temporaryHoliday, BorderLayout.CENTER)
+
+        val temporaryHolidayData = SettingModel.temporaryHoliday
+
+        // "임시: 2024년 12월 25일 ~ 2025년 1월 1일" 형태 파싱
+        val pattern = Regex("""(\d{4})년 (\d{1,2})월 (\d{1,2})일 ~ (\d{4})년 (\d{1,2})월 (\d{1,2})일""")
+        val matchResult = pattern.find(temporaryHolidayData)
+
+        if (matchResult != null) {
+            val (startYear, startMonth, startDay, endYear, endMonth, endDay) = matchResult.destructured
+
+            // 날짜를 "YYYY-MM-DD" 형식으로 변환
+            val startDate = "$startYear-${startMonth.padStart(2, '0')}-${startDay.padStart(2, '0')}"
+            val endDate = "$endYear-${endMonth.padStart(2, '0')}-${endDay.padStart(2, '0')}"
+
+            // addTemporaryHoliday 호출
+            temporaryHoliday.addTemporaryHoliday(startDate, endDate)
+        } else {
+            println("임시 휴무일 데이터를 파싱할 수 없습니다: $temporaryHolidayData")
+        }
 
         // 정기 휴무 패널을 mainPanel에 추가
         gbc.gridx = 0
@@ -126,4 +160,5 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
             minimumSize = Dimension(width, height)
         }
     }
+
 }
