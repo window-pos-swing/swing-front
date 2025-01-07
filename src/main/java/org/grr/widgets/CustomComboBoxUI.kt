@@ -95,7 +95,7 @@ class RoundedComboBox(model: ComboBoxModel<String>,
 }
 // 둥근 콤보박스 클래스
 class RoundedComboBox2(
-    private val model: String,
+    val text: String,
     private val borderColor: Color = Color(86, 86, 86),  // 테두리 색상 (기본값 설정)
     private val borderWidth: Float = 1f  // 테두리 두께 (기본값 설정)
 ) : JPanel() {
@@ -124,7 +124,7 @@ class RoundedComboBox2(
         val fm = g2.fontMetrics
         val textX = 12  // 텍스트를 가운데 정렬
         val textY = (height + fm.ascent) / 2 - 2
-        g2.drawString(model, textX, textY)  // 텍스트 그리기
+        g2.drawString(text, textX, textY)  // 텍스트 그리기
     }
 }
 

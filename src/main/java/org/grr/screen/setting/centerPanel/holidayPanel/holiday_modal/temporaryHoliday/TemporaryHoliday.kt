@@ -258,4 +258,23 @@ class TemporaryHoliday : JPanel() {
         holidayListPanel.revalidate()
         holidayListPanel.repaint()
     }
+
+    fun getAllTemporaryHolidays(): List<Pair<String, String>> {
+        val holidays = mutableListOf<Pair<String, String>>()
+
+        // Iterate over the components in holidayListPanel
+        for (i in 0 until holidayListPanel.componentCount step 4) {
+            val startDateLabel = holidayListPanel.getComponent(i) as RoundedComboBox2
+            val endDateLabel = holidayListPanel.getComponent(i + 2) as RoundedComboBox2
+
+            // Extract start date and end date from the labels
+            val startDate = startDateLabel.text
+            val endDate = endDateLabel.text
+
+            holidays.add(Pair(startDate, endDate))
+        }
+
+        return holidays
+    }
+
 }

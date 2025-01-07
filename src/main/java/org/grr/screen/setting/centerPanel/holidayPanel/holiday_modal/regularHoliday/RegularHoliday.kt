@@ -152,4 +152,15 @@ class RegularHoliday: JPanel() {
         holidayListPanel.revalidate()
         holidayListPanel.repaint()
     }
+
+    fun getAllHolidays(): List<Pair<String, String>> {
+        val holidays = mutableListOf<Pair<String, String>>()
+        for (i in 0 until holidayListPanel.componentCount step 3) {
+            val week = (holidayListPanel.getComponent(i) as RoundedComboBox2).text
+            val day = (holidayListPanel.getComponent(i + 1) as RoundedComboBox2).text
+            holidays.add(Pair(week, day))
+        }
+        return holidays
+    }
+
 }

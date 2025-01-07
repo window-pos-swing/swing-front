@@ -1,6 +1,7 @@
 package org.grr.`object`
 
 import org.json.JSONArray
+import org.json.JSONObject
 
 object HolidayManager {
 
@@ -106,6 +107,65 @@ object HolidayManager {
             4 -> "넷"
             5 -> "다섯"
             else -> "$week"
+        }
+    }
+
+    fun unFormatHoliday(
+        regularHolidays: List<Pair<String, String>>,
+        temporaryHolidays: List<Pair<String, String>>
+    ): JSONArray {
+        val holidayList = JSONArray()
+
+        // 정기 휴무 처리
+        regularHolidays.forEach { (week, day) ->
+            val weekNumber = mapWeekToNumber(week.replace("매월 ", "").replace("째", ""))
+            val dayNumber = mapDayToNumber(day.replace("요일", ""))
+
+            if (weekNumber != null && dayNumber != null) {
+                holidayList.put(JSONObject().apply {
+                    put("holidayType", "WEEKLY")
+                    put("weeksOfMonth", JSONArray().put(weekNumber))
+                    put("daysOfWeek", JSONArray().put(dayNumber))
+                })
+            }
+        }
+
+        // 임시 휴무 처리
+        temporaryHolidays.forEach { (startDate, endDate) ->
+            holidayList.put(JSONObject().apply {
+                put("holidayType", "SPECIFIC_DATE")
+                put("specificDates", JSONArray().apply {
+                    put(JSONObject(mapOf("first" to startDate.split("-")[0].toInt(), "second" to startDate.split("-")[1].toInt(), "third" to startDate.split("-")[2].toInt())))
+                    put(JSONObject(mapOf("first" to endDate.split("-")[0].toInt(), "second" to endDate.split("-")[1].toInt(), "third" to endDate.split("-")[2].toInt())))
+                })
+            })
+        }
+
+        return holidayList
+    }
+
+
+    private fun mapWeekToNumber(week: String): Int? {
+        return when (week) {
+            "첫" -> 1
+            "둘" -> 2
+            "셋" -> 3
+            "넷" -> 4
+            "다섯" -> 5
+            else -> null
+        }
+    }
+
+    private fun mapDayToNumber(day: String): Int? {
+        return when (day) {
+            "월" -> 1
+            "화" -> 2
+            "수" -> 3
+            "목" -> 4
+            "금" -> 5
+            "토" -> 6
+            "일" -> 7
+            else -> null
         }
     }
 }

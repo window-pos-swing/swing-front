@@ -3,6 +3,7 @@ package org.grr.model;
 import org.grr.`object`.HolidayManager
 import org.grr.`object`.Storage
 import org.grr.`object`.TimeManager
+import org.json.JSONArray
 import org.json.JSONObject
 
 object SettingModel {
@@ -81,7 +82,7 @@ object SettingModel {
             val formattedBreakTime = TimeManager.getFormattedBreakTimes()
             breakTime = formattedBreakTime;
             }
-        println("[브레이크 타임 정보 로드]")
+        println("[브레이크 타임 로컬 정보 로드]")
         println(breakTime)
     }
 
@@ -117,7 +118,7 @@ object SettingModel {
             val formattedBreakTime = TimeManager.getFormattedBreakTimes()
             operateTime = formattedBreakTime;
         }
-        println("[운영시간 정보 로드]")
+        println("[운영시간 정보 로컬 로드]")
         println(operateTime)
     }
 
@@ -134,7 +135,7 @@ object SettingModel {
         updatedMemberInfo.put("setting", settings)
         Storage.saveMemberInfo(updatedMemberInfo)
 
-        println("[운영시간 정보 업데이트 완료]")
+        println("[운영시간 정보 로컬 업데이트 완료]")
         loadOperateTime()
     }
 
@@ -147,19 +148,21 @@ object SettingModel {
             // HolidayManager를 통해 휴일 데이터를 파싱합니다.
             val formattedHoliday = HolidayManager.parseHolidays(holidayListJsonArray)
 
-            println("[휴무일 정보 로드]")
+            println("[휴무일 정보 로컬 로드]")
             println("포맷된 휴무일: $formattedHoliday")
 
             // 주간 휴일과 임시 휴일 데이터를 각각 추출
             val (regular, temporary) = splitHolidayData(formattedHoliday)
 
-            regularHoliday = regular
-            temporaryHoliday = temporary
+            // 주간 휴무와 임시 휴무를 조건에 맞게 설정
+            regularHoliday = regular.ifBlank { "등록된 주간 휴무가 없습니다." }
+            temporaryHoliday = temporary.ifBlank { "등록된 임시 휴무가 없습니다." }
+
 
             println("[주간 휴무일] $regularHoliday")
             println("[임시 휴무일] $temporaryHoliday")
         } else {
-            println("[휴무일 정보 로드 실패] 설정된 휴무일 데이터가 없습니다.")
+            println("[휴무일 정보 로컬 로드 실패] 설정된 휴무일 데이터가 없습니다.")
         }
     }
 
@@ -169,13 +172,23 @@ object SettingModel {
         val temporaryHoliday = formattedHoliday.split("임시").getOrNull(1)?.trim()?.let {
             "임시 $it"
         } ?: ""
-
-        return Pair(beforeMonthly, temporaryHoliday)
+        // "임시" 데이터를 제거
+        val regularHoliday = beforeMonthly.replace("임시.*".toRegex(), "").trim()
+        return Pair(regularHoliday, temporaryHoliday)
     }
 
+    fun saveHoliday(holidayJson: JSONArray) {
+        val updatedMemberInfo = memberInfo ?: JSONObject()
+        val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
 
+        println("저장된 데이터:")
+        println(holidayJson)
 
-    fun saveHoliday() {
+        settings.put("holidayList", holidayJson)
+        updatedMemberInfo.put("setting", settings)
+        Storage.saveMemberInfo(updatedMemberInfo)
 
+        println("[휴무일 정보 로컬 업데이트 완료]")
+        loadHoliday()
     }
 }

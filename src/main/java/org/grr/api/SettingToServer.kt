@@ -110,9 +110,12 @@ class SettingToServer {
         val filteredData = JSONObject().apply {
             put("breakTime", settingData.optJSONObject("breakTime")?.apply { remove("id") })
             put("businessHour", settingData.optJSONObject("businessHour")?.apply { remove("id") })
-//            put("holidayList", settingData.optJSONArray("holidayList"))
+            put("holiday", settingData.optJSONArray("holidayList")?.map { holiday ->
+                (holiday as JSONObject).apply { remove("id") }
+            })
         }
-        println("Body : $filteredData")
+        // JSON을 정렬하여 출력
+        println("[Body]  ${filteredData.toString(2)}")
 
         val requestBody = filteredData
             .toString()

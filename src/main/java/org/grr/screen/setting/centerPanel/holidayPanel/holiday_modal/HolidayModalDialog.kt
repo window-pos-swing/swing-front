@@ -1,7 +1,10 @@
 package org.grr.screen.setting.centerPanel.holidayPanel.holiday_modal
 
 import CustomRoundedDialog
+import org.grr.api.SettingToServer
 import org.grr.model.SettingModel
+import org.grr.`object`.HolidayManager
+import org.grr.`object`.TimeManager
 import org.grr.util.MyFont
 import org.grr.screen.setting.centerPanel.holidayPanel.holiday_modal.regularHoliday.RegularHoliday
 import org.grr.screen.setting.centerPanel.holidayPanel.holiday_modal.temporaryHoliday.TemporaryHoliday
@@ -87,7 +90,7 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
             val startDate = "$startYear-${startMonth.padStart(2, '0')}-${startDay.padStart(2, '0')}"
             val endDate = "$endYear-${endMonth.padStart(2, '0')}-${endDay.padStart(2, '0')}"
 
-            // addTemporaryHoliday 호출
+            // 저장된 임시휴무 UI 셋팅
             temporaryHoliday.addTemporaryHoliday(startDate, endDate)
         } else {
             println("임시 휴무일 데이터를 파싱할 수 없습니다: $temporaryHolidayData")
@@ -129,6 +132,32 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
             isOpaque = true
             isBorderPainted = false
             preferredSize = Dimension(300, 60)
+            addActionListener {
+                // 정기 휴무 데이터 가져오기
+                println("=== 저장 정기 휴무 ===")
+                val regularHolidays = regularHoliday.getAllHolidays()
+                if (regularHolidays.isEmpty()) {
+                    println("등록된 정기 휴무가 없습니다.")
+                } else {
+                    regularHolidays.forEach { (week, day) ->
+                        println("정기 휴무: $week $day")
+                    }
+                }
+
+                // 임시 휴무 데이터 가져오기
+                println("=== 저장 임시 휴무 ===")
+                val temporaryHolidays = temporaryHoliday.getAllTemporaryHolidays()
+                if (temporaryHolidays.isEmpty()) {
+                    println("등록된 임시 휴무가 없습니다.")
+                } else {
+                    temporaryHolidays.forEach { (startDate, endDate) ->
+                        println("임시 휴무: $startDate ~ $endDate")
+                    }
+                }
+
+                // JSON 변환 및 저장 처리 함수 호출
+                saveHolidayData(regularHolidays, temporaryHolidays)
+            }
         }
 
         // 버튼 추가
@@ -158,6 +187,28 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
             preferredSize = Dimension(width, height)
             maximumSize = Dimension(width, height)
             minimumSize = Dimension(width, height)
+        }
+    }
+
+    private fun saveHolidayData(regularHolidays: List<Pair<String, String>>, temporaryHolidays: List<Pair<String, String>>) {
+        try {
+            // JSON 변환
+            val unformattedJson = HolidayManager.unFormatHoliday(regularHolidays, temporaryHolidays)
+            println("Final Unformatted Holiday JSON: ${unformattedJson.toString(2)}")
+
+            // 로컬 및 서버 저장
+            SettingModel.saveHoliday(unformattedJson)
+            val result = SettingToServer().settingUpdateToServer()
+
+            // 결과 처리
+            if (result.first) {
+                JOptionPane.showMessageDialog(null, "휴무일 시간이 업데이트되었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE)
+            } else {
+                JOptionPane.showMessageDialog(null, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            JOptionPane.showMessageDialog(null, "저장 중 오류 발생: ${e.message}", "오류", JOptionPane.ERROR_MESSAGE)
         }
     }
 

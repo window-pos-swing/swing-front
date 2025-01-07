@@ -1,6 +1,7 @@
 package org.grr.`object`
 
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.BreakTimeData
+import org.json.JSONArray
 import org.json.JSONObject
 
 object TimeManager {
@@ -120,6 +121,8 @@ object TimeManager {
     // 포맷된 데이터를 언포맷팅하여 JSON으로 변환
     fun unformatBreakTimes(formattedData: String): JSONObject {
         val breakTimeJson = JSONObject()
+        val daysOfWeek = listOf("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+        val populatedDays = mutableSetOf<String>() // 채워진 요일 추적
         val lines = formattedData.split("\n")
 
         for (line in lines) {
@@ -142,10 +145,19 @@ object TimeManager {
                     val endTime = parseKoreanTime(timeParts[1].trim())
 
                     days.forEach { day ->
-                        breakTimeJson.put("${day}StartTime", listOf(startTime.first, startTime.second))
-                        breakTimeJson.put("${day}EndTime", listOf(endTime.first, endTime.second))
+                        breakTimeJson.put("${day}StartTime", JSONArray().put(startTime.first).put(startTime.second))
+                        breakTimeJson.put("${day}EndTime", JSONArray().put(endTime.first).put(endTime.second))
+                        populatedDays.add(day) // 요일 추가
                     }
                 }
+            }
+        }
+
+        // 누락된 요일은 JSONObject.NULL로 처리
+        daysOfWeek.forEach { day ->
+            if (!populatedDays.contains(day)) {
+                breakTimeJson.put("${day}StartTime", JSONObject.NULL) // JSONObject.NULL로 설정
+                breakTimeJson.put("${day}EndTime", JSONObject.NULL) // JSONObject.NULL로 설정
             }
         }
 
@@ -186,6 +198,4 @@ object TimeManager {
 
         return Pair(hour, minute)
     }
-
-
 }
