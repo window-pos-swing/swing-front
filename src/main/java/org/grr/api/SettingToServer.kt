@@ -115,7 +115,7 @@ class SettingToServer {
             })
         }
         // JSON을 정렬하여 출력
-        println("[Body]  ${filteredData.toString(2)}")
+        println("[서버로 전송 Body]  ${filteredData.toString(2)}")
 
         val requestBody = filteredData
             .toString()

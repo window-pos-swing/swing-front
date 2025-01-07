@@ -90,7 +90,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
             // 주소 정보
             val addressItems = JLabel(order.address).apply {
                 font = MyFont.Medium(20f)
-                border = BorderFactory.createEmptyBorder(0, 0, 0, 0)  // 상하 여백 제거
+                border = BorderFactory.createEmptyBorder(0, 0, 0, 20)  // 상하 여백 제거
                 foreground = Color.GRAY
                 alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
             }

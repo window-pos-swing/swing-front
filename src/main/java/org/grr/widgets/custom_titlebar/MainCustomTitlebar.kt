@@ -1,5 +1,7 @@
 package org.grr.widgets.custom_titlebar
 
+import org.grr.model.SettingModel
+import org.grr.`object`.Storage
 import org.grr.util.MyFont
 import org.grr.screen.setting.SettingForm
 import org.grr.widgets.IconRoundBorder
@@ -30,10 +32,12 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
 
         // 커스텀 바 높이 설정
         preferredSize = Dimension(parentFrame.width, 70)
+        val memberInfo = Storage.getMemberInfo()
 
+        val storeName = memberInfo?.optString("storeName", "점주님") ?: "점주님"
         // 왼쪽 패널: "000사장님" 텍스트 추가
-        val nameLabel = JLabel("000점주님").apply {
-            font = MyFont.Bold(30f)
+        val nameLabel = JLabel("${storeName} 점주님").apply {
+            font = MyFont.Bold(24f)
             foreground = Color.WHITE
             border = BorderFactory.createEmptyBorder(0, 30, 0, 0)  // 좌측 여백 추가
         }
@@ -45,6 +49,14 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
             foreground = Color.WHITE
             horizontalAlignment = SwingConstants.CENTER
         }
+        // storeName의 글자 수에 따른 오른쪽 여백 계산
+        val storeNameLength = storeName.length
+        val baseRightPadding = 0 // 기본 오른쪽 여백
+        val extraPadding = if (storeNameLength > 2) (storeNameLength - 2) * 10 else 0
+        val totalRightPadding = baseRightPadding + extraPadding
+
+        // titleLabel에 동적 여백 설정
+        titleLabel.border = BorderFactory.createEmptyBorder(0, 0, 0, totalRightPadding)
         add(titleLabel, BorderLayout.CENTER)
 
         //titlebar시간 TEXT UI업데이트 함수
@@ -132,7 +144,7 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
         addMouseMotionListener(object : MouseAdapter() {
             override fun mouseDragged(e: MouseEvent) {
                 if (isDragging && SwingUtilities.isLeftMouseButton(e)) {
-                    parentFrame.location = Point(e.xOnScreen - mouseX, e.yOnScreen - mouseY)
+                    parentFrame.location = Point(e.xOnScreen - mouseX - 200, e.yOnScreen - mouseY)
                 }
             }
         })
