@@ -7,12 +7,12 @@ import javax.swing.border.EmptyBorder
 
 // 공통 둥근 테두리 다이얼로그 클래스
 open class CustomRoundedDialog(
-    parent: JFrame,
+    parent: Window,
     title: String,
     dialogWidth: Int = 400,
     dialogHeight: Int = 300,
     private val callback: ((Boolean) -> Unit)? = null  // 콜백 함수 추가
-) : JDialog(parent, title, true) {
+) : JDialog(parent, title, ModalityType.APPLICATION_MODAL) {
 
     private val titleLabel = JLabel(title, SwingConstants.CENTER).apply {
         font = MyFont.Bold(32f)

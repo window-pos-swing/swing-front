@@ -1,12 +1,17 @@
-package org.grr.screen.main.main_widget.dialog
+package org.grr.screen.main.main_widget.dialog.PauseOperations
 
 import CustomRoundedDialog
 import RoundedComboBox
+import org.grr.model.BusinessPause
+import org.grr.model.BusinessPause.Companion.toJson
+import org.grr.screen.main.main_widget.dialog.ConfirmationDialog
+import org.grr.screen.main.main_widget.dialog.PauseOperations.widgets.ConfirmButton
 import org.grr.util.MyFont
 import org.grr.style.MyColor
 import org.grr.widgets.FillRoundedButton
 import org.grr.widgets.CHRoundedPanel
 import java.awt.*
+import java.time.LocalDateTime
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 
@@ -18,21 +23,21 @@ class PauseOperationsDialog(
 ) : CustomRoundedDialog(parent, title, 1000, 611) {
 
     // 패널 선언
-    private lateinit var thirtyMinutePanel: JPanel
-    private lateinit var timeSpecifiedPanel: JPanel
+    var thirtyMinutePanel: JPanel
+    private var timeSpecifiedPanel: JPanel
 
     // 버튼 및 라벨 선언 (클래스 레벨로 이동)
-    private lateinit var amButton: FillRoundedButton
-    private lateinit var pmButton: FillRoundedButton
-    private lateinit var untilLabel: JLabel
-    private lateinit var titleTextLabel: JLabel
-    private lateinit var subtitleTextLabel: JLabel
+    lateinit var amButton: FillRoundedButton
+    lateinit var pmButton: FillRoundedButton
+    lateinit var untilLabel: JLabel
+    lateinit var titleTextLabel: JLabel
+    lateinit var subtitleTextLabel: JLabel
 
-    private lateinit var hourComboBox: RoundedComboBox
-    private lateinit var minuteComboBox: RoundedComboBox
+    var hourComboBox: RoundedComboBox
+    var minuteComboBox: RoundedComboBox
 
-    private var operatePauseFirst: Int = 30  // 기본 조리 시간 30분
-    private var operatePauseSecond: Int = 30  // 기본 배달 시간 30분
+    var operatePauseFirst: Int = 30
+    var operatePauseSecond: Int = 30
 
     init {
         isModal = true
@@ -82,21 +87,16 @@ class PauseOperationsDialog(
             }
         })
 
-        // 시간 접수 버튼 생성
-        val confirmButton = JButton("임시 중지").apply {
-            preferredSize = Dimension(300, 62)
-            maximumSize = Dimension(300, 62)
-            minimumSize = Dimension(300, 62)
-            font = MyFont.Bold(24f)
-            background = Color.WHITE
-            foreground = MyColor.DARK_RED
-            border = BorderFactory.createLineBorder(MyColor.DARK_RED)
-            addActionListener {
-                println("조리시간: $operatePauseFirst 분, 배달시간: $operatePauseSecond 분")
-                callback(true)
-                dispose()
+        val confirmButton = ConfirmButton(this@PauseOperationsDialog) { confirmed ->
+            if (confirmed) {
+                println("임시 중지가 설정되었습니다.")
+                callback(true) // 사용자 취소
+                dispose() // 다이얼로그 닫기
+            } else {
+                println("임시 중지가 취소되었습니다.")
             }
         }
+
 
         // 패널에 버튼을 추가하고, BoxLayout 또는 FlowLayout을 사용
         val buttonPanel = JPanel().apply {
@@ -544,4 +544,44 @@ class PauseOperationsDialog(
         // 라벨 업데이트
         timeLabel.text = "${newTime}분"
     }
+
+    //임시 중지 클릭 시 실행
+    private fun calculateStartAndEndTime(selectedType: String, currentTime: LocalDateTime): Pair<LocalDateTime, LocalDateTime?> {
+        var startTime = currentTime
+        var endTime: LocalDateTime? = null
+
+        if (selectedType == "30분 단위") {
+            // 30분 단위 계산
+            endTime = startTime.plusMinutes(operatePauseFirst.toLong())
+        } else {
+            val selectedHour = hourComboBox.selectedIndex
+            val selectedMinute = minuteComboBox.selectedIndex * 5
+
+            if (selectedHour == 0) {
+                // 시간을 지정하지 않은 경우
+                return Pair(startTime, null)
+            }
+
+            val hour24 = if (amButton.backgroundColor == MyColor.DARK_RED) {
+                selectedHour
+            } else {
+                selectedHour + 12
+            }
+
+            endTime = LocalDateTime.of(
+                currentTime.year,
+                currentTime.month,
+                currentTime.dayOfMonth,
+                hour24,
+                selectedMinute
+            )
+
+            if (endTime.isBefore(startTime)) {
+                endTime = endTime.plusDays(1) // 다음날로 설정
+            }
+        }
+
+        return Pair(startTime, endTime)
+    }
+
 }

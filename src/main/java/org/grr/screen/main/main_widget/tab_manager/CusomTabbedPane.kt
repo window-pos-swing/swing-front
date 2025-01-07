@@ -3,12 +3,14 @@ package org.grr.screen.main.main_widget.tab_manager
 import CustomToggleButton
 import OrderController
 import RoundedProgressBar
+import org.grr.api.SettingToServer
 import org.grr.command.RejectedReasonType
+import org.grr.enum.BusinessStatus
 import org.grr.model.Menu
 import org.grr.model.MenuOption
 import org.grr.model.Order
 import org.grr.screen.main.main_widget.dialog.OrderDetailDialog
-import org.grr.screen.main.main_widget.dialog.PauseOperationsDialog
+import org.grr.screen.main.main_widget.dialog.PauseOperations.PauseOperationsDialog
 import org.grr.screen.main.main_widget.order_states_ui.CompletedState
 import org.grr.screen.main.main_widget.order_states_ui.PendingState
 import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
@@ -34,7 +36,7 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
     private var orderCounter = 1 ;
     private val tabButtonMap = mutableMapOf<String, JPanel>()
     private var selectedTabName: String = ""
-    private var isDialogOpen = false // 다이얼로그가 열려 있는지 확인하는 플래
+    var isHandling = false // 이벤트 중복 처리를 막기 위한 플래그
 
     var pendingSubTabsState = ""
     var processingSubTabsState = ""
@@ -134,34 +136,40 @@ class CustomTabbedPane(private val parentFrame: JFrame) : JPanel() {
         // 커스텀 토글 버튼 생성 및 추가
         val customToggleButton = CustomToggleButton().apply {
             bounds = Rectangle(0, 0, 120, 40)
-            isSelected = false // true면 ON / false면 OFF
-
             addItemListener { event ->
-                if (event.stateChange == ItemEvent.DESELECTED) {
-                    // OFF 상태로 변경 시 - 임시중지 다이얼로그 띄움
-                    println("isDialogOpen: $isDialogOpen")  // 상태 확인용 출력
-                    if (!isDialogOpen) {  // 다이얼로그가 열려있는지 확인
-                        isDialogOpen = true
-                        overlayManager.addOverlayPanel()
-                        PauseOperationsDialog(parentFrame, cardPanel!!, "영업 임시 중지", callback = { confirmed ->
-                            if (confirmed) {
-                                isSelected = false // 사용자가 임시 중지를 확인한 경우 OFF로 변경
-                            } else {
-                                isSelected = true // X 버튼으로 다이얼로그를 닫았을 때는 ON 상태로 유지
-                            }
-                        }).apply {
-//                            setLocationRelativeTo(cardPanel)
-                            // 다이얼로그가 닫힐 때 무조건 false로 리셋
-                            addWindowListener(object : java.awt.event.WindowAdapter() {
-                                override fun windowClosed(e: java.awt.event.WindowEvent?) {
-                                    isDialogOpen = false
-//                                    dialog.dispose()
-                                    overlayManager.removeOverlayPanel()
-                                    println("isDialogOpen = false 실행")
-                                }
-                            })
-                        }
+                if (isHandling) return@addItemListener // 이벤트 중복 처리 방지
+
+                if (event.stateChange == ItemEvent.SELECTED) {
+                    // ON 상태로 전환
+                    isHandling = true
+                    val settingToServer = SettingToServer()
+                    val result = settingToServer.businessStatusToServer(BusinessStatus.START)
+                    if (result.first) {
+//                    JOptionPane.showMessageDialog(menuPanel, "운영시간 업데이트 완료 ! ", "성공", JOptionPane.INFORMATION_MESSAGE)
+                    } else {
+                        JOptionPane.showMessageDialog(menuPanel, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
                     }
+                    isSelected = true // ON 상태 유지
+                    isHandling = false
+                } else {
+                    // OFF 상태로 전환
+                    isHandling = true
+                    overlayManager.addOverlayPanel()
+                    PauseOperationsDialog(parentFrame, cardPanel!!, "영업 임시 중지", callback = { confirmed ->
+                        if (confirmed) {
+                            isSelected = false // 사용자가 임시 중지를 확인한 경우 OFF로 변경
+                        } else {
+                            isSelected = true // X 버튼으로 다이얼로그를 닫았을 때는 ON 상태로 유지
+                        }
+                    }).apply {
+                        addWindowListener(object : java.awt.event.WindowAdapter() {
+                            override fun windowClosed(e: java.awt.event.WindowEvent?) {
+//                                    dialog.dispose()
+                                overlayManager.removeOverlayPanel()
+                            }
+                        })
+                    }
+                    isHandling = false
                 }
             }
         }

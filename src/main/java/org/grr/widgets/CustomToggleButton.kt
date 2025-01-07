@@ -7,19 +7,11 @@ class CustomToggleButton : JToggleButton() {
         // 토글 버튼의 초기 상태를 OFF (false)로 설정
         isOpaque = false
         background = MyColor.DARK_RED
-        isSelected = true
+        isSelected = false
         isFocusPainted = false
         preferredSize = Dimension(120, 40)
         border = null // 경계선을 없앰
 
-        // 상태 변화에 따른 동작을 추가
-        addItemListener { e ->
-            if (isSelected) {
-                println("ON 상태")
-            } else {
-                println("OFF 상태")
-            }
-        }
     }
 
     override fun paintComponent(g: Graphics) {

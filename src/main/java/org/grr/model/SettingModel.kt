@@ -34,10 +34,10 @@ object SettingModel {
         deliveryTimeControl = memberInfo
             ?.optJSONObject("setting")
             ?.optBoolean("estimatedArrivalTimeControl", false) ?: false
-        println("저장된 요리시간 : $cookingTime")
-        println("저장된 요리 on/off : $cookingTimeControl")
-        println("저장된 배달시간 : $deliveryTime")
-        println("저장된 배달 on/off : $deliveryTimeControl")
+        println("[저장된 요리시간] : $cookingTime")
+        println("[저장된 요리 on/off] : $cookingTimeControl")
+        println("[저장된 배달시간] : $deliveryTime")
+        println("[저장된 배달 on/off] : $deliveryTimeControl")
     }
 
     // 로컬에 요리정보 업데이트
