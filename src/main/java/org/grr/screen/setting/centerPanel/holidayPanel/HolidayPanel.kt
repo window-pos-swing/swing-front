@@ -8,6 +8,8 @@ import java.awt.*
 import javax.swing.*
 
 class HolidayPanel : JPanel() {
+    private val holidayLabel: JLabel
+
     init {
         layout = GridBagLayout()
 //        background = Color.RED  // 배경색 설정
@@ -59,7 +61,7 @@ class HolidayPanel : JPanel() {
         gbc.weightx = 1.0
         gbc.weighty = 1.0  // 수직으로도 공간 차지
         gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
-        val holidayLabel = JLabel(SettingModel.regularHoliday + " " +SettingModel.temporaryHoliday).apply {
+        holidayLabel = JLabel(SettingModel.regularHoliday + " " +SettingModel.temporaryHoliday).apply {
             font = MyFont.Bold(18f)
             foreground = Color.PINK
             horizontalAlignment = SwingConstants.CENTER
@@ -75,10 +77,17 @@ class HolidayPanel : JPanel() {
             addActionListener {
                 val parentFrame = SwingUtilities.getWindowAncestor(this) as? JFrame
                 if (parentFrame != null) {
-                    HolidayModalDialog(parentFrame, "휴무일 설정")
+                    HolidayModalDialog(parentFrame, "휴무일 설정"){
+                            isUpdated -> if(isUpdated) updateLabel()
+                    }
                 }
             }
         }
         add(setButton, gbc)
+    }
+    private fun updateLabel() {
+        holidayLabel.text = SettingModel.regularHoliday + " " +SettingModel.temporaryHoliday
+        revalidate() // 레이아웃 다시 계산
+        repaint() // 화면 다시 그리기
     }
 }

@@ -157,6 +157,8 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
 
                 // JSON 변환 및 저장 처리 함수 호출
                 saveHolidayData(regularHolidays, temporaryHolidays)
+                callback?.invoke(true) // 업데이트 완료 신호
+                dispose() // Dialog 닫기
             }
         }
 
