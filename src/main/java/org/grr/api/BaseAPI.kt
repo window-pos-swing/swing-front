@@ -1,0 +1,46 @@
+package org.grr.api;
+
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Request
+import org.json.JSONObject
+import java.io.IOException
+
+
+open class BaseAPI {
+    private val client = OkHttpClient()
+
+    fun sendPostRequest(
+        url: String,
+        requestBody: Any,// JSONObject 또는 JSONArray를 허용
+        accessToken: String
+    ): Pair<Boolean, String> {
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody.toString().toRequestBody("application/json; charset=utf-8".toMediaType()))
+            .addHeader("Authorization", accessToken)
+            .build()
+
+        try {
+            client.newCall(request).execute().use { response ->
+                return if (response.isSuccessful) {
+                    val responseBody = response.body?.string() ?: ""
+                    val jsonResponse = JSONObject(responseBody)
+
+                    if (jsonResponse.getInt("resultCode") == 400) {
+                        val errorMessage = jsonResponse.getString("resultMessage")
+                        Pair(false, errorMessage)
+                    } else {
+                        Pair(true, jsonResponse.optString("resultMessage", "성공"))
+                    }
+                } else {
+                    Pair(false, "요청 실패: ${response.message}")
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return Pair(false, "서버 연결 실패: ${e.message}")
+        }
+    }
+}

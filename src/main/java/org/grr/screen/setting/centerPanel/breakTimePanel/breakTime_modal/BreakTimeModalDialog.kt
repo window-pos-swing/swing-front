@@ -4,7 +4,6 @@ import CustomRoundedDialog
 import CustomToggleButton3
 import org.grr.api.SettingToServer
 import org.grr.model.SettingModel
-import org.grr.`object`.Storage
 import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.allDays.AllDays
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.selectByDay.SelectByDays
@@ -431,7 +430,7 @@ class BreakTimeModalDialog(
         SettingModel.saveBreakTime(unformattedJson)
 
         val settingToServer = SettingToServer()
-        val result = settingToServer.settingUpdateToServer()
+        val result = settingToServer.updateBreakTimeToServer(unformattedJson)
         if (result.first) {
             JOptionPane.showMessageDialog(this, "브레이크 시간이 업데이트되었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE)
         } else {

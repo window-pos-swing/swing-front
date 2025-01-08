@@ -200,7 +200,7 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
 
             // 로컬 및 서버 저장
             SettingModel.saveHoliday(unformattedJson)
-            val result = SettingToServer().settingUpdateToServer()
+            val result = SettingToServer().updateHolidayToServer(unformattedJson)
 
             // 결과 처리
             if (result.first) {

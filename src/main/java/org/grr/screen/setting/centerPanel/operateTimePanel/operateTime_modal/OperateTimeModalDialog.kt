@@ -438,7 +438,7 @@ class OperateTimeModalDialog(parent: JFrame, title: String, callback: ((Boolean)
         SettingModel.saveOperateTime(unformattedJson)
 
         val settingToServer = SettingToServer()
-        val result = settingToServer.settingUpdateToServer()
+        val result = settingToServer.updateBusinessHourToServer(unformattedJson)
         if (result.first) {
             JOptionPane.showMessageDialog(this, "영업시간이 업데이트되었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE)
         } else {

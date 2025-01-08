@@ -177,7 +177,7 @@ object SettingModel {
         return Pair(regularHoliday, temporaryHoliday)
     }
 
-    fun saveHoliday(holidayJson: JSONArray) {
+    fun saveHoliday(holidayJson: Any) {
         val updatedMemberInfo = memberInfo ?: JSONObject()
         val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
 

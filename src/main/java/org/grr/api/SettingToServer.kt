@@ -1,197 +1,61 @@
 package org.grr.api
 
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.grr.enum.BusinessStatus
-import org.grr.model.SettingModel
 import org.grr.`object`.Api
 import org.grr.`object`.Storage
+import org.json.JSONArray
 import org.json.JSONObject
-import java.io.IOException
 
-class SettingToServer {
+class SettingToServer : BaseAPI() {
 
-    //    도착예정시간 업데이트 구문
     fun deliveryTimeToServer(estimatedDeliveryTimeControl: Boolean, estimatedDeliveryTime: Int): Pair<Boolean, String> {
-        val client = OkHttpClient()
-//        토큰
-        val accessToken = Storage.getToken()
-
+        val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         val requestBody = JSONObject()
             .put("estimatedArrivalTime", estimatedDeliveryTime)
             .put("estimatedArrivalTimeControl", estimatedDeliveryTimeControl)
-            .toString()
-            .toRequestBody("application/json; charset=utf-8".toMediaType())
-
-        val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v1/setting/update")
-            .post(requestBody) // 빈 요청 바디
-            .addHeader("Authorization", accessToken!!) // 토큰 헤더 추가
-            .build()
-
-        try {
-            client.newCall(request).execute().use { response ->
-//                성공했을때. 200일때
-                return if (response.isSuccessful) {
-                    val responseBody = response.body?.string() ?: ""
-                    val jsonResponse = JSONObject(responseBody)
-
-//                    도착예정시간 업데이트 실패했을때
-                    if (jsonResponse.getInt("resultCode") == 400) {
-                        val errorMessage = jsonResponse.getString("resultMessage")
-                        Pair(false, errorMessage)
-                    } else {
-//                    도착예정시간 업데이트 성공했을때
-                        Pair(true, "도착예상시간 업데이트 성공")
-                    }
-                } else {
-                    Pair(false, "도착예상시간 업데이트 실패: ${response.message}")
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return Pair(false, "서버 연결 실패: ${e.message}")
-        }
+        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/delivery-update", requestBody, accessToken)
     }
 
-    //    조리완료시간 업데이트 구문
     fun cookingTimeToServer(estimatedCookingTimeControl: Boolean, estimatedCookingTime: Int): Pair<Boolean, String> {
-        val client = OkHttpClient()
-//        토큰
-        val accessToken = Storage.getToken()
-
+        val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         val requestBody = JSONObject()
             .put("estimatedCookingTime", estimatedCookingTime)
             .put("estimatedCookingTimeControl", estimatedCookingTimeControl)
-            .toString()
-            .toRequestBody("application/json; charset=utf-8".toMediaType())
-
-        val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v1/setting/update")
-            .post(requestBody) // 빈 요청 바디
-            .addHeader("Authorization", accessToken!!) // 토큰 헤더 추가
-            .build()
-
-        try {
-            client.newCall(request).execute().use { response ->
-//                성공했을때. 200일때
-                return if (response.isSuccessful) {
-                    val responseBody = response.body?.string() ?: ""
-                    val jsonResponse = JSONObject(responseBody)
-
-//                    조리시간 업데이트 실패했을때
-                    if (jsonResponse.getInt("resultCode") == 400) {
-                        val errorMessage = jsonResponse.getString("resultMessage")
-                        Pair(false, errorMessage)
-                    } else {
-//                    조리시간 업데이트 성공했을때
-//                        val getAccessToken = jsonResponse.getJSONObject("data")
-                        Pair(true, "조리완료시간 업데이트 성공")
-                    }
-                } else {
-                    Pair(false, "조리완료시간 업데이트 실패: ${response.message}")
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return Pair(false, "서버 연결 실패: ${e.message}")
-        }
+        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/cooking-update", requestBody, accessToken)
     }
 
-    // 브레이크 타임 | 영업시간 | 휴무일  서버 업데이트 구문
-    fun settingUpdateToServer(): Pair<Boolean, String> {
-        val client = OkHttpClient()
-        //토큰
-        val accessToken = Storage.getToken()
-
-        // 필요한 데이터만 추출
-        val settingData = SettingModel.memberInfo?.optJSONObject("setting") ?: JSONObject()
-        val filteredData = JSONObject().apply {
-            put("breakTime", settingData.optJSONObject("breakTime")?.apply { remove("id") })
-            put("businessHour", settingData.optJSONObject("businessHour")?.apply { remove("id") })
-            put("holiday", settingData.optJSONArray("holidayList")?.map { holiday ->
-                (holiday as JSONObject).apply { remove("id") }
-            })
+    fun updateBreakTimeToServer(breakTimeJson : JSONObject): Pair<Boolean, String> {
+        val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
+        // breakTime과 id 항목 제거
+        val filteredData2 = JSONObject(breakTimeJson.toString()).apply {
+            remove("breakTime")
+            remove("id")
         }
-        // JSON을 정렬하여 출력
-        println("[서버로 전송 Body]  ${filteredData.toString(2)}")
-
-        val requestBody = filteredData
-            .toString()
-            .toRequestBody("application/json; charset=utf-8".toMediaType())
-
-        val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v1/setting/update")
-            .post(requestBody) // 빈 요청 바디
-            .addHeader("Authorization", accessToken!!) // 토큰 헤더 추가
-            .build()
-        try {
-            client.newCall(request).execute().use { response ->
-                //성공했을때. 200일때
-                return if (response.isSuccessful) {
-                    val responseBody = response.body?.string() ?: ""
-                    val jsonResponse = JSONObject(responseBody)
-
-                    //시간 업데이트 실패했을때
-                    if (jsonResponse.getInt("resultCode") == 400) {
-                        val errorMessage = jsonResponse.getString("resultMessage")
-                        Pair(false, errorMessage)
-                    } else {
-                        //시간 업데이트 성공했을때
-                        //val getAccessToken = jsonResponse.getJSONObject("data")
-                        Pair(true, "시간 업데이트 성공")
-                    }
-                } else {
-                    Pair(false, "시간 업데이트 실패: ${response.message}")
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return Pair(false, "서버 연결 실패: ${e.message}")
-        }
+        println("[서버로 전송 Body] ${filteredData2.toString(2)}")
+        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/break-time-update", filteredData2, accessToken)
     }
 
-    fun businessStatusToServer( businessStatus : BusinessStatus): Pair<Boolean, String> {
-        val client = OkHttpClient()
-//        토큰
-        val accessToken = Storage.getToken()
+    fun updateBusinessHourToServer(operatorTimeJson : JSONObject): Pair<Boolean, String> {
+        val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
+        // breakTime과 id 항목 제거
+        val filteredData2 = JSONObject(operatorTimeJson.toString()).apply {
+            remove("breakTime")
+            remove("id")
+        }
+        println("[서버로 전송 Body] ${filteredData2.toString(2)}")
+        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/business-hour-update", filteredData2, accessToken)
+    }
 
+    fun updateHolidayToServer(holidayJson : JSONArray): Pair<Boolean, String> {
+        val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
+        println("[서버로 전송 Body] ${holidayJson.toString(2)}")
+        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/holiday-update", holidayJson, accessToken)
+    }
+
+    fun businessStatusToServer(businessStatus: BusinessStatus): Pair<Boolean, String> {
+        val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         val requestBody = JSONObject()
-            .put("businessStatus", businessStatus)
-            .toString()
-            .toRequestBody("application/json; charset=utf-8".toMediaType())
-
-        val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v1/setting/update")
-            .post(requestBody) // 빈 요청 바디
-            .addHeader("Authorization", accessToken!!) // 토큰 헤더 추가
-            .build()
-
-        try {
-            client.newCall(request).execute().use { response ->
-//                성공했을때. 200일때
-                return if (response.isSuccessful) {
-                    val responseBody = response.body?.string() ?: ""
-                    val jsonResponse = JSONObject(responseBody)
-
-//                    조리시간 업데이트 실패했을때
-                    if (jsonResponse.getInt("resultCode") == 400) {
-                        val errorMessage = jsonResponse.getString("resultMessage")
-                        Pair(false, errorMessage)
-                    } else {
-//                    조리시간 업데이트 성공했을때
-//                        val getAccessToken = jsonResponse.getJSONObject("data")
-                        Pair(true, "운영상태 업데이트 성공")
-                    }
-                } else {
-                    Pair(false, "운영상태 업데이트 실패: ${response.message}")
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return Pair(false, "서버 연결 실패: ${e.message}")
-        }
+            .put("businessStatus", businessStatus.name)
+        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/update", requestBody, accessToken)
     }
 }
