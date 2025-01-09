@@ -157,8 +157,8 @@ class BaseOrderPanel(order: ReceiveOrderModel) : JPanel() {
             // 수저/포크 정보 라벨
             val spoonForkLabel = FillRoundedLabel(
                 if (order.disposable) "수저/포크 O" else "수저/포크 X",  // 텍스트
-                borderColor = MyColor.Yellow,  // 테두리 색상
-                backgroundColor = MyColor.Yellow,  // 배경 색상 (노란색)
+                borderColor = if (order.disposable) MyColor.Yellow else MyColor.GREY500,  // 테두리 색상
+                backgroundColor = if (order.disposable) MyColor.Yellow else MyColor.GREY500,  // 배경 색상 (노란색)
                 textColor = Color.WHITE,  // 텍스트 색상
                 borderRadius = 20,  // 둥근 정도
                 borderWidth = 2, // 테두리 두께
