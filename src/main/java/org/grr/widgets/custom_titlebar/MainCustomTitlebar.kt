@@ -1,11 +1,11 @@
 package org.grr.widgets.custom_titlebar
 
-import org.grr.model.SettingModel
 import org.grr.`object`.Storage
 import org.grr.util.MyFont
 import org.grr.screen.setting.SettingForm
 import org.grr.widgets.IconRoundBorder
 import org.grr.widgets.custom_titlebar.TitleDateUpdate.TitleDateUpdater
+import org.grr.widgets.custom_titlebar.closeConfirm.CloseConfirmDialog
 import org.grr.widgets.custom_titlebar.component_resizer.ComponentResizer
 import java.awt.*
 import java.awt.event.MouseAdapter
@@ -107,7 +107,13 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
         }
 
         closeButton.addActionListener {
-            parentFrame.dispose()
+            CloseConfirmDialog(
+                parent = parentFrame,
+                title = "종료",
+                callback = { confirmed ->
+                    if (confirmed) parentFrame.dispose()
+                }
+            )
         }
 
         // 버튼 패널에 버튼 추가

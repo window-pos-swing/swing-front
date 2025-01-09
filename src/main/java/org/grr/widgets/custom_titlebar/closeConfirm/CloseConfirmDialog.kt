@@ -1,4 +1,4 @@
-package org.grr.screen.main.main_widget.dialog
+package org.grr.widgets.custom_titlebar.closeConfirm
 
 import CustomRoundedDialog
 import org.grr.style.MyColor
@@ -7,10 +7,9 @@ import org.grr.widgets.FillRoundedButton
 import java.awt.*
 import javax.swing.*
 
-class ConfirmationDialog(
-    parent: JDialog,
+class CloseConfirmDialog(
+    parent: JFrame,
     title: String,
-    endTime: String,
     private val callback: (Boolean) -> Unit
 ) : CustomRoundedDialog(parent, title, 500, 300) {
 
@@ -18,7 +17,7 @@ class ConfirmationDialog(
         // 다이얼로그 내용 구성
         background = Color.WHITE
 
-        // 중앙 패널 (GridBagLayout 사용)
+        // 가운데 정렬된 라벨
         val centerPanel = JPanel(GridBagLayout()).apply {
             background = Color.WHITE
 
@@ -26,11 +25,11 @@ class ConfirmationDialog(
                 gridx = 0
                 fill = GridBagConstraints.HORIZONTAL
                 anchor = GridBagConstraints.CENTER
-                insets = Insets(10, 0, 10, 0) // 위아래 간격 조정
+                insets = Insets(10, 0, 10, 0)
             }
 
             // endTimeLabel
-            val endTimeLabel = JLabel(endTime).apply {
+            val endTimeLabel = JLabel("영업상태가 OFF로 변경됩니다.").apply {
                 horizontalAlignment = SwingConstants.CENTER
                 font = MyFont.Bold(26f)
                 border = BorderFactory.createEmptyBorder(0, 0, 0, 10)
@@ -39,7 +38,7 @@ class ConfirmationDialog(
             add(endTimeLabel, constraints)
 
             // messageLabel
-            val messageLabel = JLabel("까지 임시정지 하시겠습니까 ?").apply {
+            val messageLabel = JLabel("종료 하시겠습니까 ?").apply {
                 horizontalAlignment = SwingConstants.CENTER
                 font = MyFont.SemiBold(20f)
                 border = BorderFactory.createEmptyBorder(0, 0, 0, 20)
@@ -48,12 +47,11 @@ class ConfirmationDialog(
             add(messageLabel, constraints)
         }
 
-        // 버튼 패널
+        // 버튼 패널 (하단)
         val buttonPanel = JPanel().apply {
             background = Color.WHITE
             layout = FlowLayout(FlowLayout.CENTER, 20, 10)
 
-            // "네" 버튼
             val yesButton = FillRoundedButton(
                 text = "네",
                 borderColor = MyColor.DARK_RED,
@@ -72,7 +70,6 @@ class ConfirmationDialog(
                 }
             }
 
-            // "아니오" 버튼
             val noButton = FillRoundedButton(
                 text = "아니오",
                 borderColor = MyColor.GREY500,
@@ -95,7 +92,7 @@ class ConfirmationDialog(
             add(noButton)
         }
 
-        // 하단 패널에 여백 추가
+        // 하단 패널에 버튼 패널 추가 (여백 추가)
         val bottomPanel = JPanel(BorderLayout()).apply {
             background = Color.WHITE
             add(buttonPanel, BorderLayout.CENTER)

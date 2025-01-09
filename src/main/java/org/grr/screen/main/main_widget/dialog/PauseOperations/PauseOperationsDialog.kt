@@ -2,16 +2,12 @@ package org.grr.screen.main.main_widget.dialog.PauseOperations
 
 import CustomRoundedDialog
 import RoundedComboBox
-import org.grr.model.BusinessPause
-import org.grr.model.BusinessPause.Companion.toJson
-import org.grr.screen.main.main_widget.dialog.ConfirmationDialog
 import org.grr.screen.main.main_widget.dialog.PauseOperations.widgets.ConfirmButton
 import org.grr.util.MyFont
 import org.grr.style.MyColor
 import org.grr.widgets.FillRoundedButton
 import org.grr.widgets.CHRoundedPanel
 import java.awt.*
-import java.time.LocalDateTime
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 
