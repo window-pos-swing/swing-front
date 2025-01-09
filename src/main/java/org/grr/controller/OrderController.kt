@@ -28,7 +28,7 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
         val orderFrameForAllOrders = tabbedPane.createOrderFrame(order)  // 전체보기용 프레임
         val orderFrameForPending = tabbedPane.createOrderFrame(order)  // 접수대기용 프레임
 
-        tabbedPane.addOrderToAllOrders(orderFrameForAllOrders)  // 전체보기 탭에 추가
+        tabbedPane.addOrderToAllOrders(orderFrameForAllOrders, false)  // 전체보기 탭에 추가
         tabbedPane.addOrderToPending(orderFrameForPending)  // 접수대기 탭에 추가
         tabbedPane.refreshPendingOrders()
         println("주문 추가")
@@ -157,7 +157,7 @@ class OrderController(private val tabbedPane: CustomTabbedPane) {  // 이제 탭
 
             // 초기 상태에 따른 UI 추가
             val orderFrame = tabbedPane.createOrderFrame(order)
-            tabbedPane.addOrderToAllOrders(orderFrame)  // 전체보기 탭에 추가
+            tabbedPane.addOrderToAllOrders(orderFrame , true)  // 전체보기 탭에 추가
         }
     }
 

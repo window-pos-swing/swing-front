@@ -2,6 +2,7 @@ package org.grr.screen.main.main_widget.tab_manager
 
 import CustomToggleButton
 import RoundedProgressBar
+import com.sun.org.apache.xpath.internal.operations.Bool
 import org.grr.api.SettingToServer
 import org.grr.command.RejectedReasonType
 import org.grr.enum.BusinessStatus
@@ -572,21 +573,22 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         updateTabTitle(4, "주문거절", rejectedOrdersPanel.componentCount)
     }
 
-    fun addOrderToAllOrders(orderFrame: JPanel) {
-//        orderFrame.minimumSize = Dimension(1162, 340)  // 최소 크기
-//        orderFrame.preferredSize = Dimension(1162, 340)  // 선호 크기
-//        orderFrame.maximumSize = Dimension(1162, 340)  // 최대 크기
+    fun addOrderToAllOrders(orderFrame: JPanel , isInit : Boolean) {
         orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
         orderFrame.alignmentX = Component.LEFT_ALIGNMENT // 패널을 왼쪽 정렬
-        allOrdersPanel.add(orderFrame)
-        allOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
+        if(isInit){
+            allOrdersPanel.add(orderFrame )
+            allOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))  // 간격 컴포넌트도 그 다음에 추가
+        }else{
+            allOrdersPanel.add(orderFrame , 0)
+            allOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)), 1)  // 간격 컴포넌트도 그 다음에 추가
+        }
+
         allOrdersPanel.revalidate()
         allOrdersPanel.repaint()
         updateTabTitle(0, "전체보기", allOrdersPanel.componentCount)
     }
     //================================================================================
-
-
 
     // [REMOVE & UPDATE] ======================================================================
     fun removeOrderFromPending(order: ReceiveOrderModel) {
@@ -734,7 +736,6 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
             }
         })
     }
-
 
     // 주문 타입에 따른 다이얼로그 타이틀 설정 함수
     private fun getOrderDialogTitle(order: ReceiveOrderModel): String {
