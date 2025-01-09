@@ -4,8 +4,6 @@ import OrderController
 import kotlinx.coroutines.*
 import org.grr.api.CurrentLoginStoreMemberToServer
 import org.grr.api.OrderAPI
-import org.grr.api.SettingToServer
-import org.grr.model.ReceiveOrderModel
 import org.grr.model.SettingModel
 import org.grr.`object`.OrderListSingleTon
 import org.grr.`object`.Storage
@@ -104,6 +102,7 @@ class MainForm : JFrame() {
         SettingModel.loadHoliday()
 
         // [주문리스트 가져오기]
+        if(OrderListSingleTon.isLoadData) return
         val result = OrderAPI().fetchOrders(parentFrame = this@MainForm, cardPanel = cardPanel)
 
         // 결과 처리

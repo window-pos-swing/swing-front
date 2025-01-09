@@ -8,6 +8,7 @@ import javax.swing.JPanel
 //주문 데이터 싱글톤 관리
 object OrderListSingleTon {
     private val orders: MutableList<ReceiveOrderModel> = mutableListOf()
+    var isLoadData : Boolean = false
 
     // 새로운 주문을 배열의 맨 앞에 추가
     fun addOrder(order: ReceiveOrderModel) {
@@ -25,6 +26,7 @@ object OrderListSingleTon {
             e.printStackTrace()
             println("addAllOrder: Error parsing orderListJson - ${e.message}")
         }
+        isLoadData = true;
     }
 
     // 전체 주문 가져오기
