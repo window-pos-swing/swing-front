@@ -1,6 +1,7 @@
 package org.grr.screen.main.main_widget.dialog
 
 import CustomRoundedDialog
+import org.grr.enum.OrderReceiveType
 import org.grr.model.ReceiveOrderModel
 import org.grr.util.LoadImage
 import org.grr.util.MyFont
@@ -38,23 +39,19 @@ class OrderDetailDialog(
         // 요청 사항 패널 추가
         val storeRequestInfoPanel = createRequestInfoPanel("가게" , order).apply {
             border = EmptyBorder(10, 0, 0, 0)
-//            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
-//            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
         }
         mainPanel.add(storeRequestInfoPanel)
 
-        val deliveryRequestInfoPanel = createRequestInfoPanel("배달" , order).apply {
-            border = EmptyBorder(10, 0, 0, 0)
-//            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
-//            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
+        if(order.orderReceiveType == OrderReceiveType.DELIVERY.toString()){
+            val deliveryRequestInfoPanel = createRequestInfoPanel("배달" , order).apply {
+                border = EmptyBorder(10, 0, 0, 0)
+            }
+            mainPanel.add(deliveryRequestInfoPanel)
         }
-        mainPanel.add(deliveryRequestInfoPanel)
 
         // 주문 정보 패널 추가
         val orderInfoPanel = createOrderInfoPanel(order).apply {
             border = EmptyBorder(10, 0, 0, 0)
-//            preferredSize = Dimension(940, preferredSize.height)  // 패널 너비 고정
-//            maximumSize = Dimension(940, Int.MAX_VALUE)  // 패널이 확장되지 않도록 최대 크기 설정
         }
         mainPanel.add(orderInfoPanel)
 
@@ -295,7 +292,8 @@ class OrderDetailDialog(
         }
 
         // 요청 사항 텍스트를 JTextArea로 생성하여 추가
-        val requestTextArea = JTextArea(order.storeRequest).apply {
+        val requestText = if (type == "가게") order.storeRequest else order.riderRequest
+        val requestTextArea = JTextArea(requestText).apply {
             font = MyFont.Medium(18f)
             foreground = Color.BLACK
             background = Color.WHITE

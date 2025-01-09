@@ -6,6 +6,7 @@ import com.sun.org.apache.xpath.internal.operations.Bool
 import org.grr.api.SettingToServer
 import org.grr.command.RejectedReasonType
 import org.grr.enum.BusinessStatus
+import org.grr.enum.OrderReceiveType
 import org.grr.model.ReceiveOrderModel
 import org.grr.model.SettingModel
 import org.grr.`object`.OrderListSingleTon
@@ -741,7 +742,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     private fun getOrderDialogTitle(order: ReceiveOrderModel): String {
         val customFont = MyFont.Bold(32f)
         val fontFamily = customFont.fontName
-        val orderTypeText = if (order.orderReceiveType == "DELIVERY") {
+        val orderTypeText = if (order.orderReceiveType == OrderReceiveType.DELIVERY.toString()) {
             "<font color='red' style='font-family:$fontFamily; font-size:26px;'>배달</font>"
         } else {
             "<font color='blue' style='font-family:$fontFamily; font-size:26px;'>포장</font>"

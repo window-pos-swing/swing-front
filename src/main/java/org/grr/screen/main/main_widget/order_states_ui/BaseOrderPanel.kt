@@ -1,5 +1,6 @@
 package org.grr.screen.main.main_widget.order_states_ui
 
+import org.grr.enum.OrderReceiveType
 import org.grr.model.ReceiveOrderModel
 import org.grr.style.MyColor
 import org.grr.util.LoadImage
@@ -38,7 +39,7 @@ class BaseOrderPanel(order: ReceiveOrderModel) : JPanel() {
             alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
             // 아이콘 로드
-            val iconLabel = JLabel(LoadImage.loadImage(if (order.orderReceiveType == "DELIVERY") "/delivery_state.png" else "/takeout_state.png", 56, 80)).apply {
+            val iconLabel = JLabel(LoadImage.loadImage(if (order.orderReceiveType == OrderReceiveType.DELIVERY.toString()) "/delivery_state.png" else "/takeout_state.png", 56, 80)).apply {
                 border = BorderFactory.createEmptyBorder(0, 0, 0, 15)  // 오른쪽에 여백 추가
                 alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
             }
