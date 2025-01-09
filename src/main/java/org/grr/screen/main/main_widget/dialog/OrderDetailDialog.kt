@@ -258,7 +258,12 @@ class OrderDetailDialog(
                 background = Color.WHITE
                 border = EmptyBorder(25, 0, 0, 0) // 라벨 주위 여백 설정
                 val labelText = if (type == "배달") deliveryType else spoonFork
-                val labelBackgroundColor = if (type == "배달") MyColor.PINK else MyColor.Yellow
+                val labelBackgroundColor = when {
+                    type == "배달" -> MyColor.PINK
+                    type == "가게" && order.disposable -> MyColor.Yellow
+                    type == "가게" && !order.disposable -> MyColor.GREY500
+                    else -> MyColor.DARK_NAVY // 기본 색상 (필요하면 추가)
+                }
 
                 add(
                     FillRoundedLabel(
