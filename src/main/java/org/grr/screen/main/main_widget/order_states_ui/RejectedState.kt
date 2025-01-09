@@ -2,8 +2,9 @@ package org.grr.screen.main.main_widget.order_states_ui
 
 
 import org.grr.command.RejectedReasonType
-import org.grr.model.Order
+import org.grr.enum.PosOrderStatus
 import org.grr.model.OrderState
+import org.grr.model.ReceiveOrderModel
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.AutoScalingLabel
@@ -15,7 +16,8 @@ import javax.swing.*
 class RejectedState(
     val rejectReason: String,
     val rejectDate: String,
-    val rejectType : RejectedReasonType
+    val rejectType : RejectedReasonType,
+    val rejectPanel : PosOrderStatus
 ) : OrderState {
 
     fun rejectTypeFormat(): String {
@@ -25,11 +27,11 @@ class RejectedState(
             RejectedReasonType.STORE_REJECT -> "가게접수거절"
         }
     }
-    override fun handle(order: Order) {
+    override fun handle(order: ReceiveOrderModel) {
         // 거절된 상태에 대한 추가 처리 로직이 필요할 경우 여기에 작성
     }
 
-    override fun getUI(order: Order): JPanel {
+    override fun getUI(order: ReceiveOrderModel): JPanel {
         return BaseOrderPanel(order).apply {
             layout = BorderLayout()  // 전체 레이아웃을 BorderLayout으로 설정
             background = Color.WHITE  // 전체 배경색을 하얀색으로 설정

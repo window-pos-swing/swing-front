@@ -544,44 +544,6 @@ class PauseOperationsDialog(
         // 라벨 업데이트
         timeLabel.text = "${newTime}분"
     }
-
-    //임시 중지 클릭 시 실행
-    private fun calculateStartAndEndTime(selectedType: String, currentTime: LocalDateTime): Pair<LocalDateTime, LocalDateTime?> {
-        var startTime = currentTime
-        var endTime: LocalDateTime? = null
-
-        if (selectedType == "30분 단위") {
-            // 30분 단위 계산
-            endTime = startTime.plusMinutes(operatePauseFirst.toLong())
-        } else {
-            val selectedHour = hourComboBox.selectedIndex
-            val selectedMinute = minuteComboBox.selectedIndex * 5
-
-            if (selectedHour == 0) {
-                // 시간을 지정하지 않은 경우
-                return Pair(startTime, null)
-            }
-
-            val hour24 = if (amButton.backgroundColor == MyColor.DARK_RED) {
-                selectedHour
-            } else {
-                selectedHour + 12
-            }
-
-            endTime = LocalDateTime.of(
-                currentTime.year,
-                currentTime.month,
-                currentTime.dayOfMonth,
-                hour24,
-                selectedMinute
-            )
-
-            if (endTime.isBefore(startTime)) {
-                endTime = endTime.plusDays(1) // 다음날로 설정
-            }
-        }
-
-        return Pair(startTime, endTime)
-    }
+    
 
 }

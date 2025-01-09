@@ -2,8 +2,7 @@ package org.grr.command
 
 import Command
 import OrderController
-import org.grr.model.Order
-import org.grr.model.SettingModel
+import org.grr.model.ReceiveOrderModel
 import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -11,7 +10,7 @@ import javax.swing.JPanel
 class AcceptOrderCommand(
     private val parent : JFrame,
     private val cardPanel : JPanel,
-    private val order: Order,      // 처리할 주문
+    private val order: ReceiveOrderModel,      // 처리할 주문
     private val orderController: OrderController, // OrderController 추가
     private val takeType: String,
     private val cookTime : Int = 0,
@@ -23,8 +22,6 @@ class AcceptOrderCommand(
         val sendCookTime = if(cookTime == 0) order.cookTime else cookTime
         order.changeState(ProcessingState(sendCookTime + deliveryTime , parent ,cardPanel))  // 상태 변경
         orderController.onOrderStateChanged(order)
-        // 옵저버들에게 알림
-        order.notifyStateObservers()  // notifyObservers는 여기서만 한 번 호출
         println("===========================================================================")
         println("[AcceptOrderCommand] #${order.orderNumber} 접수처리중으로 상태 변경  with total time: ${sendCookTime + deliveryTime} minutes")
         println("[CookTime] $sendCookTime")

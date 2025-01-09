@@ -6,8 +6,9 @@ import org.grr.command.AcceptOrderCommand
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
-import org.grr.model.Order
+import org.grr.enum.PosOrderStatus
 import org.grr.model.OrderState
+import org.grr.model.ReceiveOrderModel
 import org.grr.model.SettingModel
 import org.grr.screen.main.main_widget.dialog.TimeSelectDialog.CookTimeDialog
 import org.grr.screen.main.main_widget.dialog.TimeSelectDialog.DeliveryTimeDialog
@@ -21,11 +22,11 @@ import java.awt.Insets
 import javax.swing.*
 
 class PendingState(private val parentFrame: JFrame? = null, private val cardPanel: JPanel? = null) : OrderState {
-    override fun handle(order: Order) {
+    override fun handle(order: ReceiveOrderModel) {
         println("PendingState")
     }
 
-    override fun getUI(order: Order): JPanel {
+    override fun getUI(order: ReceiveOrderModel): JPanel {
         return BaseOrderPanel(order).apply {
             val buttonPanel = JPanel().apply {
                 layout = BoxLayout(this, BoxLayout.X_AXIS)
@@ -69,7 +70,7 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
         }
     }
 
-    private fun createRejectButton(order: Order, overlayManager: OverlayManager): JButton {
+    private fun createRejectButton(order: ReceiveOrderModel, overlayManager: OverlayManager): JButton {
         return FillRoundedButton(
             text = "주문거절",
             borderColor = MyColor.GREY300,
@@ -91,7 +92,7 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
                     "주문 거절 사유를 선택해 주세요.",
                     "주문 거절",
                     onReject = { rejectReason ->
-                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_REJECT)
+                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_REJECT, PosOrderStatus.PENDING)
                         rejectOrderCommand.execute()
                     }
                 )
@@ -106,7 +107,7 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
         }
     }
 
-    private fun createAcceptButton(order: Order, overlayManager: OverlayManager): JButton {
+    private fun createAcceptButton(order: ReceiveOrderModel, overlayManager: OverlayManager): JButton {
         return FillRoundedButton(
             text = "접수하기",
             borderColor = MyColor.DARK_NAVY,
@@ -128,7 +129,7 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
     }
 
     //어떤 다이얼로그를 띄워줘야할까 판별하는 부분
-    private fun statusOfDialog(takeType: String, overlayManager: OverlayManager, order: Order) {
+    private fun statusOfDialog(takeType: String, overlayManager: OverlayManager, order: ReceiveOrderModel) {
         val allOff = !SettingModel.cookingTimeControl && !SettingModel.deliveryTimeControl
         val allOn = SettingModel.cookingTimeControl && SettingModel.deliveryTimeControl
         val deliveryDialogType = when {

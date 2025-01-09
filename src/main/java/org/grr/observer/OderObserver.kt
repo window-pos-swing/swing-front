@@ -1,7 +1,7 @@
 package org.grr.observer
 
-import org.grr.model.Order
+import org.grr.model.ReceiveOrderModel
 
 interface OrderObserver {
-    fun update(order: Order)
+    fun update(order: ReceiveOrderModel)
 }

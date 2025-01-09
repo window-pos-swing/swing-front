@@ -1,15 +1,16 @@
 package org.grr.screen.main.main_widget.order_states_ui
 
-import org.grr.model.Order
+import org.grr.model.ReceiveOrderModel
 import org.grr.style.MyColor
 import org.grr.util.LoadImage
 import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedLabel
 import org.grr.widgets.OutLineRoundedLabel
 import java.awt.*
+import java.awt.SystemColor.menu
 import javax.swing.*
 
-class BaseOrderPanel(order: Order) : JPanel() {
+class BaseOrderPanel(order: ReceiveOrderModel) : JPanel() {
     // 패널들을 protected로 선언
     private val headerPanel = JPanel()
     private val addressPanel = JPanel()
@@ -37,7 +38,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
             alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
             // 아이콘 로드
-            val iconLabel = JLabel(LoadImage.loadImage(if (order.orderType == "DELIVERY") "/delivery_state.png" else "/takeout_state.png", 56, 80)).apply {
+            val iconLabel = JLabel(LoadImage.loadImage(if (order.orderReceiveType == "DELIVERY") "/delivery_state.png" else "/takeout_state.png", 56, 80)).apply {
                 border = BorderFactory.createEmptyBorder(0, 0, 0, 15)  // 오른쪽에 여백 추가
                 alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
             }
@@ -49,13 +50,15 @@ class BaseOrderPanel(order: Order) : JPanel() {
                 border = BorderFactory.createEmptyBorder(10, 0, 0, 0)  // 상하 여백 제거
                 alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
-                val orderTimeLabel = JLabel("${order.orderTime}분").apply {
+                //주문 들어온 시간 라벨
+                val orderTimeLabel = JLabel("${order.orderDate[3]} : ${order.orderDate[4]}분").apply {
                     font = MyFont.Bold(40f)  // 폰트 크기 40
                     foreground = MyColor.GREY900
                     alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
                 }
 
-                val menuInfoLabel = JLabel("[메뉴 ${order.menuList.size}개] ${order.menuList.sumOf { it.price * it.count }}원").apply {
+//                val menuInfoLabel = JLabel("[메뉴 ${order.menuList.size}개] ${order.menuList.sumOf { it.price * it.count }}원").apply {
+                val menuInfoLabel = JLabel("[메뉴 ${order.menuList.size}개] ${order.totalOrderPrice}원").apply {
                     font = MyFont.Medium(24f)  // 폰트 크기 24
                     foreground = MyColor.GREY900
                     alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
@@ -88,7 +91,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
             alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
             // 주소 정보
-            val addressItems = JLabel(order.address).apply {
+            val addressItems = JLabel(order.appMemberAddress).apply {
                 font = MyFont.Medium(20f)
                 border = BorderFactory.createEmptyBorder(0, 0, 0, 20)  // 상하 여백 제거
                 foreground = Color.GRAY
@@ -100,10 +103,10 @@ class BaseOrderPanel(order: Order) : JPanel() {
 
         // 기본 텍스트 설정
         val originalText = order.menuList.joinToString(" / ") { menu ->
-            val optionsText = if (menu.options.isNotEmpty()) {
-                "(${menu.options.joinToString(", ") { it.optionName }})"
+            val optionsText = if (menu.menuOptionList.isNotEmpty()) {
+                "(${menu.menuOptionList.joinToString(", ") { it.menuOptionName }})"
             } else ""
-            "${menu.menuName} $optionsText x ${menu.count}"
+            "${menu.menuName} $optionsText x ${menu.quantity}"
         }
 
         // 3. [menuDetailPanel] 메뉴 세부사항 (왼쪽 정렬)
@@ -152,7 +155,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
 
             // 수저/포크 정보 라벨
             val spoonForkLabel = FillRoundedLabel(
-                if (order.spoonFork) "수저/포크 O" else "수저/포크 X",  // 텍스트
+                if (order.disposable) "수저/포크 O" else "수저/포크 X",  // 텍스트
                 borderColor = MyColor.Yellow,  // 테두리 색상
                 backgroundColor = MyColor.Yellow,  // 배경 색상 (노란색)
                 textColor = Color.WHITE,  // 텍스트 색상
@@ -169,7 +172,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
 
             // 요청사항 라벨
             val requestLabel = FillRoundedLabel(
-                "요청사항: ${order.request}",  // 텍스트
+                "요청사항: ${order.storeRequest}",  // 텍스트
                 borderColor = Color(240, 240, 240),
                 backgroundColor = Color(240, 240, 240),
                 textColor = MyColor.GREY900,
@@ -188,7 +191,7 @@ class BaseOrderPanel(order: Order) : JPanel() {
             requestLabel.addComponentListener(object : java.awt.event.ComponentAdapter() {
                 override fun componentResized(e: java.awt.event.ComponentEvent) {
                     val availableWidth = requestLabel.width - 60  // 패딩을 고려한 실제 너비 계산
-                    requestLabel.text = requestTruncateText("요청사항: ${order.request}", availableWidth, requestLabel)
+                    requestLabel.text = requestTruncateText("요청사항: ${order.storeRequest}", availableWidth, requestLabel)
                 }
             })
 

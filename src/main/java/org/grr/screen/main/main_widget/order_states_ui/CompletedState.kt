@@ -1,8 +1,7 @@
 package org.grr.screen.main.main_widget.order_states_ui
 
-
-import org.grr.model.Order
 import org.grr.model.OrderState
+import org.grr.model.ReceiveOrderModel
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedButton
@@ -15,11 +14,11 @@ import javax.swing.JPanel
 import javax.swing.SwingConstants
 
 class CompletedState : OrderState {
-    override fun handle(order: Order) {
+    override fun handle(order: ReceiveOrderModel) {
         // Completed 상태 처리 로직
     }
 
-    override fun getUI(order: Order): JPanel {
+    override fun getUI(order: ReceiveOrderModel): JPanel {
         return BaseOrderPanel(order).apply {
             // headerPanel의 오른쪽에 버튼 추가
             val buttonPanel = JPanel().apply {

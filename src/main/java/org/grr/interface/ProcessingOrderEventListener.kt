@@ -1,8 +1,8 @@
 package org.grr.`interface`
 
-import org.grr.model.Order
+import org.grr.model.ReceiveOrderModel
 
 interface OrderEventListener {
-    fun onResendOrder(order: Order)
-    fun onCompleteOrder(order: Order)
+    fun onResendOrder(order: ReceiveOrderModel)
+    fun onCompleteOrder(order: ReceiveOrderModel)
 }

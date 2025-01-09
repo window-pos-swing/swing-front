@@ -1,10 +1,14 @@
 package org.grr.model;
 
+import org.grr.enum.BusinessStatus
 import org.grr.`object`.HolidayManager
 import org.grr.`object`.Storage
 import org.grr.`object`.TimeManager
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 object SettingModel {
     var cookingTime: Int = 0 // 조리 시간
@@ -191,4 +195,71 @@ object SettingModel {
         println("[휴무일 정보 로컬 업데이트 완료]")
         loadHoliday()
     }
+
+    fun loadPauseTime() {
+
+    }
+
+    fun savePauseTime(businessStatus: BusinessStatus, startTime: LocalDateTime? = null, endTime: LocalDateTime? = null) {
+        val updatedMemberInfo = memberInfo ?: JSONObject()
+        val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
+
+        // businessStatus 추가
+        settings.put("businessStatus", businessStatus.name)
+
+        // startTime 저장 (존재하는 경우)
+        if (startTime != null) {
+            val startTimeArray = JSONArray().apply {
+                put(startTime.year)
+                put(startTime.monthValue)
+                put(startTime.dayOfMonth)
+                put(startTime.hour)
+                put(startTime.minute)
+            }
+            settings.put("businessPauseStartTime", startTimeArray)
+        }else{
+            val today = LocalDate.now()
+            val defaultTime = LocalTime.MIDNIGHT
+            settings.put("businessPauseStartTime", JSONArray().apply {
+                put(today.year)
+                put(today.monthValue)
+                put(today.dayOfMonth)
+                put(defaultTime.hour)
+                put(defaultTime.minute)
+            })
+
+        }
+
+        // endTime 저장 (존재하는 경우)
+        if (endTime != null) {
+            val endTimeArray = JSONArray().apply {
+                put(endTime.year)
+                put(endTime.monthValue)
+                put(endTime.dayOfMonth)
+                put(endTime.hour)
+                put(endTime.minute)
+            }
+            settings.put("businessPauseEndTime", endTimeArray)
+        }else{
+            val today = LocalDate.now()
+            val defaultTime = LocalTime.MIDNIGHT
+            settings.put("businessPauseEndTime", JSONArray().apply {
+                put(today.year)
+                put(today.monthValue)
+                put(today.dayOfMonth)
+                put(defaultTime.hour)
+                put(defaultTime.minute)
+            })
+        }
+
+        updatedMemberInfo.put("setting", settings)
+        Storage.saveMemberInfo(updatedMemberInfo)
+
+        println("[영업 상태 정보 업데이트 완료]")
+        println("Business Status: ${businessStatus.name}")
+        println("Start Time: ${settings.optJSONArray("businessPauseStartTime")}")
+        println("End Time: ${settings.optJSONArray("businessPauseEndTime")}")
+    }
+
+
 }

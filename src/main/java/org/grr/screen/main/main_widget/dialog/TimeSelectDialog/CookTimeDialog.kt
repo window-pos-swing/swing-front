@@ -2,7 +2,7 @@ package org.grr.screen.main.main_widget.dialog.TimeSelectDialog
 
 import OrderController
 import org.grr.command.AcceptOrderCommand
-import org.grr.model.Order
+import org.grr.model.ReceiveOrderModel
 import org.grr.model.SettingModel
 import org.grr.widgets.OverlayManager
 import javax.swing.*
@@ -11,7 +11,7 @@ import javax.swing.*
 class CookTimeDialog(
     private val parent: JFrame,
     private val cardPanel: JPanel,
-    private val order: Order,
+    private val order: ReceiveOrderModel,
     private val orderController: OrderController,
     private val overlayManager: OverlayManager,
     private val takeType: String,

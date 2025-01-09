@@ -4,6 +4,6 @@ import javax.swing.JPanel
 
 
 interface OrderState {
-    fun handle(order: Order)
-    fun getUI(order: Order): JPanel
+    fun handle(order: ReceiveOrderModel)
+    fun getUI(order: ReceiveOrderModel): JPanel
 }

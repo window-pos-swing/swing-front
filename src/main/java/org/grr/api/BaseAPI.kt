@@ -43,4 +43,37 @@ open class BaseAPI {
             return Pair(false, "서버 연결 실패: ${e.message}")
         }
     }
+
+
+    fun sendGetRequest(
+        url: String,
+        accessToken: String
+    ): Pair<Boolean, String> {
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .addHeader("Authorization", accessToken) // Bearer 추가
+            .build()
+
+        try {
+            client.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string() ?: "" // 한 번만 읽기
+
+                println("Request URL: $url")
+                println("Response Code: ${response.code}")
+                println("Response Message: ${response.message}")
+                println("Response Body: $responseBody")
+
+                return if (response.isSuccessful) {
+                    Pair(true, responseBody) // 성공 시 저장한 응답 본문 반환
+                } else {
+                    Pair(false, "주문정보 가져오기 실패: ${response.message}")
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return Pair(false, "서버 연결 실패: ${e.message}")
+        }
+    }
+
 }

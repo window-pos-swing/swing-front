@@ -124,7 +124,7 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
     fun RejectedSubTabsUpdateCounts() {
         // 모든 주문 중 현재 PendingState(접수대기) 상태인 것들만 필터링
-        val RejectedOrders = tabbedPane.getAllOrders().filter { it.state is RejectedState }
+        val RejectedOrders = tabbedPane.myGetAllOrders().filter { it.state is RejectedState }
 
         // 전체보기: 모든 접수대기 상태의 주문 개수
         totalCount = RejectedOrders.size

@@ -4,9 +4,10 @@ import RoundedProgressBar
 import org.grr.command.CompletedOrderCommand
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
+import org.grr.enum.PosOrderStatus
 import org.grr.`interface`.OrderEventListener
-import org.grr.model.Order
 import org.grr.model.OrderState
+import org.grr.model.ReceiveOrderModel
 import org.grr.observer.OrderObserver
 import org.grr.style.MyColor
 import org.grr.util.MyFont
@@ -18,14 +19,14 @@ import javax.swing.*
 class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel) : OrderState, OrderEventListener {
     private lateinit var rightPanel: JPanel  // 버튼을 추가할 패널을 멤버로 선언
 
-    override fun handle(order: Order) {
+    override fun handle(order: ReceiveOrderModel) {
         // 주문 진행 처리 로직
         //order.startTimer(totalTime)  // 타이머 시작
     }
     val overlayManager = cardPanel.let { OverlayManager(parentFrame, it) }
 
     val _cardPanel = cardPanel
-    override fun getUI(order: Order): JPanel {
+    override fun getUI(order: ReceiveOrderModel): JPanel {
         return BaseOrderPanel(order).apply {
             layout = BorderLayout()  // 전체 레이아웃을 BorderLayout으로 설정
 
@@ -124,7 +125,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
                                 "주문 취소 사유를 선택해 주세요.",
                                 "주문 취소",
                                 onReject = { rejectReason ->
-                                    val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_REJECT)
+                                    val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_REJECT, PosOrderStatus.PROCESSING)
                                     rejectOrderCommand.execute()
                                 }
                             )
@@ -153,7 +154,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
 
                     // 프로그레스바 업데이트 로직
                     order.addTimerObserver(object : OrderObserver {
-                        override fun update(order: Order) {
+                        override fun update(order: ReceiveOrderModel) {
                             // 프로그레스바만 다시 그리기
                             roundedProgressBar.updateProgress(order.elapsedTime)
                             roundedProgressBar.repaint()  // 프로그레스바만 리페인트
@@ -176,7 +177,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
 
 
     // 주문 상태에 따라 UI 업데이트
-    fun simulateOrderEvents(order: Order, eventListener: OrderEventListener) {
+    fun simulateOrderEvents(order: ReceiveOrderModel, eventListener: OrderEventListener) {
         if (order.isCompleted) {
             eventListener.onCompleteOrder(order)
             return
@@ -188,7 +189,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
         }
 
         // 주문 번호에 따라 이벤트 타이머 설정
-        if (order.orderNumber % 2 == 0) {
+        if (order.id % 2 == 0) {
             order.initializeEventTimer(7000) {
                 eventListener.onResendOrder(order)
             }
@@ -201,7 +202,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
     }
 
     // Resend Order 이벤트 처리: 프로그레스바를 버튼으로 변환
-    override fun onResendOrder(order: Order) {
+    override fun onResendOrder(order: ReceiveOrderModel) {
         order.isResent = true
         // '주문취소' 버튼 생성
         val cancelButton = FillRoundedButton(
@@ -224,7 +225,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
                     "주문 취소 사유를 선택해 주세요.",
                     "주문 취소",
                     onReject = { rejectReason ->
-                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason , RejectedReasonType.STORE_REJECT)
+                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason , RejectedReasonType.STORE_REJECT, PosOrderStatus.PROCESSING)
                         rejectOrderCommand.execute()
                     }
                 )
@@ -265,7 +266,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
     }
 
     // Complete Order 이벤트 처리: 주문 완료 처리
-    override fun onCompleteOrder(order: Order) {
+    override fun onCompleteOrder(order: ReceiveOrderModel) {
         order.isCompleted = true
         rightPanel.border = BorderFactory.createEmptyBorder(-15, 0, 0, 0)
         // 주문 완료 버튼 생성

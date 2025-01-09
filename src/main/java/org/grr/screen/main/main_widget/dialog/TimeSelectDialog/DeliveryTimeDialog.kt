@@ -2,8 +2,8 @@ package org.grr.screen.main.main_widget.dialog.TimeSelectDialog
 
 import OrderController
 import org.grr.command.AcceptOrderCommand
+import org.grr.model.ReceiveOrderModel
 
-import org.grr.model.Order
 import org.grr.widgets.OverlayManager
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -11,7 +11,7 @@ import javax.swing.JPanel
 class DeliveryTimeDialog(
     private val parent: JFrame,
     private val cardPanel: JPanel,
-    private val order: Order,
+    private val order: ReceiveOrderModel,
     private val orderController: OrderController,
     private val cookTime: Int, // 이전 다이얼로그에서 전달받은 조리 시간
     private val overlayManager: OverlayManager

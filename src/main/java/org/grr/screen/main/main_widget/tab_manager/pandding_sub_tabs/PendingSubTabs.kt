@@ -123,16 +123,16 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
     fun PendingSubTabsUpdateCounts() {
         // 모든 주문 중 현재 PendingState(접수대기) 상태인 것들만 필터링
-        val pendingOrders = tabbedPane.getAllOrders().filter { it.state is PendingState }
+        val pendingOrders = tabbedPane.myGetAllOrders().filter { it.state is PendingState }
 
         // 전체보기: 모든 접수대기 상태의 주문 개수
         totalCount = pendingOrders.size
 
         // 배달: 접수대기 상태 중 배달 타입인 주문 개수
-        deliveryCount = pendingOrders.filter { it.orderType == "DELIVERY" }.size
+        deliveryCount = pendingOrders.filter { it.orderReceiveType == "DELIVERY" }.size
 
         // 포장: 접수대기 상태 중 포장 타입인 주문 개수
-        takeoutCount = pendingOrders.filter { it.orderType == "TAKEOUT" }.size
+        takeoutCount = pendingOrders.filter { it.orderReceiveType == "TAKEOUT" }.size
 
         // 버튼의 텍스트 업데이트
         allOrdersButton.button.text = "전체보기  $totalCount"

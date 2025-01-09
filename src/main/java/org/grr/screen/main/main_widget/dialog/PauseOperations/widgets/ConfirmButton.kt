@@ -1,11 +1,14 @@
 package org.grr.screen.main.main_widget.dialog.PauseOperations.widgets
 
+import org.grr.api.SettingToServer
+import org.grr.enum.BusinessStatus
 import java.awt.Dimension
 import java.time.LocalDateTime
 import javax.swing.JButton
 import javax.swing.JOptionPane
 import org.grr.model.BusinessPause
 import org.grr.model.BusinessPause.Companion.toJson
+import org.grr.model.SettingModel
 import org.grr.screen.main.main_widget.dialog.ConfirmationDialog
 import org.grr.screen.main.main_widget.dialog.PauseOperations.PauseOperationsDialog
 import org.grr.style.MyColor
@@ -44,6 +47,8 @@ class ConfirmButton(
         }
         val formattedEndTime = formatDateTime(endTime)
         val businessPause = BusinessPause.fromLocalDateTimes(startTime, endTime)
+        print("startTime : $startTime")
+        print("endTime : $endTime")
         val json = businessPause.toJson()
         // 확인 다이얼로그 호출
         ConfirmationDialog(
@@ -53,6 +58,16 @@ class ConfirmButton(
             callback = { confirmed ->
                 if (confirmed) {
                     println("사용자가 확인을 클릭했습니다.")
+                    // 로컬 및 서버 저장
+                    SettingModel.savePauseTime(BusinessStatus.PAUSE,startTime, endTime)
+                    val result = SettingToServer().businessStatusToServer(BusinessStatus.PAUSE, startTime, endTime)
+
+                    // 결과 처리
+                    if (result.first) {
+                        JOptionPane.showMessageDialog(null, "휴무일 시간이 업데이트되었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE)
+                    } else {
+                        JOptionPane.showMessageDialog(null, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
+                    }
                     println(json)
                 } else {
                     println("사용자가 취소를 클릭했습니다.")

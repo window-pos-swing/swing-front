@@ -1,9 +1,9 @@
 package org.grr.screen.main.main_widget.dialog
 
 import CustomRoundedDialog
+import org.grr.model.ReceiveOrderModel
 import org.grr.util.LoadImage
 import org.grr.util.MyFont
-import org.grr.model.Order
 import org.grr.style.MyColor
 import org.grr.widgets.FillRoundedLabel
 import java.awt.*
@@ -17,7 +17,7 @@ class OrderDetailDialog(
     parent: JFrame,
     cardPanel: JPanel,
     title: String,
-    order: Order,
+    order: ReceiveOrderModel,
 ) : CustomRoundedDialog(parent, title, 1000, 833) {
 
     init {
@@ -90,7 +90,7 @@ class OrderDetailDialog(
 
 
     // 배달 정보 패널 생성
-    private fun createDeliveryInfoPanel(order:Order): JPanel {
+    private fun createDeliveryInfoPanel(order:ReceiveOrderModel): JPanel {
         val panel = JPanel().apply {
             layout = BorderLayout()
             background = Color.WHITE
@@ -149,7 +149,7 @@ class OrderDetailDialog(
             border = EmptyBorder(0, 20, 0, 20)
 
             // 주소 값 - JTextArea 사용
-            add(JTextArea(order.address).apply {
+            add(JTextArea(order.appMemberAddress).apply {
                 font = MyFont.SemiBold(18f)
                 lineWrap = true   // 텍스트가 길어질 경우 줄바꿈 허용
                 wrapStyleWord = true  // 단어 단위로 줄바꿈
@@ -164,7 +164,7 @@ class OrderDetailDialog(
             add(Box.createVerticalStrut(15))
 
             // 연락처 값 - JLabel 사용
-            add(JLabel(order.CustomerPhonenumber).apply {
+            add(JLabel(order.appMemberPhone).apply {
                 font = MyFont.SemiBold(18f)
                 alignmentX = Component.LEFT_ALIGNMENT
                 alignmentY = Component.TOP_ALIGNMENT
@@ -174,7 +174,7 @@ class OrderDetailDialog(
             add(Box.createVerticalStrut(30))
 
             // 결제방법 값 - JLabel 사용
-            add(JLabel(order.paymentMethod).apply {
+            add(JLabel("카드결제").apply {
                 font = MyFont.SemiBold(18f)
                 alignmentX = Component.LEFT_ALIGNMENT
                 alignmentY = Component.TOP_ALIGNMENT
@@ -208,12 +208,13 @@ class OrderDetailDialog(
             border = EmptyBorder(0, 20, 0, 20)
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
-            val receivedTimeText = order.ReceivedTime?.toString() ?: "접수전"
-            add(JLabel(receivedTimeText).apply { font = MyFont.SemiBold(18f) })
+            add(JLabel("${order.orderDate[3]} : ${order.orderDate[4]}").apply { font = MyFont.SemiBold(18f) })
             add(Box.createVerticalStrut(35))
-            add(JLabel("20분").apply { font = MyFont.SemiBold(18f) })
+            val cookTime = if(order.cookTime == 0) order.cookTime.toString() else ""
+            val deliveryTime = if(order.deliveryTime == 0) order.deliveryTime.toString() else ""
+            add(JLabel(cookTime).apply { font = MyFont.SemiBold(18f) })
             add(Box.createVerticalStrut(35))
-            add(JLabel("45분").apply { font = MyFont.SemiBold(18f) })
+            add(JLabel(deliveryTime).apply { font = MyFont.SemiBold(18f) })
         }
 
         // rightPanel에 leftInrightPanel과 rightInrightPanel 추가
@@ -230,7 +231,7 @@ class OrderDetailDialog(
         return panel
     }
 
-    private fun createRequestInfoPanel(type: String, order:Order): JPanel {
+    private fun createRequestInfoPanel(type: String, order:ReceiveOrderModel): JPanel {
         val panel = JPanel().apply {
             layout = BorderLayout()
             background = Color.WHITE
@@ -252,7 +253,7 @@ class OrderDetailDialog(
             }
             add(leftPanel, BorderLayout.WEST)
 
-            val spoonFork = if (order.spoonFork) "수저/포크 O" else "수저/포크 X"
+            val spoonFork = if (order.disposable) "수저/포크 O" else "수저/포크 X"
             val deliveryType = "비대면 배달"
 
             // 오른쪽에 수저/포크 또는 배달 라벨 추가
@@ -294,7 +295,7 @@ class OrderDetailDialog(
         }
 
         // 요청 사항 텍스트를 JTextArea로 생성하여 추가
-        val requestTextArea = JTextArea(order.request).apply {
+        val requestTextArea = JTextArea(order.storeRequest).apply {
             font = MyFont.Medium(18f)
             foreground = Color.BLACK
             background = Color.WHITE
@@ -317,7 +318,7 @@ class OrderDetailDialog(
     }
 
     // 주문 정보 패널 생성
-    private fun createOrderInfoPanel(order: Order): JPanel {
+    private fun createOrderInfoPanel(order: ReceiveOrderModel): JPanel {
         val panel = JPanel().apply {
             layout = BorderLayout()
             background = Color.WHITE
@@ -423,34 +424,35 @@ class OrderDetailDialog(
             })
 
             // 옵션 추가
-            menu.options.forEach { option ->
-                menuPanel.add(JLabel("  • ${option.optionName}").apply {
+            menu.menuOptionList.forEach { option ->
+                menuPanel.add(JLabel("  • ${option.menuOptionName}").apply {
                     font = MyFont.Regular(20f)
                 })
             }
 
             // 수량 추가
-            quantityPanel.add(JLabel(menu.count.toString()).apply {
+            quantityPanel.add(JLabel(menu.quantity.toString()).apply {
                 font = MyFont.SemiBold(22f)
                 alignmentX = Component.CENTER_ALIGNMENT
             })
 
             // 옵션 수량은 빈 값으로 추가
-            menu.options.forEach {
+            menu.menuOptionList.forEach {
                 quantityPanel.add(JLabel(" ").apply {
                     font = MyFont.Regular(20f)
                 })
             }
 
             // 가격 추가
-            pricePanel.add(JLabel("${menu.price}원").apply {
+            //menu.price
+            pricePanel.add(JLabel("${menu.menuTotalPrice}원").apply {
                 font = MyFont.SemiBold(22f)
                 alignmentX = Component.RIGHT_ALIGNMENT
             })
 
             // 옵션 가격 추가
-            menu.options.forEach { option ->
-                pricePanel.add(JLabel("${option.optionPrice}원").apply {
+            menu.menuOptionList.forEach { option ->
+                pricePanel.add(JLabel("${option.menuOptionPrice}원").apply {
                     font = MyFont.Regular(20f)
                     alignmentX = Component.RIGHT_ALIGNMENT
                 })
@@ -491,7 +493,7 @@ class OrderDetailDialog(
         quantityPanel.add(JLabel(" ").apply {
             font = MyFont.SemiBold(22f)
         })
-        pricePanel.add(JLabel("${order.deliveryFee}원").apply {
+        pricePanel.add(JLabel("${order.deliveryPrice}원").apply {
             font = MyFont.SemiBold(22f)
             alignmentX = Component.RIGHT_ALIGNMENT
         })
@@ -519,8 +521,8 @@ class OrderDetailDialog(
         pricePanel.add(Box.createVerticalStrut(15)) // 10픽셀 높이의 공백 추가
 
         // 총합 추가
-        val totalCount = order.menuList.sumOf { it.count }
-        val totalPrice = order.menuList.sumOf { it.price + it.options.sumOf { option -> option.optionPrice } } + order.deliveryFee
+        val totalCount = order.menuList.sumOf { it.quantity }
+//        val totalPrice = order.menuList.sumOf { it.price + it.menuOptionList.sumOf { option -> option.menuOptionPrice } } + order.deliveryPrice
 
         menuPanel.add(JLabel("총합").apply {
             font = MyFont.Bold(22f)
@@ -531,7 +533,7 @@ class OrderDetailDialog(
             foreground = Color.RED
             alignmentX = Component.CENTER_ALIGNMENT
         })
-        pricePanel.add(JLabel("${totalPrice}원").apply {
+        pricePanel.add(JLabel("${order.totalOrderPrice}원").apply {
             font = MyFont.Bold(22f)
             foreground = Color.RED
             alignmentX = Component.RIGHT_ALIGNMENT
