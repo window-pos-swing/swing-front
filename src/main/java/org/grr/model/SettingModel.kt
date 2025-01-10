@@ -80,7 +80,7 @@ object SettingModel {
 
         myBreakTime?.let {
             // TimeManager 초기화
-            TimeManager.initialize(it)
+            TimeManager.initialize(it,true)
 
             // 포맷된 데이터를 가져옴
             val formattedBreakTime = TimeManager.getFormattedBreakTimes()
@@ -116,7 +116,7 @@ object SettingModel {
 
         myOperateTime?.let {
             // TimeManager 초기화
-            TimeManager.initialize(it)
+            TimeManager.initialize(it, false)
 
             // 포맷된 데이터를 가져옴
             val formattedBreakTime = TimeManager.getFormattedBreakTimes()

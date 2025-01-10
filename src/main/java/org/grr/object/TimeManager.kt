@@ -30,32 +30,51 @@ object TimeManager {
     // 요일별로 정리된 오전/오후 시간대 데이터를 저장
     private val timeRanges = mutableMapOf<String, MutableList<String>>()
 
-    // 초기화 메서드: JSON 데이터를 받아 처리
-    fun initialize(jsonData: JSONObject) {
+    fun initialize(jsonData: JSONObject, isBreakTime: Boolean) {
         timeRanges.clear()
 
         days.forEach { day ->
-            val startTime = jsonData.optJSONArray("${day}StartTime")
-            val endTime = jsonData.optJSONArray("${day}EndTime")
+            val allDayKey = "${day}AllDay"
+            val startTimeKey = "${day}StartTime"
+            val endTimeKey = "${day}EndTime"
+
+            // StartTime과 EndTime 체크
+            val startTime = jsonData.optJSONArray(startTimeKey)
+            val endTime = jsonData.optJSONArray(endTimeKey)
 
             if (startTime != null && endTime != null) {
+                // 시간 범위 처리
                 val startHour = startTime.getInt(0)
                 val startMinute = startTime.getInt(1)
                 val endHour = endTime.getInt(0)
                 val endMinute = endTime.getInt(1)
 
-                val timeRange = "${if (startHour < 12) "오전" else "오후"} ${startHour % 12}시 ${startMinute.toString().padStart(2, '0')}분 ~ " +
-                        "${if (endHour < 12) "오전" else "오후"} ${endHour % 12}시 ${endMinute.toString().padStart(2, '0')}분 "
+                val timeRange = "${if (startHour < 12) "오전" else "오후"} ${startHour % 12}시 ${
+                    startMinute.toString().padStart(2, '0')
+                }분 ~ " +
+                        "${if (endHour < 12) "오전" else "오후"} ${endHour % 12}시 ${
+                            endMinute.toString().padStart(2, '0')
+                        }분 "
 
                 timeRanges.computeIfAbsent(timeRange) { mutableListOf() }.add(day)
+            } else {
+                if(!isBreakTime){
+                    // AllDay 체크
+                    val isAllDay = jsonData.optBoolean(allDayKey, true)
+                    if (isAllDay) {
+                        timeRanges.computeIfAbsent("24시간 ") { mutableListOf() }.add(day)
+                    }
+                }
+
             }
         }
     }
 
+
     // 정리된 데이터를 포맷팅하여 반환
     fun getFormattedBreakTimes(): String {
         val result = mutableListOf<String>()
-
+        println("getFormattedTime : $timeRanges")
         // 시간대 처리
         val formattedTimes = formatTimes(timeRanges)
         result.addAll(formattedTimes)
@@ -64,10 +83,12 @@ object TimeManager {
     }
 
     private fun formatTimes(times: Map<String, List<String>>): List<String> {
+        println("formatTimes")
         val result = mutableListOf<String>()
 
         // 전체 요일 처리
-        val allDaysGroup = times.filter { (_, days) -> days.containsAll(weekdays + weekends) && days.size == weekdays.size + weekends.size }
+        val allDaysGroup =
+            times.filter { (_, days) -> days.containsAll(weekdays + weekends) && days.size == weekdays.size + weekends.size }
         allDaysGroup.forEach { (timeRange, _) ->
             result.add("전체요일: $timeRange")
         }
@@ -98,7 +119,6 @@ object TimeManager {
             val dayNames = days.joinToString(", ") { mapDayToKorean(it) }
             result.add("$dayNames: $timeRange")
         }
-
         return result
     }
 
@@ -119,7 +139,7 @@ object TimeManager {
 
     ///저장할때 사용
     // 포맷된 데이터를 언포맷팅하여 JSON으로 변환
-    fun unformatBreakTimes(formattedData: String): JSONObject {
+    fun unformatBreakTimes(formattedData: String, isBreakTime : Boolean): JSONObject {
         val breakTimeJson = JSONObject()
         val daysOfWeek = listOf("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
         val populatedDays = mutableSetOf<String>() // 채워진 요일 추적
@@ -139,17 +159,53 @@ object TimeManager {
                     else -> daysText.split(", ").map { mapKoreanToDay(it) }
                 }
 
-                val timeParts = timeRange.split(" ~ ")
-                if (timeParts.size == 2) {
-                    val startTime = parseKoreanTime(timeParts[0].trim())
-                    val endTime = parseKoreanTime(timeParts[1].trim())
+                if(isBreakTime) {
+                    println("isBreakTime")
+                    val timeParts = timeRange.split(" ~ ")
+                    if (timeParts.size == 2) {
+                        val startTime = parseKoreanTime(timeParts[0].trim())
+                        val endTime = parseKoreanTime(timeParts[1].trim())
 
-                    days.forEach { day ->
-                        breakTimeJson.put("${day}StartTime", JSONArray().put(startTime.first).put(startTime.second))
-                        breakTimeJson.put("${day}EndTime", JSONArray().put(endTime.first).put(endTime.second))
-                        populatedDays.add(day) // 요일 추가
+                        days.forEach { day ->
+                            breakTimeJson.put("${day}StartTime", JSONArray().put(startTime.first).put(startTime.second))
+                            breakTimeJson.put("${day}EndTime", JSONArray().put(endTime.first).put(endTime.second))
+                            populatedDays.add(day) // 요일 추가
+                        }
+                    }
+                }else{
+                    if (timeRange == "24시간") {
+
+                        // "24시간" 처리
+                        days.forEach { day ->
+                            breakTimeJson.put("${day}StartTime", JSONObject.NULL)
+                            breakTimeJson.put("${day}EndTime", JSONObject.NULL)
+                            breakTimeJson.put("${day}AllDay", true)
+                            populatedDays.add(day)
+                        }
+
+                    } else {
+                        val timeParts = timeRange.split(" ~ ")
+                        if (timeParts.size == 2) {
+                            val startTime = parseKoreanTime(timeParts[0].trim())
+                            val endTime = parseKoreanTime(timeParts[1].trim())
+
+                            days.forEach { day ->
+                                breakTimeJson.put("${day}StartTime", JSONArray().put(startTime.first).put(startTime.second))
+                                breakTimeJson.put("${day}EndTime", JSONArray().put(endTime.first).put(endTime.second))
+                                breakTimeJson.put("${day}AllDay", false)
+
+                                populatedDays.add(day) // 요일 추가
+                            }
+                            daysOfWeek.forEach { day ->
+                                if (!populatedDays.contains(day)) {
+                                    breakTimeJson.put("${day}AllDay", false)
+                                }
+                            }
+                        }
                     }
                 }
+
+
             }
         }
 

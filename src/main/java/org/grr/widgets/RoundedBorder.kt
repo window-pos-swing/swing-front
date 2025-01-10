@@ -610,6 +610,7 @@ class RoundedBorder(private val radius: Int) : AbstractBorder() {
 }
 
 // RoundedButton 클래스: 모서리가 둥근 빨간색 배경을 가진 버튼
+//파란색
 class RoundedButton(text: String) : JButton(text) {
     init {
         isContentAreaFilled = false  // 기본 배경 채우기 제거

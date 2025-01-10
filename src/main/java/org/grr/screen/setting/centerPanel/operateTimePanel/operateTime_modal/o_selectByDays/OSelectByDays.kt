@@ -1,30 +1,26 @@
 package org.grr.screen.setting.centerPanel.operateTimePanel.operateTime_modal.o_selectByDays
 
 import RoundedComboBox
+import org.grr.`object`.TimeManager
+import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton
 import org.grr.util.MyFont
 import org.grr.style.MyColor
-import org.grr.widgets.IconRoundBorder2
-import org.grr.widgets.IconRoundBorder3
-import org.grr.widgets.RoundButton
-import org.grr.widgets.RoundedButton
+import org.grr.widgets.*
 import java.awt.*
 import javax.swing.*
 
-class OSelectByDays : JPanel() {
+class OSelectByDays(
+    private val onAdd: (String, String) -> Unit
+) : JPanel() {
     private var itemCount = 0
     private var startHourCombo: JComboBox<String>
     private var startMinCombo: JComboBox<String>
     private var endHourCombo: JComboBox<String>
     private var endMinCombo: JComboBox<String>
-    private val bottomPanel: JPanel = JPanel()
-    private val dayButtons = mutableListOf<RoundButton>()
-    private var selectedDays = mutableSetOf<String>()
-    private val selectedDay2 = mutableSetOf<String>()
+    private var allDayButton: JButton
+    val days = arrayOf("월", "화", "수", "목", "금", "토", "일")
 
-    private var is24HoursSelected = false
-    lateinit var timePanel: JPanel
-
-    val days = arrayOf("월","화","수","목","금","토","일")
+    var isAllDaySelected = true // 버튼 상태를 저장하는 변수
 
     init {
         layout = BorderLayout()
@@ -49,40 +45,124 @@ class OSelectByDays : JPanel() {
                 for (day in days) {
                     val dayButton = RoundButton(day).apply {
                         isClickable = true
-                        foreground = Color(255, 177, 177)
+
+                        // 평일과 주말 요일 그룹
+                        val weekdays = arrayOf("월", "화", "수", "목", "금")
+                        val weekends = arrayOf("토", "일")
+
+                        // 평일 또는 주말이 포함되어 있는지 확인
+                        val isWeekdaysIncluded = TimeManager.breakTimeDataList.any { selectedDay ->
+                            selectedDay.labelText.split(", ").map { it.trim() }.contains("평일")
+                        }
+                        val isWeekendsIncluded = TimeManager.breakTimeDataList.any { selectedDay ->
+                            selectedDay.labelText.split(", ").map { it.trim() }.contains("주말")
+                        }
+
+                        val isWeekdaysIncluded2 = ShareButton.selectedDays.any { selectedDay ->
+                            selectedDay.split(", ").map { it.trim() }.contains("평일")
+                        }
+                        val isWeekendsIncluded2 = ShareButton.selectedDays.any { selectedDay ->
+                            selectedDay.split(", ").map { it.trim() }.contains("주말")
+                        }
+
+                        // 현재 요일이 포함 여부 확인
+                        val isDayIncluded = TimeManager.breakTimeDataList.any { selectedDay ->
+                            selectedDay.labelText.split(", ").map { it.trim() }.contains(day)
+                        }
+
+                        // 버튼 비활성화 조건
+                        if ((isWeekdaysIncluded2 && weekdays.contains(day)) ||
+                            (isWeekendsIncluded2 && weekends.contains(day)) ||
+                            ShareButton.selectedDays.contains(day)
+                        ) {
+                            isSelected = false
+                            foreground = Color.GRAY
+                        } else if ((isWeekdaysIncluded && weekdays.contains(day)) ||
+                            (isWeekendsIncluded && weekends.contains(day)) ||
+                            isDayIncluded ||
+                            TimeManager.breakTimeDataList.any { it.labelText == "전체요일" }
+                        ) {
+                            isEnabled = false
+                            foreground = Color.GRAY
+                        } else {
+                            foreground = Color(255, 177, 177)
+                        }
+
                         font = MyFont.Bold(20f)
 
                         addActionListener {
+                            if ((isWeekdaysIncluded2 && weekdays.contains(day)) ||
+                                (isWeekendsIncluded2 && weekends.contains(day))
+                            ) {
+                                setSelected(true)
+                                return@addActionListener
+                            }
+
+                            if (TimeManager.check(day.trim())) {
+//                                JOptionPane.showMessageDialog(this, "선택된 요일과 충돌하는 항목이 이미 존재합니다.")
+                                setSelected(true)
+                                return@addActionListener
+                            }
+
                             // 이미 추가된 요일일 경우 선택 불가능
-                            if (selectedDay2.contains(day.trim())) {
-                                JOptionPane.showMessageDialog(this@OSelectByDays, "이미 추가된 요일입니다.")
+                            if (TimeManager.breakTimeDataList.any { it.labelText == day.trim() } ) {
+//                                JOptionPane.showMessageDialog(this@SelectByDays, "이미 추가된 요일입니다.")
                                 setSelected(true)
                                 return@addActionListener // 추가하지 않고 종료
                             }
 
                             // 선택된 요일을 토글
-                            if (selectedDays.contains(day)) {
-                                selectedDays.remove(day)
+                            if (ShareButton.selectedDays.contains(day)) {
+                                ShareButton.selectedDays.remove(day)
                                 setSelected(false)
                                 foreground = Color(255, 177, 177)
                             } else {
-                                selectedDays.add(day)
+                                ShareButton.selectedDays.add(day)
                                 setSelected(true)
                                 foreground = Color.GRAY
                             }
                         }
                     }
-                    dayButtons.add(dayButton) // 요일 버튼을 리스트에 추가
+                    ShareButton.dayButtons.add(dayButton)
                     add(dayButton)
                 }
             }
 
             // 시간 선택 패널
-            timePanel = JPanel().apply {
+            val timePanel = JPanel().apply {
                 layout = FlowLayout(FlowLayout.CENTER, 10, 10)
                 background = Color.WHITE
 
-                startHourCombo = RoundedComboBox(DefaultComboBoxModel(arrayOf("오전 0시", "오전 1시", "오전 2시", "오전 3시", "오전 4시", "오전 5시", "오전 6시", "오전 7시", "오전 8시", "오전 9시", "오전 10시", "오전 11시", "오후 12시", "오후 1시", "오후 2시", "오후 3시", "오후 4시", "오후 5시", "오후 6시", "오후 7시", "오후 8시", "오후 9시", "오후 10시", "오후 11시"))).apply {
+                startHourCombo = RoundedComboBox(
+                    DefaultComboBoxModel(
+                        arrayOf(
+                            "오전 0시",
+                            "오전 1시",
+                            "오전 2시",
+                            "오전 3시",
+                            "오전 4시",
+                            "오전 5시",
+                            "오전 6시",
+                            "오전 7시",
+                            "오전 8시",
+                            "오전 9시",
+                            "오전 10시",
+                            "오전 11시",
+                            "오후 12시",
+                            "오후 1시",
+                            "오후 2시",
+                            "오후 3시",
+                            "오후 4시",
+                            "오후 5시",
+                            "오후 6시",
+                            "오후 7시",
+                            "오후 8시",
+                            "오후 9시",
+                            "오후 10시",
+                            "오후 11시"
+                        )
+                    )
+                ).apply {
                     preferredSize = Dimension(205, 50)
                     maximumSize = Dimension(205, 50)
                     minimumSize = Dimension(205, 50)
@@ -96,7 +176,36 @@ class OSelectByDays : JPanel() {
                     font = MyFont.Bold(20f)
                 }
 
-                endHourCombo = RoundedComboBox(DefaultComboBoxModel(arrayOf("오전 0시", "오전 1시", "오전 2시", "오전 3시", "오전 4시", "오전 5시", "오전 6시", "오전 7시", "오전 8시", "오전 9시", "오전 10시", "오전 11시", "오후 12시", "오후 1시", "오후 2시", "오후 3시", "오후 4시", "오후 5시", "오후 6시", "오후 7시", "오후 8시", "오후 9시", "오후 10시", "오후 11시"))).apply {
+                endHourCombo = RoundedComboBox(
+                    DefaultComboBoxModel(
+                        arrayOf(
+                            "오전 0시",
+                            "오전 1시",
+                            "오전 2시",
+                            "오전 3시",
+                            "오전 4시",
+                            "오전 5시",
+                            "오전 6시",
+                            "오전 7시",
+                            "오전 8시",
+                            "오전 9시",
+                            "오전 10시",
+                            "오전 11시",
+                            "오후 12시",
+                            "오후 1시",
+                            "오후 2시",
+                            "오후 3시",
+                            "오후 4시",
+                            "오후 5시",
+                            "오후 6시",
+                            "오후 7시",
+                            "오후 8시",
+                            "오후 9시",
+                            "오후 10시",
+                            "오후 11시"
+                        )
+                    )
+                ).apply {
                     preferredSize = Dimension(205, 50)
                     maximumSize = Dimension(205, 50)
                     minimumSize = Dimension(205, 50)
@@ -110,14 +219,42 @@ class OSelectByDays : JPanel() {
                     font = MyFont.Bold(20f)
                 }
 
-                val dayButton = IconRoundBorder3.createRoundedButton("24시간", Color(255, 177, 177), 30).apply {
-                    foreground = Color.WHITE
-                    preferredSize = Dimension(95, 50)
 
+                allDayButton = FillRoundedButton(
+                    text = "24시간",
+                    borderColor = if(isAllDaySelected) MyColor.PINK else MyColor.GREY500,
+                    backgroundColor = if(isAllDaySelected)  MyColor.PINK else MyColor.GREY500,
+                    textColor = Color.WHITE,
+                    borderRadius = 20,
+                    borderWidth = 1,
+                    textAlignment = SwingConstants.CENTER,
+                    padding = Insets(10, 20, 10, 20),
+                    buttonSize = Dimension(130, 50),
+                    customFont = MyFont.Bold(22f)
+                ).apply {
                     addActionListener {
-                        // 24시간 버튼 클릭 시 패널 비활성화/활성화 토글
-                        is24HoursSelected = !is24HoursSelected
-                        setTimePanelEnabled(!is24HoursSelected, timePanel, this)
+                        isAllDaySelected = !isAllDaySelected // 상태를 토글
+                        if (isAllDaySelected) {
+                            // 24시간 선택
+                            startHourCombo.selectedIndex = 0 // 오전 0시
+                            startMinCombo.selectedIndex = 0 // 00분
+                            endHourCombo.selectedIndex = 0 // 오전 0시
+                            endMinCombo.selectedIndex = 0 // 00분
+                            startHourCombo.isEnabled = false
+                            startMinCombo.isEnabled = false
+                            endHourCombo.isEnabled = false
+                            endMinCombo.isEnabled = false
+                        } else {
+                            // 24시간 선택 해제
+                            startHourCombo.selectedIndex = 9 // 오전 9시
+                            startMinCombo.selectedIndex = 0 // 00분
+                            endHourCombo.selectedIndex = 18 // 오후 6시
+                            endMinCombo.selectedIndex = 0 // 00분
+                            startHourCombo.isEnabled = true
+                            startMinCombo.isEnabled = true
+                            endHourCombo.isEnabled = true
+                            endMinCombo.isEnabled = true
+                        }
                     }
                 }
 
@@ -126,9 +263,30 @@ class OSelectByDays : JPanel() {
                 add(JLabel("~").apply { font = MyFont.Bold(24f) })
                 add(endHourCombo)
                 add(endMinCombo)
-                add(dayButton)
+                add(allDayButton)
             }
-
+            // 초기 상태 설정
+            if (isAllDaySelected) {
+                // 24시간 선택 상태로 초기화
+                startHourCombo.selectedIndex = 0 // 오전 0시
+                startMinCombo.selectedIndex = 0 // 00분
+                endHourCombo.selectedIndex = 0 // 오전 0시
+                endMinCombo.selectedIndex = 0 // 00분
+                startHourCombo.isEnabled = false
+                startMinCombo.isEnabled = false
+                endHourCombo.isEnabled = false
+                endMinCombo.isEnabled = false
+            } else {
+                // 기본 시간 설정 (24시간 선택 해제 상태)
+                startHourCombo.selectedIndex = 9 // 오전 9시
+                startMinCombo.selectedIndex = 0 // 00분
+                endHourCombo.selectedIndex = 18 // 오후 6시
+                endMinCombo.selectedIndex = 0 // 00분
+                startHourCombo.isEnabled = true
+                startMinCombo.isEnabled = true
+                endHourCombo.isEnabled = true
+                endMinCombo.isEnabled = true
+            }
             // 추가 버튼
             val addButton = RoundedButton("추가하기").apply {
                 preferredSize = Dimension(150, 40)
@@ -143,14 +301,8 @@ class OSelectByDays : JPanel() {
                         return@addActionListener
                     }
 
-                    // 선택된 요일이 없으면 경고 메시지
-                    if (selectedDays.isEmpty()) {
-                        JOptionPane.showMessageDialog(this@OSelectByDays, "적어도 하나의 요일을 선택해야 합니다.")
-                        return@addActionListener
-                    }
-
                     // selectedDays를 daysOrder의 순서에 맞게 정렬
-                    val sortedSelectedDays = selectedDays.sortedWith(Comparator { day1, day2 ->
+                    val sortedSelectedDays = ShareButton.selectedDays.sortedWith(Comparator { day1, day2 ->
                         days.indexOf(day1) - days.indexOf(day2)
                     })
 
@@ -158,27 +310,30 @@ class OSelectByDays : JPanel() {
                     val daysText = sortedSelectedDays.joinToString(", ")
 
                     // 이미 추가된 요일이 있는지 검사
-                    if (selectedDay2.any { day -> selectedDays.contains(day) }) {
+                    if (TimeManager.breakTimeDataList.any { day -> ShareButton.selectedDays.contains(day.labelText) }) {
                         JOptionPane.showMessageDialog(this@OSelectByDays, "이미 추가된 요일이 있습니다.")
                         return@addActionListener
                     }
 
-                    // 24시간 선택 여부에 따라 timeRangeText 생성
-                    val timeRangeText = if (is24HoursSelected) {
+                    // 시간 선택 값 가져오기
+                    val startHour = startHourCombo.selectedItem?.toString() ?: "오전 0시"
+                    val startMin = startMinCombo.selectedItem?.toString() ?: "00분"
+                    val endHour = endHourCombo.selectedItem?.toString() ?: "오전 0시"
+                    val endMin = endMinCombo.selectedItem?.toString() ?: "00분"
+
+                    // 모든 값이 "0"인 경우 "24시간" 설정
+                    val timeRangeText = if (startHour == "오전 0시" && startMin == "00분" &&
+                        endHour == "오전 0시" && endMin == "00분"
+                    ) {
                         "24시간"
                     } else {
-                        val startHour = startHourCombo.selectedItem?.toString() ?: "오전 0시"
-                        val startMin = startMinCombo.selectedItem?.toString() ?: "00분"
-                        val endHour = endHourCombo.selectedItem?.toString() ?: "오전 0시"
-                        val endMin = endMinCombo.selectedItem?.toString() ?: "00분"
+                        // 선택된 시간 값을 사용하여 timeRangeText 생성
                         "$startHour $startMin ~ $endHour $endMin"
                     }
-
-                    addBottomPanel(daysText, timeRangeText) // 하단 패널에 추가
-                    selectedDay2.addAll(selectedDays)
+                    onAdd(daysText, timeRangeText)
+//                    ShareButton.selectedDay2.addAll(ShareButton.selectedDays)
+                    ShareButton.selectedDays.clear()
                     itemCount++
-
-                    selectedDays.clear()
                 }
             }
 
@@ -186,114 +341,17 @@ class OSelectByDays : JPanel() {
             add(dayPanel)
             add(timePanel)
             add(addButton)
-            add(Box.createVerticalStrut(20))
+            add(Box.createVerticalStrut(15))
         }
 
-        // 하단 패널 설정
-        bottomPanel.layout = BoxLayout(bottomPanel, BoxLayout.Y_AXIS)
-        bottomPanel.background = Color.WHITE
-
-        // 하단 패널을 스크롤 가능한 JScrollPane에 추가
-        val scrollPane = JScrollPane(bottomPanel).apply {
-            verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
-            horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
-            border = BorderFactory.createEmptyBorder()
-            preferredSize = Dimension(950, 190)
-            maximumSize = Dimension(950, 190)
-            minimumSize = Dimension(950, 190)
-        }
 
         // 메인 패널 구성
         val mainPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
             add(dayAndTimePanel)
-//            add(Box.createVerticalStrut(10))
-            add(scrollPane)
         }
 
         add(mainPanel, BorderLayout.CENTER)
-    }
-
-    // 시간 선택 패널 활성화/비활성화 함수 (24시간 버튼은 제외)
-    private fun setTimePanelEnabled(enabled: Boolean, panel: JPanel, excludeComponent: Component) {
-        for (component in panel.components) {
-            if (component != excludeComponent) {
-                component.isEnabled = enabled
-            }
-        }
-        panel.revalidate()
-        panel.repaint()
-    }
-
-    // 하단 패널에 아이템 추가 함수
-    private fun addBottomPanel(selectedDaysText: String, timeRangeText: String) {
-        lateinit var itemPanel: JPanel
-
-        itemPanel = JPanel().apply {
-            preferredSize = Dimension(940, 60)
-            maximumSize = Dimension(940, 60)
-            minimumSize = Dimension(940, 60)
-            layout = BorderLayout()
-            background = Color.WHITE
-            border = BorderFactory.createLineBorder(Color.GRAY, 1)
-
-            val allDaysLabel = IconRoundBorder2.createRoundedLabel(selectedDaysText, Color(255, 177, 177), 20).apply {
-                foreground = Color.WHITE
-                preferredSize = Dimension(150, 40)
-            }
-
-            val timeRangeLabel = JLabel(timeRangeText).apply {
-                font = MyFont.Bold(24f)
-            }
-
-            val deleteButton = RoundedButton("삭제").apply {
-                font = MyFont.Bold(18f)
-                preferredSize = Dimension(100, 35)
-                addActionListener {
-
-                    bottomPanel.remove(itemPanel)
-                    bottomPanel.revalidate()
-                    bottomPanel.repaint()
-                    itemCount--
-
-                    // 선택된 요일 텍스트를 콤마로 구분하여 리스트로 변환
-                    val selectedDaysList = selectedDaysText.split(", ")
-                    // 비활성화된 요일 버튼을 다시 활성화하고 색상 복원, 그리고 리스트에서 제거
-                    selectedDaysList.forEach { selectedDay ->
-
-                        if (selectedDay2.contains(selectedDay)) {
-                            selectedDay2.remove(selectedDay)
-//                            println(selectedDay2)
-                        }
-                        selectedDays.remove(selectedDay)
-                        dayButtons.find { it.text == selectedDay }?.let { button ->
-                            button.isEnabled = true
-                            button.foreground = Color(255, 177, 177) // 원래 색상으로 복원
-                            button.background = Color(255, 177, 177)
-                            button.setSelected(true)
-                        }
-                    }
-                }
-            }
-
-            val rightPanel = JPanel(FlowLayout(FlowLayout.RIGHT, 10, 10)).apply {
-                background = Color.WHITE
-                add(deleteButton)
-            }
-
-            val centerPanel = JPanel(FlowLayout(FlowLayout.LEFT, 10, 10)).apply {
-                background = Color.WHITE
-                add(allDaysLabel)
-                add(timeRangeLabel)
-            }
-
-            add(centerPanel, BorderLayout.CENTER)
-            add(rightPanel, BorderLayout.EAST)
-        }
-
-        bottomPanel.add(itemPanel)
-        bottomPanel.revalidate()
-        bottomPanel.repaint()
     }
 }

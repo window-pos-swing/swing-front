@@ -424,7 +424,7 @@ class BreakTimeModalDialog(
         println("Formatted Data:\n$formattedString")
 
         // UNFormat을 적용하여 JSON으로 변환
-        val unformattedJson = TimeManager.unformatBreakTimes(formattedString)
+        val unformattedJson = TimeManager.unformatBreakTimes(formattedString,true)
         println("UNFormatted JSON:\n${unformattedJson.toString(2)}")
 
         SettingModel.saveBreakTime(unformattedJson)

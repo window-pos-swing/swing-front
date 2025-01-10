@@ -7,13 +7,10 @@ import org.grr.model.SettingModel
 import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.BreakTimeData
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton
-import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.allDays.AllDays
-import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.selectByDay.SelectByDays
-import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.weekDaysAndWeekEnds.WeekDaysAndWeekEnds
-import org.grr.util.MyFont
 import org.grr.screen.setting.centerPanel.operateTimePanel.operateTime_modal.o_allDays.OAllDays
 import org.grr.screen.setting.centerPanel.operateTimePanel.operateTime_modal.o_selectByDays.OSelectByDays
 import org.grr.screen.setting.centerPanel.operateTimePanel.operateTime_modal.o_weekDaysAndWeekEnds.OWeekDaysAndWeekEnds
+import org.grr.util.MyFont
 import org.grr.widgets.IconRoundBorder2
 import org.grr.widgets.RoundedButton
 import java.awt.BorderLayout
@@ -76,15 +73,15 @@ class OperateTimeModalDialog(parent: JFrame, title: String, callback: ((Boolean)
 
             // 선택된 인덱스에 따라 새로운 패널 추가
             currentPanel = when (selectedIndex) {
-                0 -> AllDays { labelText, timeRangeText ->
+                0 -> OAllDays { labelText, timeRangeText ->
                     addBottomPanel(labelText, timeRangeText)
                 }
 
-                1 -> WeekDaysAndWeekEnds { labelText, timeRangeText ->
+                1 -> OWeekDaysAndWeekEnds { labelText, timeRangeText ->
                     addBottomPanel(labelText, timeRangeText)
                 }
 
-                2 -> SelectByDays { labelText, timeRangeText ->
+                2 -> OSelectByDays { labelText, timeRangeText ->
                     addBottomPanel(labelText, timeRangeText)
                 }
 
@@ -99,7 +96,7 @@ class OperateTimeModalDialog(parent: JFrame, title: String, callback: ((Boolean)
         }
 
         // 초기 패널 설정 (프로그램 시작 시 기본 화면)
-        currentPanel = AllDays { labelText, timeRangeText ->
+        currentPanel = OAllDays { labelText, timeRangeText ->
             addBottomPanel(labelText, timeRangeText)
         }.apply {
             background = Color.WHITE
@@ -432,7 +429,7 @@ class OperateTimeModalDialog(parent: JFrame, title: String, callback: ((Boolean)
         println("Formatted Data:\n$formattedString")
 
         // UNFormat을 적용하여 JSON으로 변환
-        val unformattedJson = TimeManager.unformatBreakTimes(formattedString)
+        val unformattedJson = TimeManager.unformatBreakTimes(formattedString,false)
         println("UNFormatted JSON:\n${unformattedJson.toString(2)}")
 
         SettingModel.saveOperateTime(unformattedJson)
