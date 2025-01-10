@@ -37,7 +37,8 @@ class LoginToServer {
                         val errorMessage = jsonResponse.getString("resultMessage")
                         Pair(false, errorMessage)
                     } else {
-                        println("데이터 확인 ${jsonResponse.getJSONObject("data")}")
+                        println("TOKEN")
+                        println("${jsonResponse.getJSONObject("data")}")
 //                    로그인 성공했을때
                         if(jsonResponse["resultCode"] != 200) {
                             println("[jsonResponse]: $jsonResponse");

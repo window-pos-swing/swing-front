@@ -12,7 +12,7 @@ import org.grr.observer.OrderObserver
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedButton
-import org.grr.widgets.OverlayManager
+import org.grr.`object`.OverlayManager
 import java.awt.*
 import javax.swing.*
 
@@ -23,11 +23,12 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
         // 주문 진행 처리 로직
         //order.startTimer(totalTime)  // 타이머 시작
     }
-    val overlayManager = cardPanel.let { OverlayManager(parentFrame, it) }
+    private lateinit var overlayManager: OverlayManager
 
     val _cardPanel = cardPanel
     override fun getUI(order: ReceiveOrderModel): JPanel {
         return BaseOrderPanel(order).apply {
+
             layout = BorderLayout()  // 전체 레이아웃을 BorderLayout으로 설정
 
             border = BorderFactory.createEmptyBorder(0, 0, 0, 0)
@@ -116,7 +117,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
                         customFont = MyFont.Bold(28f)
                     ).apply {
                         addActionListener {
-                            overlayManager?.addOverlayPanel()
+//                            overlayManager?.addOverlayPanel()
 
                             val dialog = OrderRejectCancelDialog(
                                 SwingUtilities.getWindowAncestor(this) as JFrame,
@@ -133,7 +134,7 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
                             // 다이얼로그가 닫힐 때 오버레이 패널 제거
                             dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
                                 override fun windowClosed(e: java.awt.event.WindowEvent?) {
-                                    overlayManager?.removeOverlayPanel()
+//                                    overlayManager?.removeOverlayPanel()
                                     dialog.dispose()
                                 }
                             })
@@ -189,15 +190,15 @@ class ProcessingState(val totalTime: Int , parentFrame: JFrame,cardPanel: JPanel
         }
 
         // 주문 번호에 따라 이벤트 타이머 설정
-        if (order.id % 2 == 0) {
-            order.initializeEventTimer(7000) {
-                eventListener.onResendOrder(order)
-            }
-        } else {
-            order.initializeEventTimer(7000) {
-                eventListener.onCompleteOrder(order)
-            }
-        }
+//        if (order.id % 2 == 0) {
+//            order.initializeEventTimer(7000) {
+//                eventListener.onResendOrder(order)
+//            }
+//        } else {
+//            order.initializeEventTimer(7000) {
+//                eventListener.onCompleteOrder(order)
+//            }
+//        }
 
     }
 

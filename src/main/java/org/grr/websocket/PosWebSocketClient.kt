@@ -3,6 +3,7 @@ package org.grr.websocket
 import OrderController
 import org.grr.enum.OrderReceiveType
 import org.grr.enum.PosOrderStatus
+import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderListSingleTon
 import org.java_websocket.client.WebSocketClient
@@ -32,7 +33,7 @@ class PosWebSocketClient(
                 parentFrame = parentFrame,
                 cardPanel = cardPanel
             )
-            if(orderData.posOrderStatusType != "WAITING") return
+            if(orderData.posOrderStatusType != ServerOrderStatus.REQUEST.name) return
             // 싱글톤 저장
             OrderListSingleTon.addOrder(orderData)
             // OrderController에 추가

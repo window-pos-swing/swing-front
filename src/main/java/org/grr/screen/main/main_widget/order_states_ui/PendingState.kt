@@ -6,6 +6,7 @@ import org.grr.command.AcceptOrderCommand
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
+import org.grr.enum.OrderReceiveType
 import org.grr.enum.PosOrderStatus
 import org.grr.model.OrderState
 import org.grr.model.ReceiveOrderModel
@@ -15,13 +16,18 @@ import org.grr.screen.main.main_widget.dialog.TimeSelectDialog.DeliveryTimeDialo
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedButton
-import org.grr.widgets.OverlayManager
+import org.grr.`object`.OverlayManager
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Insets
 import javax.swing.*
 
-class PendingState(private val parentFrame: JFrame? = null, private val cardPanel: JPanel? = null) : OrderState {
+class PendingState(
+    private val parentFrame: JFrame,
+    private val cardPanel: JPanel,
+) : OrderState {
+    private lateinit var overlayManager: OverlayManager
+
     override fun handle(order: ReceiveOrderModel) {
         println("PendingState")
     }
@@ -32,15 +38,17 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
                 layout = BoxLayout(this, BoxLayout.X_AXIS)
                 background = Color.WHITE
 
-                val overlayManager = cardPanel?.let { OverlayManager(parentFrame ?: SwingUtilities.getWindowAncestor(this@apply) as? JFrame ?: JFrame(), it) }
-
+                // 싱글톤 방식으로 OverlayManager 가져오기
+                if (!::overlayManager.isInitialized) {
+                    overlayManager = OverlayManager // 전역적으로 초기화된 OverlayManager 사용
+                }
                 add(createPrintButton())
                 add(Box.createRigidArea(Dimension(15, 0)))
-                if (overlayManager != null) {
-                    add(createRejectButton(order, overlayManager))
-                    add(Box.createRigidArea(Dimension(15, 0)))
-                    add(createAcceptButton(order, overlayManager))
-                }
+
+                add(createRejectButton(order, overlayManager))
+                add(Box.createRigidArea(Dimension(15, 0)))
+                add(createAcceptButton(order, overlayManager))
+
             }
 
             val headerPanel = components.find { it is JPanel && it.layout is BoxLayout } as JPanel?
@@ -86,8 +94,8 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
             addActionListener {
                 overlayManager.addOverlayPanel()
                 val dialog = OrderRejectCancelDialog(
-                    parentFrame ?: JFrame(),
-                    cardPanel = cardPanel!!,
+                    parentFrame,
+                    cardPanel = cardPanel,
                     "주문 거절 사유 선택",
                     "주문 거절 사유를 선택해 주세요.",
                     "주문 거절",
@@ -123,7 +131,10 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
             addActionListener {
                 //delivery & takeOut
                 //어떤 다이얼로그를 띄워줘야할까 판별하는 부분
-                statusOfDialog("delivery" , overlayManager, order)
+                println("order.orderReceiveType : ${order.orderReceiveType}")
+                println("[PendingState] order.parentFrame : ${order.parentFrame}")
+                println("[PendingState] order.cardPanel : ${order.cardPanel}")
+                statusOfDialog(order.orderReceiveType , overlayManager, order)
             }
         }
     }
@@ -148,17 +159,17 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
 
         when (takeType) {
             // ===============[포장 주문 처리] ======================
-            "takeOut" -> {
+            OrderReceiveType.TAKEOUT.name -> {
                 when(takeOutDialogType) {
                     "CookOFF" -> {
                         //요리시간 다이얼로그만 띄워줌
                         println("[$takeType] CookOFF ...")
                         overlayManager.addOverlayPanel()
                         val dialog = CookTimeDialog(
-                            parent = parentFrame ?: JFrame(),
-                            cardPanel = cardPanel!!,
+                            parent = parentFrame ,
+                            cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            orderController = OrderController(CustomTabbedPane(parentFrame)),
                             overlayManager = overlayManager,
                             takeType = takeType
                         )
@@ -171,12 +182,11 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
                     }
                     "CookON" -> {
                         println("[$takeType] CookON ...")
-
                         AcceptOrderCommand(
-                            parent = parentFrame ?: JFrame(),
-                            cardPanel = cardPanel!!,
+                            parent = parentFrame,
+                            cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            orderController = OrderController(CustomTabbedPane(parentFrame )),
                             takeType = takeType,
                             cookTime = SettingModel.cookingTime
                         ).execute() // 주문 상태 변경
@@ -186,16 +196,16 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
 
             }
             // ===============[배달 주문 처리] ======================
-            "delivery" -> {
+            OrderReceiveType.DELIVERY.name -> {
                 when (deliveryDialogType) {
                     "CookONDeliveryOFF" -> {
                         println("[$takeType] CookONDeliveryOFF ...")
                         overlayManager.addOverlayPanel()
                         val dialog = DeliveryTimeDialog(
-                            parent = parentFrame ?: JFrame(),
-                            cardPanel = cardPanel!!,
+                            parent = parentFrame ,
+                            cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            orderController = OrderController(CustomTabbedPane(parentFrame)),
                             SettingModel.cookingTime ,
                             overlayManager = overlayManager
                         )
@@ -213,10 +223,10 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
                         println("[$takeType] DeliveryONCookOFF ...")
                         overlayManager.addOverlayPanel()
                         val dialog = CookTimeDialog(
-                            parent = parentFrame ?: JFrame(),
-                            cardPanel = cardPanel!!,
+                            parent = parentFrame ,
+                            cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            orderController = OrderController(CustomTabbedPane(parentFrame)),
                             overlayManager = overlayManager,
                             takeType = takeType
                         )
@@ -232,23 +242,24 @@ class PendingState(private val parentFrame: JFrame? = null, private val cardPane
                         println("[$takeType] AllON ...")
                         order.deliveryTime = SettingModel.deliveryTime
                         AcceptOrderCommand(
-                            parent = parentFrame ?: JFrame(),
-                            cardPanel = cardPanel!!,
+                            parent = parentFrame,
+                            cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            orderController = OrderController(CustomTabbedPane(parentFrame)),
                             takeType = takeType,
                             cookTime = SettingModel.cookingTime
                         ).execute() // 주문 상태 변경
+
                     }
 
                     "AllOFF" -> {
                         println("[$takeType] AllOFF ...")
                         overlayManager.addOverlayPanel()
                         val dialog = CookTimeDialog(
-                            parent = parentFrame ?: JFrame(),
-                            cardPanel = cardPanel!!,
+                            parent = parentFrame ,
+                            cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame ?: JFrame())),
+                            orderController = OrderController(CustomTabbedPane(parentFrame)),
                             overlayManager = overlayManager,
                             takeType = takeType
                         )

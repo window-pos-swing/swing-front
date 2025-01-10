@@ -2,7 +2,6 @@ package org.grr.screen.main.main_widget.tab_manager
 
 import CustomToggleButton
 import RoundedProgressBar
-import com.sun.org.apache.xpath.internal.operations.Bool
 import org.grr.api.SettingToServer
 import org.grr.command.RejectedReasonType
 import org.grr.enum.BusinessStatus
@@ -23,7 +22,7 @@ import org.grr.screen.main.main_widget.tab_manager.rejected_sub_tabs.RejectedSub
 import org.grr.style.MyColor
 import org.grr.util.LoadImage
 import org.grr.util.MyFont
-import org.grr.widgets.OverlayManager
+import org.grr.`object`.OverlayManager
 import java.awt.*
 import java.awt.event.ItemEvent
 import javax.swing.*
@@ -56,14 +55,15 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         }
     }
 
-    var pendingSubTabs = PendingSubTabs(this)
-    var processingSubTabs = ProcessingSubTabs(this)
-    var completedSubTabs = CompletedSubTabs(this)
-    val rejectedSubTabs = RejectedSubTabs(this)
+    var pendingSubTabs: PendingSubTabs =  PendingSubTabs(this)
+    var processingSubTabs: ProcessingSubTabs = ProcessingSubTabs(this)
+    var completedSubTabs: CompletedSubTabs = CompletedSubTabs(this)
+    var rejectedSubTabs: RejectedSubTabs = RejectedSubTabs(this)
+
 
     init {
         layout = BorderLayout()
-
+        overlayManager = OverlayManager
         // 세로 탭 메뉴 패널 설정
         menuPanel.layout = BoxLayout(menuPanel, BoxLayout.Y_AXIS)
         menuPanel.background = MyColor.DARK_RED
@@ -205,7 +205,11 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     // 외부에서 cardPanel을 전달받는 함수
     fun setCardPanel(cardPanel: JPanel) {
         this.cardPanel = cardPanel
-        overlayManager = OverlayManager(parentFrame, cardPanel)
+        // 서브탭 초기화
+        pendingSubTabs = PendingSubTabs(this)
+        processingSubTabs = ProcessingSubTabs(this)
+        completedSubTabs = CompletedSubTabs(this)
+        rejectedSubTabs = RejectedSubTabs(this)
         // 전체보기 패널 추가
         cardPanel.add(JScrollPane(allOrdersPanel).apply {
             background = Color.WHITE

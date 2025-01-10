@@ -9,60 +9,67 @@ import org.grr.`object`.OrderListSingleTon
 import org.grr.`object`.Storage
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.websocket.PosWebSocketClient
+import org.grr.`object`.OverlayManager
 import org.grr.widgets.custom_titlebar.MainCustomTitlebar
 import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Color
 import java.awt.Dimension
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
 import java.net.URI
 import javax.swing.*
 
 
 class MainForm : JFrame() {
+    private var isInitialized = false // 초기화 여부 확인
     private val cardPanel = JPanel(CardLayout())  // 카드 패널 생성
     private lateinit var tabbedPane: CustomTabbedPane // CustomTabbedPane 지연 초기화
     private lateinit var webSocketClient: PosWebSocketClient // WebSocketClient 지연 초기화
 
     init {
-        // 기존 타이틀바 제거 및 창 리사이즈 가능 설정
-        isUndecorated = true
-        isResizable = true  // 창 리사이즈 가능
+        if (!isInitialized) {
+            isInitialized = true
 
-        // 데이터를 비동기로 로드
-        GlobalScope.launch {
-            delay(300) // 0.3초 대기
+            // 기존 타이틀바 제거 및 창 리사이즈 가능 설정
+            isUndecorated = true
+            isResizable = true  // 창 리사이즈 가능
 
-            val currentMember = CurrentLoginStoreMemberToServer()
-            val (isSuccess, message) = currentMember.currentLoginStoreMemberToServer()
+            // 데이터를 비동기로 로드
+            GlobalScope.launch {
+                delay(300) // 0.3초 대기
 
-            delay(300) // 0.3초 대기
+                val currentMember = CurrentLoginStoreMemberToServer()
+                val (isSuccess, message) = currentMember.currentLoginStoreMemberToServer()
 
-            SwingUtilities.invokeLater {
-                if (isSuccess) {
-                    val memberData = JSONObject(message.substringAfter(""))
-                    Storage.saveMemberInfo(memberData)
+                delay(300) // 0.3초 대기
 
-                    // 로컬 데이터 및 주문 리스트 로드
-                    println("===============================")
-                    fetchUserAndOrders() // 데이터를 로드
-                    println("===============================")
+                SwingUtilities.invokeLater {
+                    if (isSuccess) {
+                        val memberData = JSONObject(message.substringAfter(""))
+                        Storage.saveMemberInfo(memberData)
 
-                    // 데이터 로드 완료 후 CustomTabbedPane 초기화
-                    initializeTabbedPane()
+                        // 로컬 데이터 및 주문 리스트 로드
+                        println("===============================")
+                        fetchUserAndOrders() // 데이터를 로드
+                        println("===============================")
 
-                    // CustomTabbedPane 초기화 후 WebSocketClient와 OrderController 생성
-                    initializeWebSocketClient()
-                } else {
-                    JOptionPane.showMessageDialog(this@MainForm, message, "오류", JOptionPane.ERROR_MESSAGE)
+                        // 데이터 로드 완료 후 CustomTabbedPane 초기화
+                        initializeTabbedPane()
+                        // CustomTabbedPane 초기화 후 WebSocketClient와 OrderController 생성
+                        initializeWebSocketClient()
+
+                        // 화면 갱신
+                        revalidate()
+                        repaint()
+                    } else {
+                        JOptionPane.showMessageDialog(this@MainForm, message, "오류", JOptionPane.ERROR_MESSAGE)
+                    }
                 }
             }
-        }
 
-        // JFrame 기본 설정
-        setupFrame()
+            // JFrame 기본 설정
+            setupFrame()
+        }
     }
 
     private fun setupFrame() {
@@ -115,6 +122,9 @@ class MainForm : JFrame() {
     }
 
     private fun initializeTabbedPane() {
+        // 오버레이 초기화
+        OverlayManager.initialize(this, cardPanel)
+
         tabbedPane = CustomTabbedPane(this).apply {
             preferredSize = Dimension(200, height)
             border = BorderFactory.createEmptyBorder(0, 0, 0, 0)  // 여백 제거
@@ -125,17 +135,19 @@ class MainForm : JFrame() {
 
         // CustomTabbedPane에 cardPanel 전달
         tabbedPane.setCardPanel(cardPanel)
-
-        // 화면 갱신
-        revalidate()
-        repaint()
+        OverlayManager.update(this, cardPanel)
     }
 
     private fun initializeWebSocketClient() {
         val email = Storage.getMemberInfo()?.optString("email") ?: ""
 
-        //주문 데이터 가져오기
-        val orders = OrderListSingleTon.getOrders()
+        // 주문 데이터 가져오기 및 parentFrame, cardPanel 초기화
+        val orders = OrderListSingleTon.getOrders().map { order ->
+            order.apply {
+                parentFrame = this@MainForm
+                cardPanel = this@MainForm.cardPanel
+            }
+        }
 
         // OrderController 초기화
         val orderController = OrderController(tabbedPane)

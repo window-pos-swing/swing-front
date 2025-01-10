@@ -1,6 +1,7 @@
 package org.grr.enum
 
 enum class ServerOrderStatus {
+    REQUEST,
     ACCEPT,
     COOKING,
     COOKED,

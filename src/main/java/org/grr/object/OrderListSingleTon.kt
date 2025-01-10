@@ -31,7 +31,7 @@ object OrderListSingleTon {
 
     // 전체 주문 가져오기
     fun getOrders(): List<ReceiveOrderModel> {
-        println("getOrders : $orders")
+        println("[getOrders] : $orders")
         return orders
     }
 

@@ -4,6 +4,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.grr.api.LoginToServer
+import org.grr.`object`.FormManager
 import org.grr.`object`.Storage
 import org.grr.screen.main.MainForm
 import org.grr.style.MyColor
@@ -55,7 +56,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                 delay(1000) // 1초 대기
 
                 val loginToServer = LoginToServer()
-                val (isSuccess, message) = loginToServer.loginToServer(savedEmail!!, savedPassword!!)
+                val (isSuccess, message) = loginToServer.loginToServer(savedEmail!!, savedPassword)
 
                 delay(1000) // 1초 대기
 
@@ -65,8 +66,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                         Storage.saveToken(message)
 
                         // 메인 화면으로 이동
-                        val mainForm = MainForm()
-                        mainForm.isVisible = true
+                        FormManager.showMainForm()
                         this@LoginForm.dispose() // 로그인 창 닫기
                     } else {
                         // 로그인 실패 시 기본 로그인 화면 표시
@@ -122,8 +122,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
 
 //                    로그인 시 토큰 저장 후 메인페이지 이동
                     Storage.saveToken(message)
-                    val mainForm = MainForm()
-                    mainForm.isVisible = true
+                    FormManager.showMainForm()
                     this.dispose()
                 } else {
 //                    실패시 즉, this가 false일 경우

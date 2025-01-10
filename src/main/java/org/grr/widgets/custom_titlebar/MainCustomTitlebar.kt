@@ -1,5 +1,6 @@
 package org.grr.widgets.custom_titlebar
 
+import org.grr.`object`.FormManager
 import org.grr.`object`.Storage
 import org.grr.util.MyFont
 import org.grr.screen.setting.SettingForm
@@ -93,8 +94,19 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
 
         //        세팅 화면으로 이동
         settingsButton.addActionListener {
-            SettingForm().isVisible = true
-            parentFrame.dispose()
+            // MainForm 숨기기
+            FormManager.hideMainForm()
+            // SettingForm 생성 및 표시
+
+            SettingForm().apply {
+                isVisible = true
+                addWindowListener(object : java.awt.event.WindowAdapter() {
+                    override fun windowClosing(e: java.awt.event.WindowEvent?) {
+                        FormManager.showMainForm()
+                    }
+                })
+            }
+
         }
 
         // 버튼 기능 추가

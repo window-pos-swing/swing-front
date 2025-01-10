@@ -4,7 +4,7 @@ import OrderController
 import org.grr.command.AcceptOrderCommand
 import org.grr.model.ReceiveOrderModel
 
-import org.grr.widgets.OverlayManager
+import org.grr.`object`.OverlayManager
 import javax.swing.JFrame
 import javax.swing.JPanel
 

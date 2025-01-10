@@ -59,11 +59,6 @@ open class BaseAPI {
             client.newCall(request).execute().use { response ->
                 val responseBody = response.body?.string() ?: "" // 한 번만 읽기
 
-                println("Request URL: $url")
-                println("Response Code: ${response.code}")
-                println("Response Message: ${response.message}")
-                println("Response Body: $responseBody")
-
                 return if (response.isSuccessful) {
                     Pair(true, responseBody) // 성공 시 저장한 응답 본문 반환
                 } else {

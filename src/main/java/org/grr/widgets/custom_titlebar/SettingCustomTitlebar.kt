@@ -1,6 +1,6 @@
 package org.grr.widgets.custom_titlebar
 
-import org.grr.screen.main.MainForm
+import org.grr.`object`.FormManager
 import org.grr.util.MyFont
 import org.grr.style.MyColor
 import org.grr.widgets.IconRoundBorder
@@ -35,10 +35,7 @@ class SettingCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
 
         // '이전' 버튼 클릭 시 MainForm으로 이동
         backButtonPanel.addActionListener {
-            // MainForm 인스턴스 생성 및 표시
-            val mainForm = MainForm()
-            mainForm.isVisible = true
-            // 현재 창 닫기 (parentFrame이 SettingCustomTitlebar에 전달된 JFrame을 의미)
+            FormManager.showMainForm()
             parentFrame.dispose()
         }
 
