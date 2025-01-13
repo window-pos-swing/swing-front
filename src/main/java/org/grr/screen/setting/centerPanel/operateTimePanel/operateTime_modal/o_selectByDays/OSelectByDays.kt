@@ -234,6 +234,9 @@ class OSelectByDays(
                 ).apply {
                     addActionListener {
                         isAllDaySelected = !isAllDaySelected // 상태를 토글
+                        borderColor = if (isAllDaySelected) MyColor.PINK else MyColor.GREY500
+                        backgroundColor = if (isAllDaySelected) MyColor.PINK else MyColor.GREY500
+                        repaint()
                         if (isAllDaySelected) {
                             // 24시간 선택
                             startHourCombo.selectedIndex = 0 // 오전 0시

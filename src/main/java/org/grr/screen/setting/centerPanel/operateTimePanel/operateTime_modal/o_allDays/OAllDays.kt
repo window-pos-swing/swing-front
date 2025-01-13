@@ -160,6 +160,10 @@ class OAllDays(
                 ).apply {
                     addActionListener {
                         isAllDaySelected = !isAllDaySelected // 상태를 토글
+                        // 버튼 색상 업데이트
+                        borderColor = if (isAllDaySelected) MyColor.PINK else MyColor.GREY500
+                        backgroundColor = if (isAllDaySelected) MyColor.PINK else MyColor.GREY500
+                        repaint()
                         if (isAllDaySelected) {
                             // 24시간 선택
                             startHourCombo.selectedIndex = 0 // 오전 0시
