@@ -1,6 +1,6 @@
 package org.grr.screen.main
 
-import OrderController
+import org.grr.`object`.OrderController
 import kotlinx.coroutines.*
 import org.grr.api.CurrentLoginStoreMemberToServer
 import org.grr.api.OrderAPI
@@ -55,7 +55,7 @@ class MainForm : JFrame() {
 
                         // 데이터 로드 완료 후 CustomTabbedPane 초기화
                         initializeTabbedPane()
-                        // CustomTabbedPane 초기화 후 WebSocketClient와 OrderController 생성
+                        // CustomTabbedPane 초기화 후 WebSocketClient와 org.grr.`object`.OrderController 생성
                         initializeWebSocketClient()
 
                         // 화면 갱신
@@ -149,12 +149,13 @@ class MainForm : JFrame() {
             }
         }
 
-        // OrderController 초기화
-        val orderController = OrderController(tabbedPane)
-        orderController.initializeOrders(orders)
+        // org.grr.`object`.OrderController 초기화
+        OrderController.initialize(tabbedPane)
+        OrderController.initializeOrders(orders)
+
         // WebSocketClient 생성
         webSocketClient = PosWebSocketClient(
-            orderController, // CustomTabbedPane이 초기화된 후 전달
+            OrderController, // CustomTabbedPane이 초기화된 후 전달
             URI("ws://localhost:8081/ws/orders?uid=${email}"),
             parentFrame = this,
             cardPanel = cardPanel

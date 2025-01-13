@@ -1,6 +1,6 @@
 package org.grr.screen.main.main_widget.dialog.TimeSelectDialog
 
-import OrderController
+import org.grr.`object`.OrderController
 import org.grr.command.AcceptOrderCommand
 import org.grr.enum.OrderReceiveType
 import org.grr.model.ReceiveOrderModel

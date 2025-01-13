@@ -1,9 +1,8 @@
 package org.grr.screen.main.main_widget.order_states_ui
 
-import OrderController
+import org.grr.`object`.OrderController
 import OrderRejectCancelDialog
 import org.grr.command.AcceptOrderCommand
-import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
 import org.grr.enum.OrderReceiveType
@@ -169,7 +168,7 @@ class PendingState(
                             parent = parentFrame ,
                             cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame)),
+                            orderController = OrderController,
                             overlayManager = overlayManager,
                             takeType = takeType
                         )
@@ -186,7 +185,7 @@ class PendingState(
                             parent = parentFrame,
                             cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame )),
+                            orderController = OrderController,
                             takeType = takeType,
                             cookTime = SettingModel.cookingTime
                         ).execute() // 주문 상태 변경
@@ -205,7 +204,7 @@ class PendingState(
                             parent = parentFrame ,
                             cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame)),
+                            orderController = OrderController,
                             SettingModel.cookingTime ,
                             overlayManager = overlayManager
                         )
@@ -226,7 +225,7 @@ class PendingState(
                             parent = parentFrame ,
                             cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame)),
+                            orderController = OrderController,
                             overlayManager = overlayManager,
                             takeType = takeType
                         )
@@ -245,7 +244,7 @@ class PendingState(
                             parent = parentFrame,
                             cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame)),
+                            orderController = OrderController,
                             takeType = takeType,
                             cookTime = SettingModel.cookingTime
                         ).execute() // 주문 상태 변경
@@ -259,7 +258,7 @@ class PendingState(
                             parent = parentFrame ,
                             cardPanel = cardPanel,
                             order = order,
-                            orderController = OrderController(CustomTabbedPane(parentFrame)),
+                            orderController = OrderController,
                             overlayManager = overlayManager,
                             takeType = takeType
                         )

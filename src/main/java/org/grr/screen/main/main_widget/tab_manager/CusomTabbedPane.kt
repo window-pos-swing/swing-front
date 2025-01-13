@@ -11,10 +11,6 @@ import org.grr.model.SettingModel
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.dialog.OrderDetailDialog
 import org.grr.screen.main.main_widget.dialog.PauseOperations.PauseOperationsDialog
-import org.grr.screen.main.main_widget.order_states_ui.CompletedState
-import org.grr.screen.main.main_widget.order_states_ui.PendingState
-import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
-import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import org.grr.screen.main.main_widget.tab_manager.completed_sub_tabs.CompletedSubTabs
 import org.grr.screen.main.main_widget.tab_manager.pandding_sub_tabs.PendingSubTabs
 import org.grr.screen.main.main_widget.tab_manager.processing_sub_tabs.ProcessingSubTabs
@@ -23,6 +19,7 @@ import org.grr.style.MyColor
 import org.grr.util.LoadImage
 import org.grr.util.MyFont
 import org.grr.`object`.OverlayManager
+import org.grr.screen.main.main_widget.order_states_ui.*
 import java.awt.*
 import java.awt.event.ItemEvent
 import javax.swing.*
@@ -281,18 +278,23 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
 
     // CustomTabbedPane의 setTab 함수 수정
     fun setTab(tabName: String) {
+        print("CustomTabb setTab")
         if (cardPanel == null) return
         val cardLayout = cardPanel!!.layout as CardLayout
 
         if (tabName == "전체보기") {
+            print("CustomTabb 전체보기")
             allOrders.forEach { order ->
                 updateOrderInAllOrders(order)  // 전체보기 탭을 눌렀을 때만 호출
 
                 // 주문이 ProcessingState일 경우 프로그레스바 업데이트
                 if (order.state is ProcessingState) {
-                    val orderPanel = findOrderPanelByOrderNumber(order.id)
+                    println("[setTab ProcessingState]")
+                    val orderPanel = findOrderPanelByOrderNumber(order.orderNumber)
                     if (orderPanel != null) {
                         updateProgressBar(orderPanel, order)  // 프로그레스바 업데이트
+                    }else{
+                        println("no find updateProgressBar")
                     }
                 }
             }
@@ -623,11 +625,18 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     }
 
     fun updateOrderInAllOrders(order: ReceiveOrderModel ) {
+        println("updateOrderInAllOrders ${order.state}")
         val frameToUpdate = allOrdersPanel.components
-            .filterIsInstance<JPanel>()
+            .filterIsInstance<BaseOrderPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }
 //        println("updateOrderInAllOrders 전체보기 업데이트 상태 : ${order.state}")
-
+        allOrdersPanel.components.forEach { component ->
+            if (component is JPanel) {
+                println("Component: ${component.javaClass.simpleName}, orderNumber: ${component.getClientProperty("orderNumber")}")
+            } else {
+                println("Component is not JPanel: ${component.javaClass.simpleName}")
+            }
+        }
         //조건부 테두리 설정
         if (order.state is PendingState || order.state is CompletedState || order.state is RejectedState) {
             frameToUpdate?.border = BorderFactory.createCompoundBorder()
@@ -637,6 +646,11 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                 BorderFactory.createEmptyBorder(0, 20, 0, 20)  // 바깥쪽 여백 설정
             )
         }
+        if (frameToUpdate == null) {
+            println("Error: Frame not found for order OrderNumber ${order.orderNumber}")
+            return
+        }
+
         //UI갱신
         frameToUpdate?.let {
             val updatedUI = order.getUI()
@@ -661,7 +675,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     }
 
     // 주문 번호로 패널을 찾는 함수
-    fun findOrderPanelByOrderNumber(orderNumber: Int): JPanel? {
+    fun findOrderPanelByOrderNumber(orderNumber: String): JPanel? {
         return allOrdersPanel.components
             .filterIsInstance<JPanel>()
             .find { it.getClientProperty("orderNumber") == orderNumber }
@@ -669,6 +683,8 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
 
     // 주문 프레임을 생성하는 함수
     fun createOrderFrame(order: ReceiveOrderModel, forProcessing: Boolean = false): JPanel {
+        println("createOrderFrame orderNumber : ${order.orderNumber}")
+        println("createOrderFrame orderState : ${order.state}")
         val orderPanel = order.getUI().apply {
             minimumSize = Dimension(1162, 340)
             preferredSize = Dimension(1162, 340)

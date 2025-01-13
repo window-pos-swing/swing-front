@@ -17,16 +17,20 @@ object MyColor {
     val LIGHT_GREY = Color(220, 220, 220)  // 밝은 회색 (필요시 추가)
     val BRIGHTER_GREY = Color(240, 240, 240)
     val DARK_NAVY = Color(27, 43, 66)
+    val LIGHT_NAVY = Color(78, 93, 108)
     val LOGIN_TITLEBAR = Color(65, 79, 98 )
     val DARK_RED = Color(209, 12, 29)
+    val LIGHT_RED = Color(248,131,121)
     val DIVISION_PINK = Color(227,101,101)
     val UNSELECTED_TAP = Color(255,185,185)
     val BLACK = Color(51,51,51)
     val PINK = Color(255,185,185)
 
     val Yellow = Color(244,172,0)
+    val Yellow_200 = Color(255,212,71)
 
     val LIGHT_BLUE = Color(13,130,191)
+    val LIGHT_BLUE_200 = Color(145,171,204)
     val LIGHT_BLUE_14 = Color(13,130,191,14)
 
     val SELECTED_TEXT_COLOR = Color.WHITE

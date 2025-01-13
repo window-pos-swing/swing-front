@@ -261,7 +261,7 @@ class OrderDetailDialog(
                 val labelBackgroundColor = when {
                     type == "배달" -> MyColor.PINK
                     type == "가게" && order.disposable -> MyColor.Yellow
-                    type == "가게" && !order.disposable -> MyColor.GREY500
+                    type == "가게" && !order.disposable -> MyColor.LIGHT_NAVY
                     else -> MyColor.DARK_NAVY // 기본 색상 (필요하면 추가)
                 }
 

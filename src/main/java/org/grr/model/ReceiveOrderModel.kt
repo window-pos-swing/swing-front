@@ -46,6 +46,9 @@ data class ReceiveOrderModel(
 ) {
     var isCompleted: Boolean = false  // 주문 완료 여부
     var isResent: Boolean = false  // 배달 대행사로 주문번호 재전송 여부
+    var isPickupCompleted: Boolean = false  // 주문 완료 여부
+    var isPickupWait: Boolean = false  // 주문 완료 여부
+    var isOnDelivery: Boolean = false
 
     private val stateObservers = mutableListOf<OrderObserver>()
     private val timerObservers = mutableListOf<OrderObserver>()
@@ -87,6 +90,18 @@ data class ReceiveOrderModel(
         }
     }
 
+    fun stopTimers() {
+        progressBarTimer?.stop()
+        progressBarTimer = null
+
+        eventTimer?.stop()
+        eventTimer = null
+
+        parentFrame.revalidate()
+        parentFrame.repaint()
+        println("타이머 중지 완료 for Order #$orderId")
+    }
+
     // 상태 변경
     fun changeState(newState: OrderState) {
         state = newState
@@ -95,7 +110,7 @@ data class ReceiveOrderModel(
 
     // UI 반환
     fun getUI(): JPanel {
-        return state.getUI(this)
+        return state.getUI(this).apply { putClientProperty("orderNumber", orderNumber) }
     }
 
     // 옵저버 등록
