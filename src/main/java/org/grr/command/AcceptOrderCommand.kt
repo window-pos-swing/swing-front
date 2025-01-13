@@ -42,7 +42,7 @@ class AcceptOrderCommand(
             }
 
             // 상태 변경 및 컨트롤러 업데이트
-            SwingUtilities.invokeLater {
+//            SwingUtilities.invokeLater {
                 order.changeState(ProcessingState(sendCookTime + deliveryTime, parent, cardPanel))
                 orderController.onOrderStateChanged(order)
 
@@ -51,25 +51,25 @@ class AcceptOrderCommand(
                 println("[CookTime] $sendCookTime")
                 println("[DeliveryTime] $deliveryTime")
                 println("===========================================================================")
-            }
+//            }
 
-            //TODO(5초 뒤 조리중으로 변경)
-            delay(5000)
+//            //TODO(5초 뒤 조리중으로 변경)
+//            delay(5000)
 
             // 두 번째 서버 호출
-            val result2 = OrderAPI().orderStatusChangeToServer(
-                ServerOrderStatus.COOKING,
-                orderId = order.orderId,
-                estimatedCookingTime = deliveryTime,
-                estimatedArrivalTime = sendCookTime
-            )
-
-            if (!result2.first) {
-                SwingUtilities.invokeLater {
-                    JOptionPane.showMessageDialog(null, "주문접수 실패: ${result2.second}", "오류", JOptionPane.ERROR_MESSAGE)
-                }
-                return@launch
-            }
+//            val result2 = OrderAPI().orderStatusChangeToServer(
+//                ServerOrderStatus.COOKING,
+//                orderId = order.orderId,
+//                estimatedCookingTime = deliveryTime,
+//                estimatedArrivalTime = sendCookTime
+//            )
+//
+//            if (!result2.first) {
+//                SwingUtilities.invokeLater {
+//                    JOptionPane.showMessageDialog(null, "주문접수 실패: ${result2.second}", "오류", JOptionPane.ERROR_MESSAGE)
+//                }
+//                return@launch
+//            }
 
         }
     }

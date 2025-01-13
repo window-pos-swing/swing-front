@@ -1,9 +1,20 @@
 package org.grr.model
 
+import org.grr.command.RejectedReasonType
+import org.grr.enum.OrderReceiveType
+import org.grr.enum.PosOrderStatus
+import org.grr.enum.ServerOrderStatus
+import org.grr.`object`.OrderController
 import org.grr.observer.OrderObserver
+import org.grr.screen.main.main_widget.order_states_ui.CompletedState
 import org.grr.screen.main.main_widget.order_states_ui.PendingState
+import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
+import org.grr.screen.main.main_widget.order_states_ui.RejectedState
+import org.grr.util.MyDateFormat
 import org.json.JSONArray
 import org.json.JSONObject
+import java.awt.Color
+import javax.swing.BorderFactory
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.Timer  // javax.swing.Timer 사용
@@ -13,6 +24,7 @@ data class ReceiveOrderModel(
     val orderId: Int,
     val orderNumber: String,
     val orderDate: List<Int>,
+    val modifyOrderDate: List<Int>,
     val userAppStoreMemberId: Int,
     val appMemberAddress: String,
     val appMemberPhone: String,
@@ -29,7 +41,6 @@ data class ReceiveOrderModel(
     val couponName: String?,
     val couponDiscountPrice: Int,
     val cashDiscountPrice: Int,
-    val modifyOrderDate: List<Int>,
     val rejectionReason: String?,
     val estimatedCookingTime: Int?,
     val estimatedArrivalTime: Int?,
@@ -71,6 +82,67 @@ data class ReceiveOrderModel(
         return this.eventTimer as Timer
     }
 
+    // ReceiveOrderModel.kt
+    fun updateStateBasedOnStatus() {
+        println("state : $state")
+        println("posOrderStatusType : $posOrderStatusType")
+        var totalTime = 0
+        if(estimatedCookingTime != null && estimatedArrivalTime != null) {
+            totalTime = estimatedCookingTime + estimatedArrivalTime
+        }
+        state = when (posOrderStatusType) {
+
+            ServerOrderStatus.REQUEST.name -> PendingState(parentFrame, cardPanel)
+
+            ServerOrderStatus.COOKING.name,
+            ServerOrderStatus.ACCEPT.name -> {
+                println("modifyOrderDate : $modifyOrderDate")
+                println("현재시간 : ")
+
+                elapsedTime = MyDateFormat.calculateTimeDifferenceInMinutes(modifyOrderDate)
+                println("elapsedTime  : $elapsedTime")
+                startTimer(totalTime)
+                ProcessingState(totalTime = totalTime , parentFrame, cardPanel)
+            }
+
+            ServerOrderStatus.COOKED.name -> {
+                if (orderReceiveType == OrderReceiveType.DELIVERY.name) {
+                    isPickupWait = true
+                } else {
+                    isPickupCompleted = true
+                }
+                ProcessingState(totalTime = totalTime , parentFrame, cardPanel)
+            }
+
+            ServerOrderStatus.DELIVERY.name ->  {
+                isPickupWait = false
+                isOnDelivery = true
+                ProcessingState(totalTime = totalTime , parentFrame, cardPanel)
+            }
+
+            ServerOrderStatus.PICKUP_COMPLETE.name,
+            ServerOrderStatus.DELIVERY_COMPLETE.name -> CompletedState()
+
+            ServerOrderStatus.STORE_CANCEL.name-> RejectedState(
+                rejectReason = rejectionReason!!,
+                rejectDate = "${modifyOrderDate[0]}.${modifyOrderDate[1]}.${modifyOrderDate[2]}",
+                rejectType = RejectedReasonType.STORE_REJECT,
+                rejectPanel = PosOrderStatus.STORE_CANCEL
+            )
+            ServerOrderStatus.USER_CANCEL.name -> RejectedState(
+                rejectReason = rejectionReason!!,
+                rejectDate = "${modifyOrderDate[0]}.${modifyOrderDate[1]}.${modifyOrderDate[2]}",
+                rejectType = RejectedReasonType.CUSTOMER_CANCEL,
+                rejectPanel = PosOrderStatus.USER_CANCEL
+            )
+
+
+
+            else -> PendingState(parentFrame, cardPanel) // 기본 상태
+        }
+    }
+
+
     // 진행 시간 타이머 시작
     fun startTimer(totalTime: Int) {
         if (progressBarTimer != null) {
@@ -78,7 +150,7 @@ data class ReceiveOrderModel(
             return
         }
 
-        progressBarTimer = Timer(1000) {  // 1초마다 실행
+        progressBarTimer = Timer(60000) {  // 1초마다 실행
             elapsedTime++
             notifyTimerObservers()  // 매초 옵저버 알림
 
@@ -213,7 +285,9 @@ data class ReceiveOrderModel(
                 menuList = menuList,
                 parentFrame = parentFrame, // 전달받은 parentFrame
                 cardPanel = cardPanel      // 전달받은 cardPanel
-            )
+            ).apply {
+                updateStateBasedOnStatus() // 상태 초기화
+            }
         }
 
 
@@ -271,7 +345,9 @@ data class ReceiveOrderModel(
                 menuList = menuList,
                 parentFrame = parentFrame,
                 cardPanel = cardPanel
-            )
+            ).apply {
+                updateStateBasedOnStatus() // 상태 초기화
+            }
         }
         fun fromJsonArray(
             jsonArray: JSONArray,

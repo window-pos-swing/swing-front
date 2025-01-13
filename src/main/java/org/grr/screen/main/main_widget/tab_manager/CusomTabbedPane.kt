@@ -582,6 +582,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     }
 
     fun addOrderToAllOrders(orderFrame: JPanel , isInit : Boolean) {
+        println("addOrderToAllOrders")
         orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
         orderFrame.alignmentX = Component.LEFT_ALIGNMENT // 패널을 왼쪽 정렬
         if(isInit){
@@ -640,7 +641,8 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         //조건부 테두리 설정
         if (order.state is PendingState || order.state is CompletedState || order.state is RejectedState) {
             frameToUpdate?.border = BorderFactory.createCompoundBorder()
-        }else{
+        }
+        else{
             frameToUpdate?.border = BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color(27, 43, 66), 2), // 테두리 설정
                 BorderFactory.createEmptyBorder(0, 20, 0, 20)  // 바깥쪽 여백 설정
@@ -662,13 +664,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     }
     //================================================================================
 
-    // CustomTabbedPane 클래스에 해당 주문이 이미 처리중 상태인지 확인하는 메서드 추가
-    fun isOrderInProcessing(order: ReceiveOrderModel): Boolean {
-        // 처리중 주문 리스트에서 해당 주문이 이미 존재하는지 확인
-        return processingOrdersPanel.components
-            .filterIsInstance<JPanel>()
-            .any { it.getClientProperty("orderNumber") == order.orderNumber }
-    }
+
 
     fun myGetAllOrders(): List<ReceiveOrderModel> {
         return allOrders
@@ -683,8 +679,8 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
 
     // 주문 프레임을 생성하는 함수
     fun createOrderFrame(order: ReceiveOrderModel, forProcessing: Boolean = false): JPanel {
-        println("createOrderFrame orderNumber : ${order.orderNumber}")
-        println("createOrderFrame orderState : ${order.state}")
+         println("createOrderFrame orderNumber : ${order.orderNumber}")
+//        println("createOrderFrame orderState : ${order.state}")
         val orderPanel = order.getUI().apply {
             minimumSize = Dimension(1162, 340)
             preferredSize = Dimension(1162, 340)
@@ -716,7 +712,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         if (progressBar != null && order.state is ProcessingState) {
             progressBar.updateProgress(order.elapsedTime)
             progressBar.repaint()
-            println("createOrderFrame에서 progressBar 업데이트 ")
+            println("progressBar 업데이트  : ${order.elapsedTime}")
         }
     }
 

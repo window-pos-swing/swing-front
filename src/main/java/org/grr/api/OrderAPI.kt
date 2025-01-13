@@ -40,6 +40,7 @@ class OrderAPI : BaseAPI(){
         estimatedCookingTime: Int? = null,
         estimatedArrivalTime: Int? = null
     ) :  Pair<Boolean, String>  {
+        println("orderId : $orderId")
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         // JSON 객체 생성
         val orderStatusBody = JSONObject().apply {

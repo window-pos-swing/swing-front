@@ -2,11 +2,13 @@ package org.grr.`object`
 
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.enum.PosOrderStatus.*
+import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
 import org.grr.observer.OrderObserver
 import org.grr.screen.main.main_widget.order_states_ui.CompletedState
 import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
 import org.grr.screen.main.main_widget.order_states_ui.RejectedState
+import javax.swing.JPanel
 
 object OrderController {
     private lateinit var tabbedPane: CustomTabbedPane
@@ -42,17 +44,27 @@ object OrderController {
     private fun handleOrderStateChange(order: ReceiveOrderModel) {
         when (order.state) {
             is ProcessingState -> {
-                if (!tabbedPane.isOrderInProcessing(order)) {
+                if (!isOrderInProcessing(order)) {
                     moveOrderToProcessing(order)
                 }
             }
+
             is RejectedState -> {
                 moveOrderToReject(order)
             }
+
             is CompletedState -> {
                 moveOrderToCompleted(order)
             }
         }
+    }
+
+    // CustomTabbedPane 클래스에 해당 주문이 이미 처리중 상태인지 확인하는 메서드 추가
+    fun isOrderInProcessing(order: ReceiveOrderModel): Boolean {
+        // 처리중 주문 리스트에서 해당 주문이 이미 존재하는지 확인
+        return tabbedPane.processingOrdersPanel.components
+            .filterIsInstance<JPanel>()
+            .any { it.getClientProperty("orderNumber") == order.orderNumber }
     }
 
     fun updateOrderInAllOrders(order: ReceiveOrderModel) {
@@ -90,11 +102,13 @@ object OrderController {
                 tabbedPane.addOrderToRejected(rejectedOrderFrame)
                 tabbedPane.refreshPendingOrders()
             }
+
             PROCESSING -> {
                 tabbedPane.removeOrderFromProcessing(order)
                 tabbedPane.addOrderToRejected(rejectedOrderFrame)
                 tabbedPane.refreshProcessingOrders()
             }
+
             else -> println("Unhandled state for rejection: ${rejectedState.rejectPanel}")
         }
 
@@ -121,8 +135,19 @@ object OrderController {
                 }
             })
 
-            val orderFrame = tabbedPane.createOrderFrame(order)
-            tabbedPane.addOrderToAllOrders(orderFrame, true)
+            val forProcessing =
+                if (order.posOrderStatusType == ServerOrderStatus.COOKING.name || order.posOrderStatusType == ServerOrderStatus.ACCEPT.name) true else false
+            println("orderId : ${order.id} forProcessing : $forProcessing")
+            val orderFrame = tabbedPane.createOrderFrame(order, forProcessing)
+            if(!forProcessing){
+                tabbedPane.addOrderToAllOrders(orderFrame, true)
+                tabbedPane.updateOrderInAllOrders(order)
+            }else{
+                tabbedPane.updateOrderInAllOrders(order)
+                tabbedPane.addOrderToAllOrders(orderFrame, true)
+            }
+
+
         }
     }
 }
