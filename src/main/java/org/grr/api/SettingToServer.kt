@@ -84,7 +84,7 @@ class SettingToServer : BaseAPI() {
                     put(endTime.hour)
                     put(endTime.minute)
                 })
-            } else if (businessStatus == BusinessStatus.START) {
+            } else if (businessStatus == BusinessStatus.START || businessStatus == BusinessStatus.END) {
                 //서버에서 StartTime , EndTime NULL이면 못바꿔서 00:00으로 초기화 후 보냄
                 val today = LocalDate.now()
                 val defaultTime = LocalTime.MIDNIGHT

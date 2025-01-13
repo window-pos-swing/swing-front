@@ -1,8 +1,10 @@
 package org.grr.websocket
 
+import org.grr.enum.BusinessStatus
 import org.grr.`object`.OrderController
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
+import org.grr.model.SettingModel
 import org.grr.`object`.OrderListSingleTon
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -32,6 +34,8 @@ class PosWebSocketClient(
                 cardPanel = cardPanel
             )
             if(orderData.posOrderStatusType != ServerOrderStatus.REQUEST.name) return
+            if(SettingModel.businessStatus != BusinessStatus.START) return
+
             // 싱글톤 저장
             OrderListSingleTon.addOrder(orderData)
             // OrderController에 추가

@@ -99,7 +99,6 @@ data class ReceiveOrderModel(
 
         parentFrame.revalidate()
         parentFrame.repaint()
-        println("타이머 중지 완료 for Order #$orderId")
     }
 
     // 상태 변경

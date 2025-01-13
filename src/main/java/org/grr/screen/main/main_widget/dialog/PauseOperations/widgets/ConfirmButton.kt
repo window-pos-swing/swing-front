@@ -57,20 +57,20 @@ class ConfirmButton(
             endTime = formattedEndTime,
             callback = { confirmed ->
                 if (confirmed) {
-                    println("사용자가 확인을 클릭했습니다.")
+//                    println("사용자가 확인을 클릭했습니다.")
                     // 로컬 및 서버 저장
                     SettingModel.savePauseTime(BusinessStatus.PAUSE,startTime, endTime)
                     val result = SettingToServer().businessStatusToServer(BusinessStatus.PAUSE, startTime, endTime)
 
                     // 결과 처리
                     if (result.first) {
-                        JOptionPane.showMessageDialog(null, "휴무일 시간이 업데이트되었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE)
+
                     } else {
-                        JOptionPane.showMessageDialog(null, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
+                        JOptionPane.showMessageDialog(null, "임시정지 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
                     }
                     println(json)
                 } else {
-                    println("사용자가 취소를 클릭했습니다.")
+//                    println("사용자가 취소를 클릭했습니다.")
                 }
                 callback(confirmed)
             }

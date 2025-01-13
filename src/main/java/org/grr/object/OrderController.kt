@@ -55,8 +55,8 @@ object OrderController {
         }
     }
 
-    fun setTab() {
-        tabbedPane.setTab("전체보기")
+    fun updateOrderInAllOrders(order: ReceiveOrderModel) {
+        tabbedPane.updateOrderInAllOrders(order)
     }
 
     private fun moveOrderToProcessing(order: ReceiveOrderModel) {

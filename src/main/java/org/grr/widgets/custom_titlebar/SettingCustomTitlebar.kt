@@ -4,6 +4,7 @@ import org.grr.`object`.FormManager
 import org.grr.util.MyFont
 import org.grr.style.MyColor
 import org.grr.widgets.IconRoundBorder
+import org.grr.widgets.custom_titlebar.closeConfirm.CloseConfirmDialog
 import java.awt.*
 import javax.swing.*
 import java.awt.event.MouseAdapter
@@ -85,7 +86,13 @@ class SettingCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
 
         // 닫기 버튼 이벤트
         closeButton.addActionListener {
-            parentFrame.dispose()
+            CloseConfirmDialog(
+                parent = parentFrame,
+                title = "종료",
+                callback = { confirmed ->
+                    if (confirmed) parentFrame.dispose()
+                }
+            )
         }
 
         // 버튼 패널에 추가

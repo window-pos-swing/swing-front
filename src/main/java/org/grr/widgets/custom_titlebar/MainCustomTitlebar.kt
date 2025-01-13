@@ -94,10 +94,8 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
 
         //        세팅 화면으로 이동
         settingsButton.addActionListener {
-            // MainForm 숨기기
-            FormManager.hideMainForm()
-            // SettingForm 생성 및 표시
 
+            // SettingForm 생성 및 표시
             SettingForm().apply {
                 isVisible = true
                 addWindowListener(object : java.awt.event.WindowAdapter() {
@@ -106,7 +104,8 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
                     }
                 })
             }
-
+            // MainForm 숨기기
+            FormManager.hideMainForm()
         }
 
         // 버튼 기능 추가

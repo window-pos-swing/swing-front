@@ -2,14 +2,14 @@ package org.grr.screen.main.main_widget.order_states_ui
 
 import OrderRejectCancelDialog
 import RoundedProgressBar
-import org.grr.command.RejectOrderCommand
-import org.grr.command.RejectedReasonType
+import org.grr.command.*
 import org.grr.enum.OrderReceiveType
 import org.grr.enum.PosOrderStatus
 import org.grr.enum.ServerOrderStatus
 import org.grr.`interface`.OrderEventListener
 import org.grr.model.OrderState
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderController
 import org.grr.observer.OrderObserver
 import org.grr.style.MyColor
 import org.grr.util.MyFont
@@ -214,17 +214,16 @@ class ProcessingState(
         ).apply {
             addActionListener {
                 if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) {
-                    print("픽업대기 버튼으로 변경해!!!!@")
                     order.stopTimers()
                     changePickupWaitWidget(order)
                 } else {
-                    print("픽업완료 버튼으로 변경해!!!!@")
                     order.stopTimers()
                     changePickupCompleteButton(order)
                 }
                 //API호출
-//                val cookedCommand = CookedCommand(order)
-//                cookedCommand.execute()
+                val cookedCommand = CookedCommand(order)
+                cookedCommand.execute()
+                OrderController.updateOrderInAllOrders(order)
             }
         }
     }
@@ -342,7 +341,7 @@ class ProcessingState(
         rightPanel.repaint()
     }
 
-    //TODO 픽업 대기중 버튼
+    //TODO 픽업 대기중 위젯
     fun createPickupWaitWidget(order: ReceiveOrderModel): FillRoundedButton {
         return FillRoundedButton(
             text = "픽업 대기중",  // 줄바꿈을 위해 "\n" 사용
@@ -355,9 +354,7 @@ class ProcessingState(
             padding = Insets(10, 20, 10, 20),
             buttonSize = Dimension(255, 232),  // 크기 설정
             customFont = MyFont.Bold(36f)  // 커스텀 폰트 설정
-        ).apply {
-
-        }
+        )
     }
 
     //TODO 픽업 대기중 버튼 업데이트
@@ -387,7 +384,12 @@ class ProcessingState(
             padding = Insets(10, 20, 10, 20),
             buttonSize = Dimension(255, 232),  // 크기 설정
             customFont = MyFont.Bold(36f)  // 커스텀 폰트 설정
-        ).apply {}
+        ).apply {
+            addActionListener {
+                val completedOrderCommand = CompletedOrderCommand(order)
+                completedOrderCommand.execute()
+            }
+        }
     }
 
     //TODO 픽업 완료 버튼 업데이트

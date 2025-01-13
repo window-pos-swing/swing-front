@@ -1,6 +1,9 @@
 package org.grr.widgets.custom_titlebar.closeConfirm
 
 import CustomRoundedDialog
+import org.grr.api.SettingToServer
+import org.grr.enum.BusinessStatus
+import org.grr.model.SettingModel
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedButton
@@ -66,6 +69,8 @@ class CloseConfirmDialog(
             ).apply {
                 addActionListener {
                     callback(true) // 사용자 확인
+                    SettingModel.savePauseTime(BusinessStatus.END )
+                    val result = SettingToServer().businessStatusToServer(BusinessStatus.END)
                     dispose() // 다이얼로그 닫기
                 }
             }

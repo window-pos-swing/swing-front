@@ -19,6 +19,7 @@ object SettingModel {
     var operateTime: String = ""
     var regularHoliday : String = ""
     var temporaryHoliday : String = ""
+    var businessStatus : BusinessStatus = BusinessStatus.END
 
     val memberInfo = Storage.getMemberInfo()
 
@@ -200,13 +201,12 @@ object SettingModel {
 
     }
 
-    fun savePauseTime(businessStatus: BusinessStatus, startTime: LocalDateTime? = null, endTime: LocalDateTime? = null) {
+    fun savePauseTime(_businessStatus: BusinessStatus, startTime: LocalDateTime? = null, endTime: LocalDateTime? = null) {
         val updatedMemberInfo = memberInfo ?: JSONObject()
         val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
-
+        businessStatus = _businessStatus
         // businessStatus 추가
         settings.put("businessStatus", businessStatus.name)
-
         // startTime 저장 (존재하는 경우)
         if (startTime != null) {
             val startTimeArray = JSONArray().apply {

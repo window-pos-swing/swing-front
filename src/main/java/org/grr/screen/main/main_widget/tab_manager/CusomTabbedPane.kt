@@ -455,6 +455,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
 
     // Processing 주문 목록을 새로 고침하는 함수
     fun refreshProcessingOrders() {
+        print("refreshProcessingOrders")
         // processingSubTabsState 값을 확인해 현재 선택된 서브탭에 맞춰 필터링 적용
         if (processingSubTabsState.isEmpty()) {
             filterProcessingOrders()  // 전체보기일 때
@@ -629,14 +630,13 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         val frameToUpdate = allOrdersPanel.components
             .filterIsInstance<BaseOrderPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }
-//        println("updateOrderInAllOrders 전체보기 업데이트 상태 : ${order.state}")
-        allOrdersPanel.components.forEach { component ->
-            if (component is JPanel) {
-                println("Component: ${component.javaClass.simpleName}, orderNumber: ${component.getClientProperty("orderNumber")}")
-            } else {
-                println("Component is not JPanel: ${component.javaClass.simpleName}")
-            }
-        }
+//        allOrdersPanel.components.forEach { component ->
+//            if (component is JPanel) {
+//                println("Component: ${component.javaClass.simpleName}, orderNumber: ${component.getClientProperty("orderNumber")}")
+//            } else {
+//                println("Component is not JPanel: ${component.javaClass.simpleName}")
+//            }
+//        }
         //조건부 테두리 설정
         if (order.state is PendingState || order.state is CompletedState || order.state is RejectedState) {
             frameToUpdate?.border = BorderFactory.createCompoundBorder()
