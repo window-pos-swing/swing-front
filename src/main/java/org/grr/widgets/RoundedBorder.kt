@@ -418,7 +418,7 @@ class FillRoundedButton(
         // HTML 형식을 이용한 줄바꿈과 폰트 적용 및 텍스트 색상 설정
         val fontFamily = customFont?.fontName ?: "Arial"  // 기본 폰트는 Arial로 설정
 
-        val fontSize = customFont?.size?.minus(4) ?: 16;
+        val fontSize = customFont?.size?.minus(4) ?: 16
 //        print("fontSize : ${fontSize}");
 
         val textHexColor = "#${Integer.toHexString(textColor.rgb).substring(2)}"  // 텍스트 색상을 HEX 형식으로 변환
@@ -471,8 +471,81 @@ class FillRoundedButton(
     }
 }
 
+//배달중, 픽업완료, 픽업대기 버튼
+class PosStatusButton(
+    private val text: String,
+    private val iconPath: String,
+    private val iconWidth: Int = 60, // 아이콘 너비
+    private val iconHeight: Int = 60, // 아이콘 높이
+    private val backgroundColor: Color,
+    private val textColor: Color,
+    private val borderColor: Color,
+    private val customFont: Font? = null, // 커스텀 폰트 설정
+    private val borderRadius: Int = 20,  // 버튼의 둥근 모서리 정도
+    private val buttonSize: Dimension? = null,  // 버튼 크기 설정 추가
+) : JButton() {
 
+    private var iconImage: BufferedImage? = null
 
+    init {
+        isOpaque = false
+        isContentAreaFilled = false
+        isBorderPainted = false
+        isFocusPainted = false
+        horizontalAlignment = SwingConstants.CENTER
+        verticalAlignment = SwingConstants.CENTER
+
+        // 버튼 크기 설정
+        if (buttonSize != null) {
+            preferredSize = buttonSize
+            minimumSize = buttonSize
+            maximumSize = buttonSize
+        }
+
+        // 아이콘 이미지 로드
+        try {
+            val resourceStream = javaClass.getResourceAsStream(iconPath)
+            if (resourceStream != null) {
+                iconImage = ImageIO.read(resourceStream)
+            } else {
+                println("Error: Icon resource not found at $iconPath")
+            }
+        } catch (e: Exception) {
+            println("Error loading icon: ${e.message}")
+        }
+    }
+
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 배경색 그리기
+        g2.color = backgroundColor
+        g2.fillRoundRect(0, 0, width, height, borderRadius, borderRadius)
+
+        // 테두리 그리기
+        g2.color = borderColor
+        g2.stroke = BasicStroke(2f)
+        g2.drawRoundRect(0, 0, width - 1, height - 1, borderRadius, borderRadius)
+
+        // 아이콘 그리기
+        if (iconImage != null) {
+            val scaledIcon = iconImage!!.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH)
+            val iconX = (width - iconWidth) / 2
+            val iconY = height / 4 - iconHeight / 8
+            g2.drawImage(scaledIcon, iconX, iconY, null)
+        }
+
+        // 텍스트 그리기
+        g2.color = textColor
+        g2.font = MyFont.Bold(32f)
+        val fm = g2.fontMetrics
+        val textWidth = fm.stringWidth(text)
+        val textX = (width - textWidth) / 2
+        val textY = height * 3 / 4 + fm.ascent / 4
+        g2.drawString(text, textX, textY)
+    }
+}
 
 // 둥근 패널을 만들기 위한 커스텀 JPanel 클래스
 class RoundedPanel(

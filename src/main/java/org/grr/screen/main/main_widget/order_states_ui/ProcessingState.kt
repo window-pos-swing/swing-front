@@ -15,6 +15,7 @@ import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedButton
 import org.grr.`object`.OverlayManager
+import org.grr.widgets.PosStatusButton
 import java.awt.*
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
@@ -238,11 +239,6 @@ class ProcessingState(
             return
         }
 
-        if(order.isPickupWait){
-            eventListener.onPickUpWait(order)
-            return
-        }
-
         // 픽업 대기 상태에서 배달 중으로 변경
         //TODO 배달타입이고 , 주문이배달중이고, 주문이 요리완료 일때 시그널 받을 수 있음
         if (order.orderReceiveType == OrderReceiveType.DELIVERY.name &&
@@ -276,9 +272,6 @@ class ProcessingState(
 
     }
 
-    override fun onPickUpWait(order: ReceiveOrderModel) {
-        println("onPickUpWait")
-    }
 
     // Resend Order 이벤트 처리: 프로그레스바를 버튼으로 변환
     override fun onResendOrder(order: ReceiveOrderModel) {
@@ -312,18 +305,17 @@ class ProcessingState(
     }
 
     //TODO 배달중 위젯
-    fun createOnDelivery(order: ReceiveOrderModel): FillRoundedButton {
-        return FillRoundedButton(
+    fun createOnDelivery(order: ReceiveOrderModel): PosStatusButton {
+        return PosStatusButton(
             text = "배달중",
+            iconPath = "/delivery_status_icon.png",
+            iconWidth = 70,
+            iconHeight = 70,
             borderColor = MyColor.LIGHT_BLUE_200,
             backgroundColor = MyColor.LIGHT_BLUE_200,
-            textColor = Color.WHITE,
-            borderRadius = 20,
-            borderWidth = 1,
-            textAlignment = SwingConstants.CENTER,
-            padding = Insets(10, 20, 10, 20),
-            buttonSize = Dimension(255, 232),
-            customFont = MyFont.Bold(34f)
+            textColor = Color.WHITE,  // 텍스트 색상 (핑크)
+            borderRadius = 20,  // 둥근 버튼
+            buttonSize = Dimension(255, 232),  // 크기 설정
         )
     }
 
@@ -342,18 +334,17 @@ class ProcessingState(
     }
 
     //TODO 픽업 대기중 위젯
-    fun createPickupWaitWidget(order: ReceiveOrderModel): FillRoundedButton {
-        return FillRoundedButton(
-            text = "픽업 대기중",  // 줄바꿈을 위해 "\n" 사용
+    fun createPickupWaitWidget(order: ReceiveOrderModel): PosStatusButton {
+        return PosStatusButton(
+            text = "픽업 대기중",
+            iconPath = "/pickup_wait_icon.png",
+            iconWidth = 70,
+            iconHeight = 70,
             borderColor = MyColor.Yellow_200,
             backgroundColor = MyColor.Yellow_200,
             textColor = Color.WHITE,  // 텍스트 색상 (핑크)
             borderRadius = 20,  // 둥근 버튼
-            borderWidth = 2,
-            textAlignment = SwingConstants.CENTER,
-            padding = Insets(10, 20, 10, 20),
             buttonSize = Dimension(255, 232),  // 크기 설정
-            customFont = MyFont.Bold(36f)  // 커스텀 폰트 설정
         )
     }
 
@@ -372,18 +363,17 @@ class ProcessingState(
     }
 
     //TODO 픽업 완료 버튼
-    fun createPickupCompleteButton(order: ReceiveOrderModel): FillRoundedButton {
-        return FillRoundedButton(
-            text = "픽업 완료",  // 줄바꿈을 위해 "\n" 사용
+    fun createPickupCompleteButton(order: ReceiveOrderModel): PosStatusButton {
+        return PosStatusButton(
+            text = "픽업 완료",
+            iconPath = "/pickup_complete_icon.png",
+            iconWidth = 70,
+            iconHeight = 70,
             borderColor = MyColor.LIGHT_RED,
             backgroundColor = MyColor.LIGHT_RED,
             textColor = Color.WHITE,  // 텍스트 색상 (핑크)
             borderRadius = 20,  // 둥근 버튼
-            borderWidth = 2,
-            textAlignment = SwingConstants.CENTER,
-            padding = Insets(10, 20, 10, 20),
             buttonSize = Dimension(255, 232),  // 크기 설정
-            customFont = MyFont.Bold(36f)  // 커스텀 폰트 설정
         ).apply {
             addActionListener {
                 val completedOrderCommand = CompletedOrderCommand(order)

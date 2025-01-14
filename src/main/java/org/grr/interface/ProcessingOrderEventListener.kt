@@ -7,6 +7,4 @@ interface OrderEventListener {
     fun onResendOrder(order: ReceiveOrderModel)
     //배달중
     fun onDelivery(order: ReceiveOrderModel)
-    //픽업 대기중
-    fun onPickUpWait(order: ReceiveOrderModel)
 }

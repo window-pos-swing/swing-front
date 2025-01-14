@@ -149,8 +149,8 @@ data class ReceiveOrderModel(
             println("progressBarTimer 이미 실행중  #$orderId")
             return
         }
-
-        progressBarTimer = Timer(60000) {  // 1초마다 실행
+        //60000 = 1분
+        progressBarTimer = Timer(1000) {  // 1초마다 실행
             elapsedTime++
             notifyTimerObservers()  // 매초 옵저버 알림
 
