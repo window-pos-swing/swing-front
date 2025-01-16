@@ -10,4 +10,5 @@ enum class ServerOrderStatus {
     DELIVERY_COMPLETE,
     STORE_CANCEL,
     USER_CANCEL,
+    REFUND
 }

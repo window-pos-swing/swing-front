@@ -1,6 +1,7 @@
 package org.grr.websocket
 
 import org.grr.enum.BusinessStatus
+import org.grr.enum.OrderReceiveType
 import org.grr.`object`.OrderController
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
@@ -14,7 +15,6 @@ import javax.swing.JPanel
 
 
 class PosWebSocketClient(
-    private val orderController: OrderController,
     serverUri: URI,
     val parentFrame: JFrame,  // 부모 프레임
     val cardPanel: JPanel,    // 카드 패널
@@ -36,11 +36,25 @@ class PosWebSocketClient(
             if(orderData.posOrderStatusType != ServerOrderStatus.REQUEST.name) return
             if(SettingModel.businessStatus != BusinessStatus.START) return
 
-            // 싱글톤 저장
-            OrderListSingleTon.addOrder(orderData)
+            // 키 결정
+            val key = when (orderData.orderReceiveType) {
+                OrderReceiveType.DELIVERY.name -> "pendingDeliveryOrders"
+                OrderReceiveType.TAKEOUT.name -> "pendingTakeOutOrders"
+                else -> "pendingOrders"
+            }
+
+            // 싱글톤에 추가
+            synchronized(OrderListSingleTon) {
+                OrderListSingleTon.orders[key]?.add(0, orderData) // 리스트 맨 앞에 추가
+                OrderListSingleTon.counts[key] = (OrderListSingleTon.counts[key] ?: 0) + 1
+                OrderListSingleTon.counts["allOrders"] = (OrderListSingleTon.counts["allOrders"] ?: 0) + 1
+                OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) + 1
+                OrderListSingleTon.orders["allOrders"]?.add(0, orderData)
+                OrderListSingleTon.orders["pendingOrders"]?.add(0, orderData)
+            }
+
             // OrderController에 추가
-            orderController.addOrder(orderData)
-            println("현재 저장된 주문 수: ${OrderListSingleTon.getOrders().size}")
+            OrderController.addNewOrder(orderData)
 
         } catch (e: Exception) {
             e.printStackTrace()

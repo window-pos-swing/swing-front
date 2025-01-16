@@ -3,7 +3,6 @@ package org.grr.screen.main
 import org.grr.`object`.OrderController
 import kotlinx.coroutines.*
 import org.grr.api.CurrentLoginStoreMemberToServer
-import org.grr.api.OrderAPI
 import org.grr.model.SettingModel
 import org.grr.`object`.OrderListSingleTon
 import org.grr.`object`.Storage
@@ -22,7 +21,7 @@ import javax.swing.*
 
 class MainForm : JFrame() {
     private var isInitialized = false // 초기화 여부 확인
-    private val cardPanel = JPanel(CardLayout())  // 카드 패널 생성
+    val cardPanel = JPanel(CardLayout())  // 카드 패널 생성
     private lateinit var tabbedPane: CustomTabbedPane // CustomTabbedPane 지연 초기화
     private lateinit var webSocketClient: PosWebSocketClient // WebSocketClient 지연 초기화
 
@@ -111,14 +110,7 @@ class MainForm : JFrame() {
         SettingModel.loadHoliday()
 
         // [주문리스트 가져오기]
-        if(OrderListSingleTon.isLoadData) return
-        val result = OrderAPI().fetchOrders(parentFrame = this@MainForm, cardPanel = cardPanel)
-
-        // 결과 처리
-        if (!result.first) {
-            JOptionPane.showMessageDialog(null, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
-            return
-        }
+        OrderListSingleTon.initOrderData(parentFrame = this@MainForm, cardPanel = cardPanel)
     }
 
     private fun initializeTabbedPane() {
@@ -141,21 +133,14 @@ class MainForm : JFrame() {
     private fun initializeWebSocketClient() {
         val email = Storage.getMemberInfo()?.optString("email") ?: ""
 
-        // 주문 데이터 가져오기 및 parentFrame, cardPanel 초기화
-        val orders = OrderListSingleTon.getOrders().map { order ->
-            order.apply {
-                parentFrame = this@MainForm
-                cardPanel = this@MainForm.cardPanel
-            }
-        }
 
         // org.grr.`object`.OrderController 초기화
         OrderController.initialize(tabbedPane)
-        OrderController.initializeOrders(orders)
+        OrderController.initializeOrders(OrderListSingleTon.orders["allOrders"]!!)
+        tabbedPane.completeOrdersPanelManager.initCompletedOrders(OrderListSingleTon.orders["completedOrders"]!!)
 
         // WebSocketClient 생성
         webSocketClient = PosWebSocketClient(
-            OrderController, // CustomTabbedPane이 초기화된 후 전달
             URI("ws://localhost:8081/ws/orders?uid=${email}"),
             parentFrame = this,
             cardPanel = cardPanel

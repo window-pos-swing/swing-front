@@ -2,10 +2,10 @@ package org.grr.command
 
 import Command
 import org.grr.api.OrderAPI
-import org.grr.enum.OrderReceiveType
 import org.grr.enum.PosOrderStatus
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import javax.swing.JOptionPane
 
@@ -34,7 +34,18 @@ class RejectOrderCommand(
         }
         val rejectDate = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd")) // HH:mm뺌
         // 주문 상태를 RejectedState로 변경 (거절 사유와 원래 상태 포함)
-        order.changeState(RejectedState(rejectReason, rejectDate, rejectType, rejectPanel))
+
+
+        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
+        allOrder?.changeState(RejectedState(rejectReason, rejectDate, rejectType, rejectPanel))
+        if(rejectPanel == PosOrderStatus.WAITING){
+            val pendingOrder = OrderListSingleTon.findOrderByNumber("pendingOrders", order.orderNumber)
+            pendingOrder?.changeState(RejectedState(rejectReason, rejectDate, rejectType, rejectPanel))
+        }else{
+            val processOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+            processOrder?.changeState(RejectedState(rejectReason, rejectDate, rejectType, rejectPanel))
+        }
+//        order.changeState(RejectedState(rejectReason, rejectDate, rejectType, rejectPanel))
         println("[주문] #${order.orderNumber} 거절상태로 변경 with reason: [$rejectType] - $rejectReason at $rejectDate")
     }
 }

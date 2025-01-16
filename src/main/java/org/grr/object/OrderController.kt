@@ -1,5 +1,6 @@
 package org.grr.`object`
 
+import org.grr.enum.OrderReceiveType
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.enum.PosOrderStatus.*
 import org.grr.enum.ServerOrderStatus
@@ -11,7 +12,7 @@ import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import javax.swing.JPanel
 
 object OrderController {
-    private lateinit var tabbedPane: CustomTabbedPane
+    lateinit var tabbedPane: CustomTabbedPane
 
     // 싱글톤 초기화
     fun initialize(tabbedPane: CustomTabbedPane) {
@@ -19,9 +20,7 @@ object OrderController {
     }
 
     // 주문 추가
-    fun addOrder(order: ReceiveOrderModel) {
-        println("org.grr.`object`.OrderController: addOrder called for order: ${order.id}")
-
+    fun addNewOrder(order: ReceiveOrderModel) {
         // 상태 옵저버 등록
         order.addStateObserver(object : OrderObserver {
             override fun update(order: ReceiveOrderModel) {
@@ -29,19 +28,21 @@ object OrderController {
             }
         })
 
-        // '전체보기'와 '접수대기' 탭에 각각 다른 프레임을 생성해서 추가
-        val orderFrameForAllOrders = tabbedPane.createOrderFrame(order) // 전체보기용 프레임
-        val orderFrameForPending = tabbedPane.createOrderFrame(order)  // 접수대기용 프레임
+        // '전체보기'와 '접수대기' 탭에 각각 다른 프레임을 생성해서 추가 !!! @@ 이렇게 안하면 한곳에는 안생겨요
+        val allOrdersFrame = tabbedPane.createOrderFrame(order) // 전체보기용 프레임
+        val pendingOrdersFrame = tabbedPane.createOrderFrame(order) // 접수대기용 프레임
+        val pendingOrderTypeOrdersFrame = tabbedPane.createOrderFrame(order) // 접수대기용 프레임
 
-        tabbedPane.addOrderToAllOrders(orderFrameForAllOrders, false)  // 전체보기 탭에 추가
-        tabbedPane.addOrderToPending(orderFrameForPending)  // 접수대기 탭에 추가
-        tabbedPane.refreshPendingOrders()
+        tabbedPane.addOrderToAllOrders(allOrdersFrame, false)  // 전체보기 탭에 추가
+        tabbedPane.updateOrderInAllOrders(order)
+        tabbedPane.addOrderToPending(pendingOrdersFrame, pendingOrderTypeOrdersFrame,order)  // 접수대기 탭에 추가
 
         println("주문 추가")
     }
 
     // 상태 변화에 따른 주문 처리
-    private fun handleOrderStateChange(order: ReceiveOrderModel) {
+    fun handleOrderStateChange(order: ReceiveOrderModel) {
+        println("handleOrderStateChange")
         when (order.state) {
             is ProcessingState -> {
                 if (!isOrderInProcessing(order)) {
@@ -67,52 +68,73 @@ object OrderController {
             .any { it.getClientProperty("orderNumber") == order.orderNumber }
     }
 
-    fun updateOrderInAllOrders(order: ReceiveOrderModel) {
-        tabbedPane.updateOrderInAllOrders(order)
-    }
 
     private fun moveOrderToProcessing(order: ReceiveOrderModel) {
-        tabbedPane.removeOrderFromPending(order)
+        println("moveOrderToProcessing")
 
         val processingOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
-        tabbedPane.addOrderToProcessing(processingOrderFrame)
+        val processingTypeOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
+        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
+
+        tabbedPane.addOrderToProcessing(processingOrderFrame,processingTypeOrderFrame, order)
         tabbedPane.updateOrderInAllOrders(order)
-        tabbedPane.refreshPendingOrders()
-        tabbedPane.ProcessingSubTabsCountUpdate()
+        tabbedPane.removeOrderFromPending(order)
+        if(allOrder != null){
+            tabbedPane.updateOrderInAllOrders(allOrder)
+            tabbedPane.removeOrderFromPending(allOrder)
+        }
+        tabbedPane.pendingSubTabs.updateCounts()
+        tabbedPane.processingSubTabs.updateCounts()
     }
 
     private fun moveOrderToCompleted(order: ReceiveOrderModel) {
+        println("moveOrderToCompleted")
+        OrderListSingleTon.counts["processingOrders"] = (OrderListSingleTon.counts["processingOrders"] ?: 0) - 1
+        OrderListSingleTon.counts["completedOrders"] = (OrderListSingleTon.counts["completedOrders"] ?: 0) + 1
+        val removeOrder = OrderListSingleTon.orders["processingOrders"]?.find { it.orderNumber == order.orderNumber }
+        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
+        OrderListSingleTon.orders["processingOrders"]?.remove(removeOrder)
+        OrderListSingleTon.orders["completedOrders"]?.add(0,order)
         tabbedPane.updateOrderInAllOrders(order)
         tabbedPane.removeOrderFromProcessing(order)
         val completedOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
         tabbedPane.addOrderToCompleted(completedOrderFrame)
-        tabbedPane.refreshCompletedOrders()
-        tabbedPane.refreshProcessingOrders()
     }
 
     private fun moveOrderToReject(order: ReceiveOrderModel) {
+        println("moveOrderToReject")
         val rejectedState = order.state as RejectedState
         updateOrderUIInAllOrders(order)
 
         val rejectedOrderFrame = tabbedPane.createOrderFrame(order)
 
         when (rejectedState.rejectPanel) {
-            PENDING -> {
+            WAITING -> {
+                OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) - 1
+                OrderListSingleTon.counts["rejectStoreOrders"] = (OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + 1
+                val removeOrder = OrderListSingleTon.findOrderByNumber("pendingOrders", order.orderNumber)
+                if(removeOrder != null) {
+                    OrderListSingleTon.orders["pendingOrders"]?.remove(removeOrder)
+                    OrderListSingleTon.orders["rejectStoreOrders"]?.add(0,order)
+                }
                 tabbedPane.removeOrderFromPending(order)
                 tabbedPane.addOrderToRejected(rejectedOrderFrame)
-                tabbedPane.refreshPendingOrders()
             }
 
-            PROCESSING -> {
+            IN_PROGRESS -> {
+                OrderListSingleTon.counts["processingOrders"] = (OrderListSingleTon.counts["processingOrders"] ?: 0) - 1
+                OrderListSingleTon.counts["rejectStoreOrders"] = (OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + 1
+                val removeOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+                if(removeOrder != null) {
+                    OrderListSingleTon.orders["processingOrders"]?.remove(removeOrder)
+                    OrderListSingleTon.orders["rejectStoreOrders"]?.add(0,order)
+                }
                 tabbedPane.removeOrderFromProcessing(order)
                 tabbedPane.addOrderToRejected(rejectedOrderFrame)
-                tabbedPane.refreshProcessingOrders()
             }
 
             else -> println("Unhandled state for rejection: ${rejectedState.rejectPanel}")
         }
-
-        tabbedPane.refreshRejectedOrders()
     }
 
     private fun updateOrderUIInAllOrders(order: ReceiveOrderModel) {
@@ -129,25 +151,17 @@ object OrderController {
 
     fun initializeOrders(orders: List<ReceiveOrderModel>) {
         orders.forEach { order ->
-            order.addStateObserver(object : OrderObserver {
-                override fun update(order: ReceiveOrderModel) {
-                    handleOrderStateChange(order)
-                }
-            })
-
             val forProcessing =
                 if (order.posOrderStatusType == ServerOrderStatus.COOKING.name || order.posOrderStatusType == ServerOrderStatus.ACCEPT.name) true else false
-            println("orderId : ${order.id} forProcessing : $forProcessing")
             val orderFrame = tabbedPane.createOrderFrame(order, forProcessing)
             if(!forProcessing){
                 tabbedPane.addOrderToAllOrders(orderFrame, true)
                 tabbedPane.updateOrderInAllOrders(order)
             }else{
+                println("타이머 시작!!")
                 tabbedPane.updateOrderInAllOrders(order)
                 tabbedPane.addOrderToAllOrders(orderFrame, true)
             }
-
-
         }
     }
 }

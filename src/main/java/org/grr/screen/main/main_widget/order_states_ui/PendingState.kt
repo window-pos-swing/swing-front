@@ -99,7 +99,7 @@ class PendingState(
                     "주문 거절 사유를 선택해 주세요.",
                     "주문 거절",
                     onReject = { rejectReason ->
-                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_REJECT, PosOrderStatus.PENDING)
+                        val rejectOrderCommand = RejectOrderCommand(order, rejectReason, RejectedReasonType.STORE_REJECT, PosOrderStatus.WAITING)
                         rejectOrderCommand.execute()
                     }
                 )

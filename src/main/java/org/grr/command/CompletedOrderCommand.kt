@@ -5,7 +5,9 @@ import org.grr.api.OrderAPI
 import org.grr.enum.OrderReceiveType
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.order_states_ui.CompletedState
+import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import javax.swing.JOptionPane
 
 class CompletedOrderCommand(
@@ -24,6 +26,8 @@ class CompletedOrderCommand(
             return
         }
         order.changeState(CompletedState())
+        val allOrder = OrderListSingleTon.findOrderByNumber("pendingOrders", order.orderNumber)
+        allOrder?.changeState(CompletedState())
         println("[주문] #${order.orderNumber} 주문완료 상태로 변경")
     }
 }

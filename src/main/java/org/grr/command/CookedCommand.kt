@@ -2,8 +2,10 @@ package org.grr.command
 
 import Command
 import org.grr.api.OrderAPI
+import org.grr.enum.OrderReceiveType
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.order_states_ui.CompletedState
 import javax.swing.JOptionPane
 
@@ -20,7 +22,6 @@ class CookedCommand(
             JOptionPane.showMessageDialog(null, "조리완료 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
             return
         }
-//        order.changeState(CompletedState())
         println("[주문] #${order.orderNumber} 조리완료 상태 변경")
     }
 }

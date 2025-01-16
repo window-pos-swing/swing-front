@@ -10,6 +10,7 @@ import org.grr.`interface`.OrderEventListener
 import org.grr.model.OrderState
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderController
+import org.grr.`object`.OrderListSingleTon
 import org.grr.observer.OrderObserver
 import org.grr.style.MyColor
 import org.grr.util.MyFont
@@ -177,7 +178,7 @@ class ProcessingState(
                             order,
                             rejectReason,
                             RejectedReasonType.STORE_REJECT,
-                            PosOrderStatus.PROCESSING
+                            PosOrderStatus.IN_PROGRESS
                         )
                         rejectOrderCommand.execute()
                     }
@@ -224,7 +225,7 @@ class ProcessingState(
                 //API호출
                 val cookedCommand = CookedCommand(order)
                 cookedCommand.execute()
-                OrderController.updateOrderInAllOrders(order)
+//                OrderController.updateOrderInAllOrders(order)
             }
         }
     }
@@ -275,7 +276,10 @@ class ProcessingState(
 
     // Resend Order 이벤트 처리: 프로그레스바를 버튼으로 변환
     override fun onResendOrder(order: ReceiveOrderModel) {
-        order.isResent = true
+        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
+        val processOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+        if(allOrder != null) { allOrder.isResent = true }
+        if(processOrder != null) { processOrder.isResent = true }
         // '주문취소' 버튼 생성
         // '배달 대행사로 주문번호 재전송' 버튼 생성
         val resendOrderButton = FillRoundedButton(
@@ -321,8 +325,16 @@ class ProcessingState(
 
     //TODO 배달중 위젯으로 변경
     override fun onDelivery(order: ReceiveOrderModel) {
-        order.isOnDelivery = true
-        order.isPickupWait = false
+        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
+        val processOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+        if(allOrder != null) {
+            allOrder.isOnDelivery = true
+            allOrder.isPickupWait = false
+        }
+        if(processOrder != null) {
+            processOrder.isOnDelivery = true
+            processOrder.isPickupWait = false
+        }
         val resendOrderButton = createOnDelivery(order)
 
         println("onDelivery called")
@@ -350,14 +362,39 @@ class ProcessingState(
 
     //TODO 픽업 대기중 버튼 업데이트
     fun changePickupWaitWidget(order: ReceiveOrderModel) {
-        order.isPickupWait = true
+
+        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
+        val processOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+        if(allOrder != null) {
+            allOrder.isPickupWait = true
+            OrderController.tabbedPane.updateOrderInAllOrders(allOrder)
+        }
+        if(processOrder != null) {
+            processOrder.isPickupWait = true
+        }
+        when (order.orderReceiveType) {
+            OrderReceiveType.DELIVERY.name -> {
+                val processingDeliveryOrders = OrderListSingleTon.findOrderByNumber("processingDeliveryOrders", order.orderNumber)
+                if (processingDeliveryOrders != null) {
+                    processingDeliveryOrders.isPickupWait = true
+                    OrderController.tabbedPane.processingSubTabs.initializePanels()
+//                    println("Updated isPickupWait for DELIVERY order: ${processingDeliveryOrders.orderNumber} -> ${processingDeliveryOrders.isPickupWait}")
+//                    println("[changePickupWaitWidget] processingDeliveryOrders COunt : ${OrderListSingleTon.orders["processingDeliveryOrders"]?.size}")
+//                    println("[changePickupWaitWidget] processingOrders COunt : ${OrderListSingleTon.orders["processingOrders"]?.size}")
+                } else {
+                    println("Delivery order not found in processingDeliveryOrders for orderNumber: ${order.orderNumber}")
+                    println("processingDeliveryOrders count : ${OrderListSingleTon.orders["processingDeliveryOrders"]?.size}")
+                }
+            }
+        }
+
         rightPanel.border = BorderFactory.createEmptyBorder(-15, 0, 0, 0)
-        // 주문 완료 버튼 생성
-        val completeOrderButton = createPickupWaitWidget(order)
+        // 픽업 대기 생성
+        val waitOrderButton = createPickupWaitWidget(order)
 
         // rightPanel을 사용해 프로그레스바를 제거하고 완료 버튼 추가
         rightPanel.removeAll()
-        rightPanel.add(completeOrderButton)
+        rightPanel.add(waitOrderButton)
         rightPanel.revalidate()
         rightPanel.repaint()
     }
@@ -384,7 +421,22 @@ class ProcessingState(
 
     //TODO 픽업 완료 버튼 업데이트
     fun changePickupCompleteButton(order: ReceiveOrderModel) {
-        order.isPickupCompleted = true
+        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
+        val processOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+        if(allOrder != null) {
+            allOrder.isPickupCompleted = true
+            OrderController.tabbedPane.updateOrderInAllOrders(allOrder)
+        }
+        if(processOrder != null) { processOrder.isPickupCompleted = true }
+        when (order.orderReceiveType) {
+            OrderReceiveType.TAKEOUT.name -> {
+                val processingTakeoutOrders = OrderListSingleTon.findOrderByNumber("processingTakeOutOrders", order.orderNumber)
+                if(processingTakeoutOrders != null) {
+                    processingTakeoutOrders.isPickupCompleted = true
+                    OrderController.tabbedPane.processingSubTabs.initializePanels()
+                }
+            }
+        }
         rightPanel.border = BorderFactory.createEmptyBorder(-15, 0, 0, 0)
         // 주문 완료 버튼 생성
         val completeOrderButton = createPickupCompleteButton(order)

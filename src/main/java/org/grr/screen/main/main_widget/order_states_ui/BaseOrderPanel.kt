@@ -8,7 +8,6 @@ import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedLabel
 import org.grr.widgets.OutLineRoundedLabel
 import java.awt.*
-import java.awt.SystemColor.menu
 import javax.swing.*
 
 class BaseOrderPanel(order: ReceiveOrderModel) : JPanel() {

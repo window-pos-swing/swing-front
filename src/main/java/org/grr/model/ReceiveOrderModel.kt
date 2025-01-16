@@ -33,6 +33,7 @@ data class ReceiveOrderModel(
     val storeRequest: String,
     val riderRequest: String,
     val orderReceiveType: String,
+    val posOrderStatus : String,
     val posOrderStatusType: String,
     val expectedPrice: Int,
     val totalOrderPrice: Int,
@@ -84,7 +85,7 @@ data class ReceiveOrderModel(
 
     // ReceiveOrderModel.kt
     fun updateStateBasedOnStatus() {
-        println("state : $state")
+        println("posOrderStatusType : $posOrderStatusType")
         println("posOrderStatusType : $posOrderStatusType")
         var totalTime = 0
         if(estimatedCookingTime != null && estimatedArrivalTime != null) {
@@ -96,11 +97,9 @@ data class ReceiveOrderModel(
 
             ServerOrderStatus.COOKING.name,
             ServerOrderStatus.ACCEPT.name -> {
-                println("modifyOrderDate : $modifyOrderDate")
-                println("현재시간 : ")
-
                 elapsedTime = MyDateFormat.calculateTimeDifferenceInMinutes(modifyOrderDate)
-                println("elapsedTime  : $elapsedTime")
+//                println("elapsedTime  : $elapsedTime")
+//                println("totalTime : $totalTime")
                 startTimer(totalTime)
                 ProcessingState(totalTime = totalTime , parentFrame, cardPanel)
             }
@@ -145,10 +144,7 @@ data class ReceiveOrderModel(
 
     // 진행 시간 타이머 시작
     fun startTimer(totalTime: Int) {
-        if (progressBarTimer != null) {
-            println("progressBarTimer 이미 실행중  #$orderId")
-            return
-        }
+        stopTimers()
         //60000 = 1분
         progressBarTimer = Timer(1000) {  // 1초마다 실행
             elapsedTime++
@@ -270,6 +266,7 @@ data class ReceiveOrderModel(
                 storeRequest = jsonObject.getString("storeRequest"),
                 riderRequest = jsonObject.getString("riderRequest"),
                 orderReceiveType = jsonObject.getString("orderReceiveType"),
+                posOrderStatus = jsonObject.getString("posOrderStatus"),
                 posOrderStatusType = jsonObject.getString("posOrderStatusType"),
                 expectedPrice = jsonObject.getInt("expectedPrice"),
                 totalOrderPrice = jsonObject.getInt("totalOrderPrice"),
@@ -330,6 +327,7 @@ data class ReceiveOrderModel(
                 storeRequest = jsonObject.getString("storeRequest"),
                 riderRequest = jsonObject.getString("riderRequest"),
                 orderReceiveType = jsonObject.getString("orderReceiveType"),
+                posOrderStatus = jsonObject.getString("posOrderStatus"),
                 posOrderStatusType = jsonObject.getString("posOrderStatusType"),
                 expectedPrice = jsonObject.getInt("expectedPrice"),
                 totalOrderPrice = jsonObject.getInt("totalOrderPrice"),

@@ -2,10 +2,11 @@ package org.grr.enum
 
 enum class PosOrderStatus {
     ALL,
-    PENDING,
-    PROCESSING,
+    WAITING,
+    IN_PROGRESS,
     USER_CANCEL,
     STORE_CANCEL,
-    COMPLETED,
     REJECTED,
+    COMPLETED,
+    REFUND,
 }

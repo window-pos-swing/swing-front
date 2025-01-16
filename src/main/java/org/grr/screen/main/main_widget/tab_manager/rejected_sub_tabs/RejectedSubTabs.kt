@@ -1,7 +1,9 @@
 package org.grr.screen.main.main_widget.tab_manager.rejected_sub_tabs
 
+import org.grr.api.OrderAPI
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.command.RejectedReasonType
+import org.grr.`object`.OrderListSingleTon
 import org.grr.style.MyColor
 import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import org.grr.widgets.SelectButtonRoundedBorder
@@ -113,7 +115,6 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
         // 기본 선택: 거절 전체보기
         tabbedPane.filterRejectedOrders()
-        RejectedSubTabsUpdateCounts()
     }
 
     fun selectButton(button: SelectButtonRoundedBorder) {
@@ -122,30 +123,4 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         selectedButton = button
     }
 
-    fun RejectedSubTabsUpdateCounts() {
-        // 모든 주문 중 현재 PendingState(접수대기) 상태인 것들만 필터링
-        val RejectedOrders = tabbedPane.myGetAllOrders().filter { it.state is RejectedState }
-
-        // 전체보기: 모든 접수대기 상태의 주문 개수
-        totalCount = RejectedOrders.size
-
-        // 배달: 접수대기 상태 중 배달 타입인 주문 개수
-        customerCancelCount = RejectedOrders.filter {
-            (it.state as RejectedState).rejectType == RejectedReasonType.CUSTOMER_CANCEL
-        }.size
-
-        // 포장: 접수대기 상태 중 포장 타입인 주문 개수
-        storeRejectCount = RejectedOrders.filter {
-            (it.state as RejectedState).rejectType == RejectedReasonType.STORE_REJECT
-        }.size
-
-        refundCount = RejectedOrders.filter {
-            (it.state as RejectedState).rejectType == RejectedReasonType.REFUND
-        }.size
-
-        // 버튼의 텍스트 업데이트
-        customerCancelButton.button.text = "고객취소"
-        storeRejectButton.button.text = "가게거절"
-        refundButton.button.text = "환불"
-    }
 }

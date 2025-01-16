@@ -1,9 +1,18 @@
-package org.grr.screen.main.main_widget.tab_manager.completed_sub_tabs
+package org.grr.screen.main.main_widget.tab_manager.completed.completed_sub_tabs
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.grr.api.OrderAPI
+import org.grr.enum.PosOrderStatus
+import org.grr.enum.ServerOrderStatus
+import org.grr.model.OrderFilter
+import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.style.MyColor
-import org.grr.screen.main.main_widget.order_states_ui.CompletedState
 import org.grr.widgets.SelectButtonRoundedBorder
+import org.json.JSONArray
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
@@ -82,17 +91,14 @@ class CompletedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             allOrdersButton.button.addActionListener {
                 selectButton(allOrdersButton)
                 println("Subtab Filter Changed: 전체보기")
-                tabbedPane.filterCompletedOrders()  // 전체보기 호출
             }
             deliveryButton.button.addActionListener {
                 selectButton(deliveryButton)
                 println("Subtab Filter Changed: 배달")
-                tabbedPane.filterCompletedOrders("DELIVERY")  // 배달 주문만 필터링
             }
             takeoutButton.button.addActionListener {
                 selectButton(takeoutButton)
                 println("Subtab Filter Changed: 포장")
-                tabbedPane.filterCompletedOrders("TAKEOUT")  // 포장 주문만 필터링
             }
 
             // 초기 선택된 버튼 설정 (전체보기)
@@ -103,15 +109,70 @@ class CompletedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
         // 중복 생성 방지 로직 추가
         tabbedPane.completedOrdersPanel.removeAll()  // 기존 패널 초기화
-        add(JScrollPane(tabbedPane.completedOrdersPanel).apply {
+        val completedOrdersScrollPane =JScrollPane(tabbedPane.completedOrdersPanel).apply {
             border = BorderFactory.createEmptyBorder(0, 20, 20, 20)
             viewportBorder = null
             isOpaque = false
             viewport.isOpaque = false
-        })
+        }
+        completedOrdersScrollPane.addMouseWheelListener { event ->
+            val scrollBar = completedOrdersScrollPane.verticalScrollBar
+            val unitsToScroll = event.unitsToScroll * 20 // 한 번의 휠 이벤트로 스크롤할 픽셀 수
+            scrollBar.value = (scrollBar.value + unitsToScroll).coerceIn(0, scrollBar.maximum - scrollBar.visibleAmount)
+        }
+        //스크롤 플래그 상태 관리
+        var isAtBottom = false // 플래그로 상태 관리
+        var isAdjustingUI = false // UI 업데이트 중 상태를 나타내는 플래그
+        completedOrdersScrollPane.verticalScrollBar.addAdjustmentListener { event ->
+            if (isAdjustingUI) {
+                // UI 변경으로 발생한 스크롤 이벤트는 무시
+                return@addAdjustmentListener
+            }
+
+            val scrollBar = event.source as JScrollBar
+            val atBottom = scrollBar.maximum - (scrollBar.value + scrollBar.visibleAmount) <= 0
+
+            if (atBottom && !isAtBottom && OrderListSingleTon.pageNumbers["completedOrders"] != -1) {
+                // 데이터 로드 조건
+                println("페이지네이션 실향")
+                println("OrderListSingleTon.allOrdersPageNumber : ${OrderListSingleTon.pageNumbers["allOrdersPageNumber"]}")
+                // 스크롤 위치 저장
+                val currentScrollValue = scrollBar.value
+                isAtBottom = true // 사용자 스크롤 위치 플래그 설정
+                isAdjustingUI = true // UI 업데이트 중 플래그 설정
+
+                // 데이터 로드
+                CoroutineScope(Dispatchers.IO).launch {
+                    println("completedOrdersPageNumber : ${OrderListSingleTon.pageNumbers["completedOrders"]}")
+                    val result = OrderAPI().fetchOrders(
+                        parentFrame = tabbedPane.parentFrame,
+                        cardPanel = tabbedPane.cardPanel!!,
+                        filter = OrderFilter(
+                            posOrderStatus = PosOrderStatus.COMPLETED,
+                        ),
+                        pageNumber = OrderListSingleTon.pageNumbers["completedOrders"]!!
+                    )
+                    val jsonArray = JSONArray(result.second)
+                    val newOrders = ReceiveOrderModel.fromJsonArray(jsonArray, tabbedPane.parentFrame, tabbedPane.cardPanel!!)
+
+                    // UI 갱신은 Swing 스레드에서 처리
+                    SwingUtilities.invokeLater {
+                        tabbedPane.completeOrdersPanelManager.initCompletedOrders(newOrders)
+
+                        // UI 업데이트 후 플래그 초기화
+                        isAdjustingUI = false
+                        isAtBottom = false // 새로운 데이터 로드 후 스크롤 위치 초기화
+                        scrollBar.value = currentScrollValue
+                    }
+                }
+            } else if (!atBottom) {
+                // 사용자가 위로 스크롤하면 플래그 초기화
+                isAtBottom = false
+            }
+        }
+        add(completedOrdersScrollPane)
 
         // 기본 선택: 전체보기
-        tabbedPane.filterCompletedOrders()
         CompletedSubTabsUpdateCounts()
     }
 
@@ -122,17 +183,14 @@ class CompletedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     }
 
     fun CompletedSubTabsUpdateCounts() {
-        // 모든 주문 중 현재 PendingState(접수대기) 상태인 것들만 필터링
-        val completedState = tabbedPane.myGetAllOrders().filter { it.state is CompletedState }
-
         // 전체보기: 모든 접수대기 상태의 주문 개수
-        totalCount = completedState.size
+        totalCount = OrderListSingleTon.counts["completedOrders"]!!
 
         // 배달: 접수대기 상태 중 배달 타입인 주문 개수
-        deliveryCount = completedState.filter { it.orderReceiveType == "DELIVERY" }.size
+        deliveryCount = OrderListSingleTon.counts["completedDeliveryOrders"]!!
 
         // 포장: 접수대기 상태 중 포장 타입인 주문 개수
-        takeoutCount = completedState.filter { it.orderReceiveType == "TAKEOUT" }.size
+        takeoutCount = OrderListSingleTon.counts["completedTakeOutOrders"]!!
 
         // 버튼의 텍스트 업데이트
         allOrdersButton.button.text = "전체보기  $totalCount"
