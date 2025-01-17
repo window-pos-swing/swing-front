@@ -14,13 +14,13 @@ import javax.swing.JPanel
 
 // 주문 데이터 싱글톤 관리
 object OrderListSingleTon {
-    val PAGE_SIZE: Int = 10
+    val PAGE_SIZE: Int = 5
 
     // 데이터 상태
     val orders = mutableMapOf<String, MutableList<ReceiveOrderModel>>()
     val pageNumbers = mutableMapOf<String, Int>()
     val counts = mutableMapOf<String, Int>()
-
+//    val realTime = mutableMapOf<String, Boolean>()
     // 초기화
     init {
         initializeKeys()
@@ -85,23 +85,35 @@ object OrderListSingleTon {
         try {
             val jsonArray = JSONArray(orderListJson)
             val newOrders = ReceiveOrderModel.fromJsonArray(jsonArray, parentFrame, cardPanel)
-            newOrders.forEach { order ->
-                order.addStateObserver(object : OrderObserver {
-                override fun update(order: ReceiveOrderModel) {
-                    handleOrderStateChange(order)
-                }
-            })}
-            // 주문 추가
+
+            // 키 결정
             val key = determineKey(filter)
-            orders[key]?.addAll(newOrders)
+
+            // 기존 주문 리스트에서 주문 번호 추출
+            val existingOrderNumbers = orders[key]?.map { it.orderNumber } ?: emptyList()
+
+            // 중복 제거
+            val uniqueOrders = newOrders.filter { it.orderNumber !in existingOrderNumbers }
+
+            // 주문 추가
+            orders[key]?.addAll(uniqueOrders)
+
+            // 카운트 및 페이지 번호 업데이트
             counts[key] = totalElements
             pageNumbers[key] = if (newOrders.size < PAGE_SIZE) -1 else (pageNumbers[key] ?: 0) + 1
-            println("[addAllOrder] ${key} pageNumber : ${pageNumbers[key]}")
+
+            println("[addAllOrder] ${key} pageNumber: ${pageNumbers[key]}")
+            println("[addAllOrder] Added unique orders: ${uniqueOrders.map { it.orderNumber }}")
+            // 전체 orderId 순회하여 프린트
+            val allOrderIds = orders[key]?.map { it.orderNumber } ?: emptyList()
+            println("[addAllOrder] Current ${key} orders: $allOrderIds")
+
         } catch (e: Exception) {
             e.printStackTrace()
             println("Error adding orders: ${e.message}")
         }
     }
+
 
     // 키 결정
     private fun determineKey(filter: OrderFilter): String {

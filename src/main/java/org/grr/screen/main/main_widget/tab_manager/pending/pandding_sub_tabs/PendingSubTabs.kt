@@ -78,7 +78,7 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
         // 카드 컨테이너에 각 패널 추가
         addPanelToContainer(pendingOrdersPanel, "전체보기", panelType = "pendingOrders")
-        addPanelToContainer(deliveryOrdersPanel, "배달" , panelType = "pendingDeliveryOrders")
+        addPanelToContainer(deliveryOrdersPanel, "배달", panelType = "pendingDeliveryOrders")
         addPanelToContainer(takeoutOrdersPanel, "포장", panelType = "pendingTakeoutOrders")
 
         // 서브탭 초기화
@@ -98,7 +98,7 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
     }
 
-    private fun addPanelToContainer(panel: JPanel, tabName: String , panelType : String) {
+    private fun addPanelToContainer(panel: JPanel, tabName: String, panelType: String) {
         val pendingScrollPane = JScrollPane(panel).apply {
             border = BorderFactory.createEmptyBorder(0, 20, 20, 20)
             viewportBorder = null
@@ -109,12 +109,12 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                 isOpaque = true
             }
         }
-        cardContainer.add(pendingScrollPane , tabName)
+        cardContainer.add(pendingScrollPane, tabName)
         var filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING)
-        if(panelType == "completedDeliveryOrders"){
+        if (panelType == "completedDeliveryOrders") {
             filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.DELIVERY)
-        }else if(panelType == "completedTakeOutOrders"){
-            filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING , orderReceiveType = OrderReceiveType.TAKEOUT)
+        } else if (panelType == "completedTakeOutOrders") {
+            filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.TAKEOUT)
         }
         ScrollPaginationHandler(
             scrollPane = pendingScrollPane,
@@ -123,9 +123,16 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                 val result = OrderAPI().fetchOrders(
                     tabbedPane.parentFrame,
                     tabbedPane.cardPanel!!,
-                    filter ,
-                    pageNumber)
-                JSONArray(result.second).let { ReceiveOrderModel.fromJsonArray(it, tabbedPane.parentFrame, tabbedPane.cardPanel!!) }
+                    filter,
+                    pageNumber
+                )
+                JSONArray(result.second).let {
+                    ReceiveOrderModel.fromJsonArray(
+                        it,
+                        tabbedPane.parentFrame,
+                        tabbedPane.cardPanel!!
+                    )
+                }
             },
             initializeOrders = {
                 initializePanels()
@@ -151,7 +158,8 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         takeoutButton.button.text = "포장  $takeoutCount"
     }
 
-    private fun initializePanels() {
+    fun initializePanels() {
+        // 각각의 패널 업데이트
         updatePanel(pendingOrdersPanel, OrderListSingleTon.orders["pendingOrders"])
         updatePanel(deliveryOrdersPanel, OrderListSingleTon.orders["pendingDeliveryOrders"])
         updatePanel(takeoutOrdersPanel, OrderListSingleTon.orders["pendingTakeOutOrders"])
@@ -159,7 +167,9 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
     private fun updatePanel(panel: JPanel, orders: MutableList<ReceiveOrderModel>?) {
         panel.removeAll()
-        orders?.forEach { order ->
+        val ordersCopy = orders?.toList()  // 복사본 생성
+
+        ordersCopy?.forEach { order ->
             val orderFrame = tabbedPane.createOrderFrame(order)
             orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
             panel.add(orderFrame)
@@ -189,15 +199,16 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     }
 
     //TODO [ADD]
-    fun addOrderToPending(orderFrame: JPanel, typeOrderFrame : JPanel ,order: ReceiveOrderModel) {
+    fun addOrderToPending(orderFrame: JPanel, typeOrderFrame: JPanel, order: ReceiveOrderModel) {
+
         pendingOrdersPanel.add(orderFrame)
         pendingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         pendingOrdersPanel.revalidate()
         pendingOrdersPanel.repaint()
         tabbedPane.updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
-        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+        if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) {
             deliveryOrdersPanel.add(typeOrderFrame)
-        }else if(order.orderReceiveType == OrderReceiveType.TAKEOUT.name){
+        } else if (order.orderReceiveType == OrderReceiveType.TAKEOUT.name) {
             takeoutOrdersPanel.add(typeOrderFrame)
         }
         initializePanels()
@@ -220,29 +231,33 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             tabbedPane.updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
         }
 
-        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
-            OrderListSingleTon.counts["pendingDeliveryOrders"] = (OrderListSingleTon.counts["pendingDeliveryOrders"] ?: 0) - 1
-            val removeOrder2 = OrderListSingleTon.orders["pendingDeliveryOrders"]?.find { it.orderNumber == order.orderNumber }
+        if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) {
+            OrderListSingleTon.counts["pendingDeliveryOrders"] =
+                (OrderListSingleTon.counts["pendingDeliveryOrders"] ?: 0) - 1
+            val removeOrder2 =
+                OrderListSingleTon.orders["pendingDeliveryOrders"]?.find { it.orderNumber == order.orderNumber }
             OrderListSingleTon.orders["pendingDeliveryOrders"]?.remove(removeOrder2)
             val deliveryOrdersPanelRemove = deliveryOrdersPanel.components
                 .filterIsInstance<JPanel>()
                 .find { it.getClientProperty("orderNumber") == order.orderNumber }
 
-            deliveryOrdersPanelRemove?.let{
+            deliveryOrdersPanelRemove?.let {
                 deliveryOrdersPanel.remove(it)
                 deliveryOrdersPanel.revalidate()
                 deliveryOrdersPanel.repaint()
             }
 
-        }else if(order.orderReceiveType == OrderReceiveType.TAKEOUT.name){
-            OrderListSingleTon.counts["pendingTakeOutOrders"] = (OrderListSingleTon.counts["pendingTakeOutOrders"] ?: 0) - 1
-            val removeOrder3 = OrderListSingleTon.orders["pendingTakeOutOrders"]?.find { it.orderNumber == order.orderNumber }
+        } else if (order.orderReceiveType == OrderReceiveType.TAKEOUT.name) {
+            OrderListSingleTon.counts["pendingTakeOutOrders"] =
+                (OrderListSingleTon.counts["pendingTakeOutOrders"] ?: 0) - 1
+            val removeOrder3 =
+                OrderListSingleTon.orders["pendingTakeOutOrders"]?.find { it.orderNumber == order.orderNumber }
             OrderListSingleTon.orders["pendingTakeOutOrders"]?.remove(removeOrder3)
             val takeOutOrdersPanelRemove = takeoutOrdersPanel.components
                 .filterIsInstance<JPanel>()
                 .find { it.getClientProperty("orderNumber") == order.orderNumber }
 
-            takeOutOrdersPanelRemove?.let{
+            takeOutOrdersPanelRemove?.let {
                 takeoutOrdersPanel.remove(it)
                 takeoutOrdersPanel.revalidate()
                 takeoutOrdersPanel.repaint()

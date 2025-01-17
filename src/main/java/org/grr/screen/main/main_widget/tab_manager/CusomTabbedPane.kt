@@ -10,6 +10,7 @@ import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
 import org.grr.model.SettingModel
 import org.grr.`object`.OrderController
+import org.grr.`object`.OrderController.initializeOrders
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.dialog.OrderDetailDialog
 import org.grr.screen.main.main_widget.dialog.PauseOperations.PauseOperationsDialog
@@ -213,7 +214,17 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                 JSONArray(result.second).let { ReceiveOrderModel.fromJsonArray(it, parentFrame, cardPanel) }
             },
             initializeOrders = { newOrders ->
-                OrderController.initializeOrders(newOrders)
+                // 기존 패널의 주문 번호 추출
+                val existingOrderNumbers = allOrdersPanel.components
+                    .filterIsInstance<JPanel>()
+                    .mapNotNull { it.getClientProperty("orderNumber") as? String }
+                    .toSet()
+
+                // 새로 들어온 데이터 중 기존에 없는 주문만 필터링
+                val uniqueNewOrders = newOrders.filter { it.orderNumber !in existingOrderNumbers }
+                initializeOrders(uniqueNewOrders)
+                // 디버깅 출력
+                println("Added new orders to allOrdersPanel: ${uniqueNewOrders.map { it.orderNumber }}")
             },
             getPageNumber = { OrderListSingleTon.pageNumbers["allOrders"] ?: 0 },
         )
@@ -436,7 +447,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     }
 
     fun updateOrderInAllOrders(order: ReceiveOrderModel ) {
-        println("updateOrderInAllOrders ${order.state}")
+        println("updateOrderInAllOrders : ${order.orderNumber}")
         val frameToUpdate = allOrdersPanel.components
             .filterIsInstance<BaseOrderPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }

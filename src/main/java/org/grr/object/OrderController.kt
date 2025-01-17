@@ -35,7 +35,7 @@ object OrderController {
 
         tabbedPane.addOrderToAllOrders(allOrdersFrame, false)  // 전체보기 탭에 추가
         tabbedPane.updateOrderInAllOrders(order)
-        tabbedPane.addOrderToPending(pendingOrdersFrame, pendingOrderTypeOrdersFrame,order)  // 접수대기 탭에 추가
+        tabbedPane.addOrderToPending(pendingOrdersFrame, pendingOrderTypeOrdersFrame, order)  // 접수대기 탭에 추가
 
         println("주문 추가")
     }
