@@ -1,9 +1,15 @@
 package org.grr.screen.main.main_widget.tab_manager.completed.completed_sub_tabs
 
 
+import org.grr.api.OrderAPI
+import org.grr.enum.OrderReceiveType
+import org.grr.enum.PosOrderStatus
+import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderController
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
+import org.grr.screen.main.main_widget.tab_manager.ScrollPaginationHandler
 import org.grr.style.MyColor
 import org.grr.widgets.SelectButtonRoundedBorder
 import org.json.JSONArray
@@ -64,9 +70,9 @@ class CompletedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             add(takeoutButton.button)
         }
 
-        addPanelToContainer(completedOrdersPanel, "전체보기")
-        addPanelToContainer(deliveryOrdersPanel, "배달")
-        addPanelToContainer(takeoutOrdersPanel, "포장")
+        addPanelToContainer(completedOrdersPanel, "전체보기" , "completedOrders")
+        addPanelToContainer(deliveryOrdersPanel, "배달" , "completedDeliveryOrders")
+        addPanelToContainer(takeoutOrdersPanel, "포장" , "completedTakeOutOrders")
 
         add(buttonPanel, BorderLayout.NORTH)
         add(cardContainer, BorderLayout.CENTER)
@@ -83,8 +89,8 @@ class CompletedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
     }
 
-    private fun addPanelToContainer(panel: JPanel, tabName: String) {
-        cardContainer.add(JScrollPane(panel).apply {
+    private fun addPanelToContainer(panel: JPanel, tabName: String, panelType : String) {
+        var completedScrollPane = JScrollPane(panel).apply {
             border = BorderFactory.createEmptyBorder(0, 20, 20, 20)
             viewportBorder = null
             background = Color.WHITE
@@ -93,7 +99,31 @@ class CompletedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                 background = Color.WHITE
                 isOpaque = true
             }
-        }, tabName)
+        }
+        cardContainer.add(completedScrollPane, tabName)
+
+        var filter = OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED)
+        if(panelType == "completedDeliveryOrders"){
+            filter = OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED, orderReceiveType = OrderReceiveType.DELIVERY)
+        }else if(panelType == "completedTakeOutOrders"){
+            filter = OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED , orderReceiveType = OrderReceiveType.TAKEOUT)
+        }
+        ScrollPaginationHandler(
+            scrollPane = completedScrollPane,
+            panel = panel,
+            fetchOrders = { pageNumber ->
+                val result = OrderAPI().fetchOrders(
+                    tabbedPane.parentFrame,
+                    tabbedPane.cardPanel!!,
+                    filter ,
+                    pageNumber)
+                JSONArray(result.second).let { ReceiveOrderModel.fromJsonArray(it, tabbedPane.parentFrame, tabbedPane.cardPanel!!) }
+            },
+            initializeOrders = {
+                initializePanels()
+            },
+            getPageNumber = { OrderListSingleTon.pageNumbers[panelType] ?: 0 },
+        )
     }
 
     fun showTab(tabName: String) {

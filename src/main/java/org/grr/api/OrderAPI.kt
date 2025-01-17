@@ -18,6 +18,7 @@ class OrderAPI : BaseAPI() {
         filter: OrderFilter,
         pageNumber : Int,
     ): Pair<Boolean, String> {
+        println("[fetchOrders] pageNumber : ${pageNumber}")
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         val serverOrderStatusParam = filter.serverOrderStatus?.name?.let { "&orderStatusType=$it" } ?: ""
         val posOrderStatusParam = filter.posOrderStatus?.name?.let { "&orderStatus=$it" } ?: ""

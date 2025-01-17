@@ -25,15 +25,6 @@ class CompleteOrdersPanelManager(
     // 패널 반환 메서드
     fun getPanel(): JPanel = completedOrdersPanel
 
-    fun initCompletedOrders(orders: List<ReceiveOrderModel>){
-        orders.forEach { order ->
-            val orderFrame = customTabbedPane.createOrderFrame(order, forProcessing = false)
-            orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
-            completedOrdersPanel.add(orderFrame)
-            completedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
-        }
-    }
-
     fun addOrderToCompleted(orderFrame: JPanel,order: ReceiveOrderModel) {
         completedOrdersPanel.add(orderFrame)
         completedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))

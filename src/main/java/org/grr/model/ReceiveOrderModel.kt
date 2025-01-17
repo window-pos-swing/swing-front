@@ -85,8 +85,7 @@ data class ReceiveOrderModel(
 
     // ReceiveOrderModel.kt
     fun updateStateBasedOnStatus() {
-        println("posOrderStatusType : $posOrderStatusType")
-        println("posOrderStatusType : $posOrderStatusType")
+//        println("posOrderStatusType : $posOrderStatusType")
         var totalTime = 0
         if(estimatedCookingTime != null && estimatedArrivalTime != null) {
             totalTime = estimatedCookingTime + estimatedArrivalTime

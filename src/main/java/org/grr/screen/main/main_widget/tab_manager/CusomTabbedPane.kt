@@ -223,9 +223,6 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                 OrderController.initializeOrders(newOrders)
             },
             getPageNumber = { OrderListSingleTon.pageNumbers["allOrders"] ?: 0 },
-            updatePageNumber = { newPage ->
-                OrderListSingleTon.pageNumbers["allOrders"] = newPage
-            }
         )
 
 

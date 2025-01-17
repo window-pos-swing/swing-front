@@ -1,11 +1,16 @@
 package org.grr.screen.main.main_widget.tab_manager.pending.pandding_sub_tabs
 
+import org.grr.api.OrderAPI
 import org.grr.enum.OrderReceiveType
+import org.grr.enum.PosOrderStatus
+import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
+import org.grr.screen.main.main_widget.tab_manager.ScrollPaginationHandler
 import org.grr.style.MyColor
 import org.grr.widgets.SelectButtonRoundedBorder
+import org.json.JSONArray
 import java.awt.*
 import javax.swing.*
 
@@ -72,9 +77,9 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
 
         // 카드 컨테이너에 각 패널 추가
-        addPanelToContainer(pendingOrdersPanel, "전체보기")
-        addPanelToContainer(deliveryOrdersPanel, "배달")
-        addPanelToContainer(takeoutOrdersPanel, "포장")
+        addPanelToContainer(pendingOrdersPanel, "전체보기", panelType = "pendingOrders")
+        addPanelToContainer(deliveryOrdersPanel, "배달" , panelType = "pendingDeliveryOrders")
+        addPanelToContainer(takeoutOrdersPanel, "포장", panelType = "pendingTakeoutOrders")
 
         // 서브탭 초기화
         add(buttonPanel, BorderLayout.NORTH)
@@ -93,8 +98,8 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
     }
 
-    private fun addPanelToContainer(panel: JPanel, tabName: String) {
-        cardContainer.add(JScrollPane(panel).apply {
+    private fun addPanelToContainer(panel: JPanel, tabName: String , panelType : String) {
+        val pendingScrollPane = JScrollPane(panel).apply {
             border = BorderFactory.createEmptyBorder(0, 20, 20, 20)
             viewportBorder = null
             background = Color.WHITE
@@ -103,7 +108,30 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                 background = Color.WHITE
                 isOpaque = true
             }
-        }, tabName)
+        }
+        cardContainer.add(pendingScrollPane , tabName)
+        var filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING)
+        if(panelType == "completedDeliveryOrders"){
+            filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.DELIVERY)
+        }else if(panelType == "completedTakeOutOrders"){
+            filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING , orderReceiveType = OrderReceiveType.TAKEOUT)
+        }
+        ScrollPaginationHandler(
+            scrollPane = pendingScrollPane,
+            panel = panel,
+            fetchOrders = { pageNumber ->
+                val result = OrderAPI().fetchOrders(
+                    tabbedPane.parentFrame,
+                    tabbedPane.cardPanel!!,
+                    filter ,
+                    pageNumber)
+                JSONArray(result.second).let { ReceiveOrderModel.fromJsonArray(it, tabbedPane.parentFrame, tabbedPane.cardPanel!!) }
+            },
+            initializeOrders = {
+                initializePanels()
+            },
+            getPageNumber = { OrderListSingleTon.pageNumbers[panelType] ?: 0 },
+        )
     }
 
     fun showTab(tabName: String) {

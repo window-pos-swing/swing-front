@@ -137,7 +137,6 @@ class MainForm : JFrame() {
         // org.grr.`object`.OrderController 초기화
         OrderController.initialize(tabbedPane)
         OrderController.initializeOrders(OrderListSingleTon.orders["allOrders"]!!)
-        tabbedPane.completeOrdersPanelManager.initCompletedOrders(OrderListSingleTon.orders["completedOrders"]!!)
 
         // WebSocketClient 생성
         webSocketClient = PosWebSocketClient(

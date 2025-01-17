@@ -14,7 +14,7 @@ import javax.swing.JPanel
 
 // 주문 데이터 싱글톤 관리
 object OrderListSingleTon {
-    val PAGE_SIZE: Int = 100
+    val PAGE_SIZE: Int = 10
 
     // 데이터 상태
     val orders = mutableMapOf<String, MutableList<ReceiveOrderModel>>()
@@ -96,6 +96,7 @@ object OrderListSingleTon {
             orders[key]?.addAll(newOrders)
             counts[key] = totalElements
             pageNumbers[key] = if (newOrders.size < PAGE_SIZE) -1 else (pageNumbers[key] ?: 0) + 1
+            println("[addAllOrder] ${key} pageNumber : ${pageNumbers[key]}")
         } catch (e: Exception) {
             e.printStackTrace()
             println("Error adding orders: ${e.message}")
