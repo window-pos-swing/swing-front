@@ -24,7 +24,6 @@ import org.grr.util.MyFont
 import org.grr.`object`.OverlayManager
 import org.grr.screen.main.main_widget.order_states_ui.*
 import org.grr.screen.main.main_widget.tab_manager.completed.CompleteOrdersPanelManager
-import org.grr.screen.main.main_widget.tab_manager.processing.ProcessingOrdersPanelManager
 import org.json.JSONArray
 import java.awt.*
 import java.awt.event.ItemEvent
@@ -42,8 +41,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
 
     // UI 패널들 (각 탭별로 구분)
     val allOrdersPanel = createOrderPanel()
-    private val processingOrdersManager = ProcessingOrdersPanelManager(customTabbedPane = this) // PendingOrdersPanelManager 초기화
-    val processingOrdersPanel = processingOrdersManager.getPanel() // 패널 가져오기
+
     val completeOrdersPanelManager = CompleteOrdersPanelManager(customTabbedPane = this)
     val completedOrdersPanel = completeOrdersPanelManager.getPanel()
     val rejectedOrdersPanel = createOrderPanel()
@@ -438,11 +436,11 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     }
 
     fun addOrderToProcessing(orderFrame: JPanel, typeOrderFrame : JPanel ,order: ReceiveOrderModel) {
-        processingOrdersManager.addOrderToProcessing(orderFrame, typeOrderFrame, order)
+        processingSubTabs.addOrderToProcessing(orderFrame, typeOrderFrame, order)
     }
 
-    fun addOrderToCompleted(orderFrame: JPanel) {
-        completeOrdersPanelManager.addOrderToCompleted(orderFrame)
+    fun addOrderToCompleted(orderFrame: JPanel,order: ReceiveOrderModel) {
+        completeOrdersPanelManager.addOrderToCompleted(orderFrame,order)
     }
 
     fun addOrderToRejected(orderFrame: JPanel) {
@@ -484,7 +482,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     }
 
     fun removeOrderFromProcessing(order: ReceiveOrderModel) {
-        processingOrdersManager.removeOrderFromProcessing(order)
+        processingSubTabs.removeOrderFromProcessing(order)
     }
 
     fun updateOrderInAllOrders(order: ReceiveOrderModel ) {

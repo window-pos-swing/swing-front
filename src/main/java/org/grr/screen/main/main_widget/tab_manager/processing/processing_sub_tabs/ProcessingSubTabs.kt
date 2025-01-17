@@ -1,6 +1,8 @@
 package org.grr.screen.main.main_widget.tab_manager.processing.processing_sub_tabs
 
+import org.grr.enum.OrderReceiveType
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderController
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.style.MyColor
@@ -18,6 +20,7 @@ import javax.swing.JScrollPane
 class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
     // 서브탭별 패널
+    val processingOrdersPanel = createPanel()
     val deliveryOrdersPanel = createPanel()
     val takeoutOrdersPanel = createPanel()
 
@@ -73,7 +76,7 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
 
         // 카드 컨테이너에 각 패널 추가
-        addPanelToContainer(tabbedPane.processingOrdersPanel, "전체보기")
+        addPanelToContainer(processingOrdersPanel, "전체보기")
         addPanelToContainer(deliveryOrdersPanel, "배달")
         addPanelToContainer(takeoutOrdersPanel, "포장")
 
@@ -125,7 +128,7 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     }
 
     fun initializePanels() {
-        updatePanel(tabbedPane.processingOrdersPanel, OrderListSingleTon.orders["processingOrders"])
+        updatePanel(processingOrdersPanel, OrderListSingleTon.orders["processingOrders"])
         updatePanel(deliveryOrdersPanel, OrderListSingleTon.orders["processingDeliveryOrders"])
         updatePanel(takeoutOrdersPanel, OrderListSingleTon.orders["processingTakeOutOrders"])
     }
@@ -160,4 +163,69 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             )
         }
     }
+
+    fun addOrderToProcessing(orderFrame: JPanel, typeOrderFrame : JPanel ,order: ReceiveOrderModel) {
+        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
+        processingOrdersPanel.add(orderFrame)
+        processingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
+        processingOrdersPanel.revalidate()
+        processingOrdersPanel.repaint()
+        OrderListSingleTon.orders["processingOrders"]?.add(order)
+        tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
+        tabbedPane.updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
+        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+            OrderListSingleTon.counts["processingDeliveryOrders"] =
+                (OrderListSingleTon.counts["processingDeliveryOrders"] ?: 0) + 1
+            OrderListSingleTon.orders["processingDeliveryOrders"]?.add(order)
+        }else if(order.orderReceiveType == OrderReceiveType.TAKEOUT.name){
+            OrderListSingleTon.counts["processingTakeOutOrders"] =
+                (OrderListSingleTon.counts["processingTakeOutOrders"] ?: 0) + 1
+            OrderListSingleTon.orders["processingTakeOutOrders"]?.add(order)
+        }
+        OrderController.tabbedPane.processingSubTabs.initializePanels()
+    }
+
+    fun removeOrderFromProcessing(order: ReceiveOrderModel) {
+        val removeOrder = OrderListSingleTon.orders["processingOrders"]?.find { it.orderNumber == order.orderNumber }
+        OrderListSingleTon.orders["processingOrders"]?.remove(removeOrder)
+        val frameToRemove = processingOrdersPanel.components
+            .filterIsInstance<JPanel>()
+            .find { it.getClientProperty("orderNumber") == order.orderNumber }
+
+        frameToRemove?.let {
+            processingOrdersPanel.remove(it)
+            processingOrdersPanel.revalidate()
+            processingOrdersPanel.repaint()
+            tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
+        }
+
+        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+            val deliveryOrdersPanelRemove = deliveryOrdersPanel.components
+                .filterIsInstance<JPanel>()
+                .find { it.getClientProperty("orderNumber") == order.orderNumber }
+            val removeOrder2 = OrderListSingleTon.orders["processingDeliveryOrders"]?.find { it.orderNumber == order.orderNumber }
+            OrderListSingleTon.orders["processingDeliveryOrders"]?.remove(removeOrder2)
+            deliveryOrdersPanelRemove?.let{
+                OrderListSingleTon.counts["processingDeliveryOrders"] = (OrderListSingleTon.counts["processingDeliveryOrders"] ?: 0) - 1
+                deliveryOrdersPanel.remove(it)
+                deliveryOrdersPanel.revalidate()
+                deliveryOrdersPanel.repaint()
+            }
+
+        }else if(order.orderReceiveType == OrderReceiveType.TAKEOUT.name){
+            val takeOutOrdersPanelRemove = takeoutOrdersPanel.components
+                .filterIsInstance<JPanel>()
+                .find { it.getClientProperty("orderNumber") == order.orderNumber }
+            val removeOrder3 = OrderListSingleTon.orders["processingTakeOutOrders"]?.find { it.orderNumber == order.orderNumber }
+            OrderListSingleTon.orders["processingTakeOutOrders"]?.remove(removeOrder3)
+            takeOutOrdersPanelRemove?.let{
+                OrderListSingleTon.counts["processingTakeOutOrders"] = (OrderListSingleTon.counts["processingTakeOutOrders"] ?: 0) - 1
+                takeoutOrdersPanel.remove(it)
+                takeoutOrdersPanel.revalidate()
+                takeoutOrdersPanel.repaint()
+            }
+        }
+        updateCounts()
+    }
+
 }

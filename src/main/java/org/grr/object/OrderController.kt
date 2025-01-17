@@ -63,7 +63,7 @@ object OrderController {
     // CustomTabbedPane 클래스에 해당 주문이 이미 처리중 상태인지 확인하는 메서드 추가
     fun isOrderInProcessing(order: ReceiveOrderModel): Boolean {
         // 처리중 주문 리스트에서 해당 주문이 이미 존재하는지 확인
-        return tabbedPane.processingOrdersPanel.components
+        return tabbedPane.processingSubTabs.processingOrdersPanel.components
             .filterIsInstance<JPanel>()
             .any { it.getClientProperty("orderNumber") == order.orderNumber }
     }
@@ -74,31 +74,28 @@ object OrderController {
 
         val processingOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
         val processingTypeOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
-        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
 
         tabbedPane.addOrderToProcessing(processingOrderFrame,processingTypeOrderFrame, order)
         tabbedPane.updateOrderInAllOrders(order)
         tabbedPane.removeOrderFromPending(order)
-        if(allOrder != null){
-            tabbedPane.updateOrderInAllOrders(allOrder)
-            tabbedPane.removeOrderFromPending(allOrder)
-        }
         tabbedPane.pendingSubTabs.updateCounts()
         tabbedPane.processingSubTabs.updateCounts()
     }
 
     private fun moveOrderToCompleted(order: ReceiveOrderModel) {
         println("moveOrderToCompleted")
-        OrderListSingleTon.counts["processingOrders"] = (OrderListSingleTon.counts["processingOrders"] ?: 0) - 1
-        OrderListSingleTon.counts["completedOrders"] = (OrderListSingleTon.counts["completedOrders"] ?: 0) + 1
         val removeOrder = OrderListSingleTon.orders["processingOrders"]?.find { it.orderNumber == order.orderNumber }
         val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
         OrderListSingleTon.orders["processingOrders"]?.remove(removeOrder)
-        OrderListSingleTon.orders["completedOrders"]?.add(0,order)
         tabbedPane.updateOrderInAllOrders(order)
+        if (allOrder != null) {
+            tabbedPane.updateOrderInAllOrders(allOrder)
+        }
         tabbedPane.removeOrderFromProcessing(order)
         val completedOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
-        tabbedPane.addOrderToCompleted(completedOrderFrame)
+        tabbedPane.addOrderToCompleted(completedOrderFrame, order)
+        tabbedPane.updateTabTitle(3, "접수완료", OrderListSingleTon.counts["completedOrders"] ?: 0)
+        tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
     }
 
     private fun moveOrderToReject(order: ReceiveOrderModel) {
@@ -119,6 +116,7 @@ object OrderController {
                 }
                 tabbedPane.removeOrderFromPending(order)
                 tabbedPane.addOrderToRejected(rejectedOrderFrame)
+                tabbedPane.pendingSubTabs.updateCounts()
             }
 
             IN_PROGRESS -> {
@@ -131,10 +129,15 @@ object OrderController {
                 }
                 tabbedPane.removeOrderFromProcessing(order)
                 tabbedPane.addOrderToRejected(rejectedOrderFrame)
+                tabbedPane.processingSubTabs.updateCounts()
+                tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
             }
 
             else -> println("Unhandled state for rejection: ${rejectedState.rejectPanel}")
         }
+
+
+
     }
 
     private fun updateOrderUIInAllOrders(order: ReceiveOrderModel) {

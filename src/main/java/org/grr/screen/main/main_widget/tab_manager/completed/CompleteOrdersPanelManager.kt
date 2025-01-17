@@ -1,7 +1,10 @@
 package org.grr.screen.main.main_widget.tab_manager.completed
 
+import org.grr.enum.OrderReceiveType
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderController
+import org.grr.`object`.OrderController.tabbedPane
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import java.awt.Dimension
@@ -31,13 +34,24 @@ class CompleteOrdersPanelManager(
         }
     }
 
-    fun addOrderToCompleted(orderFrame: JPanel) {
+    fun addOrderToCompleted(orderFrame: JPanel,order: ReceiveOrderModel) {
         completedOrdersPanel.add(orderFrame)
         completedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
         completedOrdersPanel.revalidate()
         completedOrdersPanel.repaint()
-        customTabbedPane.updateTabTitle(3, "접수완료", OrderListSingleTon.counts["completedOrders"] ?: 0)
-        customTabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
+
+        OrderListSingleTon.orders["completedOrders"]?.add(0,order)
+        OrderListSingleTon.counts["completedOrders"] = ( OrderListSingleTon.counts["completedOrders"] ?:0) + 1
+        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+            OrderListSingleTon.orders["completedDeliveryOrders"]?.add(0,order)
+            OrderListSingleTon.counts["completedDeliveryOrders"] = ( OrderListSingleTon.counts["completedDeliveryOrders"] ?:0) + 1
+        }else if(order.orderReceiveType == OrderReceiveType.TAKEOUT.name){
+            OrderListSingleTon.orders["completedTakeOutOrders"]?.add(0,order)
+            OrderListSingleTon.counts["completedTakeOutOrders"] = ( OrderListSingleTon.counts["completedTakeOutOrders"] ?:0) + 1
+        }
+        customTabbedPane.completedSubTabs.initializePanels()
+        customTabbedPane.completedSubTabs.updateCounts()
+
     }
 
 }

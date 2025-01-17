@@ -161,8 +161,6 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     }
 
     //TODO [ADD]
-
-
     fun addOrderToPending(orderFrame: JPanel, typeOrderFrame : JPanel ,order: ReceiveOrderModel) {
         pendingOrdersPanel.add(orderFrame)
         pendingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
@@ -174,10 +172,14 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }else if(order.orderReceiveType == OrderReceiveType.TAKEOUT.name){
             takeoutOrdersPanel.add(typeOrderFrame)
         }
+        initializePanels()
+        updateCounts()
     }
 
     //TODO [REMOVE]
     fun removeOrderFromPending(order: ReceiveOrderModel) {
+        val removeOrder = OrderListSingleTon.orders["pendingOrders"]?.find { it.orderNumber == order.orderNumber }
+        OrderListSingleTon.orders["pendingOrders"]?.remove(removeOrder)
 
         val frameToRemove = pendingOrdersPanel.components
             .filterIsInstance<JPanel>()
@@ -191,6 +193,9 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
 
         if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+            OrderListSingleTon.counts["pendingDeliveryOrders"] = (OrderListSingleTon.counts["pendingDeliveryOrders"] ?: 0) - 1
+            val removeOrder2 = OrderListSingleTon.orders["pendingDeliveryOrders"]?.find { it.orderNumber == order.orderNumber }
+            OrderListSingleTon.orders["pendingDeliveryOrders"]?.remove(removeOrder2)
             val deliveryOrdersPanelRemove = deliveryOrdersPanel.components
                 .filterIsInstance<JPanel>()
                 .find { it.getClientProperty("orderNumber") == order.orderNumber }
@@ -202,6 +207,9 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
             }
 
         }else if(order.orderReceiveType == OrderReceiveType.TAKEOUT.name){
+            OrderListSingleTon.counts["pendingTakeOutOrders"] = (OrderListSingleTon.counts["pendingTakeOutOrders"] ?: 0) - 1
+            val removeOrder3 = OrderListSingleTon.orders["pendingTakeOutOrders"]?.find { it.orderNumber == order.orderNumber }
+            OrderListSingleTon.orders["pendingTakeOutOrders"]?.remove(removeOrder3)
             val takeOutOrdersPanelRemove = takeoutOrdersPanel.components
                 .filterIsInstance<JPanel>()
                 .find { it.getClientProperty("orderNumber") == order.orderNumber }

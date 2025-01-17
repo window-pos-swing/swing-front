@@ -25,8 +25,19 @@ class CompletedOrderCommand(
             JOptionPane.showMessageDialog(null, "주문접수 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
             return
         }
+        OrderListSingleTon.counts["processingOrders"] = (OrderListSingleTon.counts["processingOrders"] ?: 0) - 1
+        val processingOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+        if (processingOrder != null) {
+            OrderListSingleTon.orders["processingOrders"]?.remove(processingOrder)
+            if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) {
+                OrderListSingleTon.orders["processingDeliveryOrders"]?.remove(processingOrder)
+            } else if (order.orderReceiveType == OrderReceiveType.TAKEOUT.name) {
+                OrderListSingleTon.orders["processingTakeOutOrders"]?.remove(processingOrder)
+            }
+        }
+
         order.changeState(CompletedState())
-        val allOrder = OrderListSingleTon.findOrderByNumber("pendingOrders", order.orderNumber)
+        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
         allOrder?.changeState(CompletedState())
         println("[주문] #${order.orderNumber} 주문완료 상태로 변경")
     }
