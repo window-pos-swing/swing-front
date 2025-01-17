@@ -36,6 +36,16 @@ class CompletedOrderCommand(
             }
         }
 
+        OrderListSingleTon.orders["completedOrders"]?.add(0,order)
+        OrderListSingleTon.counts["completedOrders"] = ( OrderListSingleTon.counts["completedOrders"] ?:0) + 1
+        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+            OrderListSingleTon.orders["completedDeliveryOrders"]?.add(0,order)
+            OrderListSingleTon.counts["completedDeliveryOrders"] = ( OrderListSingleTon.counts["completedDeliveryOrders"] ?:0) + 1
+        }else if(order.orderReceiveType == OrderReceiveType.TAKEOUT.name){
+            OrderListSingleTon.orders["completedTakeOutOrders"]?.add(0,order)
+            OrderListSingleTon.counts["completedTakeOutOrders"] = ( OrderListSingleTon.counts["completedTakeOutOrders"] ?:0) + 1
+        }
+
         order.changeState(CompletedState())
         val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
         allOrder?.changeState(CompletedState())

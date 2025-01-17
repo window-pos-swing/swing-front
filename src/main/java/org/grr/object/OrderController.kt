@@ -85,8 +85,9 @@ object OrderController {
     private fun moveOrderToCompleted(order: ReceiveOrderModel) {
         println("moveOrderToCompleted")
         val removeOrder = OrderListSingleTon.orders["processingOrders"]?.find { it.orderNumber == order.orderNumber }
-        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
         OrderListSingleTon.orders["processingOrders"]?.remove(removeOrder)
+        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
+
         tabbedPane.updateOrderInAllOrders(order)
         if (allOrder != null) {
             tabbedPane.updateOrderInAllOrders(allOrder)

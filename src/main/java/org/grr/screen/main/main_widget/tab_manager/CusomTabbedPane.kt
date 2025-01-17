@@ -4,7 +4,6 @@ import CustomToggleButton
 import RoundedProgressBar
 import org.grr.api.OrderAPI
 import org.grr.api.SettingToServer
-import org.grr.command.RejectedReasonType
 import org.grr.enum.BusinessStatus
 import org.grr.enum.OrderReceiveType
 import org.grr.model.OrderFilter
@@ -17,13 +16,12 @@ import org.grr.screen.main.main_widget.dialog.PauseOperations.PauseOperationsDia
 import org.grr.screen.main.main_widget.tab_manager.completed.completed_sub_tabs.CompletedSubTabs
 import org.grr.screen.main.main_widget.tab_manager.pending.pandding_sub_tabs.PendingSubTabs
 import org.grr.screen.main.main_widget.tab_manager.processing.processing_sub_tabs.ProcessingSubTabs
-import org.grr.screen.main.main_widget.tab_manager.rejected_sub_tabs.RejectedSubTabs
 import org.grr.style.MyColor
 import org.grr.util.LoadImage
 import org.grr.util.MyFont
 import org.grr.`object`.OverlayManager
 import org.grr.screen.main.main_widget.order_states_ui.*
-import org.grr.screen.main.main_widget.tab_manager.completed.CompleteOrdersPanelManager
+import org.grr.screen.main.main_widget.tab_manager.rejected.rejected_sub_tabs.RejectedSubTabs
 import org.json.JSONArray
 import java.awt.*
 import java.awt.event.ItemEvent
@@ -37,15 +35,9 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     private var selectedTabName: String = ""
     var isHandling = false // 이벤트 중복 처리를 막기 위한 플래그
 
-    var rejectedSubTabsState = ""
-
     // UI 패널들 (각 탭별로 구분)
     val allOrdersPanel = createOrderPanel()
-
-    val completeOrdersPanelManager = CompleteOrdersPanelManager(customTabbedPane = this)
-    val completedOrdersPanel = completeOrdersPanelManager.getPanel()
-    val rejectedOrdersPanel = createOrderPanel()
-     fun createOrderPanel(): JPanel {
+    fun createOrderPanel(): JPanel {
         return JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
@@ -56,7 +48,6 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     var processingSubTabs: ProcessingSubTabs = ProcessingSubTabs(this)
     var completedSubTabs: CompletedSubTabs = CompletedSubTabs(this)
     var rejectedSubTabs: RejectedSubTabs = RejectedSubTabs(this)
-
 
     init {
         layout = BorderLayout()
@@ -101,7 +92,9 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
         updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
         updateTabTitle(3, "접수완료", OrderListSingleTon.counts["completedOrders"] ?: 0)
-        updateTabTitle(4, "주문거절", OrderListSingleTon.counts["rejectStoreOrders"] ?: 0)
+        updateTabTitle(4, "주문거절", (
+                OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + (OrderListSingleTon.counts["rejectUserOrders"] ?: 0) + (OrderListSingleTon.counts["rejectRefundOrders"] ?: 0)
+        )
 
         // 하단 운영시간 패널 추가
         val operationPanel = JPanel().apply {
@@ -332,7 +325,6 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
 
         }else if(tabName == "주문거절"){
             rejectedSubTabs.selectButton(rejectedSubTabs.storeRejectButton)
-            filterRejectedOrders()
             cardPanel!!.add(rejectedSubTabs, "주문거절 하위탭")
             cardLayout.show(cardPanel, "주문거절 하위탭")
 
@@ -392,40 +384,6 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         }
     }
 
-    // TODO [filter]
-
-    fun filterRejectedOrders(rejectType: RejectedReasonType? = null) {
-        // rejectedSubTabsState 값을 업데이트
-        rejectedSubTabsState = rejectType?.name ?: ""  // null이면 전체보기 상태로 설정
-
-        rejectedOrdersPanel.removeAll()  // 기존 패널 비우기
-
-        // 주문 타입에 따른 필터링: rejectType이 null이면 전체보기, 아니면 해당 거절 타입으로 필터링
-        val filteredOrders = if (rejectType == null) {
-            OrderListSingleTon.orders["rejectStoreOrders"]?.filter { it.state is RejectedState }  // 전체 거절 주문
-        } else {
-            OrderListSingleTon.orders["rejectStoreOrders"]?.filter { it.state is RejectedState && (it.state as RejectedState).rejectType == rejectType }
-        }
-
-        // 필터링된 주문을 패널에 추가
-        filteredOrders?.forEach { order ->
-            val orderFrame = createOrderFrame(order)
-            orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
-            rejectedOrdersPanel.add(orderFrame)
-            rejectedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
-        }
-
-        // 패널을 갱신
-        rejectedOrdersPanel.revalidate()
-        rejectedOrdersPanel.repaint()
-
-        // 탭 타이틀 업데이트
-        updateTabTitle(4, "주문거절", OrderListSingleTon.counts["rejectStoreOrders"] ?: 0)
-    }
-
-
-    //=================================================================================
-
 
     // TODO [ADD]
     fun addOrderToPending(orderFrame: JPanel, typeOrderFrame: JPanel,order: ReceiveOrderModel) {
@@ -437,16 +395,11 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     }
 
     fun addOrderToCompleted(orderFrame: JPanel,order: ReceiveOrderModel) {
-        completeOrdersPanelManager.addOrderToCompleted(orderFrame,order)
+        completedSubTabs.addOrderToCompleted(orderFrame,order)
     }
 
     fun addOrderToRejected(orderFrame: JPanel) {
-        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
-        rejectedOrdersPanel.add(orderFrame)
-        rejectedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
-        rejectedOrdersPanel.revalidate()
-        rejectedOrdersPanel.repaint()
-        updateTabTitle(4, "주문거절", OrderListSingleTon.counts["rejectStoreOrders"] ?: 0)
+        rejectedSubTabs.addOrderToRejected(orderFrame)
     }
 
     fun addOrderToAllOrders(orderFrame: JPanel, isInit: Boolean) {
@@ -487,13 +440,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         val frameToUpdate = allOrdersPanel.components
             .filterIsInstance<BaseOrderPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }
-//        allOrdersPanel.components.forEach { component ->
-//            if (component is JPanel) {
-//                println("Component: ${component.javaClass.simpleName}, orderNumber: ${component.getClientProperty("orderNumber")}")
-//            } else {
-//                println("Component is not JPanel: ${component.javaClass.simpleName}")
-//            }
-//        }
+
         //조건부 테두리 설정
         if (order.state is PendingState || order.state is CompletedState || order.state is RejectedState ) {
             frameToUpdate?.border = BorderFactory.createCompoundBorder()
