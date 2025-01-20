@@ -73,11 +73,23 @@ class AcceptOrderCommand(
             OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) - 1
             // 주문 타입별 카운트 업데이트
 
-            val  allOrder=  OrderListSingleTon.orders["allOrders"]?.find { it.orderNumber == order.orderNumber }
-            if(allOrder != null) {
-                allOrder.changeState(ProcessingState(cookTime + deliveryTime, parent, cardPanel))
-                orderController.onOrderStateChanged(allOrder)
+            var targetOrder=  OrderListSingleTon.orders["allOrders"]?.find { it.orderNumber == order.orderNumber }
+            // 다른 컬렉션에서 검색
+            if (targetOrder == null) {
+                targetOrder = OrderListSingleTon.orders["pendingOrders"]?.find { it.orderNumber == order.orderNumber }
+                targetOrder = targetOrder ?: OrderListSingleTon.orders["pendingDeliveryOrders"]?.find { it.orderNumber == order.orderNumber }
+                targetOrder = targetOrder ?: OrderListSingleTon.orders["pendingTakeOutOrders"]?.find { it.orderNumber == order.orderNumber }
             }
+
+            // 주문이 없으면 로그 출력 후 종료
+            if (targetOrder == null) {
+                println("Error: Order not found in any collection. OrderNumber: ${order.orderNumber}")
+                return@invokeLater
+            }
+
+            // 상태 업데이트
+            targetOrder.changeState(ProcessingState(cookTime + deliveryTime, parent, cardPanel))
+            orderController.onOrderStateChanged(targetOrder)
 
             println("===========================================================================")
             println("[AcceptOrderCommand] #${order.orderNumber} 접수처리중으로 상태 변경 with total time: ${cookTime + deliveryTime} minutes")

@@ -79,7 +79,7 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         // 카드 컨테이너에 각 패널 추가
         addPanelToContainer(pendingOrdersPanel, "전체보기", panelType = "pendingOrders")
         addPanelToContainer(deliveryOrdersPanel, "배달", panelType = "pendingDeliveryOrders")
-        addPanelToContainer(takeoutOrdersPanel, "포장", panelType = "pendingTakeoutOrders")
+        addPanelToContainer(takeoutOrdersPanel, "포장", panelType = "pendingTakeOutOrders")
 
         // 서브탭 초기화
         add(buttonPanel, BorderLayout.NORTH)
@@ -111,9 +111,9 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
         cardContainer.add(pendingScrollPane, tabName)
         var filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING)
-        if (panelType == "completedDeliveryOrders") {
+        if (panelType == "pendingDeliveryOrders") {
             filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.DELIVERY)
-        } else if (panelType == "completedTakeOutOrders") {
+        } else if (panelType == "pendingTakeOutOrders") {
             filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.TAKEOUT)
         }
         ScrollPaginationHandler(
@@ -200,18 +200,18 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
     //TODO [ADD]
     fun addOrderToPending(orderFrame: JPanel, typeOrderFrame: JPanel, order: ReceiveOrderModel) {
-
-        pendingOrdersPanel.add(orderFrame)
-        pendingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
+        pendingOrdersPanel.add(orderFrame,0)
+        pendingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)),1)
         pendingOrdersPanel.revalidate()
         pendingOrdersPanel.repaint()
         tabbedPane.updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
         if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) {
-            deliveryOrdersPanel.add(typeOrderFrame)
+            deliveryOrdersPanel.add(typeOrderFrame,0)
+            deliveryOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)),1)
         } else if (order.orderReceiveType == OrderReceiveType.TAKEOUT.name) {
-            takeoutOrdersPanel.add(typeOrderFrame)
+            takeoutOrdersPanel.add(typeOrderFrame,0)
+            takeoutOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)),1)
         }
-        initializePanels()
         updateCounts()
     }
 

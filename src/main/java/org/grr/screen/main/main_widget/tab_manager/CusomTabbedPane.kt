@@ -214,21 +214,12 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                 JSONArray(result.second).let { ReceiveOrderModel.fromJsonArray(it, parentFrame, cardPanel) }
             },
             initializeOrders = { newOrders ->
-                // 기존 패널의 주문 번호 추출
-                val existingOrderNumbers = allOrdersPanel.components
-                    .filterIsInstance<JPanel>()
-                    .mapNotNull { it.getClientProperty("orderNumber") as? String }
-                    .toSet()
-
-                // 새로 들어온 데이터 중 기존에 없는 주문만 필터링
-                val uniqueNewOrders = newOrders.filter { it.orderNumber !in existingOrderNumbers }
-                initializeOrders(uniqueNewOrders)
+                initializeOrders(OrderListSingleTon.orders["allOrders"]!!)
                 // 디버깅 출력
-                println("Added new orders to allOrdersPanel: ${uniqueNewOrders.map { it.orderNumber }}")
+                println("Added new orders to allOrdersPanel: ${newOrders.map { it.orderNumber }}")
             },
             getPageNumber = { OrderListSingleTon.pageNumbers["allOrders"] ?: 0 },
         )
-
 
         cardPanel.add(allOrdersScrollPane, "전체보기")
         // 접수대기 탭에 PendingSubTabs 추가

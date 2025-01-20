@@ -14,7 +14,8 @@ import javax.swing.JPanel
 
 // 주문 데이터 싱글톤 관리
 object OrderListSingleTon {
-    val PAGE_SIZE: Int = 5
+    val PAGE_SIZE: Int = 3
+    val MAX_PAGE_REQUESTS: Int = 1000
 
     // 데이터 상태
     val orders = mutableMapOf<String, MutableList<ReceiveOrderModel>>()
@@ -88,12 +89,47 @@ object OrderListSingleTon {
 
             // 키 결정
             val key = determineKey(filter)
+            println("[key] : $key")
 
             // 기존 주문 리스트에서 주문 번호 추출
             val existingOrderNumbers = orders[key]?.map { it.orderNumber } ?: emptyList()
 
             // 중복 제거
             val uniqueOrders = newOrders.filter { it.orderNumber !in existingOrderNumbers }
+            // 데이터 추가 여부 확인
+            if (uniqueOrders.isEmpty() && pageNumbers[key] != 0 ) {
+                println("[$key] No unique orders found.")
+
+                // 현재 로드된 데이터와 서버 총 데이터 비교
+                val currentLoadedCount = orders[key]?.size ?: 0
+                if (currentLoadedCount >= totalElements) {
+                    println("[$key] 모든 데이터 가져옴")
+                    pageNumbers[key] = -1 // 페이지 번호를 -1로 설정하여 요청 중단
+                    return
+                }
+
+                // 다음 페이지 요청
+                val nextPage = (pageNumbers[key] ?: 0) + 1
+                // 최대 요청 횟수 제한
+                if (nextPage > MAX_PAGE_REQUESTS) {
+                    println("[$key] 요청 제한 초과 - 무한 루프 방지")
+                    pageNumbers[key] = -1
+                    return
+                }
+                pageNumbers[key] = nextPage // 페이지 번호 업데이트
+                println("[$key] 중복체크 비었음  서버 데이터 있음 다음 페이지 요청 : $nextPage")
+                OrderAPI().fetchOrders(parentFrame, cardPanel, filter, nextPage)
+                return
+            }
+
+            // 옵저버 등록
+            uniqueOrders.forEach { order ->
+                order.addStateObserver(object : OrderObserver {
+                    override fun update(updatedOrder: ReceiveOrderModel) {
+                        handleOrderStateChange(updatedOrder)
+                    }
+                })
+            }
 
             // 주문 추가
             orders[key]?.addAll(uniqueOrders)
@@ -102,8 +138,8 @@ object OrderListSingleTon {
             counts[key] = totalElements
             pageNumbers[key] = if (newOrders.size < PAGE_SIZE) -1 else (pageNumbers[key] ?: 0) + 1
 
-            println("[addAllOrder] ${key} pageNumber: ${pageNumbers[key]}")
-            println("[addAllOrder] Added unique orders: ${uniqueOrders.map { it.orderNumber }}")
+            println("[$key]  pageNumber: ${pageNumbers[key]}")
+            println("[$key]  Added unique orders: ${uniqueOrders.map { it.orderNumber }}")
             // 전체 orderId 순회하여 프린트
             val allOrderIds = orders[key]?.map { it.orderNumber } ?: emptyList()
             println("[addAllOrder] Current ${key} orders: $allOrderIds")

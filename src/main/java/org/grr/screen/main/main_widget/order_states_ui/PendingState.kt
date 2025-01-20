@@ -130,9 +130,6 @@ class PendingState(
             addActionListener {
                 //delivery & takeOut
                 //어떤 다이얼로그를 띄워줘야할까 판별하는 부분
-                println("order.orderReceiveType : ${order.orderReceiveType}")
-                println("[PendingState] order.parentFrame : ${order.parentFrame}")
-                println("[PendingState] order.cardPanel : ${order.cardPanel}")
                 statusOfDialog(order.orderReceiveType , overlayManager, order)
             }
         }

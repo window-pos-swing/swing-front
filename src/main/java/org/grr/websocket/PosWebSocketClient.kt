@@ -44,7 +44,7 @@ class PosWebSocketClient(
             }
 
             // 싱글톤에 추가
-//            synchronized(OrderListSingleTon.orders) {
+           synchronized(OrderListSingleTon.orders) {
                 OrderListSingleTon.orders[key]?.add(0, orderData) // 리스트 맨 앞에 추가
                 OrderListSingleTon.counts[key] = (OrderListSingleTon.counts[key] ?: 0) + 1
                 OrderListSingleTon.counts["allOrders"] = (OrderListSingleTon.counts["allOrders"] ?: 0) + 1
@@ -52,7 +52,7 @@ class PosWebSocketClient(
                 OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) + 1
                 OrderListSingleTon.orders["pendingOrders"]?.add(0, orderData)
                 // OrderController에 추가
-//            }
+            }
             OrderController.addNewOrder(orderData)
         } catch (e: Exception) {
             e.printStackTrace()

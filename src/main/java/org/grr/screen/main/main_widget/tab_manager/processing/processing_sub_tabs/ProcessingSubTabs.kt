@@ -115,10 +115,10 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
         cardContainer.add(processScrollPane, tabName)
 
-        var filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING)
-        if(panelType == "completedDeliveryOrders"){
+        var filter = OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS)
+        if(panelType == "processingDeliveryOrders"){
             filter = OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS, orderReceiveType = OrderReceiveType.DELIVERY)
-        }else if(panelType == "completedTakeOutOrders"){
+        }else if(panelType == "processingTakeOutOrders"){
             filter = OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS , orderReceiveType = OrderReceiveType.TAKEOUT)
         }
         ScrollPaginationHandler(
@@ -195,23 +195,27 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
     fun addOrderToProcessing(orderFrame: JPanel, typeOrderFrame : JPanel ,order: ReceiveOrderModel) {
         orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
-        processingOrdersPanel.add(orderFrame)
-        processingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
+        processingOrdersPanel.add(orderFrame,0)
+        processingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)),1)
         processingOrdersPanel.revalidate()
         processingOrdersPanel.repaint()
-        OrderListSingleTon.orders["processingOrders"]?.add(order)
+        OrderListSingleTon.orders["processingOrders"]?.add(0,order)
         tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
         tabbedPane.updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
         if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
             OrderListSingleTon.counts["processingDeliveryOrders"] =
                 (OrderListSingleTon.counts["processingDeliveryOrders"] ?: 0) + 1
-            OrderListSingleTon.orders["processingDeliveryOrders"]?.add(order)
+            OrderListSingleTon.orders["processingDeliveryOrders"]?.add(0,order)
+            deliveryOrdersPanel.add(typeOrderFrame,0)
+            deliveryOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)),1)
         }else if(order.orderReceiveType == OrderReceiveType.TAKEOUT.name){
             OrderListSingleTon.counts["processingTakeOutOrders"] =
                 (OrderListSingleTon.counts["processingTakeOutOrders"] ?: 0) + 1
-            OrderListSingleTon.orders["processingTakeOutOrders"]?.add(order)
+            OrderListSingleTon.orders["processingTakeOutOrders"]?.add(0,order)
+            takeoutOrdersPanel.add(typeOrderFrame,0)
+            takeoutOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)),1)
         }
-        OrderController.tabbedPane.processingSubTabs.initializePanels()
+//        initializePanels()
     }
 
     fun removeOrderFromProcessing(order: ReceiveOrderModel) {

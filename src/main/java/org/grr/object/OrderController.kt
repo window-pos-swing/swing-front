@@ -154,6 +154,7 @@ object OrderController {
     }
 
     fun initializeOrders(orders: List<ReceiveOrderModel>) {
+        tabbedPane.allOrdersPanel.removeAll()
         orders.forEach { order ->
             val forProcessing =
                 if (order.posOrderStatusType == ServerOrderStatus.COOKING.name || order.posOrderStatusType == ServerOrderStatus.ACCEPT.name) true else false
