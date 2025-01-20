@@ -5,7 +5,9 @@ import org.grr.`object`.OrderController
 import kotlinx.coroutines.*
 import org.grr.api.OrderAPI
 import org.grr.enum.OrderReceiveType
+import org.grr.enum.PosOrderStatus
 import org.grr.enum.ServerOrderStatus
+import org.grr.model.OrderFilter
 import org.grr.model.OrderState
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderController.tabbedPane
@@ -63,12 +65,31 @@ class AcceptOrderCommand(
         return true
     }
 
+    private fun fetchAdditionalOrdersIfNeeded(orderKey: String, filter: OrderFilter) {
+        val remainingCount = OrderListSingleTon.orders[orderKey]?.size ?: 0
+        val totalCount = OrderListSingleTon.counts[orderKey] ?: 0
+
+        // 남은 데이터가 PAGE_SIZE보다 작으면 페이징 요청
+        if (remainingCount < OrderListSingleTon.PAGE_SIZE && totalCount > remainingCount) {
+            val currentPage = OrderListSingleTon.pageNumbers[orderKey] ?: 0
+            val newPageNumber = if (currentPage > 0) currentPage - 1 else currentPage
+            OrderListSingleTon.pageNumbers[orderKey] = newPageNumber
+            println("[$orderKey] 요청할 페이지 번호: $newPageNumber")
+
+            // 16:35, 16: 28, 16: 27, 16: 21, 16: 13, 15: 24
+            CoroutineScope(Dispatchers.IO).launch {
+                // 1초 딜레이 추가
+                val result = OrderAPI().fetchOrders(parent, cardPanel, filter, newPageNumber)
+                if (!result.first) {
+                    println("[$orderKey] 페이징 데이터 요청 실패: ${result.second}")
+                }
+            }
+        }
+    }
 
     private fun updateOrderStateToProcessing(deliveryTime: Int, cookTime: Int, orderReceiveType: String) {
         // 상태 변경 및 컨트롤러 업데이트
         SwingUtilities.invokeLater {
-            println("OrderListSingleTon.processingOrdersCount++")
-            println("OrderListSingleTon.pendingOrdersCount--")
             OrderListSingleTon.counts["processingOrders"] = (OrderListSingleTon.counts["processingOrders"] ?: 0) + 1
             OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) - 1
             // 주문 타입별 카운트 업데이트
@@ -83,7 +104,7 @@ class AcceptOrderCommand(
 
             // 주문이 없으면 로그 출력 후 종료
             if (targetOrder == null) {
-                println("Error: Order not found in any collection. OrderNumber: ${order.orderNumber}")
+                println("@@@ Error: Order not found in any collection. OrderNumber: ${order.orderNumber}")
                 return@invokeLater
             }
 
@@ -96,6 +117,16 @@ class AcceptOrderCommand(
             println("[CookTime] $cookTime")
             println("[DeliveryTime] $deliveryTime")
             println("===========================================================================")
+
+            fetchAdditionalOrdersIfNeeded("pendingOrders", OrderFilter(posOrderStatus = PosOrderStatus.WAITING))
+            fetchAdditionalOrdersIfNeeded(
+                "pendingDeliveryOrders",
+                OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.DELIVERY)
+            )
+            fetchAdditionalOrdersIfNeeded(
+                "pendingTakeOutOrders",
+                OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.TAKEOUT)
+            )
         }
     }
 
