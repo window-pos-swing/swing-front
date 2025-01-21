@@ -2,6 +2,7 @@ package org.grr.screen.select_store;
 
 import com.privatejgoodies.forms.layout.CellConstraints.Alignment
 import org.grr.screen.main.MainForm
+import org.grr.screen.select_store.widgets.SelectStoreConfirmationDialog
 import org.grr.style.MyColor
 import org.grr.util.LoadImage.loadImage
 import org.grr.util.MyFont
@@ -77,7 +78,7 @@ class SelectStoreForm(storeData: List<Pair<String, String>>) : JFrame() {
                 add(JLabel(storeName).apply {
                     foreground = Color.WHITE
                     font = MyFont.Bold(35f)
-                    alignmentX = Component.LEFT_ALIGNMENT // 왼쪽 정렬
+                    alignmentX = LEFT_ALIGNMENT // 왼쪽 정렬
                 })
 
                 // 주소와 아이콘을 포함한 패널
@@ -100,10 +101,10 @@ class SelectStoreForm(storeData: List<Pair<String, String>>) : JFrame() {
                         font = MyFont.Bold(21f)
                     }, BorderLayout.CENTER) // 주소를 가운데 확장
                 }
-                addressPanel.alignmentX = Component.LEFT_ALIGNMENT // 왼쪽 정렬
+                addressPanel.alignmentX = LEFT_ALIGNMENT // 왼쪽 정렬
                 add(addressPanel) // 주소 패널 추가
             }
-            infoPanel.alignmentX = Component.LEFT_ALIGNMENT // 전체 패널 왼쪽 정렬
+            infoPanel.alignmentX = LEFT_ALIGNMENT // 전체 패널 왼쪽 정렬
 
             // 영업 시작 버튼
             val buttonPanel = JPanel().apply {
@@ -124,6 +125,18 @@ class SelectStoreForm(storeData: List<Pair<String, String>>) : JFrame() {
                     buttonSize = Dimension(250, 60)
                 ).apply {
                     preferredSize = Dimension(250, 60)
+                    addActionListener{
+                        SelectStoreConfirmationDialog(
+                            parent = this@SelectStoreForm,
+                            storeName = storeName,
+                            title = "영업 상점 선택",
+                            callback = { value ->
+                                if(value){
+
+                                }
+                            }
+                        )
+                    }
                 })
             }
 
@@ -138,7 +151,7 @@ class SelectStoreForm(storeData: List<Pair<String, String>>) : JFrame() {
 fun main() {
     // 가데이터: 상점 이름과 주소
     val storeData = listOf(
-        "상점1" to "대전광역시 유성구 어쩌구동 어쩌구로 301-102",
+        "햄버거 싸다싸 김치찜 싸다싸 둔산점" to "대전광역시 유성구 어쩌구동 어쩌구로 301-102",
         "상점2" to "대전광역시 유성구 다른구동 다른구로 123-456",
         "상점3" to "대전광역시 중구 어떤구동 어떤길 789-000",
         "상점4" to "서울특별시 강남구 테헤란로 456",
