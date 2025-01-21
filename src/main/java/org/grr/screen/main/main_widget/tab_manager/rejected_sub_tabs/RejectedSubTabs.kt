@@ -110,6 +110,7 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
 
         ScrollPaginationHandler(
+            orderStatus = "rejectStoreOrders",
             scrollPane = rejectedScrollPane,
             panel = panel,
             fetchOrders = { pageNumber ->

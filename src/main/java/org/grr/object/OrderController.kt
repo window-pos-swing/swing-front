@@ -1,15 +1,23 @@
 package org.grr.`object`
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.grr.api.OrderAPI
 import org.grr.enum.OrderReceiveType
+import org.grr.enum.PosOrderStatus
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.enum.PosOrderStatus.*
 import org.grr.enum.ServerOrderStatus
+import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
 import org.grr.observer.OrderObserver
 import org.grr.screen.main.main_widget.order_states_ui.CompletedState
 import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
 import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import javax.swing.JPanel
+import javax.swing.SwingUtilities
 
 object OrderController {
     lateinit var tabbedPane: CustomTabbedPane
@@ -133,12 +141,9 @@ object OrderController {
                 tabbedPane.processingSubTabs.updateCounts()
                 tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
             }
-
             else -> println("Unhandled state for rejection: ${rejectedState.rejectPanel}")
+
         }
-
-
-
     }
 
     private fun updateOrderUIInAllOrders(order: ReceiveOrderModel) {

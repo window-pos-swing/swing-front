@@ -111,12 +111,16 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
         cardContainer.add(pendingScrollPane, tabName)
         var filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING)
+        var orderStatus = "pendingOrders"
         if (panelType == "pendingDeliveryOrders") {
             filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.DELIVERY)
+            orderStatus = "pendingDeliveryOrders"
         } else if (panelType == "pendingTakeOutOrders") {
             filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.TAKEOUT)
+            orderStatus = "pendingTakeOutOrders"
         }
         ScrollPaginationHandler(
+            orderStatus = orderStatus,
             scrollPane = pendingScrollPane,
             panel = panel,
             fetchOrders = { pageNumber ->

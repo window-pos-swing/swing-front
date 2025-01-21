@@ -29,6 +29,19 @@ class AcceptOrderCommand(
     private val cookTime: Int = 0,
 ) : Command {
     override fun execute() {
+        if(OrderListSingleTon.pageNumbers["pendingOrders"]!! > 0){
+            OrderListSingleTon.pageNumbers["pendingOrders"] = (OrderListSingleTon.pageNumbers["pendingOrders"] ?: 0) - 1
+        }
+        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+            if(OrderListSingleTon.pageNumbers["pendingDeliveryOrders"]!! > 0){
+                OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] ?: 0) - 1
+            }
+        }else{
+            if(OrderListSingleTon.pageNumbers["pendingTakeOutOrders"]!! > 0 ){
+                OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] ?: 0) - 1
+            }
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
             // 배달포장 상태에 따라 시간 설정
             val deliveryTime = if (takeType == "takeOut") 0 else order.deliveryTime
@@ -65,27 +78,6 @@ class AcceptOrderCommand(
         return true
     }
 
-    private fun fetchAdditionalOrdersIfNeeded(orderKey: String, filter: OrderFilter) {
-        val remainingCount = OrderListSingleTon.orders[orderKey]?.size ?: 0
-        val totalCount = OrderListSingleTon.counts[orderKey] ?: 0
-
-        // 남은 데이터가 PAGE_SIZE보다 작으면 페이징 요청
-        if (remainingCount < OrderListSingleTon.PAGE_SIZE && totalCount > remainingCount) {
-            val currentPage = OrderListSingleTon.pageNumbers[orderKey] ?: 0
-            val newPageNumber = if (currentPage > 0) currentPage - 1 else currentPage
-            OrderListSingleTon.pageNumbers[orderKey] = newPageNumber
-            println("[$orderKey] 요청할 페이지 번호: $newPageNumber")
-
-            // 16:35, 16: 28, 16: 27, 16: 21, 16: 13, 15: 24
-            CoroutineScope(Dispatchers.IO).launch {
-                // 1초 딜레이 추가
-                val result = OrderAPI().fetchOrders(parent, cardPanel, filter, newPageNumber)
-                if (!result.first) {
-                    println("[$orderKey] 페이징 데이터 요청 실패: ${result.second}")
-                }
-            }
-        }
-    }
 
     private fun updateOrderStateToProcessing(deliveryTime: Int, cookTime: Int, orderReceiveType: String) {
         // 상태 변경 및 컨트롤러 업데이트
@@ -118,15 +110,6 @@ class AcceptOrderCommand(
             println("[DeliveryTime] $deliveryTime")
             println("===========================================================================")
 
-            fetchAdditionalOrdersIfNeeded("pendingOrders", OrderFilter(posOrderStatus = PosOrderStatus.WAITING))
-            fetchAdditionalOrdersIfNeeded(
-                "pendingDeliveryOrders",
-                OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.DELIVERY)
-            )
-            fetchAdditionalOrdersIfNeeded(
-                "pendingTakeOutOrders",
-                OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.TAKEOUT)
-            )
         }
     }
 

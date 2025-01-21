@@ -15,7 +15,7 @@ import javax.swing.JPanel
 // 주문 데이터 싱글톤 관리
 object OrderListSingleTon {
     val PAGE_SIZE: Int = 3
-    val MAX_PAGE_REQUESTS: Int = 1000
+    val MAX_PAGE_REQUESTS: Int = 100
 
     // 데이터 상태
     val orders = mutableMapOf<String, MutableList<ReceiveOrderModel>>()

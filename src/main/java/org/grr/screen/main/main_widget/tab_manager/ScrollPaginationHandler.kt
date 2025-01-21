@@ -2,17 +2,18 @@ package org.grr.screen.main.main_widget.tab_manager
 
 import kotlinx.coroutines.*
 import org.grr.model.ReceiveOrderModel
-import org.grr.`object`.OrderListSingleTon
 import javax.swing.*
 
 class ScrollPaginationHandler(
+    private val orderStatus : String,
     private val scrollPane: JScrollPane,
     private val panel: JPanel,
     private val fetchOrders: suspend (Int) -> List<ReceiveOrderModel>,
     private val initializeOrders: (List<ReceiveOrderModel>) -> Unit,
     private val getPageNumber: () -> Int,
 ) {
-    private var isAdjustingUI = false // UI 업데이트 중 플래그
+    var isAdjustingUI = false // UI 업데이트 중 플래그
+    var isOrderStatusChange = false;
 
     init {
         setupMouseWheelListener()
@@ -28,9 +29,10 @@ class ScrollPaginationHandler(
     }
 
     private fun setupAdjustmentListener() {
+
         scrollPane.verticalScrollBar.addAdjustmentListener { event ->
             val scrollBar = event.source as JScrollBar
-
+            if (isOrderStatusChange) return@addAdjustmentListener
             // 사용자가 스크롤바를 움직이는 중이면 무시
             if (event.valueIsAdjusting) return@addAdjustmentListener
 
@@ -41,7 +43,7 @@ class ScrollPaginationHandler(
             val atBottom = currentScrollPosition >= currentMaxHeight
 
             if (atBottom && getPageNumber() != -1) {
-                println("페이지네이션 실행")
+                println("[${orderStatus}] 페이지네이션 실행")
                 println("[Current Page]: ${getPageNumber()}")
 
                 isAdjustingUI = true

@@ -9,7 +9,6 @@ import org.grr.enum.OrderReceiveType
 import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
 import org.grr.model.SettingModel
-import org.grr.`object`.OrderController
 import org.grr.`object`.OrderController.initializeOrders
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.dialog.OrderDetailDialog
@@ -207,6 +206,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
             border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
         }
         ScrollPaginationHandler(
+            orderStatus = "allOrders",
             scrollPane = allOrdersScrollPane,
             panel = allOrdersPanel,
             fetchOrders = { pageNumber ->

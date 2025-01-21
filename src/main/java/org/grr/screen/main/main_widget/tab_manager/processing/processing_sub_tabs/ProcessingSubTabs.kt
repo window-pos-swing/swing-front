@@ -43,6 +43,8 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     // 카드 컨테이너
     private val cardContainer = JPanel(cardLayout)
 
+    lateinit var scrollPaginationHandler : ScrollPaginationHandler
+
     init {
         layout = BorderLayout()
         background = Color.WHITE
@@ -116,12 +118,16 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         cardContainer.add(processScrollPane, tabName)
 
         var filter = OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS)
+        var orderStatus = "processingOrders"
         if(panelType == "processingDeliveryOrders"){
             filter = OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS, orderReceiveType = OrderReceiveType.DELIVERY)
+            orderStatus = "processingDeliveryOrders"
         }else if(panelType == "processingTakeOutOrders"){
             filter = OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS , orderReceiveType = OrderReceiveType.TAKEOUT)
+            orderStatus = "processingTakeOutOrders"
         }
-        ScrollPaginationHandler(
+        scrollPaginationHandler = ScrollPaginationHandler(
+            orderStatus = orderStatus,
             scrollPane = processScrollPane,
             panel = panel,
             fetchOrders = { pageNumber ->

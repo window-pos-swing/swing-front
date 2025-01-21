@@ -6,7 +6,6 @@ import org.grr.enum.OrderReceiveType
 import org.grr.enum.PosOrderStatus
 import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
-import org.grr.`object`.OrderController
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.screen.main.main_widget.tab_manager.ScrollPaginationHandler
@@ -103,12 +102,16 @@ class CompletedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         cardContainer.add(completedScrollPane, tabName)
 
         var filter = OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED)
+        var orderState = "completedOrder"
         if(panelType == "completedDeliveryOrders"){
             filter = OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED, orderReceiveType = OrderReceiveType.DELIVERY)
+            orderState = "completedDeliveryOrders"
         }else if(panelType == "completedTakeOutOrders"){
             filter = OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED , orderReceiveType = OrderReceiveType.TAKEOUT)
+            orderState = "completedTakeOutOrders"
         }
         ScrollPaginationHandler(
+            orderStatus = orderState,
             scrollPane = completedScrollPane,
             panel = panel,
             fetchOrders = { pageNumber ->
