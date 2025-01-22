@@ -52,6 +52,7 @@ object Storage {
             val email = jsonObject.optString("email", null)
             val token = jsonObject.optString("password", null)
             val autoLogin = jsonObject.optBoolean("autoCheck", false)
+            val storeCode = jsonObject.optString("storeCode", null)
             return Triple(email, token, autoLogin)
         }
         return Triple(null, null, false) // 기본값 반환
