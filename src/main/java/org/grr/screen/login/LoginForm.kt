@@ -35,9 +35,9 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         // JFrame의 레이아웃을 명시적으로 BorderLayout으로 설정
         layout = BorderLayout()
 
-         /*
-            저장된 로그인 정보 확인 및 자동로그인 기능
-         */
+        /*
+           저장된 로그인 정보 확인 및 자동로그인 기능
+        */
         val (savedEmail, savedPassword, autoCheck) = Storage.getLoginInfo()
         if (autoCheck) {
             // 저장된 아이디를 입력란에 표시
