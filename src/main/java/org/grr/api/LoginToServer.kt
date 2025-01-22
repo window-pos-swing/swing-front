@@ -22,7 +22,7 @@ class LoginToServer {
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v0/store-member/login")
+            .url("${Api.BASE_URL}/api/v0/pos-store-member/login")
             .post(requestBody)
             .build()
         try {
@@ -44,7 +44,7 @@ class LoginToServer {
                             println("[jsonResponse]: $jsonResponse");
                             JOptionPane.showMessageDialog(null, jsonResponse["resultMessage"], "오류", JOptionPane.ERROR_MESSAGE)
                         }
-                        val accessToken = jsonResponse.getJSONObject("data").getString("authorization")
+                        val accessToken = jsonResponse.getJSONObject("data").getString("accessToken")
                         Pair(true, accessToken)
                     }
                 } else {
