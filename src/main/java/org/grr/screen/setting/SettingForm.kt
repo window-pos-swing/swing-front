@@ -76,7 +76,14 @@ class SettingForm : JFrame() {
                 addActionListener { cardLayout.show(contentPanel, "DeliveryIntegration") }
             }
             val posSettingsButton = createTabButton("POS기 설정", contentPanel, cardLayout, "POSSettings").apply {
-                addActionListener { cardLayout.show(contentPanel, "POSSettings") }
+                addActionListener {
+                    try {
+                        // CardLayout을 사용하여 "품절 관리" 화면으로 전환
+                        cardLayout.show(contentPanel, "POSSettings")
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             }
 
             // 버튼을 탭바에 추가
@@ -98,16 +105,6 @@ class SettingForm : JFrame() {
             }, BorderLayout.CENTER)
         }
 
-        val posSettingsPanel = JPanel().apply {
-            layout = BorderLayout()
-            background = MyColor.DARK_NAVY
-            add(JLabel("POS기 설정 화면").apply {
-                font = MyFont.Bold(28f)
-                foreground = Color.WHITE
-                horizontalAlignment = SwingConstants.CENTER
-            }, BorderLayout.CENTER)
-        }
-
         // CardLayout에 각 패널 추가
         val storeSettingsPanel = CenterPanelForm()
         contentPanel.add(storeSettingsPanel, "StoreSettings")
@@ -117,6 +114,8 @@ class SettingForm : JFrame() {
         contentPanel.add(soldOutManagementPanel, "SoldOutManagement")
 
         contentPanel.add(deliveryIntegrationPanel, "DeliveryIntegration")
+
+        val posSettingsPanel = BottomPanelForm()
         contentPanel.add(posSettingsPanel, "POSSettings")
 
         settingsPanel.add(contentPanel)

@@ -40,9 +40,9 @@ class CenterPanelForm : JPanel() {
         val roundedPanel = RoundedPanel(30, 30).apply {
             layout = GridBagLayout()
             background = MyColor.LOGIN_TITLEBAR // 둥근 패널 배경색
-            preferredSize = Dimension(1380, 460)
-            maximumSize = Dimension(Int.MAX_VALUE, 460)  // 최대 크기도 설정
-            border = BorderFactory.createEmptyBorder(0, 20, 0, 20) // 내부 여백 설정
+            preferredSize = Dimension(1380, 480)
+            maximumSize = Dimension(Int.MAX_VALUE, 480)  // 최대 크기도 설정
+            border = BorderFactory.createEmptyBorder(5, 20, 5, 20) // 내부 여백 설정
         }
 
         val gbc = GridBagConstraints().apply {
@@ -64,7 +64,7 @@ class CenterPanelForm : JPanel() {
         gbc.gridwidth = 1
         gbc.weightx = 0.01
         gbc.insets = Insets(15, 10, 15, 0)
-        roundedPanel.add(createSeparator(SwingConstants.VERTICAL, 1, 170), gbc)
+        roundedPanel.add(createSeparator(SwingConstants.VERTICAL, 1, 150), gbc)
 
         // 배달 방법 및 배달 예정 시간 패널 배치
         gbc.gridx = 2  // 두 번째 열
@@ -120,12 +120,7 @@ class CenterPanelForm : JPanel() {
         gbc.insets = Insets(5, 10, 0, 10)
         roundedPanel.add(HolidayPanel(), gbc)
 
-        // 빈 공간 추가: 상단 고정을 위해 아래쪽에 빈 패널을 추가하여 남은 공간을 차지하게 함
-        gbc.gridy = 4
-        gbc.weighty = 1.0  // 빈 공간이 남은 공간을 차지하도록 설정
-        roundedPanel.add(JPanel().apply { isOpaque = false }, gbc)  // 빈 패널 추가
-
-        add(roundedPanel, BorderLayout.CENTER)
+        add(roundedPanel, BorderLayout.NORTH)
     }
 
     private fun createSeparator(orientation: Int, width: Int, height: Int): JSeparator {

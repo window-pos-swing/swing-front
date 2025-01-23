@@ -17,9 +17,9 @@ object SettingModel {
     var deliveryTimeControl: Boolean = false // 배달 시간 (자동여부)
     var breakTime: String = "" // 브레이크 타임
     var operateTime: String = ""
-    var regularHoliday : String = ""
-    var temporaryHoliday : String = ""
-    var businessStatus : BusinessStatus = BusinessStatus.END
+    var regularHoliday: String = ""
+    var temporaryHoliday: String = ""
+    var businessStatus: BusinessStatus = BusinessStatus.END
 
     val storeInfo = Storage.getStoreInfo()
 
@@ -76,18 +76,18 @@ object SettingModel {
 
         myBreakTime?.let {
             // TimeManager 초기화
-            TimeManager.initialize(it,true)
+            TimeManager.initialize(it, true)
 
             // 포맷된 데이터를 가져옴
             val formattedBreakTime = TimeManager.getFormattedBreakTimes()
             breakTime = formattedBreakTime;
-            }
+        }
         println("[브레이크 타임 로컬 정보 로드]")
         println(breakTime)
     }
 
     // 브레이크 타임 정보 업데이트
-    fun saveBreakTime(breakTimeJson : JSONObject) {
+    fun saveBreakTime(breakTimeJson: JSONObject) {
         val updatedMemberInfo = storeInfo ?: JSONObject()
         val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
 
@@ -107,7 +107,6 @@ object SettingModel {
     //운영시간 정보 초기화
     fun loadOperateTime() {
         val myOperateTime = storeInfo
-            ?.optJSONObject("setting")
             ?.optJSONObject("businessHour")
 
         myOperateTime?.let {
@@ -141,7 +140,6 @@ object SettingModel {
 
     fun loadHoliday() {
         val holidayListJsonArray = storeInfo
-            ?.optJSONObject("setting")
             ?.optJSONArray("holidayList")
 
         if (holidayListJsonArray != null) {
@@ -157,7 +155,6 @@ object SettingModel {
             // 주간 휴무와 임시 휴무를 조건에 맞게 설정
             regularHoliday = regular.ifBlank { "등록된 주간 휴무가 없습니다." }
             temporaryHoliday = temporary.ifBlank { "등록된 임시 휴무가 없습니다." }
-
 
             println("[주간 휴무일] $regularHoliday")
             println("[임시 휴무일] $temporaryHoliday")
@@ -196,7 +193,11 @@ object SettingModel {
 
     }
 
-    fun savePauseTime(_businessStatus: BusinessStatus, startTime: LocalDateTime? = null, endTime: LocalDateTime? = null) {
+    fun savePauseTime(
+        _businessStatus: BusinessStatus,
+        startTime: LocalDateTime? = null,
+        endTime: LocalDateTime? = null
+    ) {
         val updatedMemberInfo = storeInfo ?: JSONObject()
         val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
         businessStatus = _businessStatus
@@ -212,7 +213,7 @@ object SettingModel {
                 put(startTime.minute)
             }
             settings.put("businessPauseStartTime", startTimeArray)
-        }else{
+        } else {
             val today = LocalDate.now()
             val defaultTime = LocalTime.MIDNIGHT
             settings.put("businessPauseStartTime", JSONArray().apply {
@@ -235,7 +236,7 @@ object SettingModel {
                 put(endTime.minute)
             }
             settings.put("businessPauseEndTime", endTimeArray)
-        }else{
+        } else {
             val today = LocalDate.now()
             val defaultTime = LocalTime.MIDNIGHT
             settings.put("businessPauseEndTime", JSONArray().apply {
@@ -255,6 +256,4 @@ object SettingModel {
         println("Start Time: ${settings.optJSONArray("businessPauseStartTime")}")
         println("End Time: ${settings.optJSONArray("businessPauseEndTime")}")
     }
-
-
 }

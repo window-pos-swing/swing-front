@@ -117,7 +117,7 @@ class SoldOutManagementDialog: JPanel() {
             rowHeight = 60
             background = MyColor.DARK_NAVY
             foreground = Color.WHITE
-            font = MyFont.SemiBold(20f)
+            font = MyFont.Bold(22f)
             columnModel.getColumn(1).cellEditor = null // "메뉴 그룹"
             columnModel.getColumn(2).cellEditor = null // "메뉴 이름"
 //            columnModel.getColumn(2).cellRenderer = object : DefaultTableCellRenderer() {

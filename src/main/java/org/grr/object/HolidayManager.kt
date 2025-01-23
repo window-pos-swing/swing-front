@@ -49,20 +49,12 @@ object HolidayManager {
                     val specificDates = holiday.optJSONArray("specificDates")
                     if (specificDates != null && specificDates.length() >= 2) {
                         // 첫 번째 날짜
-                        val startDate = specificDates.getJSONObject(0)
-                        val startYear = startDate.getInt("year")
-                        val startMonth = startDate.getInt("month")
-                        val startDay = startDate.getInt("day")
+                        val startDate = specificDates.optString(0) // 문자열로 가져옴
+                        val endDate = specificDates.optString(1)  // 문자열로 가져옴
 
-                        // 마지막 날짜
-                        val endDate = specificDates.getJSONObject(1)
-                        val endYear = endDate.getInt("year")
-                        val endMonth = endDate.getInt("month")
-                        val endDay = endDate.getInt("day")
-
-                        specificHolidays.add(
-                            "${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일"
-                        )
+                        if (startDate.isNotEmpty() && endDate.isNotEmpty()) {
+                            specificHolidays.add("$startDate ~ $endDate")
+                        }
                     }
                 }
             }
@@ -135,8 +127,8 @@ object HolidayManager {
             holidayList.put(JSONObject().apply {
                 put("holidayType", "SPECIFIC_DATE")
                 put("specificDates", JSONArray().apply {
-                    put(JSONObject(mapOf("year" to startDate.split("-")[0].toInt(), "month" to startDate.split("-")[1].toInt(), "day" to startDate.split("-")[2].toInt())))
-                    put(JSONObject(mapOf("year" to endDate.split("-")[0].toInt(), "month" to endDate.split("-")[1].toInt(), "day" to endDate.split("-")[2].toInt())))
+                    put(startDate)
+                    put(endDate)
                 })
             })
         }

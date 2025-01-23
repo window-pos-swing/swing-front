@@ -6,6 +6,7 @@ import org.grr.screen.setting.bottomPanel.soundControlPanel.SoundControl
 import org.grr.screen.setting.centerPanel.RoundedPanel
 import org.grr.style.MyColor
 import java.awt.*
+import javax.swing.BorderFactory
 import javax.swing.JPanel
 import javax.swing.JSeparator
 import javax.swing.SwingConstants
@@ -27,19 +28,24 @@ open class RoundedPanel(private val radius: Int) : JPanel() {
     }
 }
 
-class BottomPanelForm : RoundedPanel(30) {
+class BottomPanelForm : JPanel() {
     init {
-        layout = GridBagLayout()
-        background = MyColor.LOGIN_TITLEBAR
-        preferredSize = Dimension(1380, 205)
-        maximumSize = Dimension(Int.MAX_VALUE, 205)  // 최대 크기도 설정
+        layout = BorderLayout()
+        background = MyColor.DARK_NAVY
+        border = BorderFactory.createEmptyBorder(20, 0, 0, 0)
 
+        // 둥근 패널 생성
+        val roundedPanel = org.grr.widgets.RoundedPanel(30, 30).apply {
+            layout = GridBagLayout()
+            background = MyColor.LOGIN_TITLEBAR // 둥근 패널 배경색
+            preferredSize = Dimension(1380, 220)
+            maximumSize = Dimension(Int.MAX_VALUE, 220)  // 최대 크기도 설정
+            border = BorderFactory.createEmptyBorder(5, 20, 5, 20) // 내부 여백 설정
+        }
 
         val gbc = GridBagConstraints().apply {
-            gridy = 0
-            gridheight = 1
             fill = GridBagConstraints.BOTH
-            insets = Insets(0, 10, 0, 10)  // 여백 설정
+            anchor = GridBagConstraints.NORTH  // 컴포넌트를 상단에 고정
         }
 
         // Software - 왼쪽
@@ -47,7 +53,7 @@ class BottomPanelForm : RoundedPanel(30) {
         gbc.gridwidth = 1
         gbc.weightx = 0.49  // Software와 SoundControl이 같은 비율로 공간 차지
         gbc.weighty = 0.0  // 높이 비율
-        add(Software().apply {
+        roundedPanel.add(Software().apply {
             preferredSize = Dimension(0, 0)  // 내부 컴포넌트가 너비를 강제로 설정하지 않게
         }, gbc)
 
@@ -57,7 +63,7 @@ class BottomPanelForm : RoundedPanel(30) {
         gbc.weightx = 0.02  // 최소한의 공간 차지
         gbc.weighty = 0.0  // 높이 비율
         gbc.insets = Insets(15, 10, 5, 10)
-        add(createSeparator(SwingConstants.VERTICAL, 1, 80), gbc)
+        roundedPanel.add(createSeparator(SwingConstants.VERTICAL, 1, 80), gbc)
 
         // SoundControl - 오른쪽
         gbc.gridx = 2
@@ -65,7 +71,7 @@ class BottomPanelForm : RoundedPanel(30) {
         gbc.weightx = 0.49  // Software와 동일한 비율로 공간 차지
         gbc.weighty = 0.0  // 높이 비율
         gbc.insets = Insets(0, 10, 0, 10)
-        add(SoundControl().apply {
+        roundedPanel.add(SoundControl().apply {
             preferredSize = Dimension(0, 0)  // 내부 컴포넌트가 너비를 강제로 설정하지 않게
         }, gbc)
 
@@ -75,7 +81,7 @@ class BottomPanelForm : RoundedPanel(30) {
         gbc.gridwidth = 3  // 전체 너비 차지
         gbc.weightx = 1.0
         gbc.weighty = 1.0  // 높이 비율
-        add(createSeparator(SwingConstants.HORIZONTAL, 1440, 1), gbc)
+        roundedPanel.add(createSeparator(SwingConstants.HORIZONTAL, 1440, 1), gbc)
 
 //        프린트 출력 설정
         gbc.gridy = 2
@@ -83,7 +89,9 @@ class BottomPanelForm : RoundedPanel(30) {
         gbc.weightx = 1.0
         gbc.weighty = 1.0  // 높이 비율
         gbc.insets = Insets(0, 10, 10, 10)  // 여백 설정
-        add(Print(), gbc)
+        roundedPanel.add(Print(), gbc)
+
+        add(roundedPanel, BorderLayout.NORTH)
     }
 
     private fun createSeparator(orientation: Int, width: Int, height: Int): JSeparator {

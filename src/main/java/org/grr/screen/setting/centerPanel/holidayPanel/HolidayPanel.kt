@@ -20,7 +20,7 @@ class HolidayPanel : JPanel() {
             gridy = 0
             weightx = 1.0
             fill = GridBagConstraints.HORIZONTAL
-            insets = Insets(15, 10, 15, 20)  // 여백 설정
+            insets = Insets(0, 10, 0, 20)  // 여백 설정
         }
 
         val panel = JPanel().apply {
@@ -62,9 +62,11 @@ class HolidayPanel : JPanel() {
         gbc.weighty = 1.0  // 수직으로도 공간 차지
         gbc.fill = GridBagConstraints.BOTH  // 가로 세로 공간을 모두 차지하도록
         holidayLabel = JLabel(SettingModel.regularHoliday + " " +SettingModel.temporaryHoliday).apply {
-            font = MyFont.Bold(18f)
+            font = MyFont.Bold(22f)
             foreground = Color.PINK
             horizontalAlignment = SwingConstants.CENTER
+            preferredSize = Dimension(700, preferredSize.height) // 최대 넓이 700 설정
+            maximumSize = Dimension(700, Int.MAX_VALUE)          // 최대 넓이 700 설정
         }
         add(holidayLabel, gbc)
 
