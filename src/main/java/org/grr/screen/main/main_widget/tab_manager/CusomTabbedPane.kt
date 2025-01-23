@@ -120,7 +120,6 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
             maximumSize = Dimension(120, 40)
             minimumSize = Dimension(120,40)
             alignmentX = CENTER_ALIGNMENT
-
         }
 
         // 커스텀 토글 버튼 생성 및 추가

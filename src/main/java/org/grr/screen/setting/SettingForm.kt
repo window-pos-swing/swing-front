@@ -4,6 +4,7 @@ import SoldOutManagementDialog
 import com.sun.java.accessibility.util.AWTEventMonitor.addActionListener
 import org.grr.screen.setting.bottomPanel.BottomPanelForm
 import org.grr.screen.setting.centerPanel.CenterPanelForm
+import org.grr.screen.setting.deliveryIntegration.DeliveryPanelForm
 import org.grr.screen.setting.headerPanel.HeaderPanelForm
 import org.grr.style.MyColor
 import org.grr.util.MyFont
@@ -73,7 +74,14 @@ class SettingForm : JFrame() {
                 }
             }
             val deliveryButton = createTabButton("배달대행 연동", contentPanel, cardLayout, "DeliveryIntegration").apply {
-                addActionListener { cardLayout.show(contentPanel, "DeliveryIntegration") }
+                addActionListener {
+                    try {
+                        // CardLayout을 사용하여 "품절 관리" 화면으로 전환
+                        cardLayout.show(contentPanel, "DeliveryIntegration")
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             }
             val posSettingsButton = createTabButton("POS기 설정", contentPanel, cardLayout, "POSSettings").apply {
                 addActionListener {
@@ -95,16 +103,6 @@ class SettingForm : JFrame() {
 
         settingsPanel.add(tabBarPanel)
 
-        val deliveryIntegrationPanel = JPanel().apply {
-            layout = BorderLayout()
-            background = MyColor.DARK_NAVY
-            add(JLabel("배달대행 연동 화면").apply {
-                font = MyFont.Bold(28f)
-                foreground = Color.WHITE
-                horizontalAlignment = SwingConstants.CENTER
-            }, BorderLayout.CENTER)
-        }
-
         // CardLayout에 각 패널 추가
         val storeSettingsPanel = CenterPanelForm()
         contentPanel.add(storeSettingsPanel, "StoreSettings")
@@ -113,79 +111,13 @@ class SettingForm : JFrame() {
         val soldOutManagementPanel = SoldOutManagementDialog() // SoldOutManagementDialog 내용을 JPanel로 변경한 클래스
         contentPanel.add(soldOutManagementPanel, "SoldOutManagement")
 
+        val deliveryIntegrationPanel = DeliveryPanelForm()
         contentPanel.add(deliveryIntegrationPanel, "DeliveryIntegration")
 
         val posSettingsPanel = BottomPanelForm()
         contentPanel.add(posSettingsPanel, "POSSettings")
 
         settingsPanel.add(contentPanel)
-
-//        // 경계선과 "가게 기본 설정" 텍스트를 추가하는 패널 생성
-//        val separatorPanel = JPanel().apply {
-//            layout = BorderLayout() // BorderLayout을 사용하여 왼쪽과 오른쪽 정렬
-//            background = MyColor.DARK_NAVY
-//
-//            // "가게 기본 설정" 텍스트 (왼쪽 정렬)
-//            val label = JLabel("가게 기본 설정").apply {
-//                font = MyFont.Bold(28f)
-//                foreground = Color.WHITE
-//                border = BorderFactory.createEmptyBorder(10, 0, 10, 20) // 텍스트 여백 추가
-//            }
-//            add(label, BorderLayout.WEST) // 왼쪽에 배치
-//
-//            // "품절 관리" 버튼 (오른쪽 정렬)
-//            val buttonPanel = JPanel(FlowLayout(FlowLayout.RIGHT)).apply {
-//                background = MyColor.DARK_NAVY // 패널 배경색 설정
-//                add(FillRoundedLabel(
-//                    text = "품절 관리",
-//                    borderColor = MyColor.LIGHT_BLUE,
-//                    backgroundColor = MyColor.LIGHT_BLUE,
-//                    textColor = Color.WHITE,
-//                    borderRadius = 30,
-//                    borderWidth = 2,
-//                    textAlignment = SwingConstants.CENTER,
-//                    padding = Insets(5, 20, 5, 20) // 패딩 설정
-//                ).apply {
-//                    font = MyFont.Bold(22f)
-//                    preferredSize = Dimension(200, 50) // 버튼 크기 설정
-//                    maximumSize = Dimension(200, 50)
-//                    // 클릭 이벤트 처리
-//                })
-//            }
-//            add(buttonPanel, BorderLayout.EAST) // 버튼 패널을 오른쪽에 배치
-//            preferredSize = Dimension(1440, 65) // 패널 크기 설정
-//            maximumSize = Dimension(Int.MAX_VALUE, 65)
-//        }
-//
-//        // 경계선과 텍스트가 포함된 패널 추가
-//        settingsPanel.add(separatorPanel)
-//
-//        settingsPanel.add(CenterPanelForm())
-//
-//        // 경계선과 "가게 기본 설정" 텍스트를 추가하는 패널 생성
-//        val separatorPanel2 = JPanel().apply {
-//            layout = BoxLayout(this, BoxLayout.Y_AXIS)
-//
-//            // "가게 기본 설정" 텍스트 추가 패널 (왼쪽 정렬을 위해 FlowLayout 사용)
-//            val labelPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
-//                background = MyColor.DARK_NAVY
-//                preferredSize = Dimension(1440, 65)
-//                maximumSize = Dimension(Int.MAX_VALUE, 65)
-//                add(JLabel("POS기 설정").apply {
-//                    font = MyFont.Bold(28f)
-//                    foreground = Color.WHITE  // 텍스트 색상 설정
-//                    border = BorderFactory.createEmptyBorder(10, 0, 10, 0)  // 텍스트 위아래 여백
-//
-//                })
-//            }
-//
-//            // 경계선과 텍스트 패널을 추가
-//            add(labelPanel)
-//        }
-
-//        settingsPanel.add(separatorPanel2)
-
-//        settingsPanel.add(BottomPanelForm())
 
         add(settingsPanel, BorderLayout.CENTER)
 

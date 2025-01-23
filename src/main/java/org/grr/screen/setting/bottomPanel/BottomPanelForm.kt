@@ -3,30 +3,12 @@ package org.grr.screen.setting.bottomPanel
 import org.grr.screen.setting.bottomPanel.SoftwarePanel.Software
 import org.grr.screen.setting.bottomPanel.printPanel.Print
 import org.grr.screen.setting.bottomPanel.soundControlPanel.SoundControl
-import org.grr.screen.setting.centerPanel.RoundedPanel
 import org.grr.style.MyColor
 import java.awt.*
 import javax.swing.BorderFactory
 import javax.swing.JPanel
 import javax.swing.JSeparator
 import javax.swing.SwingConstants
-
-open class RoundedPanel(private val radius: Int) : JPanel() {
-    init {
-        isOpaque = false  // 투명 배경 설정
-    }
-
-    override fun paintComponent(g: Graphics) {
-        val g2 = g as Graphics2D
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)  // 안티앨리어싱 설정
-
-        // 배경색을 가져와서 그리기
-        g2.color = background
-        g2.fillRoundRect(0, 0, width - 1, height - 1, radius, radius)  // 모서리를 둥글게 그리기
-
-        super.paintComponent(g)
-    }
-}
 
 class BottomPanelForm : JPanel() {
     init {

@@ -39,13 +39,48 @@ class PauseOperationsDialog(
         isModal = true
 
         // 콤보박스 초기화
-        hourComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("-시", "1시", "2시", "3시", "4시", "5시", "6시", "7시", "8시", "9시", "10시", "11시", "12시"))).apply {
+        hourComboBox = RoundedComboBox(
+            DefaultComboBoxModel(
+                arrayOf(
+                    "-시",
+                    "1시",
+                    "2시",
+                    "3시",
+                    "4시",
+                    "5시",
+                    "6시",
+                    "7시",
+                    "8시",
+                    "9시",
+                    "10시",
+                    "11시",
+                    "12시"
+                )
+            )
+        ).apply {
             preferredSize = Dimension(90, 40)
             font = MyFont.Bold(20f)
         }
 
         // '분' 콤보박스 초기화 (전역 변수 사용)
-        minuteComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("0분", "5분", "10분", "15분", "20분", "25분", "30분", "35분", "40분", "45분", "50분", "55분"))).apply {
+        minuteComboBox = RoundedComboBox(
+            DefaultComboBoxModel(
+                arrayOf(
+                    "0분",
+                    "5분",
+                    "10분",
+                    "15분",
+                    "20분",
+                    "25분",
+                    "30분",
+                    "35분",
+                    "40분",
+                    "45분",
+                    "50분",
+                    "55분"
+                )
+            )
+        ).apply {
             preferredSize = Dimension(90, 40)
             font = MyFont.Bold(20f)
         }
@@ -255,14 +290,17 @@ class PauseOperationsDialog(
                 is JLabel -> {
                     component.foreground = textColor // JLabel의 텍스트 색상 변경
                 }
+
                 is JButton -> {
                     component.background = backgroundColor // JButton의 배경색 변경
                     component.foreground = textColor // JButton의 텍스트 색상 변경
                 }
+
                 is JComboBox<*> -> {
 //                    component.background = backgroundColor // JComboBox의 배경색 변경
 //                    component.foreground = MyColor.GREY600 // JComboBox의 텍스트 색상 변경
                 }
+
                 is JPanel -> {
                     component.background = Color(217, 217, 217) // JPanel의 배경색 변경
                     updateComponentColors(component, textColor, backgroundColor) // 재귀적으로 자식 컴포넌트들에 대해 색상 변경 적용
@@ -351,11 +389,46 @@ class PauseOperationsDialog(
         }
 
         // 드롭다운 메뉴
-        hourComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("-시", "1시", "2시", "3시", "4시", "5시", "6시", "7시", "8시", "9시", "10시", "11시", "12시"))).apply {
+        hourComboBox = RoundedComboBox(
+            DefaultComboBoxModel(
+                arrayOf(
+                    "-시",
+                    "1시",
+                    "2시",
+                    "3시",
+                    "4시",
+                    "5시",
+                    "6시",
+                    "7시",
+                    "8시",
+                    "9시",
+                    "10시",
+                    "11시",
+                    "12시"
+                )
+            )
+        ).apply {
             preferredSize = Dimension(150, 60)  // 드롭다운 크기 줄이기
             font = MyFont.Bold(20f)
         }
-        minuteComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("0분", "5분", "10분", "15분", "20분", "25분", "30분", "35분", "40분", "45분", "50분", "55분"))).apply {
+        minuteComboBox = RoundedComboBox(
+            DefaultComboBoxModel(
+                arrayOf(
+                    "0분",
+                    "5분",
+                    "10분",
+                    "15분",
+                    "20분",
+                    "25분",
+                    "30분",
+                    "35분",
+                    "40분",
+                    "45분",
+                    "50분",
+                    "55분"
+                )
+            )
+        ).apply {
             preferredSize = Dimension(150, 60)
             font = MyFont.Bold(20f)
         }
@@ -443,7 +516,11 @@ class PauseOperationsDialog(
     }
 
     // 30분단위 선택 패널 생성 함수
-    private fun createTimeSelectionPanel(titleText: String, subtitleText: String, isoperatePauseFirst: Boolean): JPanel {
+    private fun createTimeSelectionPanel(
+        titleText: String,
+        subtitleText: String,
+        isoperatePauseFirst: Boolean
+    ): JPanel {
         // 시간 값 결정 (조리 시간/배달 시간)
         val timeValue = if (isoperatePauseFirst) operatePauseFirst else operatePauseSecond
 
@@ -540,6 +617,6 @@ class PauseOperationsDialog(
         // 라벨 업데이트
         timeLabel.text = "${newTime}분"
     }
-    
+
 
 }
