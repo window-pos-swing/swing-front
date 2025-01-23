@@ -72,7 +72,6 @@ object SettingModel {
     // 브레이크 타임 정보 초기화
     fun loadBreakTime() {
         val myBreakTime = storeInfo
-            ?.optJSONObject("setting")
             ?.optJSONObject("breakTime")
 
         myBreakTime?.let {
