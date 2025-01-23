@@ -33,9 +33,8 @@ class MainCustomTitlebar(private val parentFrame: JFrame) : JPanel() {
 
         // 커스텀 바 높이 설정
         preferredSize = Dimension(parentFrame.width, 70)
-        val memberInfo = Storage.getMemberInfo()
-
-        val storeName = memberInfo?.optString("storeName", "점주님") ?: "점주님"
+        val storeInfo = Storage.getStoreInfo()
+        val storeName = storeInfo?.optString("storeName", "점주님") ?: "점주님"
         // 왼쪽 패널: "000사장님" 텍스트 추가
         val nameLabel = JLabel("${storeName} 점주님").apply {
             font = MyFont.Bold(24f)

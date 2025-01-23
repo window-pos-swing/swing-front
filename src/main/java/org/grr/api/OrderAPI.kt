@@ -24,7 +24,7 @@ class OrderAPI : BaseAPI() {
         val posOrderStatusParam = filter.posOrderStatus?.name?.let { "&orderStatus=$it" } ?: ""
         val orderReceiveTypeParam = filter.orderReceiveType?.name?.let { "&orderReceiveType=$it" } ?: ""
         val url =
-            "${Api.BASE_URL}/api/v1/orders/list?pageNumber=${pageNumber}&pageSize=${OrderListSingleTon.PAGE_SIZE}$serverOrderStatusParam$posOrderStatusParam$orderReceiveTypeParam"
+            "${Api.BASE_URL}/api/v1/pos-order/list?pageNumber=${pageNumber}&pageSize=${OrderListSingleTon.PAGE_SIZE}$serverOrderStatusParam$posOrderStatusParam$orderReceiveTypeParam"
 
         val orderList = sendGetRequest(
             url,

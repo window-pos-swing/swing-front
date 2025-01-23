@@ -16,7 +16,7 @@ class SettingToServer : BaseAPI() {
         val requestBody = JSONObject()
             .put("estimatedArrivalTime", estimatedDeliveryTime)
             .put("estimatedArrivalTimeControl", estimatedDeliveryTimeControl)
-        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/delivery-update", requestBody, accessToken)
+        return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/delivery-update", requestBody, accessToken)
     }
 
     fun cookingTimeToServer(estimatedCookingTimeControl: Boolean, estimatedCookingTime: Int): Pair<Boolean, String> {
@@ -24,7 +24,7 @@ class SettingToServer : BaseAPI() {
         val requestBody = JSONObject()
             .put("estimatedCookingTime", estimatedCookingTime)
             .put("estimatedCookingTimeControl", estimatedCookingTimeControl)
-        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/cooking-update", requestBody, accessToken)
+        return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/cooking-update", requestBody, accessToken)
     }
 
     fun updateBreakTimeToServer(breakTimeJson : JSONObject): Pair<Boolean, String> {
@@ -35,7 +35,7 @@ class SettingToServer : BaseAPI() {
             remove("id")
         }
         println("[서버로 전송 Body] ${filteredData2.toString(2)}")
-        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/break-time-update", filteredData2, accessToken)
+        return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/break-time-update", filteredData2, accessToken)
     }
 
     fun updateBusinessHourToServer(operatorTimeJson : JSONObject): Pair<Boolean, String> {
@@ -46,13 +46,13 @@ class SettingToServer : BaseAPI() {
             remove("id")
         }
         println("[서버로 전송 Body] ${filteredData2.toString(2)}")
-        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/business-hour-update", filteredData2, accessToken)
+        return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/business-hour-update", filteredData2, accessToken)
     }
 
     fun updateHolidayToServer(holidayJson : JSONArray): Pair<Boolean, String> {
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         println("[서버로 전송 Body] ${holidayJson.toString(2)}")
-        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/holiday-update", holidayJson, accessToken)
+        return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/holiday-update", holidayJson, accessToken)
     }
 
     fun businessStatusToServer(
@@ -107,9 +107,6 @@ class SettingToServer : BaseAPI() {
 
         // 요청 바디 출력 (보기 좋게 정렬)
         println("[서버로 전송 Body] \n${requestBody.toString(4)}")
-        return sendPostRequest("${Api.BASE_URL}/api/v1/setting/pause-update", requestBody, accessToken)
+        return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/pause-update", requestBody, accessToken)
     }
-
-
-
 }

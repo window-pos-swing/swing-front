@@ -32,6 +32,7 @@ object MyColor {
     val LIGHT_BLUE = Color(13,130,191)
     val LIGHT_BLUE_200 = Color(145,171,204)
     val LIGHT_BLUE_14 = Color(13,130,191,14)
+    val LIGHT_BLUE_46 = Color(27, 43, 100)
 
     val SELECTED_TEXT_COLOR = Color.WHITE
 

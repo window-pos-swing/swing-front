@@ -8,15 +8,16 @@ import org.grr.`object`.Storage
 import org.json.JSONObject
 import java.io.IOException
 
-class CurrentLoginStoreMemberToServer {
+class CurrentLoginStoreToServer {
 
     fun currentLoginStoreMemberToServer(): Pair<Boolean, String> {
         val client = OkHttpClient()
         //        토큰
         val accessToken = Storage.getToken()
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
 
         val request = Request.Builder()
-            .url("${Api.BASE_URL}/api/v1/store-pos-setting?storeCode=") // 현재 로그인 회원 엔드포인트
+            .url("${Api.BASE_URL}/api/v1/store-pos-setting?storeCode=${storeCode}") // 현재 로그인 상점 엔드포인트
             .get() // 빈 요청 바디
             .addHeader("Authorization", accessToken!!) // 토큰 헤더 추가
             .build()
@@ -28,17 +29,17 @@ class CurrentLoginStoreMemberToServer {
                     val responseBody = response.body?.string() ?: ""
                     val jsonResponse = JSONObject(responseBody)
 
-//                    회원 정보 갖고오기 실패했을때
+//                    상점 정보 갖고오기 실패했을때
                     if (jsonResponse.getInt("resultCode") == 400) {
                         val errorMessage = jsonResponse.getString("resultMessage")
                         Pair(false, errorMessage)
                     } else {
-//                        회원 정보 갖고오기 성공했을때
-                        val currentstoreMemberData = jsonResponse.getJSONObject("data")
-                        Pair(true, "${currentstoreMemberData}")
+//                        상점 정보 갖고오기 성공했을때
+                        val currentStoreData = jsonResponse.getJSONObject("data")
+                        Pair(true, "${currentStoreData}")
                     }
                 } else {
-                    Pair(false, "회원 조회 실패: ${response.message}")
+                    Pair(false, "상점 조회 실패: ${response.message}")
                 }
             }
         } catch (e: IOException) {

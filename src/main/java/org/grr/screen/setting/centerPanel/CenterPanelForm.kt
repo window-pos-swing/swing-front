@@ -7,6 +7,7 @@ import org.grr.screen.setting.centerPanel.holidayPanel.HolidayPanel
 import org.grr.screen.setting.centerPanel.operateTimePanel.OperateTime
 import org.grr.style.MyColor
 import java.awt.*
+import javax.swing.BorderFactory
 import javax.swing.JPanel
 import javax.swing.JSeparator
 import javax.swing.SwingConstants
@@ -22,7 +23,7 @@ open class RoundedPanel(private val radius: Int) : JPanel() {
 
         // 배경색을 가져와서 그리기
         g2.color = background
-        g2.fillRoundRect(0, 0, width - 1, height- 1, radius, radius)  // 모서리를 둥글게 그리기
+        g2.fillRoundRect(0, 0, width - 1, height - 1, radius, radius)  // 모서리를 둥글게 그리기
 
         super.paintComponent(g)
     }
@@ -30,19 +31,14 @@ open class RoundedPanel(private val radius: Int) : JPanel() {
 
 class CenterPanelForm : RoundedPanel(30) {
     init {
-
         layout = GridBagLayout()
         background = MyColor.LOGIN_TITLEBAR
+        border = BorderFactory.createEmptyBorder(20, 0, 0, 0)
         preferredSize = Dimension(1380, 460)
-        maximumSize = Dimension(Int.MAX_VALUE, 460)  // 최대 크기도 설정
+        maximumSize = Dimension(1380, 460)  // 최대 크기도 설정
+        minimumSize = Dimension(1380, 460)
 
         val gbc = GridBagConstraints().apply {
-            gridx = 0
-            gridy = 0
-            gridwidth = 1
-            gridheight = 1
-            weightx = 1.0
-            weighty = 0.0
             fill = GridBagConstraints.BOTH
             anchor = GridBagConstraints.CENTER  // 컴포넌트를 상단에 고정
         }
@@ -116,11 +112,6 @@ class CenterPanelForm : RoundedPanel(30) {
         gbc.weighty = 0.0
         gbc.insets = Insets(5, 10, 0, 10)
         add(HolidayPanel(), gbc)
-
-        // 빈 공간 추가: 상단 고정을 위해 아래쪽에 빈 패널을 추가하여 남은 공간을 차지하게 함
-//        gbc.gridy = 4
-//        gbc.weighty = 1.0  // 빈 공간이 남은 공간을 차지하도록 설정
-//        add(JPanel().apply { isOpaque = false }, gbc)  // 빈 패널 추가
     }
 
     private fun createSeparator(orientation: Int, width: Int, height: Int): JSeparator {

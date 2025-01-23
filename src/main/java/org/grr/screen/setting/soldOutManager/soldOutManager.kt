@@ -2,7 +2,10 @@ import org.grr.model.MenuCategory
 import org.grr.model.MenuData
 import org.grr.style.MyColor
 import org.grr.util.MyFont
+import org.grr.widgets.CustomScrollBarUI
 import org.grr.widgets.FillRoundedButton
+import org.grr.widgets.RoundedPanel
+import org.grr.widgets.RoundedPanel2
 import java.awt.*
 import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
@@ -10,31 +13,35 @@ import javax.swing.table.DefaultTableModel
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
-class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품절 관리", 1350, 800) {
+class SoldOutManagementDialog: JPanel() {
     // 독립적인 복사본 데이터를 저장
     private val copiedMenuCategories: MutableList<MenuCategory> = mutableListOf()
-
     private val tableModel: DefaultTableModel
     private val menuTable: JTable
     private val categoryComboBox: JComboBox<String>
     private var isFilteringSoldOut = false // 품절 필터링 상태를 저장
 
     init {
-        // 메인 패널 설정
-        val mainPanel = JPanel(BorderLayout()).apply {
-            background = Color.WHITE
-            border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        layout = BorderLayout()
+        background = MyColor.DARK_NAVY
+        border = BorderFactory.createEmptyBorder(20, 0, 0, 0)
+
+        // 둥근 패널 생성
+        val roundedPanel = RoundedPanel(30, 30).apply {
+            layout = BorderLayout()
+            background = MyColor.LOGIN_TITLEBAR // 둥근 패널 배경색
+            border = BorderFactory.createEmptyBorder(0, 20, 0, 20) // 내부 여백 설정
         }
-        add(mainPanel, BorderLayout.CENTER)
 
         // 상단 필터 패널
         val filterPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
-            border = BorderFactory.createEmptyBorder(0, 0, 20, 0)
-            background = Color.WHITE
+            border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
+            background = MyColor.LOGIN_TITLEBAR
 
             // 메뉴 그룹 콤보박스
             add(JLabel("메뉴 그룹:").apply {
                 font = MyFont.Bold(20f)
+                foreground = Color.WHITE
             })
             val categories = MenuData.createSampleData() // 샘플 데이터 생성
 
@@ -45,10 +52,8 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
 
             // DefaultComboBoxModel 생성 및 카테고리 추가
             val categoryModel = DefaultComboBoxModel<String>().apply {
-                addElement("전체") // 기본값
-                categories.forEach { category ->
-                    addElement(category.categoryName) // 각 카테고리 이름 추가
-                }
+                addElement("전체")
+                categories.forEach { category -> addElement(category.categoryName) }
             }
 
             // 카테고리 이름 콤보박스
@@ -100,7 +105,7 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
             }
             add(soldOutButton)
         }
-        mainPanel.add(filterPanel, BorderLayout.NORTH)
+//        add(filterPanel, BorderLayout.NORTH)
 
         // [테이블] 품절 관리, 메뉴 그룹, 메뉴 이름
         tableModel = object : DefaultTableModel(arrayOf("품절 관리", "메뉴 그룹", "메뉴 이름"), 0) {
@@ -110,9 +115,49 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
         }
         menuTable = JTable(tableModel).apply {
             rowHeight = 60
+            background = MyColor.DARK_NAVY
+            foreground = Color.WHITE
             font = MyFont.SemiBold(20f)
             columnModel.getColumn(1).cellEditor = null // "메뉴 그룹"
             columnModel.getColumn(2).cellEditor = null // "메뉴 이름"
+//            columnModel.getColumn(2).cellRenderer = object : DefaultTableCellRenderer() {
+//                override fun getTableCellRendererComponent(
+//                    table: JTable,
+//                    value: Any?,
+//                    isSelected: Boolean,
+//                    hasFocus: Boolean,
+//                    row: Int,
+//                    column: Int
+//                ): Component {
+//                    // 패널 생성
+//                    val panel = JPanel(FlowLayout(FlowLayout.LEFT, 10, 0)).apply {
+//                        background = if (isSelected) MyColor.LIGHT_BLUE_46 else MyColor.DARK_NAVY
+//                    }
+//
+//                    // 메뉴 이름 라벨 추가
+//                    val menuNameLabel = JLabel(value.toString()).apply {
+//                        font = MyFont.SemiBold(18f)
+//                        foreground = Color.WHITE
+//                    }
+//                    panel.add(menuNameLabel)
+//
+//                    // 품절 상태에 따른 "품절" 태그 추가
+//                    val isSoldOut = table.getValueAt(row, 0) as Boolean
+//                    if (isSoldOut) {
+//                        val soldOutLabel = JLabel("품절").apply {
+//                            font = MyFont.Bold(14f)
+//                            foreground = Color.WHITE
+//                            background = Color.PINK
+//                            border = BorderFactory.createEmptyBorder(5, 10, 5, 10) // 내부 패딩
+//                            isOpaque = true // 배경색 적용
+//                        }
+//                        panel.add(soldOutLabel)
+//                    }
+//
+//                    return panel
+//                }
+//            }
+
             // 테이블 헤더 커스텀 렌더러
             val headerRenderer = object : DefaultTableCellRenderer() {
                 override fun getTableCellRendererComponent(
@@ -125,10 +170,10 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
                 ): Component {
                     val component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
                     component.font = MyFont.Bold(20f) // 폰트 설정
-                    component.background = MyColor.LIGHT_BLUE_14 // 헤더 배경색 설정
-                    component.foreground = MyColor.LIGHT_BLUE // 헤더 텍스트 색상
+                    component.background = MyColor.LIGHT_BLUE // 헤더 배경색 설정
+                    component.foreground = Color.white // 헤더 텍스트 색상
                     horizontalAlignment = JLabel.CENTER // 텍스트 가운데 정렬
-                    border = BorderFactory.createLineBorder(MyColor.LIGHT_GREY, 1) // 헤더 테두리 추가
+                    border = BorderFactory.createLineBorder(MyColor.LIGHT_GREY) // 헤더 테두리 추가
                     return component
                 }
             }
@@ -146,10 +191,10 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
             gridColor = MyColor.LIGHT_GREY // 셀 테두리 색상
 
             // 열 비율 조정 (3:4:10)
-            val totalWeight = 3 + 4 + 10
-            val totalWidth = 1350 // 테이블 전체 너비 (스크롤 없이 표시되도록 설정)
-            columnModel.getColumn(0).preferredWidth = (totalWidth * 3 / totalWeight).toInt() // 품절 관리
-            columnModel.getColumn(1).preferredWidth = (totalWidth * 4 / totalWeight).toInt() // 메뉴 그룹
+            val totalWeight = 2 + 3 + 10
+            val totalWidth = 1200 // 테이블 전체 너비 (스크롤 없이 표시되도록 설정)
+            columnModel.getColumn(0).preferredWidth = (totalWidth * 2 / totalWeight).toInt() // 품절 관리
+            columnModel.getColumn(1).preferredWidth = (totalWidth * 3 / totalWeight).toInt() // 메뉴 그룹
             columnModel.getColumn(2).preferredWidth = (totalWidth * 10 / totalWeight).toInt() // 메뉴 이름
 
             // "품절 관리" 열에 버튼 렌더러와 에디터 추가
@@ -159,8 +204,8 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
                     borderColor = Color.BLACK,
                     backgroundColor = Color.LIGHT_GRAY,
                     textColor = Color.WHITE,
-                    borderRadius = 6,
-                    borderWidth = 1,
+                    borderRadius = 10,
+                    borderWidth = 2,
                     textAlignment = SwingConstants.CENTER,
                     padding = Insets(0, 0, 0, 0),
                     buttonSize = Dimension(120, 40),
@@ -237,7 +282,6 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
                         fireEditingStopped() // 편집 종료
                     }
 
-
                     return button
                 }
 
@@ -248,9 +292,6 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
                 private fun updateButtonAppearance() {
                     //품절 판매 버튼 UI는 여기서 변경 해주어야함
                     button.font = MyFont.Bold(22f)
-                    button.preferredSize = Dimension(100, 40) // 버튼 크기 설정
-                    button.minimumSize = Dimension(100, 40) // 최소 크기
-                    button.maximumSize = Dimension(100, 40) // 최대 크기
                     button.foreground = Color.WHITE
                     button.text = if (currentValue) "품절" else "판매"
                     button.backgroundColor = if (currentValue) Color.PINK else Color.LIGHT_GRAY
@@ -291,16 +332,24 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
         }
 
         val scrollPane = JScrollPane(menuTable).apply {
-            border = BorderFactory.createLineBorder(MyColor.LIGHT_GREY, 1) // 외부 테두리 추가
-        }
+            // 스크롤 패널 크기 설정
+            preferredSize = Dimension(600, 200)
+            border = BorderFactory.createLineBorder(MyColor.LIGHT_GREY, 1)
 
-        mainPanel.add(scrollPane, BorderLayout.CENTER)
+            // 커스텀 스크롤바 적용
+            verticalScrollBar.ui = CustomScrollBarUI()
+            horizontalScrollBar.ui = CustomScrollBarUI()
+
+            // 스크롤바 크기 조정
+            verticalScrollBar.preferredSize = Dimension(10, 0) // 세로 스크롤바 너비
+            horizontalScrollBar.preferredSize = Dimension(0, 12) // 가로 스크롤바 높이
+        }
 
         // 하단 버튼
         val registerButton= FillRoundedButton(
             text = "등록",
             borderColor = Color(0, 0, 0),
-            backgroundColor = MyColor.DARK_NAVY,  // 기본 선택된 상태
+            backgroundColor = MyColor.LIGHT_BLUE,  // 기본 선택된 상태
             textColor = Color.WHITE,
             borderRadius = 0,
             borderWidth = 1,
@@ -315,32 +364,34 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
         }
         //만든 등록 버튼을 패널에 추가
         val buttonPanel = JPanel().apply {
-            border = BorderFactory.createEmptyBorder(20, 0, 0, 0)
-            background = Color.WHITE
+            border = BorderFactory.createEmptyBorder(20, 0, 20, 0)
+            background = MyColor.LOGIN_TITLEBAR
             add(registerButton)
         }
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH)
+
+        // 둥근 패널에 추가
+        roundedPanel.add(filterPanel, BorderLayout.NORTH)
+        roundedPanel.add(scrollPane, BorderLayout.CENTER)
+        roundedPanel.add(buttonPanel, BorderLayout.SOUTH)
+
+        // 메인 패널에 둥근 패널 추가
+        add(roundedPanel, BorderLayout.CENTER)
 
         // 초기 데이터 로드
         updateTable(copiedMenuCategories)
-
-        setSize(1350, 800)
-        setLocationRelativeTo(parent)
-        isVisible = true
     }
 
     private fun updateTable(menuCategories: List<MenuCategory>) {
-        tableModel.rowCount = 0 // 테이블 초기화
+        tableModel.rowCount = 0 // 기존 테이블 데이터 초기화
         val selectedCategory = categoryComboBox.selectedItem as String
-
         menuCategories.forEach { category ->
             if (selectedCategory == "전체" || selectedCategory == category.categoryName) {
                 category.menuList.forEach { menu ->
                     tableModel.addRow(
                         arrayOf(
-                            menu.isSoldOut,
-                            category.categoryName,
-                            menu.menuName
+                            menu.isSoldOut, // 품절 상태
+                            category.categoryName, // 메뉴 그룹
+                            menu.menuName // 메뉴 이름
                         )
                     )
                 }
@@ -350,23 +401,14 @@ class SoldOutManagementDialog(parent: JFrame) : CustomRoundedDialog(parent, "품
 
     // 품절 상품 필터링 동작
     private fun filterSoldOut(menuCategories: List<MenuCategory>) {
-        tableModel.rowCount = 0 // 테이블 초기화
-        val selectedCategory = categoryComboBox.selectedItem as String // 선택된 카테고리
-
+        tableModel.rowCount = 0
+        val selectedCategory = categoryComboBox.selectedItem as String
         menuCategories.forEach { category ->
-            // 선택된 카테고리와 매칭되거나 "전체"인 경우에만 처리
             if (selectedCategory == "전체" || selectedCategory == category.categoryName) {
                 category.menuList.filter { it.isSoldOut }.forEach { menu ->
-                    tableModel.addRow(
-                        arrayOf(
-                            menu.isSoldOut,
-                            category.categoryName,
-                            menu.menuName
-                        )
-                    )
+                    tableModel.addRow(arrayOf(menu.isSoldOut, category.categoryName, menu.menuName))
                 }
             }
         }
     }
-
 }

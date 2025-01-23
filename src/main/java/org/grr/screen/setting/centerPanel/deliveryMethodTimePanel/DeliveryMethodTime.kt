@@ -60,7 +60,7 @@ class DeliveryMethodTime : JPanel() {
         }
 
         //        회원정보 갖고오는 구문
-        val memberInfo = Storage.getMemberInfo()
+        val storeInfo = Storage.getStoreInfo()
 
         currentDeliveryCompletionTime = SettingModel.deliveryTime
 

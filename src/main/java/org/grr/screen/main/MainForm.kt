@@ -2,7 +2,7 @@ package org.grr.screen.main
 
 import org.grr.`object`.OrderController
 import kotlinx.coroutines.*
-import org.grr.api.CurrentLoginStoreMemberToServer
+import org.grr.api.CurrentLoginStoreToServer
 import org.grr.model.SettingModel
 import org.grr.`object`.OrderListSingleTon
 import org.grr.`object`.Storage
@@ -37,7 +37,7 @@ class MainForm : JFrame() {
             GlobalScope.launch {
                 delay(300) // 0.3초 대기
 
-                val currentMember = CurrentLoginStoreMemberToServer()
+                val currentMember = CurrentLoginStoreToServer()
                 val (isSuccess, message) = currentMember.currentLoginStoreMemberToServer()
 
                 delay(300) // 0.3초 대기
@@ -131,8 +131,7 @@ class MainForm : JFrame() {
     }
 
     private fun initializeWebSocketClient() {
-        val email = Storage.getMemberInfo()?.optString("email") ?: ""
-
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
 
         // org.grr.`object`.OrderController 초기화
         OrderController.initialize(tabbedPane)
@@ -140,7 +139,7 @@ class MainForm : JFrame() {
 
         // WebSocketClient 생성
         webSocketClient = PosWebSocketClient(
-            URI("ws://localhost:8081/ws/orders?uid=${email}"),
+            URI("ws://localhost:8080/ws/orders?uid=${storeCode}"),
             parentFrame = this,
             cardPanel = cardPanel
         )

@@ -8,7 +8,9 @@ import java.io.File
 import javax.imageio.ImageIO
 import javax.swing.*
 import javax.swing.border.AbstractBorder
+import javax.swing.border.Border
 import javax.swing.border.LineBorder
+import javax.swing.plaf.basic.BasicScrollBarUI
 
 //아이콘 있는 버튼 스타일링
 class IconRoundBorder {
@@ -551,7 +553,7 @@ class PosStatusButton(
 class RoundedPanel(
     private val arcWidth: Int,
     private val arcHeight: Int,
-) : JPanel() {
+) : JPanel(), Border {
 
     init {
         isOpaque = false  // 배경을 투명하게 설정
@@ -570,13 +572,23 @@ class RoundedPanel(
         super.paintComponent(g)
     }
 
-    override fun paintBorder(g: Graphics) {
+    override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
         val g2 = g as Graphics2D
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
         // 테두리 그리기
         g2.color = foreground
-        g2.drawRoundRect(0, 0, width - 1, height - 1, arcWidth, arcHeight)
+        g2.drawRoundRect(x, y, width - 1, height - 1, arcWidth, arcHeight)
+    }
+
+    override fun getBorderInsets(c: Component?): Insets {
+        // 테두리 여백 설정
+        return Insets(arcHeight / 2, arcWidth / 2, arcHeight / 2, arcWidth / 2)
+    }
+
+    override fun isBorderOpaque(): Boolean {
+        // 테두리가 불투명하지 않음을 명시
+        return false
     }
 }
 
@@ -879,5 +891,63 @@ class RoundButton2(text: String) : JButton(text) {
     // 선택 상태 반환
     override fun isSelected(): Boolean {
         return isSelected
+    }
+}
+
+// 커스텀 스크롤바 UI 클래스
+class CustomScrollBarUI : BasicScrollBarUI() {
+
+    override fun paintThumb(g: Graphics, c: JComponent, thumbBounds: Rectangle) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 슬라이더 색상 및 모양 설정
+        g2.color = MyColor.LIGHT_BLUE // 슬라이더 색 (Cornflower Blue)
+        g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 10, 10)
+    }
+
+    override fun paintTrack(g: Graphics, c: JComponent, trackBounds: Rectangle) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 트랙 색상 설정
+        g2.color = Color.LIGHT_GRAY // 트랙 배경색 (어두운 회색)
+        g2.fillRoundRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height, 10, 10)
+    }
+
+    override fun createDecreaseButton(orientation: Int): JButton {
+        return JButton().apply {
+            preferredSize = Dimension(0, 0) // 버튼 크기 제거
+            isVisible = false // 버튼 숨기기
+        }
+    }
+
+    override fun createIncreaseButton(orientation: Int): JButton {
+        return JButton().apply {
+            preferredSize = Dimension(0, 0) // 버튼 크기 제거
+            isVisible = false // 버튼 숨기기
+        }
+    }
+}
+
+open class RoundedPanel2(private val arcWidth: Int, private val arcHeight: Int) : JPanel() {
+
+    init {
+        isOpaque = false // 배경을 투명하게 설정
+    }
+
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 배경색 설정 및 둥근 사각형 그리기
+        g2.color = MyColor.LOGIN_TITLEBAR
+        g2.fillRoundRect(0, 0, width, height, arcWidth, arcHeight)
+
+        // 테두리 설정
+//        g2.color = Color.GRAY // 테두리 색상
+        g2.drawRoundRect(0, 0, width - 1, height - 1, arcWidth, arcHeight)
+
+        super.paintComponent(g)
     }
 }

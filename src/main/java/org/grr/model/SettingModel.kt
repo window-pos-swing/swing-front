@@ -21,23 +21,19 @@ object SettingModel {
     var temporaryHoliday : String = ""
     var businessStatus : BusinessStatus = BusinessStatus.END
 
-    val memberInfo = Storage.getMemberInfo()
+    val storeInfo = Storage.getStoreInfo()
 
     //로컬에 저장된 요리시간 배달시간 초기화
     fun loadCookDeliveryTime() {
         //요리시간, on/off 여부
-        cookingTime = memberInfo
-            ?.optJSONObject("setting")
-            ?.optInt("estimatedCookingTime", 30) ?: 30
-        cookingTimeControl = memberInfo
-            ?.optJSONObject("setting")
+        cookingTime = storeInfo
+            ?.optInt("estimatedCookingTime", 25) ?: 25
+        cookingTimeControl = storeInfo
             ?.optBoolean("estimatedCookingTimeControl", false) ?: false
         //배달시간, on/off 여부
-        deliveryTime = memberInfo
-            ?.optJSONObject("setting")
+        deliveryTime = storeInfo
             ?.optInt("estimatedArrivalTime", 40) ?: 40
-        deliveryTimeControl = memberInfo
-            ?.optJSONObject("setting")
+        deliveryTimeControl = storeInfo
             ?.optBoolean("estimatedArrivalTimeControl", false) ?: false
         println("[저장된 요리시간] : $cookingTime")
         println("[저장된 요리 on/off] : $cookingTimeControl")
@@ -47,7 +43,7 @@ object SettingModel {
 
     // 로컬에 요리정보 업데이트
     fun updateLocalCook() {
-        val updatedMemberInfo = memberInfo ?: JSONObject() // 기존 데이터를 가져오거나 새로 생성
+        val updatedMemberInfo = storeInfo ?: JSONObject() // 기존 데이터를 가져오거나 새로 생성
         val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
 
         settings.put("estimatedCookingTime", cookingTime)
@@ -61,7 +57,7 @@ object SettingModel {
 
     // 로컬에 배달정보 업데이트
     fun updateLocalDelivery() {
-        val updatedMemberInfo = memberInfo ?: JSONObject() // 기존 데이터를 가져오거나 새로 생성
+        val updatedMemberInfo = storeInfo ?: JSONObject() // 기존 데이터를 가져오거나 새로 생성
         val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
 
         settings.put("estimatedArrivalTime", deliveryTime)
@@ -75,7 +71,7 @@ object SettingModel {
 
     // 브레이크 타임 정보 초기화
     fun loadBreakTime() {
-        val myBreakTime = memberInfo
+        val myBreakTime = storeInfo
             ?.optJSONObject("setting")
             ?.optJSONObject("breakTime")
 
@@ -93,7 +89,7 @@ object SettingModel {
 
     // 브레이크 타임 정보 업데이트
     fun saveBreakTime(breakTimeJson : JSONObject) {
-        val updatedMemberInfo = memberInfo ?: JSONObject()
+        val updatedMemberInfo = storeInfo ?: JSONObject()
         val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
 
         println("저장된 데이터:")
@@ -111,7 +107,7 @@ object SettingModel {
 
     //운영시간 정보 초기화
     fun loadOperateTime() {
-        val myOperateTime = memberInfo
+        val myOperateTime = storeInfo
             ?.optJSONObject("setting")
             ?.optJSONObject("businessHour")
 
@@ -130,7 +126,7 @@ object SettingModel {
 
     // 운영시간 정보 업데이트
     fun saveOperateTime(operateTimeJson: JSONObject) {
-        val updatedMemberInfo = memberInfo ?: JSONObject()
+        val updatedMemberInfo = storeInfo ?: JSONObject()
         val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
 
         println("저장된 데이터:")
@@ -145,7 +141,7 @@ object SettingModel {
     }
 
     fun loadHoliday() {
-        val holidayListJsonArray = memberInfo
+        val holidayListJsonArray = storeInfo
             ?.optJSONObject("setting")
             ?.optJSONArray("holidayList")
 
@@ -183,7 +179,7 @@ object SettingModel {
     }
 
     fun saveHoliday(holidayJson: Any) {
-        val updatedMemberInfo = memberInfo ?: JSONObject()
+        val updatedMemberInfo = storeInfo ?: JSONObject()
         val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
 
         println("저장된 데이터:")
@@ -202,7 +198,7 @@ object SettingModel {
     }
 
     fun savePauseTime(_businessStatus: BusinessStatus, startTime: LocalDateTime? = null, endTime: LocalDateTime? = null) {
-        val updatedMemberInfo = memberInfo ?: JSONObject()
+        val updatedMemberInfo = storeInfo ?: JSONObject()
         val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
         businessStatus = _businessStatus
         // businessStatus 추가

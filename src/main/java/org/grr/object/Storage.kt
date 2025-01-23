@@ -8,16 +8,17 @@ object Storage {
     /*
         현재 로그인한 회원 정보
     */
-    private val memberInfo = File("memberInfo.json")
+    private val storeInfo = File("storeInfo.json")
+
     // 회원 정보 저장
     fun saveMemberInfo(userInfo: JSONObject) {
-        memberInfo.writeText(userInfo.toString(4)) // JSON 형식으로 저장
+        storeInfo.writeText(userInfo.toString(4)) // JSON 형식으로 저장
     }
 
     // 회원 정보 불러오기
-    fun getMemberInfo(): JSONObject? {
-        return if (memberInfo.exists()) {
-            JSONObject(memberInfo.readText()) // JSON 객체로 변환
+    fun getStoreInfo(): JSONObject? {
+        return if (storeInfo.exists()) {
+            JSONObject(storeInfo.readText()) // JSON 객체로 변환
         } else {
             null // 파일이 없으면 null 반환
         }
@@ -25,8 +26,8 @@ object Storage {
 
     // 회원 정보 삭제
     fun clearMemberInfo() {
-        if (memberInfo.exists()) {
-            memberInfo.delete()
+        if (storeInfo.exists()) {
+            storeInfo.delete()
         }
     }
 
@@ -72,7 +73,7 @@ object Storage {
     private val accessTokenFile = File("accessToken.txt")
 //    private val refreshTokenFile = File("refreshToken.txt")
 
-//    토큰 저장
+    //    토큰 저장
     fun saveToken(token: String) {
         accessTokenFile.writeText(token)
     }
