@@ -1,6 +1,8 @@
 package org.grr.screen.select_store;
 
 import com.privatejgoodies.forms.layout.CellConstraints.Alignment
+import org.grr.`object`.FormManager
+import org.grr.`object`.Storage
 import org.grr.screen.main.MainForm
 import org.grr.screen.select_store.widgets.SelectStoreConfirmationDialog
 import org.grr.style.MyColor
@@ -12,7 +14,7 @@ import java.awt.*
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 
-class SelectStoreForm(storeData: List<Pair<String, String>>) : JFrame() {
+class SelectStoreForm(storeData: List<Triple<String, String, String>>) : JFrame() {
 
     init {
         // 기존 타이틀바 제거
@@ -31,8 +33,8 @@ class SelectStoreForm(storeData: List<Pair<String, String>>) : JFrame() {
             border = EmptyBorder(20, 20, 20, 20)
 
             // 상점 목록 추가
-            storeData.forEach { (storeName, address) ->
-                add(createStorePanel(storeName, address))
+            storeData.forEach { (storeName, address, storeCode) ->
+                add(createStorePanel(storeName, address, storeCode))
                 add(Box.createVerticalStrut(20)) // 간격
             }
         }
@@ -61,11 +63,13 @@ class SelectStoreForm(storeData: List<Pair<String, String>>) : JFrame() {
         setLocationRelativeTo(null) // 화면 중앙에 배치
     }
 
-    private fun createStorePanel(storeName: String, address: String): JPanel {
+    private fun createStorePanel(storeName: String, address: String, storeCode: String): JPanel {
         return JPanel().apply {
             layout = BorderLayout()
             background = MyColor.DARK_NAVY // 짙은 배경
             preferredSize = Dimension(1400, 100)
+            maximumSize = Dimension(1400, 100)
+            minimumSize = Dimension(1400, 100)
             border = BorderFactory.createLineBorder(Color.WHITE, 2)
 
             // 상점 이름과 주소 패널
@@ -132,7 +136,11 @@ class SelectStoreForm(storeData: List<Pair<String, String>>) : JFrame() {
                             title = "영업 상점 선택",
                             callback = { value ->
                                 if(value){
+                                    val (email, password, autoCheck, _) = Storage.getLoginInfo() // 기존 정보 가져오기
+                                    Storage.saveLoginInfo(email, password, autoCheck, storeCode) // storeCode 저장
 
+                                    FormManager.showMainForm()
+                                    this@SelectStoreForm.dispose()
                                 }
                             }
                         )
@@ -144,29 +152,27 @@ class SelectStoreForm(storeData: List<Pair<String, String>>) : JFrame() {
             add(buttonPanel, BorderLayout.EAST)
         }
     }
-
-
 }
 
-fun main() {
-    // 가데이터: 상점 이름과 주소
-    val storeData = listOf(
-        "햄버거 싸다싸 김치찜 싸다싸 둔산점" to "대전광역시 유성구 어쩌구동 어쩌구로 301-102",
-        "상점2" to "대전광역시 유성구 다른구동 다른구로 123-456",
-        "상점3" to "대전광역시 중구 어떤구동 어떤길 789-000",
-        "상점4" to "서울특별시 강남구 테헤란로 456",
-        "상점5" to "부산광역시 해운대구 해운대로 89-101",
-        "상점6" to "대구광역시 달서구 달구벌대로 303-203",
-        "상점7" to "대전광역시 유성구 어쩌구동 어쩌구로 301-102",
-        "상점8" to "대전광역시 유성구 다른구동 다른구로 123-456",
-        "상점9" to "대전광역시 중구 어떤구동 어떤길 789-000",
-        "상점10" to "서울특별시 강남구 테헤란로 456",
-        "상점11" to "부산광역시 해운대구 해운대로 89-101",
-        "상점12" to "대구광역시 달서구 달구벌대로 303-203",
-    )
-
-    SwingUtilities.invokeLater {
-        val selectStoreForm = SelectStoreForm(storeData)
-        selectStoreForm.isVisible = true
-    }
-}
+//fun main() {
+//    // 가데이터: 상점 이름과 주소
+//    val storeData = listOf(
+//        "햄버거 싸다싸 김치찜 싸다싸 둔산점" to "대전광역시 유성구 어쩌구동 어쩌구로 301-102",
+//        "상점2" to "대전광역시 유성구 다른구동 다른구로 123-456",
+//        "상점3" to "대전광역시 중구 어떤구동 어떤길 789-000",
+//        "상점4" to "서울특별시 강남구 테헤란로 456",
+//        "상점5" to "부산광역시 해운대구 해운대로 89-101",
+//        "상점6" to "대구광역시 달서구 달구벌대로 303-203",
+//        "상점7" to "대전광역시 유성구 어쩌구동 어쩌구로 301-102",
+//        "상점8" to "대전광역시 유성구 다른구동 다른구로 123-456",
+//        "상점9" to "대전광역시 중구 어떤구동 어떤길 789-000",
+//        "상점10" to "서울특별시 강남구 테헤란로 456",
+//        "상점11" to "부산광역시 해운대구 해운대로 89-101",
+//        "상점12" to "대구광역시 달서구 달구벌대로 303-203",
+//    )
+//
+//    SwingUtilities.invokeLater {
+//        val selectStoreForm = SelectStoreForm(storeData)
+//        selectStoreForm.isVisible = true
+//    }
+//}

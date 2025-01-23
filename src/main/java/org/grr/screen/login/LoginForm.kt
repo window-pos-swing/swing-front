@@ -7,6 +7,7 @@ import org.grr.api.LoginToServer
 import org.grr.`object`.FormManager
 import org.grr.`object`.Storage
 import org.grr.screen.main.MainForm
+import org.grr.screen.select_store.SelectStoreForm
 import org.grr.style.MyColor
 import org.grr.util.LoadImage.loadImage
 import org.grr.util.MyFont
@@ -38,13 +39,13 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
         /*
            저장된 로그인 정보 확인 및 자동로그인 기능
         */
-        val (savedEmail, savedPassword, autoCheck) = Storage.getLoginInfo()
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         if (autoCheck) {
             // 저장된 아이디를 입력란에 표시
             idField = TextField(savedEmail, Color.WHITE)
 
             // 비밀번호 입력란에 비밀번호 길이만큼 * 표시
-            passwordField = PasswordField("*".repeat(savedPassword!!.length), Color.WHITE)
+            passwordField = PasswordField("*".repeat(savedPassword.length), Color.WHITE)
 
 //            자동로그인 체크란
             autoLoginCheckBox = JCheckBoxCustom().apply {
@@ -56,7 +57,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                 delay(1000) // 1초 대기
 
                 val loginToServer = LoginToServer()
-                val (isSuccess, message) = loginToServer.loginToServer(savedEmail!!, savedPassword)
+                val (isSuccess, message, storeList) = loginToServer.loginToServer(savedEmail, savedPassword)
 
                 delay(1000) // 1초 대기
 
@@ -65,8 +66,27 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                         // 새로운 토큰 저장
                         Storage.saveToken(message)
 
-                        // 메인 화면으로 이동
-                        FormManager.showMainForm()
+                        if (storeCode == null) {
+                            if (storeList != null && storeList.length() > 0) {
+                                val storeData: List<Triple<String, String, String>> =
+                                    (0 until storeList.length()).map { i ->
+                                        val store = storeList.getJSONObject(i)
+                                        val storeCode = store.getString("storeCode")
+                                        val storeName = store.getString("storeName")
+                                        val storeAddress =
+                                            store.getJSONObject("storeMemberAddress").getString("jibunAddress")
+                                        Triple(storeName, storeAddress, storeCode)
+                                    }
+
+                                val selectStoreForm = SelectStoreForm(storeData)
+                                selectStoreForm.isVisible = true // 창 표시
+                            } else {
+                                println("상점 리스트가 비어 있습니다.")
+                            }
+                        } else {
+                            // 메인 화면으로 이동
+                            FormManager.showMainForm()
+                        }
                         this@LoginForm.dispose() // 로그인 창 닫기
                     } else {
                         // 로그인 실패 시 기본 로그인 화면 표시
@@ -114,16 +134,31 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                 JOptionPane.showMessageDialog(this, "아이디와 비밀번호를 입력해주세요.", "오류", JOptionPane.ERROR_MESSAGE)
             } else {
                 val loginToServer = LoginToServer() // LoginToServer 인스턴스 생성
-                val (isSuccess, message) = loginToServer.loginToServer(email, password)
+                val (isSuccess, message, storeList) = loginToServer.loginToServer(email, password)
 
                 if (isSuccess) {
                     val autoLoginCheck = autoLoginCheckBox.isSelected
-                    Storage.saveLoginInfo(email, password, autoLoginCheck)
+                    Storage.saveLoginInfo(email, password, autoLoginCheck, null)
 
+                    if (storeCode == null) {
+                        val storeData: List<Triple<String, String, String>> =
+                            (0 until storeList!!.length()).map { i ->
+                                val store = storeList.getJSONObject(i)
+                                val storeCode = store.getString("storeCode")
+                                val storeName = store.getString("storeName")
+                                val storeAddress =
+                                    store.getJSONObject("storeMemberAddress").getString("jibunAddress")
+                                Triple(storeName, storeAddress, storeCode)
+                            }
+
+                        val selectStoreForm = SelectStoreForm(storeData)
+                        selectStoreForm.isVisible = true // 창 표시
+                    } else {
+                        FormManager.showMainForm()
+                    }
 //                    로그인 시 토큰 저장 후 메인페이지 이동
                     Storage.saveToken(message)
-                    FormManager.showMainForm()
-                    this.dispose()
+                    this@LoginForm.dispose()
                 } else {
 //                    실패시 즉, this가 false일 경우
                     JOptionPane.showMessageDialog(this, message, "오류", JOptionPane.ERROR_MESSAGE)

@@ -36,26 +36,27 @@ object Storage {
     private val autoLogin = File("autoLogin.json")
 
     // 로그인 정보 저장
-    fun saveLoginInfo(email: String, password: String, autoCheck: Boolean) {
+    fun saveLoginInfo(email: String, password: String, autoCheck: Boolean, storeCode: String?) {
         val jsonObject = JSONObject().apply {
             put("email", email)
             put("password", password)
             put("autoCheck", autoCheck)
+            put("storeCode", storeCode)
         }
         autoLogin.writeText(jsonObject.toString(4))
     }
 
     // 저장된 로그인 정보 불러오기
-    fun getLoginInfo(): Triple<String?, String?, Boolean> {
+    fun getLoginInfo(): LoginInfo {
         if (autoLogin.exists()) {
             val jsonObject = JSONObject(autoLogin.readText())
             val email = jsonObject.optString("email", null)
-            val token = jsonObject.optString("password", null)
+            val password = jsonObject.optString("password", null)
             val autoLogin = jsonObject.optBoolean("autoCheck", false)
             val storeCode = jsonObject.optString("storeCode", null)
-            return Triple(email, token, autoLogin)
+            return LoginInfo(email, password, autoLogin, storeCode)
         }
-        return Triple(null, null, false) // 기본값 반환
+        return LoginInfo(null.toString(), null.toString(), false, null)
     }
 
     // 로그인 정보 삭제
@@ -91,4 +92,11 @@ object Storage {
             accessTokenFile.delete()
         }
     }
+
+    data class LoginInfo(
+        val email: String,
+        val password: String,
+        val autoLogin: Boolean,
+        val storeCode: String?
+    )
 }

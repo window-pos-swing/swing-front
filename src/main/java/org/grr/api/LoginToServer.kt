@@ -6,13 +6,14 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.use
 import org.grr.`object`.Api
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import javax.swing.JOptionPane
 
 class LoginToServer {
 
-    fun loginToServer(email: String, password: String): Pair<Boolean, String> {
+    fun loginToServer(email: String, password: String): Triple<Boolean, String, JSONArray?> {
         val client = OkHttpClient()
 
         val requestBody = JSONObject()
@@ -35,7 +36,7 @@ class LoginToServer {
 //                    로그인 실패했을때 (이메일, 비밀번호 틀렸을때)
                     if (jsonResponse.getInt("resultCode") == 400) {
                         val errorMessage = jsonResponse.getString("resultMessage")
-                        Pair(false, errorMessage)
+                        Triple(false, errorMessage, null)
                     } else {
                         println("TOKEN")
                         println("${jsonResponse.getJSONObject("data")}")
@@ -44,16 +45,17 @@ class LoginToServer {
                             println("[jsonResponse]: $jsonResponse");
                             JOptionPane.showMessageDialog(null, jsonResponse["resultMessage"], "오류", JOptionPane.ERROR_MESSAGE)
                         }
+                        val storeList = jsonResponse.getJSONObject("data").getJSONArray("storeList")
                         val accessToken = jsonResponse.getJSONObject("data").getString("accessToken")
-                        Pair(true, accessToken)
+                        Triple(true, accessToken, storeList)
                     }
                 } else {
-                    Pair(false, "로그인 실패: ${response.message}")
+                    Triple(false, "로그인 실패: ${response.message}", null)
                 }
             }
         } catch (e: IOException) {
             e.printStackTrace()
-            return Pair(false, "서버 연결 실패: ${e.message}")
+            return Triple(false, "서버 연결 실패: ${e.message}", null)
         }
     }
 }

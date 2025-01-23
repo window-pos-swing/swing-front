@@ -1,9 +1,11 @@
 package org.grr.`object`
 
 import org.grr.screen.main.MainForm
+import org.grr.screen.select_store.SelectStoreForm
 
 object FormManager {
     private var mainForm: MainForm? = null
+    private var selectStoreForm: SelectStoreForm? = null
 
     fun getMainForm(): MainForm {
         if (mainForm == null) {
@@ -19,5 +21,11 @@ object FormManager {
     fun showMainForm() {
         getMainForm().isVisible = true
     }
+
+//    fun getSelectStoreForm(): SelectStoreForm {
+//        if (selectStoreForm == null) {
+//            selectStoreForm = SelectStoreForm()
+//        }
+//    }
 }
 
