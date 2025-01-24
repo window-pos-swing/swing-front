@@ -693,7 +693,6 @@ class RoundedBorder(private val radius: Int) : AbstractBorder() {
     }
 }
 
-// RoundedButton 클래스: 모서리가 둥근 빨간색 배경을 가진 버튼
 //파란색
 class RoundedButton(text: String) : JButton(text) {
     private var customBackground: Color? = null // 사용자 정의 배경색을 저장
@@ -717,6 +716,45 @@ class RoundedButton(text: String) : JButton(text) {
         // 배경색 설정: customBackground가 null이면 기본 색상 사용
         g2.color = customBackground ?: Color(13, 130, 191)
         g2.fillRoundRect(0, 0, width, height, 20, 20)  // 둥근 모서리 배경
+
+        super.paintComponent(g)  // 텍스트 및 기타 컴포넌트 렌더링
+    }
+
+    // 배경색 설정 메서드
+    fun setCustomBackground(color: Color?) {
+        customBackground = color
+        repaint() // 배경을 다시 그리기 위해 repaint 호출
+    }
+}
+
+// 색 없음
+class NoneRoundedButton(text: String) : JButton(text) {
+    private var customBackground: Color? = null // 사용자 정의 배경색을 저장
+
+    init {
+        isContentAreaFilled = false  // 기본 배경 채우기 제거
+        isFocusPainted = false  // 포커스 테두리 제거
+        isOpaque = false  // 불투명 설정 제거
+        background = null
+        border = null
+        preferredSize = Dimension(100, 40)  // 버튼 크기 설정
+        font = MyFont.Bold(20f)  // 폰트 설정
+        foreground = Color.WHITE  // 텍스트 색상
+    }
+
+    // 배경을 그리기 위해 paintComponent 오버라이드
+    override fun paintComponent(g: Graphics) {
+        val g2 = g as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 배경색 설정: customBackground가 null이면 기본 색상 사용
+        g2.color = customBackground ?: Color(13, 130, 191)
+        g2.fillRoundRect(0, 0, width, height, 40, 40)  // 둥근 모서리 배경
+
+        // 테두리 그리기
+        g2.color = Color.WHITE // 테두리 색상 설정 (하얀색)
+        g2.stroke = BasicStroke(2f) // 테두리 두께 설정
+        g2.drawRoundRect(1, 1, width - 2, height - 2, 40, 40)  // 둥근 테두리 그리기
 
         super.paintComponent(g)  // 텍스트 및 기타 컴포넌트 렌더링
     }
