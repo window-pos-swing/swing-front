@@ -82,24 +82,76 @@ class SalesManagementModalDialog(
     // 탭바 생성
     private fun createTabBarPanel(): JPanel {
         return JPanel().apply {
-            layout = FlowLayout(FlowLayout.LEFT, 0, 0)
+            layout = FlowLayout(FlowLayout.LEFT, 10, 0) // 버튼 간의 간격 설정
             background = Color.WHITE
+
+            // 버튼 리스트를 관리하기 위한 리스트
+            val buttons = mutableListOf<RoundedButton>()
+
+            // 버튼 색상 초기화 함수
+            fun resetButtonColors() {
+                buttons.forEach {
+                    it.setCustomBackground(MyColor.LIGHT_GREY)
+                    it.foreground = Color.GRAY // 기본 글씨 색상
+                }
+            }
 
             val yesterdayButton = RoundedButton("어제").apply {
                 preferredSize = Dimension(150, 60)
                 font = MyFont.Bold(22f)
+                setCustomBackground(MyColor.LIGHT_GREY)
+                foreground = Color.GRAY
+
+                addActionListener {
+                    resetButtonColors()
+                    setCustomBackground(MyColor.LIGHT_BLUE)
+                    foreground = Color.WHITE // 선택된 상태 글씨 색상
+                    println("어제 버튼 클릭됨")
+                }
             }
+
             val todayButton = RoundedButton("오늘").apply {
                 preferredSize = Dimension(150, 60)
                 font = MyFont.Bold(22f)
+                setCustomBackground(MyColor.LIGHT_GREY)
+                foreground = Color.GRAY
+
+                addActionListener {
+                    resetButtonColors()
+                    setCustomBackground(MyColor.LIGHT_BLUE)
+                    foreground = Color.WHITE // 선택된 상태 글씨 색상
+                    println("오늘 버튼 클릭됨")
+                }
             }
 
+            // 날짜 선택 버튼
             val datePickerButton = RoundedButton("2025-01-24 ~ 2025-01-24").apply {
-                preferredSize = Dimension(300, 50)
-                font = MyFont.Regular(18f)
-                background = MyColor.LIGHT_GREY
+                preferredSize = Dimension(370, 60)
+                font = MyFont.Bold(22f)
+                setCustomBackground(MyColor.LIGHT_GREY)
+                foreground = Color.GRAY
+                // 아이콘 추가
+                val resourceUrl = File("src/main/resources/Vector.png").toURI().toURL()
+                val imageIcon = ImageIcon(resourceUrl)
+                val scaledIcon = ImageIcon(
+                    imageIcon.image.getScaledInstance(23, 23, Image.SCALE_SMOOTH)
+                )
+                icon = scaledIcon
+
+                addActionListener {
+                    resetButtonColors()
+                    setCustomBackground(MyColor.LIGHT_BLUE)
+                    foreground = Color.WHITE // 선택된 상태 글씨 색상
+                    println("날짜 선택 버튼 클릭됨")
+                }
             }
 
+            // 버튼 리스트에 추가
+            buttons.add(yesterdayButton)
+            buttons.add(todayButton)
+            buttons.add(datePickerButton)
+
+            // 요소 추가
             add(yesterdayButton)
             add(todayButton)
             add(datePickerButton)
