@@ -437,6 +437,4 @@ class BreakTimeModalDialog(
             JOptionPane.showMessageDialog(this, "업데이트 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
         }
     }
-
-
 }

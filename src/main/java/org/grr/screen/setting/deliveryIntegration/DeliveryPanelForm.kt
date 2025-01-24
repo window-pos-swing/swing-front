@@ -2,6 +2,8 @@ package org.grr.screen.setting.deliveryIntegration
 
 import CustomToggleButton2
 import com.sun.java.accessibility.util.AWTEventMonitor.addActionListener
+import org.grr.screen.setting.deliveryIntegration.deliveryIntegration_modal.DeliveryIntegrationConnectModalDialog
+import org.grr.screen.setting.deliveryIntegration.deliveryIntegration_modal.DeliveryIntegrationModalDialog
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.RoundedButton
@@ -12,6 +14,7 @@ import javax.swing.*
 class DeliveryPanelForm : JPanel() {
 
     private lateinit var setButton: RoundedButton  // 배달대행사 추가버튼
+
     init {
         layout = BorderLayout()
         background = MyColor.DARK_NAVY
@@ -35,9 +38,8 @@ class DeliveryPanelForm : JPanel() {
         }
 
         // 배달대행사 데이터를 표시할 패널
-        val maxRows = 5
-        val deliveryPanel = JPanel().apply {
-            layout = GridLayout(maxRows, 1, 0, 5) // 고정된 5개의 행
+        val deliveryPanel: JPanel = JPanel().apply {
+            layout = GridLayout(5, 1, 0, 5) // 고정된 5개의 행
             background = MyColor.DARK_NAVY // 배경색 설정
             border = BorderFactory.createEmptyBorder(10, 10, 0, 10) // 내부 여백
         }
@@ -89,23 +91,37 @@ class DeliveryPanelForm : JPanel() {
             return rowPanel
         }
 
+        // 배달대행사 추가 함수
+        fun addDeliveryAgency(name: String) {
+            if (deliveryPanel.componentCount < 5) {
+                val newAgencyRow = createDeliveryAgencyRow(name) // 새 배달대행사 행 생성
+                deliveryPanel.add(newAgencyRow) // 패널에 추가
+                deliveryPanel.revalidate() // UI 갱신
+                deliveryPanel.repaint()
+            }
+        }
+
         setButton = RoundedButton("배달대행사 추가").apply {
             font = MyFont.Bold(22f)  // 폰트 설정
             preferredSize = Dimension(260, 60)  // 버튼 크기 설정
             addActionListener {
-                // 행이 꽉 차지 않았을 경우에만 추가
-                if (deliveryPanel.componentCount < maxRows) {
-                    val row = createDeliveryAgencyRow("새 배달대행사")
-                    deliveryPanel.add(row)
-                    deliveryPanel.revalidate() // UI 갱신
-                    deliveryPanel.repaint()
-                } else {
+                if (deliveryPanel.componentCount >= 5) {
+                    // 모달을 띄워 경고 메시지 표시
                     JOptionPane.showMessageDialog(
                         this@DeliveryPanelForm,
-                        "최대 ${maxRows}개의 배달대행사만 추가할 수 있습니다.",
-                        "제한 초과",
+                        "최대 5개의 배달대행사만 추가할 수 있습니다.",
+                        "추가 불가",
                         JOptionPane.WARNING_MESSAGE
                     )
+                    return@addActionListener
+                }
+
+                val parentFrame = SwingUtilities.getWindowAncestor(this) as? JFrame
+                if (parentFrame != null) {
+                    // 배달대행사 선택 다이얼로그
+                    DeliveryIntegrationModalDialog(parentFrame, "배달대행사 선택") { isConfirmed ->
+                        addDeliveryAgency(isConfirmed) // 패널에 추가
+                    }.isVisible = true
                 }
             }
         }
@@ -118,7 +134,7 @@ class DeliveryPanelForm : JPanel() {
         }
 
         // 예시 배달대행사 데이터 추가
-        val deliveryAgencies = listOf("부릉", "콜코 유니온", "젠딜리", "부릉부릉", "생각대로")
+        val deliveryAgencies = listOf("부릉", "스파이더", "젠딜리", "부릉부릉", "생각대로")
         deliveryAgencies.forEach {
             deliveryPanel.add(createDeliveryAgencyRow(it))
         }

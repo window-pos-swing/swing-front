@@ -11,7 +11,8 @@ open class CustomRoundedDialog(
     title: String,
     dialogWidth: Int = 400,
     dialogHeight: Int = 300,
-    private val callback: ((Boolean) -> Unit)? = null  // 콜백 함수 추가
+    private val callback: ((Boolean) -> Unit)? = null,
+    private val stringCallback: ((String) -> Unit)? = null
 ) : JDialog(parent, title, ModalityType.APPLICATION_MODAL) {
 
     private val titleLabel = JLabel(title, SwingConstants.CENTER).apply {
@@ -76,5 +77,4 @@ open class CustomRoundedDialog(
         titleLabel.revalidate()  // 레이아웃 갱신
         titleLabel.repaint()  // 다시 그리기
     }
-
 }
