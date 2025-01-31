@@ -15,7 +15,7 @@ class CookedCommand(
     override fun execute() {
         val result = OrderAPI().orderStatusChangeToServer(
             ServerOrderStatus.COOKED,
-            orderId = order.orderId,
+            orderId = order.id,
         )
         // 결과 처리
         if (!result.first) {

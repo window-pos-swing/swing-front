@@ -19,12 +19,14 @@ class OrderAPI : BaseAPI() {
         pageNumber : Int,
     ): Pair<Boolean, String> {
         println("[fetchOrders] pageNumber : ${pageNumber}")
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
-        val serverOrderStatusParam = filter.serverOrderStatus?.name?.let { "&orderStatusType=$it" } ?: ""
-        val posOrderStatusParam = filter.posOrderStatus?.name?.let { "&orderStatus=$it" } ?: ""
+        val storeCodes = storeCode?.let { "&storeCode=${storeCode}" } ?: return Pair(false, "상점 코드가 없습니다.")
+        val serverOrderStatusParam = filter.serverOrderStatus?.name?.let { "&posOrderStatus=$it" } ?: ""
+        val posOrderStatusParam = filter.posOrderStatus?.name?.let { "&orderStatusType=$it" } ?: ""
         val orderReceiveTypeParam = filter.orderReceiveType?.name?.let { "&orderReceiveType=$it" } ?: ""
         val url =
-            "${Api.BASE_URL}/api/v1/pos-order/list?pageNumber=${pageNumber}&pageSize=${OrderListSingleTon.PAGE_SIZE}$serverOrderStatusParam$posOrderStatusParam$orderReceiveTypeParam"
+            "${Api.BASE_URL}/api/v1/pos-order/list?pageNumber=${pageNumber}&pageSize=${OrderListSingleTon.PAGE_SIZE}$serverOrderStatusParam$posOrderStatusParam$orderReceiveTypeParam$storeCodes"
 
         val orderList = sendGetRequest(
             url,
@@ -82,7 +84,7 @@ class OrderAPI : BaseAPI() {
             if (reason != null) put("reason", reason)
         }
         println("[서버로 전송 Body] ${orderStatusBody.toString(2)}")
-        return sendPostRequest("${Api.BASE_URL}/api/v1/orders/status?orderId=$orderId", orderStatusBody, accessToken)
+        return sendPostRequest("${Api.BASE_URL}/api/v1/pos-order/status?orderId=$orderId", orderStatusBody, accessToken)
     }
 
 }

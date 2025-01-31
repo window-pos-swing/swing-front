@@ -4,7 +4,6 @@ import org.grr.command.RejectedReasonType
 import org.grr.enum.OrderReceiveType
 import org.grr.enum.PosOrderStatus
 import org.grr.enum.ServerOrderStatus
-import org.grr.`object`.OrderController
 import org.grr.observer.OrderObserver
 import org.grr.screen.main.main_widget.order_states_ui.CompletedState
 import org.grr.screen.main.main_widget.order_states_ui.PendingState
@@ -13,20 +12,21 @@ import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import org.grr.util.MyDateFormat
 import org.json.JSONArray
 import org.json.JSONObject
-import java.awt.Color
-import javax.swing.BorderFactory
+import java.time.LocalDateTime
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.Timer  // javax.swing.Timer 사용
 
 data class ReceiveOrderModel(
     val id: Int,
-    val orderId: Int,
-    val orderNumber: String,
+    var orderNumber: String,
+    var appMemberJibunAddress: String,
+    var appMemberRoadAddress: String,
+    var appMemberDetailAddress: String,
+    var safeNumber: Boolean,
+    var storeName: String,
     val orderDate: List<Int>,
     val modifyOrderDate: List<Int>,
-    val userAppStoreMemberId: Int,
-    val appMemberAddress: String,
     val appMemberPhone: String,
     val disposable: Boolean,
     val sideDish: Boolean,
@@ -199,7 +199,7 @@ data class ReceiveOrderModel(
         observersSnapshot.forEach { observer ->
             observer.update(this)
         }
-        println("[상태변경 옵저버 호출] #$orderId")
+//        println("[상태변경 옵저버 호출] #$orderId")
     }
 
     // 타이머 업데이트 옵저버 알림
@@ -228,8 +228,7 @@ data class ReceiveOrderModel(
             json: String,
             parentFrame: JFrame,
             cardPanel: JPanel
-        ):
-                ReceiveOrderModel {
+        ): ReceiveOrderModel {
             val jsonObject = JSONObject(json)
 
             val menuList = jsonObject.getJSONArray("menuList").map { menuJson ->
@@ -254,11 +253,13 @@ data class ReceiveOrderModel(
 
             return ReceiveOrderModel(
                 id = jsonObject.getInt("id"),
-                orderId = jsonObject.getInt("orderId"),
                 orderNumber = jsonObject.getString("orderNumber"),
                 orderDate = jsonObject.getJSONArray("orderDate").map { it as Int },
-                userAppStoreMemberId = jsonObject.getInt("userAppStoreMemberId"),
-                appMemberAddress = jsonObject.getString("appMemberAddress"),
+                appMemberJibunAddress = jsonObject.getString("appMemberJibunAddress"),
+                appMemberRoadAddress = jsonObject.getString("appMemberRoadAddress"),
+                appMemberDetailAddress = jsonObject.getString("appMemberDetailAddress"),
+                safeNumber = jsonObject.getBoolean("safeNumber"),
+                storeName = jsonObject.getString("storeName"),
                 appMemberPhone = jsonObject.getString("appMemberPhone"),
                 disposable = jsonObject.getBoolean("disposable"),
                 sideDish = jsonObject.getBoolean("sideDish"),
@@ -286,7 +287,6 @@ data class ReceiveOrderModel(
             }
         }
 
-
         //JSON To Model
         fun fromJsonObject(
             jsonObject: JSONObject,
@@ -295,31 +295,36 @@ data class ReceiveOrderModel(
         ): ReceiveOrderModel {
             val menuList = jsonObject.getJSONArray("menuList").map { menuJson ->
                 val menuObject = menuJson as JSONObject
-                val menuOptionList = menuObject.getJSONArray("menuOptionList").map { optionJson ->
-                    val optionObject = optionJson as JSONObject
-                    Menu.MenuOption(
-                        id = optionObject.getInt("id"),
-                        categoryName = optionObject.getString("categoryName"),
-                        menuOptionName = optionObject.getString("menuOptionName"),
-                        menuOptionPrice = optionObject.getInt("menuOptionPrice")
-                    )
-                }.toList()
+                val menuOptionList = menuObject.getJSONArray("menuOptionList").map { optionListJson ->
+                    val optionArray = optionListJson as JSONArray
+                    optionArray.map { optionJson ->
+                        val optionObject = optionJson as JSONObject
+                        Menu.MenuOption(
+                            id = optionObject.getInt("id"),
+                            categoryName = optionObject.getString("categoryName"),
+                            menuOptionName = optionObject.getString("menuOptionName"),
+                            menuOptionPrice = optionObject.getInt("menuOptionPrice")
+                        )
+                    }
+                }
                 Menu(
                     id = menuObject.getInt("id"),
                     menuTotalPrice = menuObject.getInt("menuTotalPrice"),
                     menuName = menuObject.getString("menuName"),
                     quantity = menuObject.getInt("quantity"),
-                    menuOptionList = menuOptionList
+                    menuOptionList = menuOptionList.flatten() // 2차원 배열을 1차원으로 변환
                 )
-            }.toList()
+            }
 
             return ReceiveOrderModel(
                 id = jsonObject.getInt("id"),
-                orderId = jsonObject.getInt("orderId"),
                 orderNumber = jsonObject.getString("orderNumber"),
                 orderDate = jsonObject.getJSONArray("orderDate").map { it as Int },
-                userAppStoreMemberId = jsonObject.getInt("userAppStoreMemberId"),
-                appMemberAddress = jsonObject.getString("appMemberAddress"),
+                appMemberJibunAddress = jsonObject.getString("appMemberJibunAddress"),
+                appMemberRoadAddress = jsonObject.getString("appMemberRoadAddress"),
+                appMemberDetailAddress = jsonObject.getString("appMemberDetailAddress"),
+                safeNumber = jsonObject.getBoolean("safeNumber"),
+                storeName = jsonObject.getString("storeName"),
                 appMemberPhone = jsonObject.getString("appMemberPhone"),
                 disposable = jsonObject.getBoolean("disposable"),
                 sideDish = jsonObject.getBoolean("sideDish"),
@@ -351,12 +356,15 @@ data class ReceiveOrderModel(
             parentFrame: JFrame,
             cardPanel: JPanel
         ): List<ReceiveOrderModel> {
-            return jsonArray.map { item ->
-                fromJsonObject(item as JSONObject, parentFrame, cardPanel)
+            return (0 until jsonArray.length()).mapNotNull { index ->
+                try {
+                    val item = jsonArray.getJSONObject(index)
+                    fromJsonObject(item, parentFrame, cardPanel)
+                } catch (e: Exception) {
+                    println("Error parsing item at index $index: ${e.message}")
+                    null // 잘못된 데이터는 무시
+                }
             }
         }
     }
-
-
-
 }

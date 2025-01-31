@@ -64,7 +64,7 @@ class AcceptOrderCommand(
     private suspend fun changeOrderStatusToAccepted(deliveryTime: Int, cookTime: Int): Boolean {
         val result = OrderAPI().orderStatusChangeToServer(
             ServerOrderStatus.ACCEPT,
-            orderId = order.orderId,
+            orderId = order.id,
             estimatedCookingTime = deliveryTime,
             estimatedArrivalTime = cookTime
         )
@@ -116,7 +116,7 @@ class AcceptOrderCommand(
     private suspend fun changeOrderStatusToCooking(deliveryTime: Int, cookTime: Int) {
         val result = OrderAPI().orderStatusChangeToServer(
             ServerOrderStatus.COOKING,
-            orderId = order.orderId,
+            orderId = order.id,
             estimatedCookingTime = deliveryTime,
             estimatedArrivalTime = cookTime
         )

@@ -56,7 +56,7 @@ class RejectOrderCommand(
         val result = OrderAPI().orderStatusChangeToServer(
             ServerOrderStatus.STORE_CANCEL,
             reason = rejectReason,
-            orderId = order.orderId,
+            orderId = order.id,
         )
         // 결과 처리
         if (!result.first) {

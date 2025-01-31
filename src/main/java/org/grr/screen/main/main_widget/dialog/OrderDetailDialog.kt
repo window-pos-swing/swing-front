@@ -146,7 +146,7 @@ class OrderDetailDialog(
             border = EmptyBorder(0, 20, 0, 20)
 
             // 주소 값 - JTextArea 사용
-            add(JTextArea(order.appMemberAddress).apply {
+            add(JTextArea("${order.appMemberRoadAddress} ${order.appMemberDetailAddress}").apply {
                 font = MyFont.SemiBold(18f)
                 lineWrap = true   // 텍스트가 길어질 경우 줄바꿈 허용
                 wrapStyleWord = true  // 단어 단위로 줄바꿈

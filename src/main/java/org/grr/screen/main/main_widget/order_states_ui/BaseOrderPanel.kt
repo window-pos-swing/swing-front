@@ -91,7 +91,7 @@ class BaseOrderPanel(order: ReceiveOrderModel) : JPanel() {
             alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
             // 주소 정보
-            val addressItems = JLabel(order.appMemberAddress).apply {
+            val addressItems = JLabel("${order.appMemberRoadAddress} ${order.appMemberDetailAddress}").apply {
                 font = MyFont.Medium(20f)
                 border = BorderFactory.createEmptyBorder(0, 0, 0, 20)  // 상하 여백 제거
                 foreground = Color.GRAY

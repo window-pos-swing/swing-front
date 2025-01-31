@@ -66,7 +66,11 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                         // 새로운 토큰 저장
                         Storage.saveToken(message)
 
-                        if (storeCode == null) {
+                        if (storeCode == null || storeList?.let { list ->
+                                (0 until list.length()).none { i ->
+                                    list.getJSONObject(i).getString("storeCode") == storeCode
+                                }
+                            } == true) {
                             if (storeList != null && storeList.length() > 0) {
                                 val storeData: List<Triple<String, String, String>> =
                                     (0 until storeList.length()).map { i ->
@@ -140,7 +144,11 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                     val autoLoginCheck = autoLoginCheckBox.isSelected
                     Storage.saveLoginInfo(email, password, autoLoginCheck, null)
 
-                    if (storeCode == null) {
+                    if (storeCode == null || storeList?.let { list ->
+                            (0 until list.length()).none { i ->
+                                list.getJSONObject(i).getString("storeCode") == storeCode
+                            }
+                        } == true) {
                         val storeData: List<Triple<String, String, String>> =
                             (0 until storeList!!.length()).map { i ->
                                 val store = storeList.getJSONObject(i)

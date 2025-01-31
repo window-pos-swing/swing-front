@@ -39,7 +39,7 @@ class CompletedOrderCommand(
         val status = if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) ServerOrderStatus.DELIVERY_COMPLETE else ServerOrderStatus.PICKUP_COMPLETE
         val result = OrderAPI().orderStatusChangeToServer(
             status,
-            orderId = order.orderId,
+            orderId = order.id,
         )
         // 결과 처리
         if (!result.first) {
