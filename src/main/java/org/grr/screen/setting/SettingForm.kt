@@ -120,7 +120,7 @@ class SettingForm : JFrame() {
                 val resourceUrl = javaClass.classLoader.getResource("solar_round-graph-broken.png") // 이미지 리소스 경로
                 val imageIcon = ImageIcon(resourceUrl)
                 val scaledIcon = ImageIcon(
-                    imageIcon.image.getScaledInstance(31, 31, java.awt.Image.SCALE_SMOOTH)
+                    imageIcon.image.getScaledInstance(31, 31, Image.SCALE_SMOOTH)
                 ) // 이미지 크기 조정
                 icon = scaledIcon // 버튼 아이콘 설정
                 iconTextGap = 10 // 텍스트와 이미지 간격 설정
