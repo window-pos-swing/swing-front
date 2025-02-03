@@ -10,12 +10,12 @@ object Storage {
     */
     private val storeInfo = File("storeInfo.json")
 
-    // 회원 정보 저장
+    // 상점 정보 저장
     fun saveMemberInfo(userInfo: JSONObject) {
         storeInfo.writeText(userInfo.toString(4)) // JSON 형식으로 저장
     }
 
-    // 회원 정보 불러오기
+    // 상점 정보 불러오기
     fun getStoreInfo(): JSONObject? {
         return if (storeInfo.exists()) {
             JSONObject(storeInfo.readText()) // JSON 객체로 변환
@@ -24,7 +24,7 @@ object Storage {
         }
     }
 
-    // 회원 정보 삭제
+    // 상점 정보 삭제
     fun clearMemberInfo() {
         if (storeInfo.exists()) {
             storeInfo.delete()

@@ -59,8 +59,8 @@ class ConfirmButton(
                 if (confirmed) {
 //                    println("사용자가 확인을 클릭했습니다.")
                     // 로컬 및 서버 저장
-                    SettingModel.savePauseTime(BusinessStatus.PAUSE,startTime, endTime)
-                    val result = SettingToServer().businessStatusToServer(BusinessStatus.PAUSE, startTime, endTime)
+                    SettingModel.savePauseTime(startTime, endTime)
+                    val result = SettingToServer().businessStatusToServer(startTime, endTime)
 
                     // 결과 처리
                     if (result.first) {

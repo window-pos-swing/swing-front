@@ -69,8 +69,8 @@ class CloseConfirmDialog(
             ).apply {
                 addActionListener {
                     callback(true) // 사용자 확인
-                    SettingModel.savePauseTime(BusinessStatus.END )
-                    val result = SettingToServer().businessStatusToServer(BusinessStatus.END)
+                    SettingModel.savePauseTime()
+//                    val result = SettingToServer().businessStatusToServer()
                     dispose() // 다이얼로그 닫기
                 }
             }

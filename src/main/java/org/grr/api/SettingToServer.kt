@@ -1,6 +1,8 @@
 package org.grr.api
 
 import org.grr.enum.BusinessStatus
+import org.grr.model.SettingModel
+import org.grr.model.SettingModel.businessStatus
 import org.grr.`object`.Api
 import org.grr.`object`.Storage
 import org.json.JSONArray
@@ -56,24 +58,24 @@ class SettingToServer : BaseAPI() {
     }
 
     fun businessStatusToServer(
-        businessStatus: BusinessStatus,
         startTime: LocalDateTime? = null,
         endTime: LocalDateTime? = null
     ): Pair<Boolean, String> {
+        val updatedMemberInfo = SettingModel.storeInfo ?: JSONObject()
+        val pause = updatedMemberInfo.getBoolean("pause")
+
         val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
 
         // 요청 본문 생성
         val requestBody = JSONObject().apply {
-//            put("businessStatus", businessStatus.name)
-
             if (storeCode != null) {
                 put("storeCode", storeCode)
             } else {
                 return Pair(false, "storeCode 값이 없습니다.")
             }
 
-            if (businessStatus == BusinessStatus.PAUSE) {
+            if (!pause) {
                 requireNotNull(startTime) { "startTime은 필수입니다." }
                 requireNotNull(endTime) { "endTime은 필수입니다." }
 
@@ -91,7 +93,7 @@ class SettingToServer : BaseAPI() {
                     put(endTime.hour)
                     put(endTime.minute)
                 })
-            } else if (businessStatus == BusinessStatus.START || businessStatus == BusinessStatus.END) {
+            } else {
                 //서버에서 StartTime , EndTime NULL이면 못바꿔서 00:00으로 초기화 후 보냄
                 val today = LocalDate.now()
                 val defaultTime = LocalTime.MIDNIGHT

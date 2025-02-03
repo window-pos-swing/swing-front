@@ -1,3 +1,4 @@
+import org.grr.`object`.Storage
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import java.awt.*
@@ -5,10 +6,12 @@ import javax.swing.*
 
 class CustomToggleButton : JToggleButton() {
     init {
+        val storeInfo = Storage.getStoreInfo()
+        val pause = storeInfo?.getBoolean("pause")!!
         // 토글 버튼의 초기 상태를 OFF (false)로 설정
         isOpaque = false
         background = MyColor.DARK_RED
-        isSelected = false
+        isSelected = pause
         isFocusPainted = false
         preferredSize = Dimension(120, 40)
         border = null // 경계선을 없앰
@@ -26,7 +29,7 @@ class CustomToggleButton : JToggleButton() {
         g2d.fillRoundRect(0, 0, width, height, height, height)
 
         // ON/OFF 상태에 따른 배경색 그리기
-        if (isSelected) {
+        if (!isSelected) {
             g2d.clipRect(0, 0, width / 2, height)  // ON: 왼쪽
             g2d.color = MyColor.DARK_NAVY
             g2d.fillRoundRect(0, 0, width, height, height, height)
@@ -38,10 +41,10 @@ class CustomToggleButton : JToggleButton() {
 
         // 클립 리셋 및 텍스트 색상 처리
         g2d.clip = null
-        g2d.color = if (isSelected) Color.WHITE else Color(137, 137, 137)
+        g2d.color = if (!isSelected) Color.WHITE else Color(137, 137, 137)
         g2d.drawString("ON", width / 4 - g2d.fontMetrics.stringWidth("ON") / 2, height / 2 + g2d.fontMetrics.ascent / 2)
 
-        g2d.color = if (!isSelected) Color.WHITE else Color(137, 137, 137)
+        g2d.color = if (isSelected) Color.WHITE else Color(137, 137, 137)
         g2d.drawString("OFF", width * 3 / 4 - g2d.fontMetrics.stringWidth("OFF") / 2, height / 2 + g2d.fontMetrics.ascent / 2)
 
         // 포커스와 관련된 그리기 동작을 제거

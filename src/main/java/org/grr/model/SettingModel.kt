@@ -194,15 +194,19 @@ object SettingModel {
     }
 
     fun savePauseTime(
-        _businessStatus: BusinessStatus,
         startTime: LocalDateTime? = null,
         endTime: LocalDateTime? = null
     ) {
         val updatedMemberInfo = storeInfo ?: JSONObject()
-        val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
-        businessStatus = _businessStatus
-        // businessStatus 추가
-        settings.put("businessStatus", businessStatus.name)
+
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
+
+        if (storeCode != null) {
+            updatedMemberInfo.put("storeCode", storeCode)
+        } else {
+            throw IllegalArgumentException("storeCode 값이 없습니다.")
+        }
+
         // startTime 저장 (존재하는 경우)
         if (startTime != null) {
             val startTimeArray = JSONArray().apply {
@@ -212,18 +216,17 @@ object SettingModel {
                 put(startTime.hour)
                 put(startTime.minute)
             }
-            settings.put("businessPauseStartTime", startTimeArray)
+            updatedMemberInfo.put("businessPauseStartTime", startTimeArray)
         } else {
             val today = LocalDate.now()
             val defaultTime = LocalTime.MIDNIGHT
-            settings.put("businessPauseStartTime", JSONArray().apply {
+            updatedMemberInfo.put("businessPauseStartTime", JSONArray().apply {
                 put(today.year)
                 put(today.monthValue)
                 put(today.dayOfMonth)
                 put(defaultTime.hour)
                 put(defaultTime.minute)
             })
-
         }
 
         // endTime 저장 (존재하는 경우)
@@ -235,11 +238,11 @@ object SettingModel {
                 put(endTime.hour)
                 put(endTime.minute)
             }
-            settings.put("businessPauseEndTime", endTimeArray)
+            updatedMemberInfo.put("businessPauseEndTime", endTimeArray)
         } else {
             val today = LocalDate.now()
             val defaultTime = LocalTime.MIDNIGHT
-            settings.put("businessPauseEndTime", JSONArray().apply {
+            updatedMemberInfo.put("businessPauseEndTime", JSONArray().apply {
                 put(today.year)
                 put(today.monthValue)
                 put(today.dayOfMonth)
@@ -248,12 +251,10 @@ object SettingModel {
             })
         }
 
-        updatedMemberInfo.put("setting", settings)
         Storage.saveMemberInfo(updatedMemberInfo)
 
         println("[영업 상태 정보 업데이트 완료]")
-        println("Business Status: ${businessStatus.name}")
-        println("Start Time: ${settings.optJSONArray("businessPauseStartTime")}")
-        println("End Time: ${settings.optJSONArray("businessPauseEndTime")}")
+        println("Start Time: ${updatedMemberInfo.optJSONArray("businessPauseStartTime")}")
+        println("End Time: ${updatedMemberInfo.optJSONArray("businessPauseEndTime")}")
     }
 }
