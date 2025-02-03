@@ -8,6 +8,9 @@ import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.FillRoundedButton
 import java.awt.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import javax.swing.*
 
 class CloseConfirmDialog(
@@ -69,8 +72,11 @@ class CloseConfirmDialog(
             ).apply {
                 addActionListener {
                     callback(true) // 사용자 확인
-                    SettingModel.savePauseTime()
-//                    val result = SettingToServer().businessStatusToServer()
+//                    SettingModel.savePauseTime()
+                    SettingToServer().businessStatusToServer(
+                        LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT),
+                        LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)
+                    )
                     dispose() // 다이얼로그 닫기
                 }
             }

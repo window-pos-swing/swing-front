@@ -29,7 +29,7 @@ class SettingToServer : BaseAPI() {
         return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/cooking-update", requestBody, accessToken)
     }
 
-    fun updateBreakTimeToServer(breakTimeJson : JSONObject): Pair<Boolean, String> {
+    fun updateBreakTimeToServer(breakTimeJson: JSONObject): Pair<Boolean, String> {
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         // breakTime과 id 항목 제거
         val filteredData2 = JSONObject(breakTimeJson.toString()).apply {
@@ -40,7 +40,7 @@ class SettingToServer : BaseAPI() {
         return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/break-time-update", filteredData2, accessToken)
     }
 
-    fun updateBusinessHourToServer(operatorTimeJson : JSONObject): Pair<Boolean, String> {
+    fun updateBusinessHourToServer(operatorTimeJson: JSONObject): Pair<Boolean, String> {
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         // breakTime과 id 항목 제거
         val filteredData2 = JSONObject(operatorTimeJson.toString()).apply {
@@ -48,10 +48,14 @@ class SettingToServer : BaseAPI() {
             remove("id")
         }
         println("[서버로 전송 Body] ${filteredData2.toString(2)}")
-        return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/business-hour-update", filteredData2, accessToken)
+        return sendPostRequest(
+            "${Api.BASE_URL}/api/v1/store-pos-setting/business-hour-update",
+            filteredData2,
+            accessToken
+        )
     }
 
-    fun updateHolidayToServer(holidayJson : JSONArray): Pair<Boolean, String> {
+    fun updateHolidayToServer(holidayJson: JSONArray): Pair<Boolean, String> {
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         println("[서버로 전송 Body] ${holidayJson.toString(2)}")
         return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/holiday-update", holidayJson, accessToken)
@@ -66,6 +70,8 @@ class SettingToServer : BaseAPI() {
 
         val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
+        val today = LocalDate.now()
+        val defaultTime = LocalTime.MIDNIGHT
 
         // 요청 본문 생성
         val requestBody = JSONObject().apply {
@@ -81,24 +87,41 @@ class SettingToServer : BaseAPI() {
                 requireNotNull(startTime) { "startTime은 필수입니다." }
                 requireNotNull(endTime) { "endTime은 필수입니다." }
 
-                put("businessPauseStartTime", JSONArray().apply {
-                    put(startTime.year)
-                    put(startTime.monthValue)
-                    put(startTime.dayOfMonth)
-                    put(startTime.hour)
-                    put(startTime.minute)
-                })
-                put("businessPauseEndTime", JSONArray().apply {
-                    put(endTime.year)
-                    put(endTime.monthValue)
-                    put(endTime.dayOfMonth)
-                    put(endTime.hour)
-                    put(endTime.minute)
-                })
+                if (startTime == LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT) &&
+                    endTime == LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)
+                ) {
+                    put("businessPauseStartTime", JSONArray().apply {
+                        put(today.year)
+                        put(today.monthValue)
+                        put(today.dayOfMonth)
+                        put(defaultTime.hour)
+                        put(defaultTime.minute)
+                    })
+                    put("businessPauseEndTime", JSONArray().apply {
+                        put(today.year)
+                        put(today.monthValue)
+                        put(today.dayOfMonth)
+                        put(defaultTime.hour)
+                        put(defaultTime.minute)
+                    })
+                } else {
+                    put("businessPauseStartTime", JSONArray().apply {
+                        put(startTime.year)
+                        put(startTime.monthValue)
+                        put(startTime.dayOfMonth)
+                        put(startTime.hour)
+                        put(startTime.minute)
+                    })
+                    put("businessPauseEndTime", JSONArray().apply {
+                        put(endTime.year)
+                        put(endTime.monthValue)
+                        put(endTime.dayOfMonth)
+                        put(endTime.hour)
+                        put(endTime.minute)
+                    })
+                }
             } else {
                 //서버에서 StartTime , EndTime NULL이면 못바꿔서 00:00으로 초기화 후 보냄
-                val today = LocalDate.now()
-                val defaultTime = LocalTime.MIDNIGHT
                 put("businessPauseStartTime", JSONArray().apply {
                     put(today.year)
                     put(today.monthValue)
