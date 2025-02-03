@@ -4,6 +4,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Request
+import org.grr.`object`.Storage
 import org.json.JSONObject
 import java.io.IOException
 
@@ -32,6 +33,9 @@ open class BaseAPI {
                         val errorMessage = jsonResponse.getString("resultMessage")
                         Pair(false, errorMessage)
                     } else {
+                        println("세팅 수정된 정보 : ${jsonResponse.getJSONObject("data")}")
+                        val memberData = jsonResponse.getJSONObject("data")
+                        Storage.saveMemberInfo(memberData)
                         Pair(true, jsonResponse.optString("resultMessage", "성공"))
                     }
                 } else {

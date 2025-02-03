@@ -60,11 +60,18 @@ class SettingToServer : BaseAPI() {
         startTime: LocalDateTime? = null,
         endTime: LocalDateTime? = null
     ): Pair<Boolean, String> {
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
 
         // 요청 본문 생성
         val requestBody = JSONObject().apply {
-            put("businessStatus", businessStatus.name)
+//            put("businessStatus", businessStatus.name)
+
+            if (storeCode != null) {
+                put("storeCode", storeCode)
+            } else {
+                return Pair(false, "storeCode 값이 없습니다.")
+            }
 
             if (businessStatus == BusinessStatus.PAUSE) {
                 requireNotNull(startTime) { "startTime은 필수입니다." }

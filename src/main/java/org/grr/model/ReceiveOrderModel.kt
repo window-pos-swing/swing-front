@@ -230,6 +230,7 @@ data class ReceiveOrderModel(
             cardPanel: JPanel
         ): ReceiveOrderModel {
             val jsonObject = JSONObject(json)
+            println("주문 데이터 형식 : ${jsonObject}")
 
             val menuList = jsonObject.getJSONArray("menuList").map { menuJson ->
                 val menuObject = menuJson as JSONObject
