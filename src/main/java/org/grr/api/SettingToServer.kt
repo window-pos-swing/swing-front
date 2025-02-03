@@ -66,12 +66,12 @@ class SettingToServer : BaseAPI() {
         endTime: LocalDateTime? = null
     ): Pair<Boolean, String> {
         val storeInfo = SettingModel.storeInfo ?: JSONObject()
-        val pause = storeInfo.getBoolean("pause")
+        val pause = storeInfo.optBoolean("pause", false) // 기본값 false
 
         val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
+
         val today = LocalDate.now()
-        val defaultTime = LocalTime.MIDNIGHT
 
         // 요청 본문 생성
         val requestBody = JSONObject().apply {
@@ -81,66 +81,32 @@ class SettingToServer : BaseAPI() {
                 return Pair(false, "storeCode 값이 없습니다.")
             }
 
-//            pause가 true면은 운영 중지상태
-            if (!pause) {
-//                운영중 상태(false)일 때 실행되는 구문
-                requireNotNull(startTime) { "startTime은 필수입니다." }
-                requireNotNull(endTime) { "endTime은 필수입니다." }
-
-                if (startTime == LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT) &&
-                    endTime == LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)
-                ) {
-                    put("businessPauseStartTime", JSONArray().apply {
-                        put(today.year)
-                        put(today.monthValue)
-                        put(today.dayOfMonth)
-                        put(defaultTime.hour)
-                        put(defaultTime.minute)
-                    })
-                    put("businessPauseEndTime", JSONArray().apply {
-                        put(today.year)
-                        put(today.monthValue)
-                        put(today.dayOfMonth)
-                        put(defaultTime.hour)
-                        put(defaultTime.minute)
-                    })
-                } else {
-                    put("businessPauseStartTime", JSONArray().apply {
-                        put(startTime.year)
-                        put(startTime.monthValue)
-                        put(startTime.dayOfMonth)
-                        put(startTime.hour)
-                        put(startTime.minute)
-                    })
-                    put("businessPauseEndTime", JSONArray().apply {
-                        put(endTime.year)
-                        put(endTime.monthValue)
-                        put(endTime.dayOfMonth)
-                        put(endTime.hour)
-                        put(endTime.minute)
-                    })
+            // startTime과 endTime이 null이면 서버에 null로 보냄
+            put("businessPauseStartTime", if (startTime != null) {
+                JSONArray().apply {
+                    put(startTime.year)
+                    put(startTime.monthValue)
+                    put(startTime.dayOfMonth)
+                    put(startTime.hour)
+                    put(startTime.minute)
                 }
-            } else {
-                //서버에서 StartTime , EndTime NULL이면 못바꿔서 00:00으로 초기화 후 보냄
-                put("businessPauseStartTime", JSONArray().apply {
-                    put(today.year)
-                    put(today.monthValue)
-                    put(today.dayOfMonth)
-                    put(defaultTime.hour)
-                    put(defaultTime.minute)
-                })
-                put("businessPauseEndTime", JSONArray().apply {
-                    put(today.year)
-                    put(today.monthValue)
-                    put(today.dayOfMonth)
-                    put(defaultTime.hour)
-                    put(defaultTime.minute)
-                })
-            }
+            } else JSONObject.NULL)
+
+            put("businessPauseEndTime", if (endTime != null) {
+                JSONArray().apply {
+                    put(endTime.year)
+                    put(endTime.monthValue)
+                    put(endTime.dayOfMonth)
+                    put(endTime.hour)
+                    put(endTime.minute)
+                }
+            } else JSONObject.NULL)
         }
 
         // 요청 바디 출력 (보기 좋게 정렬)
         println("[서버로 전송 Body] \n${requestBody.toString(4)}")
         return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/pause-update", requestBody, accessToken)
     }
+
+
 }
