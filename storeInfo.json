@@ -62,8 +62,8 @@
         2025,
         2,
         3,
-        15,
-        13
+        0,
+        0
     ],
     "businessHour": {
         "mondayAllDay": false,
@@ -167,8 +167,8 @@
         2025,
         2,
         3,
-        15,
-        43
+        0,
+        0
     ],
     "pause": false,
     "estimatedArrivalTimeControl": false
