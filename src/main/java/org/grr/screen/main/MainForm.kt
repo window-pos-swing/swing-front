@@ -45,7 +45,7 @@ class MainForm : JFrame() {
                 SwingUtilities.invokeLater {
                     if (isSuccess) {
                         val memberData = JSONObject(message.substringAfter(""))
-                        Storage.saveMemberInfo(memberData)
+                        Storage.saveStoreInfo(memberData)
                         println("메인 화면 접속 시 세팅 정보 : ${memberData}")
 
                         // 로컬 데이터 및 주문 리스트 로드

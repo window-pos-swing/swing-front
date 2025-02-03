@@ -50,7 +50,7 @@ object SettingModel {
         settings.put("estimatedCookingTimeControl", cookingTimeControl)
 
         updatedMemberInfo.put("setting", settings)
-        Storage.saveMemberInfo(updatedMemberInfo) // 업데이트된 데이터를 저장
+        Storage.saveStoreInfo(updatedMemberInfo) // 업데이트된 데이터를 저장
 
         println("[요리 정보 업데이트] 요리시간=$cookingTime, 요리시간 on/off=$cookingTimeControl")
     }
@@ -64,7 +64,7 @@ object SettingModel {
         settings.put("estimatedArrivalTimeControl", deliveryTimeControl)
 
         updatedMemberInfo.put("setting", settings)
-        Storage.saveMemberInfo(updatedMemberInfo) // 업데이트된 데이터를 저장
+        Storage.saveStoreInfo(updatedMemberInfo) // 업데이트된 데이터를 저장
 
         println("[배달 정보 업데이트] 배달시간=$deliveryTime, 배달시간 on/off=$deliveryTimeControl")
     }
@@ -97,7 +97,7 @@ object SettingModel {
         // 여기에서 breakTimeString 데이터를 JSON으로 변환하여 저장
         settings.put("breakTime", breakTimeJson)
         updatedMemberInfo.put("setting", settings)
-        Storage.saveMemberInfo(updatedMemberInfo)
+        Storage.saveStoreInfo(updatedMemberInfo)
 
         println("[브레이크 타임 정보 업데이트 완료]")
         loadBreakTime()
@@ -132,7 +132,7 @@ object SettingModel {
 
         settings.put("businessHour", operateTimeJson)
         updatedMemberInfo.put("setting", settings)
-        Storage.saveMemberInfo(updatedMemberInfo)
+        Storage.saveStoreInfo(updatedMemberInfo)
 
         println("[운영시간 정보 로컬 업데이트 완료]")
         loadOperateTime()
@@ -183,7 +183,7 @@ object SettingModel {
 
         settings.put("holidayList", holidayJson)
         updatedMemberInfo.put("setting", settings)
-        Storage.saveMemberInfo(updatedMemberInfo)
+        Storage.saveStoreInfo(updatedMemberInfo)
 
         println("[휴무일 정보 로컬 업데이트 완료]")
         loadHoliday()
@@ -202,7 +202,7 @@ object SettingModel {
         val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
 
         if (storeCode != null) {
-            updatedMemberInfo.put("storeCode", storeCode)
+//            updatedMemberInfo.put("storeCode", storeCode)
         } else {
             throw IllegalArgumentException("storeCode 값이 없습니다.")
         }
@@ -227,6 +227,7 @@ object SettingModel {
                 put(defaultTime.hour)
                 put(defaultTime.minute)
             })
+
         }
 
         // endTime 저장 (존재하는 경우)
@@ -251,7 +252,7 @@ object SettingModel {
             })
         }
 
-        Storage.saveMemberInfo(updatedMemberInfo)
+        Storage.saveStoreInfo(updatedMemberInfo)
 
         println("[영업 상태 정보 업데이트 완료]")
         println("Start Time: ${updatedMemberInfo.optJSONArray("businessPauseStartTime")}")

@@ -34,8 +34,8 @@ open class BaseAPI {
                         Pair(false, errorMessage)
                     } else {
                         println("세팅 수정된 정보 : ${jsonResponse.getJSONObject("data")}")
-                        val memberData = jsonResponse.getJSONObject("data")
-                        Storage.saveMemberInfo(memberData)
+                        val storeData = jsonResponse.getJSONObject("data")
+                        Storage.saveStoreInfo(storeData)
                         Pair(true, jsonResponse.optString("resultMessage", "성공"))
                     }
                 } else {

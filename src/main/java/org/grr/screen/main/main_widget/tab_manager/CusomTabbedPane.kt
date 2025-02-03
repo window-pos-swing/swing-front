@@ -134,26 +134,8 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                 if (isHandling) return@addItemListener // 이벤트 중복 처리 방지
 
                 if (event.stateChange == ItemEvent.SELECTED) {
-                    // ON 상태로 전환
-//                    isHandling = true
-                    SettingModel.savePauseTime()
-                    val settingToServer = SettingToServer()
-                    val result = settingToServer.businessStatusToServer()
-                    if (result.first) {
-//                    JOptionPane.showMessageDialog(menuPanel, "운영시간 업데이트 완료 ! ", "성공", JOptionPane.INFORMATION_MESSAGE)
-                    } else {
-                        JOptionPane.showMessageDialog(
-                            menuPanel,
-                            "업데이트 실패: ${result.second}",
-                            "오류",
-                            JOptionPane.ERROR_MESSAGE
-                        )
-                    }
-                    isSelected = false // ON 상태 유지
-                    isHandling = false
-                } else {
                     // OFF 상태로 전환
-//                    isHandling = true
+                    isHandling = true
                     overlayManager.addOverlayPanel()
                     PauseOperationsDialog(parentFrame, cardPanel!!, "영업 임시 중지", callback = { confirmed ->
                         if (confirmed) {
@@ -169,7 +151,25 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                             }
                         })
                     }
-//                    isHandling = false
+                    isHandling = false
+                } else {
+                    // ON 상태로 전환
+                    isHandling = true
+//                    SettingModel.savePauseTime()
+                    val settingToServer = SettingToServer()
+                    val result = settingToServer.businessStatusToServer()
+                    if (result.first) {
+//                    JOptionPane.showMessageDialog(menuPanel, "운영시간 업데이트 완료 ! ", "성공", JOptionPane.INFORMATION_MESSAGE)
+                    } else {
+                        JOptionPane.showMessageDialog(
+                            menuPanel,
+                            "업데이트 실패: ${result.second}",
+                            "오류",
+                            JOptionPane.ERROR_MESSAGE
+                        )
+                    }
+//                    isSelected = false // ON 상태 유지
+                    isHandling = false
                 }
             }
         }
@@ -467,7 +467,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         }
 
         //UI갱신
-        frameToUpdate?.let {
+        frameToUpdate.let {
             val updatedUI = order.getUI()
             it.removeAll()
             it.add(updatedUI)

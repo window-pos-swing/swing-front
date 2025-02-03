@@ -617,6 +617,4 @@ class PauseOperationsDialog(
         // 라벨 업데이트
         timeLabel.text = "${newTime}분"
     }
-
-
 }

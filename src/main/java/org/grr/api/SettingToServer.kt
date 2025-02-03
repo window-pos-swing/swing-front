@@ -61,8 +61,8 @@ class SettingToServer : BaseAPI() {
         startTime: LocalDateTime? = null,
         endTime: LocalDateTime? = null
     ): Pair<Boolean, String> {
-        val updatedMemberInfo = SettingModel.storeInfo ?: JSONObject()
-        val pause = updatedMemberInfo.getBoolean("pause")
+        val storeInfo = SettingModel.storeInfo ?: JSONObject()
+        val pause = storeInfo.getBoolean("pause")
 
         val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
@@ -75,7 +75,9 @@ class SettingToServer : BaseAPI() {
                 return Pair(false, "storeCode 값이 없습니다.")
             }
 
+//            pause가 true면은 운영 중지상태
             if (!pause) {
+//                운영중 상태(false)일 때 실행되는 구문
                 requireNotNull(startTime) { "startTime은 필수입니다." }
                 requireNotNull(endTime) { "endTime은 필수입니다." }
 

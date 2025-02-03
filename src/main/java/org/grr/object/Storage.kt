@@ -11,7 +11,7 @@ object Storage {
     private val storeInfo = File("storeInfo.json")
 
     // 상점 정보 저장
-    fun saveMemberInfo(userInfo: JSONObject) {
+    fun saveStoreInfo(userInfo: JSONObject) {
         storeInfo.writeText(userInfo.toString(4)) // JSON 형식으로 저장
     }
 
