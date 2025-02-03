@@ -22,8 +22,8 @@ class OrderAPI : BaseAPI() {
         val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         val storeCodes = storeCode?.let { "&storeCode=${storeCode}" } ?: return Pair(false, "상점 코드가 없습니다.")
-        val serverOrderStatusParam = filter.serverOrderStatus?.name?.let { "&posOrderStatus=$it" } ?: ""
-        val posOrderStatusParam = filter.posOrderStatus?.name?.let { "&orderStatusType=$it" } ?: ""
+        val serverOrderStatusParam = filter.serverOrderStatus?.name?.let { "&orderStatusType=$it" } ?: ""
+        val posOrderStatusParam = filter.posOrderStatus?.name?.uppercase()?.let { "&posOrderStatus=$it" } ?: ""
         val orderReceiveTypeParam = filter.orderReceiveType?.name?.let { "&orderReceiveType=$it" } ?: ""
         val url =
             "${Api.BASE_URL}/api/v1/pos-order/list?pageNumber=${pageNumber}&pageSize=${OrderListSingleTon.PAGE_SIZE}$serverOrderStatusParam$posOrderStatusParam$orderReceiveTypeParam$storeCodes"
@@ -55,7 +55,6 @@ class OrderAPI : BaseAPI() {
                 cardPanel,
                 filter,
                 totalElements,
-
             )
             return Pair(true, dataArray.toString())
         } catch (e: Exception) {
