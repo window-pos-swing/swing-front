@@ -232,7 +232,7 @@ data class ReceiveOrderModel(
             val jsonObject = JSONObject(json)
             println("주문 데이터 형식 : ${jsonObject}")
 
-            val menuList = jsonObject.getJSONArray("menuList").map { menuJson ->
+            val menuList = jsonObject.getJSONArray("cartItemList").map { menuJson ->
                 val menuObject = menuJson as JSONObject
                 val menuOptionList = menuObject.getJSONArray("menuOptionList").map { optionJson ->
                     val optionObject = optionJson as JSONObject

@@ -170,6 +170,6 @@
         0,
         0
     ],
-    "pause": false,
+    "pause": true,
     "estimatedArrivalTimeControl": false
 }
