@@ -34,7 +34,6 @@ class PosWebSocketClient(
                 cardPanel = cardPanel
             )
             if(orderData.posOrderStatusType != ServerOrderStatus.REQUEST.name) return
-            if(SettingModel.businessStatus != BusinessStatus.START) return
 
             // 키 결정
             val key = when (orderData.orderReceiveType) {

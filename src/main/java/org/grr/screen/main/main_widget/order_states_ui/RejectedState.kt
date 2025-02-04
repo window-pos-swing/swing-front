@@ -164,14 +164,20 @@ class RejectedState(
                         }, gbcReasonPanel.apply { gridy = 0 })  // 첫 번째 행에 추가
 
                         // 실제 거절이유 (가운데 정렬)
-                        val rejectReasonLabel = rejectReason?.let {
+                        val rejectReasonLabel: JLabel = rejectReason?.let {
                             AutoScalingLabel(it).apply {
                                 foreground = MyColor.GREY900  // 텍스트 색상 설정
                                 horizontalAlignment = SwingConstants.CENTER  // 수평 가운데 정렬
                             }
+                        } ?: JLabel("고객 거절").apply { // rejectReasonLabel 기본값 설정 (null 방지)
+                            foreground = MyColor.GREY600
+                            horizontalAlignment = SwingConstants.CENTER
+                            font = MyFont.Medium(28f)
                         }
+
                         gbcReasonPanel.anchor = GridBagConstraints.CENTER  // 가운데 정렬
                         add(rejectReasonLabel, gbcReasonPanel.apply { gridy = 1 })  // 두 번째 행에 추가
+
                     }
 
                     // rightPanel에 두 개의 박스를 추가 (반반씩 차지하도록)

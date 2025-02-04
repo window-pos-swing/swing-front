@@ -168,7 +168,6 @@ object OrderController {
                 tabbedPane.addOrderToAllOrders(orderFrame, true)
                 tabbedPane.updateOrderInAllOrders(order)
             }else{
-                println("타이머 시작!!")
                 tabbedPane.updateOrderInAllOrders(order)
                 tabbedPane.addOrderToAllOrders(orderFrame, true)
             }

@@ -12,22 +12,23 @@ import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import org.grr.util.MyDateFormat
 import org.json.JSONArray
 import org.json.JSONObject
-import java.time.LocalDateTime
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.Timer  // javax.swing.Timer 사용
 
 data class ReceiveOrderModel(
     val id: Int,
+    val storeId : Int? = null,
     var orderNumber: String,
     var appMemberJibunAddress: String,
     var appMemberRoadAddress: String,
     var appMemberDetailAddress: String,
+    val appMemberPhone: String,
     var safeNumber: Boolean,
     var storeName: String,
     val orderDate: List<Int>,
     val modifyOrderDate: List<Int>,
-    val appMemberPhone: String,
+
     val disposable: Boolean,
     val sideDish: Boolean,
     val storeRequest: String,
@@ -353,8 +354,8 @@ data class ReceiveOrderModel(
                 orderPrice = jsonObject.getInt("orderPrice"),
                 deliveryPrice = jsonObject.getInt("deliveryPrice"),
                 couponName = jsonObject.optString("couponName", null),
-                couponDiscountPrice = jsonObject.getInt("couponDiscountPrice"),
-                cashDiscountPrice = jsonObject.getInt("cashDiscountPrice"),
+                couponDiscountPrice = jsonObject.optInt("couponDiscountPrice", 0),
+                cashDiscountPrice = jsonObject.optInt("cashDiscountPrice", 0),
                 modifyOrderDate = jsonObject.getJSONArray("modifyOrderDate").map { it as Int },
                 rejectionReason = jsonObject.optString("rejectionReason", null),
                 estimatedCookingTime = if (jsonObject.isNull("estimatedCookingTime")) null else jsonObject.getInt("estimatedCookingTime"),
