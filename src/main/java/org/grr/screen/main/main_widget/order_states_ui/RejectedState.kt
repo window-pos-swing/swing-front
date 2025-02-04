@@ -14,7 +14,7 @@ import java.awt.*
 import javax.swing.*
 
 class RejectedState(
-    val rejectReason: String,
+    val rejectReason: String?,
     val rejectDate: String,
     val rejectType : RejectedReasonType,
     val rejectPanel : PosOrderStatus
@@ -164,9 +164,11 @@ class RejectedState(
                         }, gbcReasonPanel.apply { gridy = 0 })  // 첫 번째 행에 추가
 
                         // 실제 거절이유 (가운데 정렬)
-                        val rejectReasonLabel = AutoScalingLabel(rejectReason).apply {
-                            foreground = MyColor.GREY900  // 텍스트 색상 설정
-                            horizontalAlignment = SwingConstants.CENTER  // 수평 가운데 정렬
+                        val rejectReasonLabel = rejectReason?.let {
+                            AutoScalingLabel(it).apply {
+                                foreground = MyColor.GREY900  // 텍스트 색상 설정
+                                horizontalAlignment = SwingConstants.CENTER  // 수평 가운데 정렬
+                            }
                         }
                         gbcReasonPanel.anchor = GridBagConstraints.CENTER  // 가운데 정렬
                         add(rejectReasonLabel, gbcReasonPanel.apply { gridy = 1 })  // 두 번째 행에 추가

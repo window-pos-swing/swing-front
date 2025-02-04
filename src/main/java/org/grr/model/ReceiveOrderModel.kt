@@ -33,15 +33,15 @@ data class ReceiveOrderModel(
     val storeRequest: String,
     val riderRequest: String,
     val orderReceiveType: String,
-    val posOrderStatus : PosOrderStatus,
+    val posOrderStatus: PosOrderStatus,
     val posOrderStatusType: String,
     val expectedPrice: Int,
     val totalOrderPrice: Int,
     val orderPrice: Int,
     val deliveryPrice: Int,
     val couponName: String?,
-    val couponDiscountPrice: Int,
-    val cashDiscountPrice: Int,
+    val couponDiscountPrice: Int?,
+    val cashDiscountPrice: Int?,
     val rejectionReason: String?,
     val estimatedCookingTime: Int?,
     val estimatedArrivalTime: Int?,
@@ -122,20 +122,17 @@ data class ReceiveOrderModel(
             ServerOrderStatus.DELIVERY_COMPLETE.name -> CompletedState()
 
             ServerOrderStatus.STORE_CANCEL.name-> RejectedState(
-                rejectReason = rejectionReason!!,
+                rejectReason = rejectionReason,
                 rejectDate = "${modifyOrderDate[0]}.${modifyOrderDate[1]}.${modifyOrderDate[2]}",
                 rejectType = RejectedReasonType.STORE_REJECT,
                 rejectPanel = PosOrderStatus.STORE_CANCEL
             )
             ServerOrderStatus.USER_CANCEL.name -> RejectedState(
-                rejectReason = rejectionReason!!,
+                rejectReason = rejectionReason,
                 rejectDate = "${modifyOrderDate[0]}.${modifyOrderDate[1]}.${modifyOrderDate[2]}",
                 rejectType = RejectedReasonType.CUSTOMER_CANCEL,
                 rejectPanel = PosOrderStatus.USER_CANCEL
             )
-
-
-
             else -> PendingState(parentFrame, cardPanel) // 기본 상태
         }
     }
@@ -232,25 +229,42 @@ data class ReceiveOrderModel(
             val jsonObject = JSONObject(json)
             println("주문 데이터 형식 : ${jsonObject}")
 
-            val menuList = jsonObject.getJSONArray("cartItemList").map { menuJson ->
-                val menuObject = menuJson as JSONObject
-                val menuOptionList = menuObject.getJSONArray("menuOptionList").map { optionJson ->
-                    val optionObject = optionJson as JSONObject
-                    Menu.MenuOption(
-                        id = optionObject.getInt("id"),
-                        categoryName = optionObject.getString("categoryName"),
-                        menuOptionName = optionObject.getString("menuOptionName"),
-                        menuOptionPrice = optionObject.getInt("menuOptionPrice")
-                    )
-                }.toList()
-                Menu(
-                    id = menuObject.getInt("id"),
-                    menuTotalPrice = menuObject.getInt("menuTotalPrice"),
-                    menuName = menuObject.getString("menuName"),
-                    quantity = menuObject.getInt("quantity"),
-                    menuOptionList = menuOptionList
-                )
-            }.toList()
+            val menuList = if (jsonObject.has("menuList")) {
+                val menuListJson = jsonObject.get("menuList")
+                if (menuListJson is JSONArray) {
+                    // JSONArray를 처리
+                    menuListJson.map { menuJson ->
+                        val menuObject = menuJson as JSONObject
+                        // menuOptionList가 2차원 배열임을 반영
+                        val menuOptionList = menuObject.getJSONArray("menuOptionList").map { optionArray ->
+                            // optionArray는 또 다른 JSONArray이므로, 각 배열을 순회하여 처리
+                            val options = (optionArray as JSONArray).map { optionJson ->
+                                val optionObject = optionJson as JSONObject
+                                Menu.MenuOption(
+                                    id = optionObject.getInt("id"),
+                                    categoryName = optionObject.getString("categoryName"),
+                                    menuOptionName = optionObject.getString("menuOptionName"),
+                                    menuOptionPrice = optionObject.getInt("menuOptionPrice")
+                                )
+                            }
+                            options.toList() // 각 옵션을 리스트로 처리
+                        }.toList() // 모든 옵션들을 리스트로 변환
+                        Menu(
+                            id = menuObject.getInt("id"),
+                            menuTotalPrice = menuObject.getInt("menuTotalPrice"),
+                            menuName = menuObject.getString("menuName"),
+                            quantity = menuObject.getInt("quantity"),
+                            menuOptionList = menuOptionList.flatten()
+                        )
+                    }.toList()
+                } else {
+                    // menuList가 JSONArray가 아닐 경우 빈 리스트 반환
+                    listOf()
+                }
+            } else {
+                // menuList가 없으면 빈 리스트 반환
+                emptyList<Menu>()
+            }
 
             return ReceiveOrderModel(
                 id = jsonObject.getInt("id"),
@@ -274,8 +288,8 @@ data class ReceiveOrderModel(
                 orderPrice = jsonObject.getInt("orderPrice"),
                 deliveryPrice = jsonObject.getInt("deliveryPrice"),
                 couponName = jsonObject.optString("couponName", null),
-                couponDiscountPrice = jsonObject.getInt("couponDiscountPrice"),
-                cashDiscountPrice = jsonObject.getInt("cashDiscountPrice"),
+                couponDiscountPrice = jsonObject.optInt("couponDiscountPrice", 0),
+                cashDiscountPrice = jsonObject.optInt("cashDiscountPrice", 0),
                 modifyOrderDate = jsonObject.getJSONArray("modifyOrderDate").map { it as Int },
                 rejectionReason = jsonObject.optString("rejectionReason", null),
                 estimatedCookingTime = if (jsonObject.isNull("estimatedCookingTime")) null else jsonObject.getInt("estimatedCookingTime"),

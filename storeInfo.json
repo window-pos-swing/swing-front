@@ -58,13 +58,6 @@
             0
         ]
     },
-    "businessPauseStartTime": [
-        2025,
-        2,
-        3,
-        0,
-        0
-    ],
     "businessHour": {
         "mondayAllDay": false,
         "wednesdayStartTime": [
@@ -163,13 +156,6 @@
     ],
     "estimatedArrivalTime": 50,
     "estimatedCookingTimeControl": false,
-    "businessPauseEndTime": [
-        2025,
-        2,
-        3,
-        0,
-        0
-    ],
-    "pause": true,
+    "pause": false,
     "estimatedArrivalTimeControl": false
 }
