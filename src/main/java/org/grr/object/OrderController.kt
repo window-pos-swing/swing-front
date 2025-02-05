@@ -36,15 +36,10 @@ object OrderController {
         val allOrdersFrame = tabbedPane.createOrderFrame(order) // 전체보기용 프레임
         val pendingOrdersFrame = tabbedPane.createOrderFrame(order) // 접수대기용 프레임
         val pendingOrderTypeOrdersFrame = tabbedPane.createOrderFrame(order) // 접수대기용 프레임
-//        val userCancelOrderFrame = tabbedPane.createOrderFrame(order)
 
         tabbedPane.addOrderToAllOrders(allOrdersFrame, false)  // 전체보기 탭에 추가
-//        if (order.posOrderStatusType == ServerOrderStatus.USER_CANCEL.name) {
-//            tabbedPane.addOrderToRejected(userCancelOrderFrame)
-//        } else {
-            tabbedPane.updateOrderInAllOrders(order)
-            tabbedPane.addOrderToPending(pendingOrdersFrame, pendingOrderTypeOrdersFrame, order)  // 접수대기 탭에 추가
-//        }
+        tabbedPane.updateOrderInAllOrders(order)
+        tabbedPane.addOrderToPending(pendingOrdersFrame, pendingOrderTypeOrdersFrame, order)  // 접수대기 탭에 추가
 
         println("주문 추가")
     }
@@ -59,9 +54,11 @@ object OrderController {
                     moveOrderToProcessing(order)
                 }
             }
+
             is RejectedState -> {
-                    moveOrderToReject(order)
+                moveOrderToReject(order)
             }
+
             is CompletedState -> {
                 moveOrderToCompleted(order)
             }
@@ -82,7 +79,7 @@ object OrderController {
         val processingOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
         val processingTypeOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
 
-        tabbedPane.addOrderToProcessing(processingOrderFrame,processingTypeOrderFrame, order)
+        tabbedPane.addOrderToProcessing(processingOrderFrame, processingTypeOrderFrame, order)
         tabbedPane.updateOrderInAllOrders(order)
         tabbedPane.removeOrderFromPending(order)
         tabbedPane.pendingSubTabs.updateCounts()
@@ -106,7 +103,7 @@ object OrderController {
         tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
     }
 
-    fun moveOrderToReject(order: ReceiveOrderModel ) {
+    fun moveOrderToReject(order: ReceiveOrderModel) {
         println("moveOrderToReject")
         val rejectedState = order.state as RejectedState
         updateOrderUIInAllOrders(order)
@@ -116,11 +113,12 @@ object OrderController {
         when (rejectedState.rejectPanel) {
             PosOrderStatus.WAITING -> {
                 OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) - 1
-                OrderListSingleTon.counts["rejectStoreOrders"] = (OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + 1
+                OrderListSingleTon.counts["rejectStoreOrders"] =
+                    (OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + 1
                 val removeOrder = OrderListSingleTon.findOrderByNumber("pendingOrders", order.orderNumber)
-                if(removeOrder != null) {
+                if (removeOrder != null) {
                     OrderListSingleTon.orders["pendingOrders"]?.remove(removeOrder)
-                    OrderListSingleTon.orders["rejectStoreOrders"]?.add(0,order)
+                    OrderListSingleTon.orders["rejectStoreOrders"]?.add(0, order)
                 }
                 tabbedPane.removeOrderFromPending(order)
                 tabbedPane.addOrderToRejected(rejectedOrderFrame)
@@ -129,11 +127,12 @@ object OrderController {
 
             PosOrderStatus.IN_PROGRESS -> {
                 OrderListSingleTon.counts["processingOrders"] = (OrderListSingleTon.counts["processingOrders"] ?: 0) - 1
-                OrderListSingleTon.counts["rejectStoreOrders"] = (OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + 1
+                OrderListSingleTon.counts["rejectStoreOrders"] =
+                    (OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + 1
                 val removeOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
-                if(removeOrder != null) {
+                if (removeOrder != null) {
                     OrderListSingleTon.orders["processingOrders"]?.remove(removeOrder)
-                    OrderListSingleTon.orders["rejectStoreOrders"]?.add(0,order)
+                    OrderListSingleTon.orders["rejectStoreOrders"]?.add(0, order)
                 }
                 tabbedPane.removeOrderFromProcessing(order)
                 tabbedPane.addOrderToRejected(rejectedOrderFrame)
@@ -142,44 +141,51 @@ object OrderController {
             }
 
             PosOrderStatus.USER_CANCEL -> {
-                OrderListSingleTon.orders["rejectUserOrders"]?.add(0,order)
+                OrderListSingleTon.orders["rejectUserOrders"]?.add(0, order)
                 OrderListSingleTon.counts["rejectUserOrders"] = (OrderListSingleTon.counts["rejectUserOrders"] ?: 0) + 1
                 val removeOrder = OrderListSingleTon.findOrderByNumber("pendingOrders", order.orderNumber)
-                if(removeOrder != null) {
+                if (removeOrder != null) {
                     OrderListSingleTon.orders["pendingOrders"]?.remove(removeOrder)
                     OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) - 1
-                    if(OrderListSingleTon.pageNumbers["pendingOrders"]!! > 0){
-                        OrderListSingleTon.pageNumbers["pendingOrders"] = (OrderListSingleTon.pageNumbers["pendingOrders"] ?: 0) - 1
+                    if (OrderListSingleTon.pageNumbers["pendingOrders"]!! > 0) {
+                        OrderListSingleTon.pageNumbers["pendingOrders"] =
+                            (OrderListSingleTon.pageNumbers["pendingOrders"] ?: 0) - 1
                     }
-                    if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
-                        if(OrderListSingleTon.pageNumbers["pendingDeliveryOrders"]!! > 0){
-                            OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] ?: 0) - 1
+                    if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) {
+                        if (OrderListSingleTon.pageNumbers["pendingDeliveryOrders"]!! > 0) {
+                            OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] =
+                                (OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] ?: 0) - 1
                         }
-                    }else{
-                        if(OrderListSingleTon.pageNumbers["pendingTakeOutOrders"]!! > 0 ){
-                            OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] ?: 0) - 1
+                    } else {
+                        if (OrderListSingleTon.pageNumbers["pendingTakeOutOrders"]!! > 0) {
+                            OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] =
+                                (OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] ?: 0) - 1
                         }
                     }
                     tabbedPane.removeOrderFromPending(order)
                     tabbedPane.addOrderToRejected(rejectedOrderFrame)
                     tabbedPane.pendingSubTabs.updateCounts()
                     tabbedPane.updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
-                }else{
+                } else {
                     val removeOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
-                    if(removeOrder != null) {
+                    if (removeOrder != null) {
                         OrderListSingleTon.orders["processingOrders"]?.remove(removeOrder)
-                        OrderListSingleTon.counts["processingOrders"] = (OrderListSingleTon.counts["processingOrders"] ?: 0) - 1
+                        OrderListSingleTon.counts["processingOrders"] =
+                            (OrderListSingleTon.counts["processingOrders"] ?: 0) - 1
 
-                        if(OrderListSingleTon.pageNumbers["processingOrders"]!! > 0){
-                            OrderListSingleTon.pageNumbers["processingOrders"] = (OrderListSingleTon.pageNumbers["processingOrders"] ?: 0) - 1
+                        if (OrderListSingleTon.pageNumbers["processingOrders"]!! > 0) {
+                            OrderListSingleTon.pageNumbers["processingOrders"] =
+                                (OrderListSingleTon.pageNumbers["processingOrders"] ?: 0) - 1
                         }
-                        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
-                            if(OrderListSingleTon.pageNumbers["processingDeliveryOrders"]!! > 0){
-                                OrderListSingleTon.pageNumbers["processingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["processingDeliveryOrders"] ?: 0) - 1
+                        if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) {
+                            if (OrderListSingleTon.pageNumbers["processingDeliveryOrders"]!! > 0) {
+                                OrderListSingleTon.pageNumbers["processingDeliveryOrders"] =
+                                    (OrderListSingleTon.pageNumbers["processingDeliveryOrders"] ?: 0) - 1
                             }
-                        }else{
-                            if(OrderListSingleTon.pageNumbers["processingTakeOutOrders"]!! > 0 ){
-                                OrderListSingleTon.pageNumbers["processingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["processingTakeOutOrders"] ?: 0) - 1
+                        } else {
+                            if (OrderListSingleTon.pageNumbers["processingTakeOutOrders"]!! > 0) {
+                                OrderListSingleTon.pageNumbers["processingTakeOutOrders"] =
+                                    (OrderListSingleTon.pageNumbers["processingTakeOutOrders"] ?: 0) - 1
                             }
                         }
                         tabbedPane.removeOrderFromProcessing(order)
@@ -189,12 +195,15 @@ object OrderController {
                     }
                 }
 
-
                 tabbedPane.rejectedSubTabs.updateCounts()
-                tabbedPane.updateTabTitle(4, "주문거절", (
-                        OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + (OrderListSingleTon.counts["rejectUserOrders"] ?: 0) + (OrderListSingleTon.counts["rejectRefundOrders"] ?: 0)
+                tabbedPane.updateTabTitle(
+                    4, "주문거절", (
+                            OrderListSingleTon.counts["rejectStoreOrders"]
+                                ?: 0) + (OrderListSingleTon.counts["rejectUserOrders"]
+                        ?: 0) + (OrderListSingleTon.counts["rejectRefundOrders"] ?: 0)
                 )
             }
+
             else -> println("Unhandled state for rejection: ${rejectedState.rejectPanel}")
 
         }
@@ -218,10 +227,10 @@ object OrderController {
             val forProcessing =
                 if (order.posOrderStatusType == ServerOrderStatus.COOKING.name || order.posOrderStatusType == ServerOrderStatus.ACCEPT.name) true else false
             val orderFrame = tabbedPane.createOrderFrame(order, forProcessing)
-            if(!forProcessing){
+            if (!forProcessing) {
                 tabbedPane.addOrderToAllOrders(orderFrame, true)
                 tabbedPane.updateOrderInAllOrders(order)
-            }else{
+            } else {
                 tabbedPane.updateOrderInAllOrders(order)
                 tabbedPane.addOrderToAllOrders(orderFrame, true)
             }

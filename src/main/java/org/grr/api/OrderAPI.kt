@@ -72,6 +72,7 @@ class OrderAPI : BaseAPI() {
         estimatedArrivalTime: Int? = null
     ): Pair<Boolean, String> {
         println("orderId : $orderId")
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         // JSON 객체 생성
         val orderStatusBody = JSONObject().apply {
@@ -83,7 +84,6 @@ class OrderAPI : BaseAPI() {
             if (reason != null) put("reason", reason)
         }
         println("[서버로 전송 Body] ${orderStatusBody.toString(2)}")
-        return sendPostRequest("${Api.BASE_URL}/api/v1/pos-order/status?orderId=$orderId", orderStatusBody, accessToken)
+        return sendPostRequest("${Api.BASE_URL}/api/v1/pos-order/status?orderId=$orderId&storeCode=$storeCode", orderStatusBody, accessToken)
     }
-
 }
