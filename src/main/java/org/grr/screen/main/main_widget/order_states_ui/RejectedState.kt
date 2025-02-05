@@ -203,5 +203,4 @@ class RejectedState(
             add(contentPanel, BorderLayout.CENTER)
         }
     }
-
 }

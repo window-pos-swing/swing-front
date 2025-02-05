@@ -447,7 +447,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     }
 
     fun updateOrderInAllOrders(order: ReceiveOrderModel) {
-        println("updateOrderInAllOrders : ${order.orderNumber}")
+        println("updateOrderInAllOrders : ${order.orderNumber}, 현재 상태: ${order.state::class.simpleName}")
         val frameToUpdate = allOrdersPanel.components
             .filterIsInstance<BaseOrderPanel>()
             .find { it.getClientProperty("orderNumber") == order.orderNumber }
@@ -461,6 +461,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                 BorderFactory.createEmptyBorder(0, 20, 0, 20)  // 바깥쪽 여백 설정
             )
         }
+
         if (frameToUpdate == null) {
             println("Error: Frame not found for order OrderNumber ${order.orderNumber}")
             return
@@ -574,5 +575,4 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         }
         return "<html><span style='font-family:$fontFamily; font-size:26px;'>$orderTypeText 주문 상세</span></html>"
     }
-
 }

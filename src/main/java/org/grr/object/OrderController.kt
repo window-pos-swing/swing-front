@@ -40,10 +40,15 @@ object OrderController {
         val allOrdersFrame = tabbedPane.createOrderFrame(order) // 전체보기용 프레임
         val pendingOrdersFrame = tabbedPane.createOrderFrame(order) // 접수대기용 프레임
         val pendingOrderTypeOrdersFrame = tabbedPane.createOrderFrame(order) // 접수대기용 프레임
+//        val userCancelOrderFrame = tabbedPane.createOrderFrame(order)
 
         tabbedPane.addOrderToAllOrders(allOrdersFrame, false)  // 전체보기 탭에 추가
-        tabbedPane.updateOrderInAllOrders(order)
-        tabbedPane.addOrderToPending(pendingOrdersFrame, pendingOrderTypeOrdersFrame, order)  // 접수대기 탭에 추가
+//        if (order.posOrderStatusType == ServerOrderStatus.USER_CANCEL.name) {
+//            tabbedPane.addOrderToRejected(userCancelOrderFrame)
+//        } else {
+            tabbedPane.updateOrderInAllOrders(order)
+            tabbedPane.addOrderToPending(pendingOrdersFrame, pendingOrderTypeOrdersFrame, order)  // 접수대기 탭에 추가
+//        }
 
         println("주문 추가")
     }
@@ -75,7 +80,6 @@ object OrderController {
             .filterIsInstance<JPanel>()
             .any { it.getClientProperty("orderNumber") == order.orderNumber }
     }
-
 
     private fun moveOrderToProcessing(order: ReceiveOrderModel) {
         println("moveOrderToProcessing")
