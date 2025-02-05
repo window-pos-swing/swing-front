@@ -2,6 +2,7 @@ package org.grr.`object`
 
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
+import org.grr.enum.OrderReceiveType
 import org.grr.enum.PosOrderStatus
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 
@@ -51,6 +52,7 @@ object OrderController {
     // 상태 변화에 따른 주문 처리
     fun handleOrderStateChange(order: ReceiveOrderModel) {
         println("handleOrderStateChange")
+        println("order.posOrderStatusType : ${order.posOrderStatusType}")
         when (order.state) {
             is ProcessingState -> {
                 if (!isOrderInProcessing(order)) {
@@ -58,7 +60,7 @@ object OrderController {
                 }
             }
             is RejectedState -> {
-                moveOrderToReject(order)
+                    moveOrderToReject(order)
             }
             is CompletedState -> {
                 moveOrderToCompleted(order)
@@ -104,7 +106,7 @@ object OrderController {
         tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
     }
 
-    fun moveOrderToReject(order: ReceiveOrderModel) {
+    fun moveOrderToReject(order: ReceiveOrderModel ) {
         println("moveOrderToReject")
         val rejectedState = order.state as RejectedState
         updateOrderUIInAllOrders(order)
@@ -140,15 +142,58 @@ object OrderController {
             }
 
             PosOrderStatus.USER_CANCEL -> {
-                val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
-                if (allOrder != null) {
-                    tabbedPane.updateOrderInAllOrders(allOrder)
-                }
-                var posOrderStatus = PosOrderStatus.WAITING
-                if(order.state is ProcessingState) posOrderStatus = PosOrderStatus.IN_PROGRESS
-                val rejectOrderCommand = RejectOrderCommand(order, "고객 거절", RejectedReasonType.USER_CANCEL, posOrderStatus)
-                rejectOrderCommand.execute()
+                OrderListSingleTon.orders["rejectUserOrders"]?.add(0,order)
+                OrderListSingleTon.counts["rejectUserOrders"] = (OrderListSingleTon.counts["rejectUserOrders"] ?: 0) + 1
+                val removeOrder = OrderListSingleTon.findOrderByNumber("pendingOrders", order.orderNumber)
+                if(removeOrder != null) {
+                    OrderListSingleTon.orders["pendingOrders"]?.remove(removeOrder)
+                    OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) - 1
+                    if(OrderListSingleTon.pageNumbers["pendingOrders"]!! > 0){
+                        OrderListSingleTon.pageNumbers["pendingOrders"] = (OrderListSingleTon.pageNumbers["pendingOrders"] ?: 0) - 1
+                    }
+                    if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+                        if(OrderListSingleTon.pageNumbers["pendingDeliveryOrders"]!! > 0){
+                            OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] ?: 0) - 1
+                        }
+                    }else{
+                        if(OrderListSingleTon.pageNumbers["pendingTakeOutOrders"]!! > 0 ){
+                            OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] ?: 0) - 1
+                        }
+                    }
+                    tabbedPane.removeOrderFromPending(order)
+                    tabbedPane.addOrderToRejected(rejectedOrderFrame)
+                    tabbedPane.pendingSubTabs.updateCounts()
+                    tabbedPane.updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
+                }else{
+                    val removeOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+                    if(removeOrder != null) {
+                        OrderListSingleTon.orders["processingOrders"]?.remove(removeOrder)
+                        OrderListSingleTon.counts["processingOrders"] = (OrderListSingleTon.counts["processingOrders"] ?: 0) - 1
 
+                        if(OrderListSingleTon.pageNumbers["processingOrders"]!! > 0){
+                            OrderListSingleTon.pageNumbers["processingOrders"] = (OrderListSingleTon.pageNumbers["processingOrders"] ?: 0) - 1
+                        }
+                        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+                            if(OrderListSingleTon.pageNumbers["processingDeliveryOrders"]!! > 0){
+                                OrderListSingleTon.pageNumbers["processingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["processingDeliveryOrders"] ?: 0) - 1
+                            }
+                        }else{
+                            if(OrderListSingleTon.pageNumbers["processingTakeOutOrders"]!! > 0 ){
+                                OrderListSingleTon.pageNumbers["processingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["processingTakeOutOrders"] ?: 0) - 1
+                            }
+                        }
+                        tabbedPane.removeOrderFromProcessing(order)
+                        tabbedPane.addOrderToRejected(rejectedOrderFrame)
+                        tabbedPane.processingSubTabs.updateCounts()
+                        tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
+                    }
+                }
+
+
+                tabbedPane.rejectedSubTabs.updateCounts()
+                tabbedPane.updateTabTitle(4, "주문거절", (
+                        OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + (OrderListSingleTon.counts["rejectUserOrders"] ?: 0) + (OrderListSingleTon.counts["rejectRefundOrders"] ?: 0)
+                )
             }
             else -> println("Unhandled state for rejection: ${rejectedState.rejectPanel}")
 

@@ -37,14 +37,12 @@ class RejectedState(
             background = Color.WHITE  // 전체 배경색을 하얀색으로 설정
             isOpaque = true  // BaseOrderPanel을 불투명하게 설정
 
-            // headerPanel에 "고객접수거절" 버튼 추가
             val buttonPanel = JPanel().apply {
                 layout = FlowLayout(FlowLayout.RIGHT, 0, 0)  // 오른쪽 정렬
                 background = Color.WHITE  // 배경색을 하얀색으로 설정
                 isOpaque = true  // 불투명하게 설정
                 border = BorderFactory.createEmptyBorder(15, 0, 0, 0)
 
-                // "고객접수거절" 버튼
                 add(
                     FillRoundedButton(
                         text = "${rejectTypeFormat()}",

@@ -1,8 +1,11 @@
 package org.grr.websocket
 
 import okhttp3.internal.notifyAll
+import org.grr.command.RejectOrderCommand
+import org.grr.command.RejectedReasonType
 import org.grr.enum.BusinessStatus
 import org.grr.enum.OrderReceiveType
+import org.grr.enum.PosOrderStatus
 import org.grr.`object`.OrderController
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
@@ -43,11 +46,12 @@ class PosWebSocketClient(
             )
             if (orderData.posOrderStatusType == ServerOrderStatus.USER_CANCEL.name) {
                 println("유저가 주문을 취소하였습니다.")
-                OrderController.moveOrderToReject(orderData)
+                val rejectOrderCommand = RejectOrderCommand(orderData, "고객 거절", RejectedReasonType.USER_CANCEL, PosOrderStatus.USER_CANCEL)
+                rejectOrderCommand.execute()
                 return
             }
 
-            if (orderData.posOrderStatusType != ServerOrderStatus.REQUEST.name && orderData.posOrderStatusType != ServerOrderStatus.USER_CANCEL.name) return
+            if (orderData.posOrderStatusType != ServerOrderStatus.REQUEST.name) return
 
             // 키 결정
             val key = when (orderData.orderReceiveType) {
