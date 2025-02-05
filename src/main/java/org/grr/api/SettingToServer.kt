@@ -14,16 +14,20 @@ import java.time.LocalTime
 class SettingToServer : BaseAPI() {
 
     fun deliveryTimeToServer(estimatedDeliveryTimeControl: Boolean, estimatedDeliveryTime: Int): Pair<Boolean, String> {
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         val requestBody = JSONObject()
+            .put("storeCode", storeCode)
             .put("estimatedArrivalTime", estimatedDeliveryTime)
             .put("estimatedArrivalTimeControl", estimatedDeliveryTimeControl)
         return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/delivery-update", requestBody, accessToken)
     }
 
     fun cookingTimeToServer(estimatedCookingTimeControl: Boolean, estimatedCookingTime: Int): Pair<Boolean, String> {
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         val requestBody = JSONObject()
+            .put("storeCode", storeCode)
             .put("estimatedCookingTime", estimatedCookingTime)
             .put("estimatedCookingTimeControl", estimatedCookingTimeControl)
         return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/cooking-update", requestBody, accessToken)
@@ -107,6 +111,4 @@ class SettingToServer : BaseAPI() {
         println("[서버로 전송 Body] \n${requestBody.toString(4)}")
         return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/pause-update", requestBody, accessToken)
     }
-
-
 }
