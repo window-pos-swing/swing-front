@@ -1,23 +1,18 @@
 package org.grr.`object`
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import org.grr.api.OrderAPI
-import org.grr.enum.OrderReceiveType
+import org.grr.command.RejectOrderCommand
+import org.grr.command.RejectedReasonType
 import org.grr.enum.PosOrderStatus
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
-import org.grr.enum.PosOrderStatus.*
+
 import org.grr.enum.ServerOrderStatus
-import org.grr.model.OrderFilter
+
 import org.grr.model.ReceiveOrderModel
 import org.grr.observer.OrderObserver
 import org.grr.screen.main.main_widget.order_states_ui.CompletedState
 import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
 import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import javax.swing.JPanel
-import javax.swing.SwingUtilities
 
 object OrderController {
     lateinit var tabbedPane: CustomTabbedPane
@@ -62,11 +57,9 @@ object OrderController {
                     moveOrderToProcessing(order)
                 }
             }
-
             is RejectedState -> {
                 moveOrderToReject(order)
             }
-
             is CompletedState -> {
                 moveOrderToCompleted(order)
             }
@@ -111,7 +104,7 @@ object OrderController {
         tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
     }
 
-    private fun moveOrderToReject(order: ReceiveOrderModel) {
+    fun moveOrderToReject(order: ReceiveOrderModel) {
         println("moveOrderToReject")
         val rejectedState = order.state as RejectedState
         updateOrderUIInAllOrders(order)
@@ -119,7 +112,7 @@ object OrderController {
         val rejectedOrderFrame = tabbedPane.createOrderFrame(order)
 
         when (rejectedState.rejectPanel) {
-            WAITING -> {
+            PosOrderStatus.WAITING -> {
                 OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) - 1
                 OrderListSingleTon.counts["rejectStoreOrders"] = (OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + 1
                 val removeOrder = OrderListSingleTon.findOrderByNumber("pendingOrders", order.orderNumber)
@@ -132,7 +125,7 @@ object OrderController {
                 tabbedPane.pendingSubTabs.updateCounts()
             }
 
-            IN_PROGRESS -> {
+            PosOrderStatus.IN_PROGRESS -> {
                 OrderListSingleTon.counts["processingOrders"] = (OrderListSingleTon.counts["processingOrders"] ?: 0) - 1
                 OrderListSingleTon.counts["rejectStoreOrders"] = (OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + 1
                 val removeOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
@@ -144,6 +137,18 @@ object OrderController {
                 tabbedPane.addOrderToRejected(rejectedOrderFrame)
                 tabbedPane.processingSubTabs.updateCounts()
                 tabbedPane.updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
+            }
+
+            PosOrderStatus.USER_CANCEL -> {
+                val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
+                if (allOrder != null) {
+                    tabbedPane.updateOrderInAllOrders(allOrder)
+                }
+                var posOrderStatus = PosOrderStatus.WAITING
+                if(order.state is ProcessingState) posOrderStatus = PosOrderStatus.IN_PROGRESS
+                val rejectOrderCommand = RejectOrderCommand(order, "고객 거절", RejectedReasonType.USER_CANCEL, posOrderStatus)
+                rejectOrderCommand.execute()
+
             }
             else -> println("Unhandled state for rejection: ${rejectedState.rejectPanel}")
 

@@ -131,7 +131,7 @@ data class ReceiveOrderModel(
             ServerOrderStatus.USER_CANCEL.name -> RejectedState(
                 rejectReason = rejectionReason,
                 rejectDate = "${modifyOrderDate[0]}.${modifyOrderDate[1]}.${modifyOrderDate[2]}",
-                rejectType = RejectedReasonType.CUSTOMER_CANCEL,
+                rejectType = RejectedReasonType.USER_CANCEL,
                 rejectPanel = PosOrderStatus.USER_CANCEL
             )
             else -> PendingState(parentFrame, cardPanel) // 기본 상태

@@ -7,12 +7,11 @@ import org.grr.enum.PosOrderStatus
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderListSingleTon
-import org.grr.screen.main.main_widget.order_states_ui.PendingState
 import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import javax.swing.JOptionPane
 
 enum class RejectedReasonType {
-    CUSTOMER_CANCEL,
+    USER_CANCEL,
     STORE_REJECT,
     REFUND
 }
@@ -53,16 +52,20 @@ class RejectOrderCommand(
             }
         }
 
-        val result = OrderAPI().orderStatusChangeToServer(
-            ServerOrderStatus.STORE_CANCEL,
-            reason = rejectReason,
-            orderId = order.id,
-        )
-        // 결과 처리
-        if (!result.first) {
-            JOptionPane.showMessageDialog(null, "주문접수 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
-            return
+        if(rejectType != RejectedReasonType.USER_CANCEL){
+            var result = OrderAPI().orderStatusChangeToServer(
+                ServerOrderStatus.STORE_CANCEL,
+                reason = rejectReason,
+                orderId = order.id,
+            )
+            // 결과 처리
+            if (!result.first) {
+                JOptionPane.showMessageDialog(null, "주문접수 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
+                return
+            }
         }
+
+
         val rejectDate =
             java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd")) // HH:mm뺌
         // 주문 상태를 RejectedState로 변경 (거절 사유와 원래 상태 포함)

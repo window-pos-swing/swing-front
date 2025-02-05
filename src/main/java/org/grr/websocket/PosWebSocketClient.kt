@@ -43,7 +43,8 @@ class PosWebSocketClient(
             )
             if (orderData.posOrderStatusType == ServerOrderStatus.USER_CANCEL.name) {
                 println("유저가 주문을 취소하였습니다.")
-//                tabbedPane.updateOrderInAllOrders(orderData)
+                OrderController.moveOrderToReject(orderData)
+                return
             }
 
             if (orderData.posOrderStatusType != ServerOrderStatus.REQUEST.name && orderData.posOrderStatusType != ServerOrderStatus.USER_CANCEL.name) return

@@ -22,7 +22,7 @@ class RejectedState(
 
     fun rejectTypeFormat(): String {
         return when (rejectType) {
-            RejectedReasonType.CUSTOMER_CANCEL -> "고객접수거절"
+            RejectedReasonType.USER_CANCEL -> "고객접수거절"
             RejectedReasonType.REFUND -> "환불"
             RejectedReasonType.STORE_REJECT -> "가게접수거절"
         }
