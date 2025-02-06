@@ -122,15 +122,13 @@ object SettingModel {
 
     // 운영시간 정보 업데이트
     fun saveOperateTime(operateTimeJson: JSONObject) {
-        val updatedMemberInfo = storeInfo ?: JSONObject()
-        val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
+        val updatedStoreInfo = storeInfo ?: JSONObject()
 
         println("저장된 데이터:")
         println(operateTimeJson)
 
-        settings.put("businessHour", operateTimeJson)
-        updatedMemberInfo.put("setting", settings)
-        Storage.saveStoreInfo(updatedMemberInfo)
+        updatedStoreInfo.put("businessHour", operateTimeJson)
+        Storage.saveStoreInfo(updatedStoreInfo)
 
         println("[운영시간 정보 로컬 업데이트 완료]")
         loadOperateTime()

@@ -59,68 +59,12 @@
     ],
     "businessHour": {
         "mondayAllDay": false,
-        "wednesdayStartTime": [
-            7,
-            0
-        ],
-        "tuesdayStartTime": [
-            7,
-            0
-        ],
-        "fridayStartTime": [
-            7,
-            0
-        ],
-        "wednesdayEndTime": [
-            20,
-            0
-        ],
-        "sundayEndTime": [
-            20,
-            0
-        ],
-        "mondayStartTime": [
-            7,
-            0
-        ],
-        "mondayEndTime": [
-            20,
-            0
-        ],
-        "thursdayEndTime": [
-            20,
-            0
-        ],
-        "saturdayStartTime": [
-            7,
-            0
-        ],
-        "saturdayEndTime": [
-            20,
-            0
-        ],
-        "tuesdayEndTime": [
-            20,
-            0
-        ],
         "fridayAllDay": false,
         "wednesdayAllDay": false,
-        "thursdayStartTime": [
-            7,
-            0
-        ],
-        "saturdayAllDay": false,
-        "sundayStartTime": [
-            7,
-            0
-        ],
+        "saturdayAllDay": true,
         "thursdayAllDay": false,
-        "sundayAllDay": false,
-        "tuesdayAllDay": false,
-        "fridayEndTime": [
-            20,
-            0
-        ]
+        "sundayAllDay": true,
+        "tuesdayAllDay": false
     },
     "storeName": "매장 666",
     "estimatedCookingTime": 30,

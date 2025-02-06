@@ -42,19 +42,24 @@ class SettingToServer : BaseAPI() {
             remove("id")
         }
         println("[서버로 전송 Body] ${filteredData2.toString(2)}")
-        return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/break-time-update?storeCode=$storeCode", filteredData2, accessToken)
+        return sendPostRequest(
+            "${Api.BASE_URL}/api/v1/store-pos-setting/break-time-update?storeCode=$storeCode",
+            filteredData2,
+            accessToken
+        )
     }
 
     fun updateBusinessHourToServer(operatorTimeJson: JSONObject): Pair<Boolean, String> {
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         // breakTime과 id 항목 제거
         val filteredData2 = JSONObject(operatorTimeJson.toString()).apply {
-            remove("breakTime")
+            remove("businessHour")
             remove("id")
         }
         println("[서버로 전송 Body] ${filteredData2.toString(2)}")
         return sendPostRequest(
-            "${Api.BASE_URL}/api/v1/store-pos-setting/business-hour-update",
+            "${Api.BASE_URL}/api/v1/store-pos-setting/business-hour-update?storeCode=$storeCode",
             filteredData2,
             accessToken
         )
