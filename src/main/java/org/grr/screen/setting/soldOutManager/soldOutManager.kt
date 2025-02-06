@@ -1,3 +1,4 @@
+import org.grr.api.MenuAPI
 import org.grr.model.MenuCategory
 import org.grr.model.MenuData
 import org.grr.style.MyColor
@@ -26,6 +27,12 @@ class SoldOutManagementDialog: JPanel() {
         background = MyColor.DARK_NAVY
         border = BorderFactory.createEmptyBorder(20, 0, 0, 0)
 
+        // 초기 데이터 로드
+        val currentPage = 0
+        val pageSize = 10
+        val (success, menuList, categoryList) = MenuAPI().fetchMenuList(currentPage, pageSize)
+        val menuListTable = MenuAPI().parseMenuData(menuList.toString())
+
         // 둥근 패널 생성
         val roundedPanel = RoundedPanel(30, 30).apply {
             layout = BorderLayout()
@@ -46,14 +53,15 @@ class SoldOutManagementDialog: JPanel() {
             val categories = MenuData.createSampleData() // 샘플 데이터 생성
 
             // 원본 데이터를 깊은 복사하여 복사본 생성
-            copiedMenuCategories.addAll(categories.map { category ->
-                category.copy(menuList = category.menuList.map { it.copy() })
-            })
+            copiedMenuCategories.clear()
+            copiedMenuCategories.addAll(categoryList!!.map { MenuCategory(id = -1, categoryName = it.toString(), menuList = emptyList()) })
 
             // DefaultComboBoxModel 생성 및 카테고리 추가
             val categoryModel = DefaultComboBoxModel<String>().apply {
-                addElement("전체")
-                categories.forEach { category -> addElement(category.categoryName) }
+                addElement("전체") // "전체" 기본 추가
+                copiedMenuCategories.forEach { category ->
+                    addElement(category.categoryName) // ✅ MenuCategory 객체에서 categoryName만 추가
+                }
             }
 
             // 카테고리 이름 콤보박스
@@ -64,9 +72,17 @@ class SoldOutManagementDialog: JPanel() {
                 font = MyFont.Bold(22f)
                 addActionListener {
                     if (isFilteringSoldOut) {
-                        filterSoldOut(copiedMenuCategories) // 품절 필터링
+                        if (success && menuList != null) {
+                            filterSoldOut(menuListTable)
+                        } else {
+                            JOptionPane.showMessageDialog(this, "데이터를 불러오지 못했습니다.")
+                        }
                     } else {
-                        updateTable(copiedMenuCategories) // 전체 상품 보기
+                        if (success && menuList != null) {
+                            updateTable(menuListTable)
+                        } else {
+                            JOptionPane.showMessageDialog(this, "데이터를 불러오지 못했습니다.")
+                        }
                     }
                 }
             }
@@ -90,12 +106,20 @@ class SoldOutManagementDialog: JPanel() {
                 addActionListener {
                     if (!isFilteringSoldOut) {
                         // 품절 상품 필터링 동작
-                        filterSoldOut(copiedMenuCategories)
+                        if (success && menuList != null) {
+                            filterSoldOut(menuListTable)
+                        } else {
+                            JOptionPane.showMessageDialog(this, "데이터를 불러오지 못했습니다.")
+                        }
                         backgroundColor = MyColor.LIGHT_BLUE
                         borderColor = MyColor.LIGHT_BLUE
                     } else {
                         // 모든 상품 보기 동작
-                        updateTable(copiedMenuCategories)
+                        if (success && menuList != null) {
+                            updateTable(menuListTable)
+                        } else {
+                            JOptionPane.showMessageDialog(this, "데이터를 불러오지 못했습니다.")
+                        }
                         backgroundColor = MyColor.LIGHT_GREY2
                         borderColor = MyColor.LIGHT_GREY2
                     }
@@ -105,7 +129,6 @@ class SoldOutManagementDialog: JPanel() {
             }
             add(soldOutButton)
         }
-//        add(filterPanel, BorderLayout.NORTH)
 
         // [테이블] 품절 관리, 메뉴 그룹, 메뉴 이름
         tableModel = object : DefaultTableModel(arrayOf("품절 관리", "메뉴 그룹", "메뉴 이름"), 0) {
@@ -377,8 +400,14 @@ class SoldOutManagementDialog: JPanel() {
         // 메인 패널에 둥근 패널 추가
         add(roundedPanel, BorderLayout.CENTER)
 
-        // 초기 데이터 로드
-        updateTable(copiedMenuCategories)
+//        println("메뉴 데이터 : ${menuList.toString()}")
+//        println("카테고리 데이터 : ${categoryList.toString()}")
+
+        if (success && menuList != null) {
+            updateTable(menuListTable) // 테이블 업데이트
+        } else {
+            JOptionPane.showMessageDialog(this, "데이터를 불러오지 못했습니다.")
+        }
     }
 
     private fun updateTable(menuCategories: List<MenuCategory>) {
@@ -404,6 +433,7 @@ class SoldOutManagementDialog: JPanel() {
         tableModel.rowCount = 0
         val selectedCategory = categoryComboBox.selectedItem as String
         menuCategories.forEach { category ->
+            println("카테고리 명 : ${category}, ${selectedCategory}")
             if (selectedCategory == "전체" || selectedCategory == category.categoryName) {
                 category.menuList.filter { it.isSoldOut }.forEach { menu ->
                     tableModel.addRow(arrayOf(menu.isSoldOut, category.categoryName, menu.menuName))

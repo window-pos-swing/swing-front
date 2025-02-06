@@ -71,30 +71,27 @@
     "holidayList": [
         {
             "holidayType": "SPECIFIC_DATE",
-            "daysOfMonth": [],
-            "specificDates": [
-                "2025-05-27",
-                "2025-06-02"
-            ],
-            "daysOfWeek": [],
-            "weeksOfMonth": [
+            "daysOfMonth": [
                 1,
                 2,
                 3,
                 14,
                 15,
                 16
-            ]
+            ],
+            "specificDates": [
+                "2025-05-27",
+                "2025-06-02"
+            ],
+            "daysOfWeek": [],
+            "weeksOfMonth": []
         },
         {
             "holidayType": "WEEKLY",
-            "daysOfMonth": [
-                1,
-                3
-            ],
+            "daysOfMonth": [],
             "specificDates": [],
             "daysOfWeek": [6],
-            "weeksOfMonth": []
+            "weeksOfMonth": [1]
         }
     ],
     "estimatedArrivalTime": 50,

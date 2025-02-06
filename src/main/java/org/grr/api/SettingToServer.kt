@@ -66,9 +66,14 @@ class SettingToServer : BaseAPI() {
     }
 
     fun updateHolidayToServer(holidayJson: JSONArray): Pair<Boolean, String> {
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
         val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
         println("[서버로 전송 Body] ${holidayJson.toString(2)}")
-        return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting/holiday-update", holidayJson, accessToken)
+        return sendPostRequest(
+            "${Api.BASE_URL}/api/v1/store-pos-setting/holiday-update?storeCode=$storeCode",
+            holidayJson,
+            accessToken
+        )
     }
 
     fun businessStatusToServer(

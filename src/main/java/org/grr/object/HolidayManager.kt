@@ -4,7 +4,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 object HolidayManager {
-
     fun parseHolidays(holidayList: JSONArray?): String {
         if (holidayList == null) return "휴무일 정보가 없습니다."
 
@@ -37,14 +36,14 @@ object HolidayManager {
                         }
                     }
                 }
-                "MONTHLY" -> {
-                    val daysOfMonth = holiday.optJSONArray("daysOfMonth")
-                    if (daysOfMonth != null) {
-                        for (j in 0 until daysOfMonth.length()) {
-                            monthlyHolidays.add("${daysOfMonth.getInt(j)}일")
-                        }
-                    }
-                }
+//                "MONTHLY" -> {
+//                    val daysOfMonth = holiday.optJSONArray("daysOfMonth")
+//                    if (daysOfMonth != null) {
+//                        for (j in 0 until daysOfMonth.length()) {
+//                            monthlyHolidays.add("${daysOfMonth.getInt(j)}일")
+//                        }
+//                    }
+//                }
                 "SPECIFIC_DATE" -> {
                     val specificDates = holiday.optJSONArray("specificDates")
                     if (specificDates != null && specificDates.length() >= 2) {

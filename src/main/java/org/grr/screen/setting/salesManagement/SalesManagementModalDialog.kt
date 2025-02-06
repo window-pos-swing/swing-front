@@ -71,6 +71,7 @@ class SalesManagementModalDialog(
 
         contentPane.add(mainPanel, BorderLayout.CENTER)
 
+
         updateTable(OrderData.createSampleData())
     }
 
