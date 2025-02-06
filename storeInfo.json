@@ -59,12 +59,12 @@
     ],
     "businessHour": {
         "mondayAllDay": false,
-        "fridayAllDay": false,
-        "wednesdayAllDay": false,
+        "fridayAllDay": true,
+        "wednesdayAllDay": true,
         "saturdayAllDay": true,
-        "thursdayAllDay": false,
+        "thursdayAllDay": true,
         "sundayAllDay": true,
-        "tuesdayAllDay": false
+        "tuesdayAllDay": true
     },
     "storeName": "매장 666",
     "estimatedCookingTime": 30,

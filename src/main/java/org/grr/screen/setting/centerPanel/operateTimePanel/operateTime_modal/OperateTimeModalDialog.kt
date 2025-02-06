@@ -7,6 +7,7 @@ import org.grr.model.SettingModel
 import org.grr.`object`.TimeManager
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.BreakTimeData
 import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton
+import org.grr.screen.setting.centerPanel.breakTimePanel.breakTime_modal.ShareButton.selectedDays
 import org.grr.screen.setting.centerPanel.operateTimePanel.operateTime_modal.o_allDays.OAllDays
 import org.grr.screen.setting.centerPanel.operateTimePanel.operateTime_modal.o_selectByDays.OSelectByDays
 import org.grr.screen.setting.centerPanel.operateTimePanel.operateTime_modal.o_weekDaysAndWeekEnds.OWeekDaysAndWeekEnds
@@ -73,6 +74,7 @@ class OperateTimeModalDialog(parent: JFrame, title: String, callback: ((Boolean)
 
             // 선택된 인덱스에 따라 새로운 패널 추가
             currentPanel = when (selectedIndex) {
+
                 0 -> OAllDays { labelText, timeRangeText ->
                     addBottomPanel(labelText, timeRangeText)
                 }
@@ -294,6 +296,7 @@ class OperateTimeModalDialog(parent: JFrame, title: String, callback: ((Boolean)
             JOptionPane.showMessageDialog(this, "선택된 요일과 충돌하는 항목이 이미 존재합니다.")
             return
         }
+
         lateinit var itemPanel: JPanel
 
         val breakTimeData = BreakTimeData(labelText, timeRangeText)

@@ -33,6 +33,8 @@ object TimeManager {
     fun initialize(jsonData: JSONObject, isBreakTime: Boolean) {
         timeRanges.clear()
 
+        val allDayDays = mutableListOf<String>()
+
         days.forEach { day ->
             val allDayKey = "${day}AllDay"
             val startTimeKey = "${day}StartTime"
@@ -59,14 +61,17 @@ object TimeManager {
                 timeRanges.computeIfAbsent(timeRange) { mutableListOf() }.add(day)
             } else {
                 if(!isBreakTime){
-                    // AllDay 체크
-                    val isAllDay = jsonData.optBoolean(allDayKey, true)
+                    // 개별 요일의 AllDay 체크
+                    val isAllDay = jsonData.optBoolean(allDayKey, false) // 기본값 false로 변경
                     if (isAllDay) {
-                        timeRanges.computeIfAbsent("24시간 ") { mutableListOf() }.add(day)
+                        allDayDays.add(day) // 24시간 요일 저장
                     }
                 }
-
             }
+        }
+
+        if (allDayDays.isNotEmpty()) {
+            timeRanges.computeIfAbsent("24시간") { mutableListOf() }.addAll(allDayDays)
         }
     }
 
@@ -153,7 +158,7 @@ object TimeManager {
 
                 // 전체 요일, 평일, 주말 등의 처리
                 val days = when (daysText) {
-                    "전체요일" -> weekdays + weekends // 전체 요일 처리
+                    "전체요일" -> daysOfWeek // 전체 요일 처리
                     "평일" -> weekdays
                     "주말" -> weekends
                     else -> daysText.split(", ").map { mapKoreanToDay(it) }
