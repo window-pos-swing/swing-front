@@ -5,7 +5,7 @@
             0
         ],
         "tuesdayStartTime": [
-            13,
+            2,
             0
         ],
         "fridayStartTime": [
@@ -14,10 +14,6 @@
         ],
         "wednesdayEndTime": [
             16,
-            0
-        ],
-        "sundayEndTime": [
-            18,
             0
         ],
         "mondayStartTime": [
@@ -41,15 +37,11 @@
             0
         ],
         "tuesdayEndTime": [
-            14,
-            0
+            3,
+            45
         ],
         "thursdayStartTime": [
             15,
-            0
-        ],
-        "sundayStartTime": [
-            17,
             0
         ],
         "id": 1,
@@ -58,6 +50,13 @@
             0
         ]
     },
+    "businessPauseStartTime": [
+        2025,
+        2,
+        6,
+        0,
+        0
+    ],
     "businessHour": {
         "mondayAllDay": false,
         "wednesdayStartTime": [
@@ -154,12 +153,15 @@
             "weeksOfMonth": []
         }
     ],
+    "estimatedArrivalTime": 50,
     "estimatedCookingTimeControl": false,
-    "pause": false,
-    "setting": {
-        "estimatedCookingTime": 25,
-        "estimatedCookingTimeControl": true,
-        "estimatedArrivalTime": 45,
-        "estimatedArrivalTimeControl": true
-    }
+    "businessPauseEndTime": [
+        2025,
+        2,
+        6,
+        0,
+        0
+    ],
+    "pause": true,
+    "estimatedArrivalTimeControl": false
 }

@@ -88,16 +88,14 @@ object SettingModel {
 
     // 브레이크 타임 정보 업데이트
     fun saveBreakTime(breakTimeJson: JSONObject) {
-        val updatedMemberInfo = storeInfo ?: JSONObject()
-        val settings = updatedMemberInfo.optJSONObject("setting") ?: JSONObject()
+        val updatedStoreInfo = storeInfo ?: JSONObject()
 
         println("저장된 데이터:")
         println(breakTimeJson)
 
         // 여기에서 breakTimeString 데이터를 JSON으로 변환하여 저장
-        settings.put("breakTime", breakTimeJson)
-        updatedMemberInfo.put("setting", settings)
-        Storage.saveStoreInfo(updatedMemberInfo)
+        updatedStoreInfo.put("breakTime", breakTimeJson)
+        Storage.saveStoreInfo(updatedStoreInfo)
 
         println("[브레이크 타임 정보 업데이트 완료]")
         loadBreakTime()
