@@ -14,7 +14,7 @@ import javax.swing.table.DefaultTableModel
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
-class SoldOutManagementDialog: JPanel() {
+class SoldOutManagementDialog : JPanel() {
     // 독립적인 복사본 데이터를 저장
     private val copiedMenuCategories: MutableList<MenuCategory> = mutableListOf()
     private val tableModel: DefaultTableModel
@@ -54,7 +54,13 @@ class SoldOutManagementDialog: JPanel() {
 
             // 원본 데이터를 깊은 복사하여 복사본 생성
             copiedMenuCategories.clear()
-            copiedMenuCategories.addAll(categoryList!!.map { MenuCategory(id = -1, categoryName = it.toString(), menuList = emptyList()) })
+            copiedMenuCategories.addAll(categoryList!!.map {
+                MenuCategory(
+                    id = -1,
+                    categoryName = it.toString(),
+                    menuList = emptyList()
+                )
+            })
 
             // DefaultComboBoxModel 생성 및 카테고리 추가
             val categoryModel = DefaultComboBoxModel<String>().apply {
@@ -369,7 +375,7 @@ class SoldOutManagementDialog: JPanel() {
         }
 
         // 하단 버튼
-        val registerButton= FillRoundedButton(
+        val registerButton = FillRoundedButton(
             text = "등록",
             borderColor = Color(0, 0, 0),
             backgroundColor = MyColor.LIGHT_BLUE,  // 기본 선택된 상태
@@ -382,7 +388,24 @@ class SoldOutManagementDialog: JPanel() {
             customFont = MyFont.Bold(26f)  // 버튼 글자 크기 줄임
         ).apply {
             addActionListener {
-                println("Submitting copied data: $copiedMenuCategories")
+                val selectedMenuIds = copiedMenuCategories.flatMap { category ->
+                    category.menuList.filter { it.isSoldOut }.map { it.id }
+                }
+
+                if (selectedMenuIds.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "품절 처리할 메뉴를 선택해주세요.")
+                    return@addActionListener
+                }
+
+                //  품절 API 호출
+                val (success, message) = MenuAPI().soldOut(selectedMenuIds)
+
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "품절 처리 완료!")
+                    println("품절 처리된 메뉴 ID 리스트: $selectedMenuIds")
+                } else {
+                    JOptionPane.showMessageDialog(this, "품절 처리 실패: $message")
+                }
             }
         }
         //만든 등록 버튼을 패널에 추가

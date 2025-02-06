@@ -41,9 +41,10 @@ class MenuAPI : BaseAPI() {
                     dataObject.getJSONArray("menuList")
                 } else JSONArray() // 데이터가 없으면 빈 배열 반환
 
-                val categoryListData = if (dataObject.has("menuCategoryNameList") && dataObject.get("menuCategoryNameList") is JSONArray) {
-                    dataObject.getJSONArray("menuCategoryNameList")
-                } else JSONArray() // 데이터가 없으면 빈 배열 반환
+                val categoryListData =
+                    if (dataObject.has("menuCategoryNameList") && dataObject.get("menuCategoryNameList") is JSONArray) {
+                        dataObject.getJSONArray("menuCategoryNameList")
+                    } else JSONArray() // 데이터가 없으면 빈 배열 반환
 
                 Triple(true, menuListData, categoryListData)
             } else {
@@ -53,6 +54,24 @@ class MenuAPI : BaseAPI() {
             println("JSON 파싱 오류: ${e.message}")
             Triple(false, null, null)
         }
+    }
+
+    //    TODO(메뉴 품절 처리) API
+    fun soldOut(menuIdList: List<Int>): Pair<Boolean, String> {
+        val (savedEmail, savedPassword, autoCheck, storeCode) = Storage.getLoginInfo()
+        val accessToken = Storage.getToken() ?: return Pair(false, "토큰이 없습니다.")
+
+        if (menuIdList.isEmpty()) {
+            return Pair(false, "품절 처리할 메뉴가 없습니다.")
+        }
+
+        //  JSON 데이터 구성
+        val soldOutStatusBody = JSONObject().apply {
+            put("storeCode", storeCode) // 가게 코드
+            put("menuIdList", JSONArray(menuIdList)) // 품절 처리할 메뉴 ID 리스트
+        }
+
+        return sendPostRequest("${Api.BASE_URL}/api/v1/store-pos-setting", soldOutStatusBody, accessToken)
     }
 
     fun parseMenuData(response: String): List<MenuCategory> {
