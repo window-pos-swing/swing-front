@@ -49,12 +49,14 @@ class OrderAPI : BaseAPI() {
 
             // `data` 배열을 `addAllOrder`에 전달
             var totalElements = jsonObject["totalElements"] as Int
+            var totalPages = jsonObject["totalPages"] as Int
             OrderListSingleTon.addAllOrder(
                 dataArray.toString(),
                 parentFrame,
                 cardPanel,
                 filter,
                 totalElements,
+                totalPages
             )
             return Pair(true, dataArray.toString())
         } catch (e: Exception) {

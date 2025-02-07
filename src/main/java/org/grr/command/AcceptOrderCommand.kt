@@ -29,20 +29,9 @@ class AcceptOrderCommand(
     private val cookTime: Int = 0,
 ) : Command {
     override fun execute() {
-        if(OrderListSingleTon.pageNumbers["pendingOrders"]!! > 0){
-            OrderListSingleTon.pageNumbers["pendingOrders"] = (OrderListSingleTon.pageNumbers["pendingOrders"] ?: 0) - 1
-        }
-        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
-            if(OrderListSingleTon.pageNumbers["pendingDeliveryOrders"]!! > 0){
-                OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] ?: 0) - 1
-            }
-        }else{
-            if(OrderListSingleTon.pageNumbers["pendingTakeOutOrders"]!! > 0 ){
-                OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] ?: 0) - 1
-            }
-        }
-
         CoroutineScope(Dispatchers.IO).launch {
+
+            println("OrderListSingleTon.isCommand = true");
             // 배달포장 상태에 따라 시간 설정
             val deliveryTime = if (takeType == "takeOut") 0 else order.deliveryTime
             val sendCookTime = if (cookTime == 0) order.cookTime else cookTime
@@ -50,12 +39,14 @@ class AcceptOrderCommand(
             //TODO 수락으로 변경 호출
             if (!changeOrderStatusToAccepted(deliveryTime, sendCookTime)) return@launch
             //UI update
-            updateOrderStateToProcessing(deliveryTime,sendCookTime , order.orderReceiveType)
+            updateOrderStateToProcessing(deliveryTime, sendCookTime, order.orderReceiveType)
 
             //TODO(5초 뒤 조리중으로 변경)
             delay(5000)
             //거절 주문인지 확인
-            if(order.state is RejectedState || order.state is CompletedState || order.isPickupWait) { return@launch }
+            if (order.state is RejectedState || order.state is CompletedState || order.isPickupWait) {
+                return@launch
+            }
             changeOrderStatusToCooking(deliveryTime, sendCookTime)
 
         }
@@ -86,12 +77,14 @@ class AcceptOrderCommand(
             OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) - 1
             // 주문 타입별 카운트 업데이트
 
-            var targetOrder=  OrderListSingleTon.orders["allOrders"]?.find { it.orderNumber == order.orderNumber }
+            var targetOrder = OrderListSingleTon.orders["allOrders"]?.find { it.orderNumber == order.orderNumber }
             // 다른 컬렉션에서 검색
             if (targetOrder == null) {
                 targetOrder = OrderListSingleTon.orders["pendingOrders"]?.find { it.orderNumber == order.orderNumber }
-                targetOrder = targetOrder ?: OrderListSingleTon.orders["pendingDeliveryOrders"]?.find { it.orderNumber == order.orderNumber }
-                targetOrder = targetOrder ?: OrderListSingleTon.orders["pendingTakeOutOrders"]?.find { it.orderNumber == order.orderNumber }
+                targetOrder = targetOrder
+                    ?: OrderListSingleTon.orders["pendingDeliveryOrders"]?.find { it.orderNumber == order.orderNumber }
+                targetOrder = targetOrder
+                    ?: OrderListSingleTon.orders["pendingTakeOutOrders"]?.find { it.orderNumber == order.orderNumber }
             }
 
             // 주문이 없으면 로그 출력 후 종료

@@ -39,9 +39,17 @@ object OrderController {
 
         tabbedPane.addOrderToAllOrders(allOrdersFrame, false)  // 전체보기 탭에 추가
         tabbedPane.updateOrderInAllOrders(order)
-        tabbedPane.addOrderToPending(pendingOrdersFrame, pendingOrderTypeOrdersFrame, order)  // 접수대기 탭에 추가
+        println("[오더컨트롤러 AFTER]")
+        println("OrderListSingleTon.counts pendingDeliveryOrders ${OrderListSingleTon.counts["pendingDeliveryOrders"]}")
 
+        tabbedPane.addOrderToPending(pendingOrdersFrame, pendingOrderTypeOrdersFrame, order)  // 접수대기 탭에 추가
+        println("[오더컨트롤러 BEFORE]")
+        println("OrderListSingleTon.counts pendingDeliveryOrders ${OrderListSingleTon.counts["pendingDeliveryOrders"]}")
         println("주문 추가")
+    }
+
+    fun removeAllOrder(order : ReceiveOrderModel) {
+        tabbedPane.removeOrderToAllOrders(order)
     }
 
     // 상태 변화에 따른 주문 처리

@@ -58,7 +58,7 @@ class BaseOrderPanel(order: ReceiveOrderModel) : JPanel() {
                 }
 
 //                val menuInfoLabel = JLabel("[메뉴 ${order.menuList.size}개] ${order.menuList.sumOf { it.price * it.count }}원").apply {
-                val menuInfoLabel = JLabel("[메뉴 ${order.menuList.size}개] ${order.totalOrderPrice}원").apply {
+                val menuInfoLabel = JLabel("[메뉴 ${order.menuList.size}개] ${order.totalOrderPrice}원  ${order.orderNumber}").apply {
                     font = MyFont.Medium(24f)  // 폰트 크기 24
                     foreground = MyColor.GREY900
                     alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬

@@ -8,6 +8,7 @@ import org.grr.enum.OrderReceiveType
 import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderController.initializeOrders
+import org.grr.`object`.OrderController.tabbedPane
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.dialog.OrderDetailDialog
 import org.grr.screen.main.main_widget.dialog.PauseOperations.PauseOperationsDialog
@@ -212,6 +213,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
             background = Color.WHITE
             border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
         }
+
         ScrollPaginationHandler(
             orderStatus = "allOrders",
             scrollPane = allOrdersScrollPane,
@@ -222,7 +224,6 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
             },
             initializeOrders = { newOrders ->
                 initializeOrders(OrderListSingleTon.orders["allOrders"]!!)
-                // 디버깅 출력
                 println("Added new orders to allOrdersPanel: ${newOrders.map { it.orderNumber }}")
             },
             getPageNumber = { OrderListSingleTon.pageNumbers["allOrders"] ?: 0 },
@@ -299,6 +300,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         val cardLayout = cardPanel!!.layout as CardLayout
 
         if (tabName == "전체보기") {
+            println("All Orders: ${OrderListSingleTon.orders["allOrders"]?.map { it.orderNumber }}") // 주문 번호 리스트 출력
             OrderListSingleTon.orders["allOrders"]?.forEach { order ->
                 updateOrderInAllOrders(order)  // 전체보기 탭을 눌렀을 때만 호출
 
@@ -412,7 +414,6 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     }
 
     fun addOrderToAllOrders(orderFrame: JPanel, isInit: Boolean) {
-
         println("addOrderToAllOrders called. isInit: $isInit")
 
         orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
@@ -433,11 +434,23 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         updateTabTitle(0, "전체보기", OrderListSingleTon.counts["allOrders"] ?: 0)
     }
 
+    fun removeOrderToAllOrders(order: ReceiveOrderModel){
+        val frameToRemove = allOrdersPanel.components
+            .filterIsInstance<JPanel>()
+            .find { it.getClientProperty("orderNumber") == order.orderNumber }
+
+        frameToRemove?.let {
+            allOrdersPanel.remove(it)
+            allOrdersPanel.revalidate()
+            allOrdersPanel.repaint()
+        }
+    }
+
     //================================================================================
 
     // [REMOVE & UPDATE] ======================================================================
-    fun removeOrderFromPending(order: ReceiveOrderModel) {
-        pendingSubTabs.removeOrderFromPending(order)
+    fun removeOrderFromPending(order: ReceiveOrderModel, isLastRemove: Boolean = false) {
+        pendingSubTabs.removeOrderFromPending(order , isLastRemove)
     }
 
     fun removeOrderFromProcessing(order: ReceiveOrderModel) {
