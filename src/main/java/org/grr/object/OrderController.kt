@@ -82,7 +82,6 @@ object OrderController {
     }
 
     private fun moveOrderToProcessing(order: ReceiveOrderModel) {
-        OrderListSingleTon.isLoading = true;
         println("moveOrderToProcessing")
 
         val processingOrderFrame = tabbedPane.createOrderFrame(order, forProcessing = true)
@@ -93,7 +92,6 @@ object OrderController {
         tabbedPane.removeOrderFromPending(order)
         tabbedPane.pendingSubTabs.updateCounts()
         tabbedPane.processingSubTabs.updateCounts()
-        OrderListSingleTon.isLoading = false;
     }
 
     private fun moveOrderToCompleted(order: ReceiveOrderModel) {

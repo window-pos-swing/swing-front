@@ -59,7 +59,6 @@ class PosWebSocketClient(
 
             // 싱글톤에 추가
             synchronized(OrderListSingleTon.orders) {
-                OrderListSingleTon.isLoading = true
 
                 val allOrders = OrderListSingleTon.orders["allOrders"]
                 val pendingOrders = OrderListSingleTon.orders["pendingOrders"]
@@ -69,9 +68,9 @@ class PosWebSocketClient(
                 println("OrderListSingleTon.counts pendingDeliveryOrders ${OrderListSingleTon.counts["pendingDeliveryOrders"]}")
 
                 // ✅ counts 값을 UI 업데이트 전에 먼저 갱신
-                OrderListSingleTon.counts[key] = (OrderListSingleTon.counts[key] ?: 0) + 1
                 OrderListSingleTon.counts["allOrders"] = (OrderListSingleTon.counts["allOrders"] ?: 0) + 1
                 OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) + 1
+                OrderListSingleTon.counts[key] = (OrderListSingleTon.counts[key] ?: 0) + 1
 
                 println("[웹소켓 AFTER]")
                 println("OrderListSingleTon.counts pendingDeliveryOrders ${OrderListSingleTon.counts["pendingDeliveryOrders"]}")
@@ -93,16 +92,14 @@ class PosWebSocketClient(
 
                 if (pendingOrders != null && pendingOrders.size > OrderListSingleTon.PAGE_SIZE) {
                     println("[DEBUG] pendingOrders before removal: ${pendingOrders.map { it.orderNumber }}")
-                    OrderController.tabbedPane.removeOrderFromPending(pendingOrders.last())
+                    OrderController.tabbedPane.removeOrderFromPending(pendingOrders.last() , true)
                     pendingOrders.removeLast()
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }finally {
-            SwingUtilities.invokeLater {
-                OrderListSingleTon.isLoading = false
-            }
+
         }
     }
 

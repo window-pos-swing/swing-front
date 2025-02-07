@@ -449,8 +449,8 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     //================================================================================
 
     // [REMOVE & UPDATE] ======================================================================
-    fun removeOrderFromPending(order: ReceiveOrderModel) {
-        pendingSubTabs.removeOrderFromPending(order)
+    fun removeOrderFromPending(order: ReceiveOrderModel, isLastRemove: Boolean = false) {
+        pendingSubTabs.removeOrderFromPending(order , isLastRemove)
     }
 
     fun removeOrderFromProcessing(order: ReceiveOrderModel) {

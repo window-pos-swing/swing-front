@@ -22,7 +22,6 @@ object OrderListSingleTon {
     val pageNumbers = mutableMapOf<String, Int>()
     val counts = mutableMapOf<String, Int>()
 
-    var isLoading = false;
     //    val realTime = mutableMapOf<String, Boolean>()
     // 초기화
     init {
