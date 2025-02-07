@@ -7,6 +7,7 @@ import org.grr.enum.ServerOrderStatus
 import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderController.handleOrderStateChange
+import org.grr.`object`.OrderController.tabbedPane
 import org.grr.observer.OrderObserver
 import org.json.JSONArray
 import javax.swing.JFrame
@@ -21,6 +22,7 @@ object OrderListSingleTon {
     val orders = mutableMapOf<String, MutableList<ReceiveOrderModel>>()
     val pageNumbers = mutableMapOf<String, Int>()
     val counts = mutableMapOf<String, Int>()
+    var hasMore = mutableMapOf<String, Boolean>()
 
     //    val realTime = mutableMapOf<String, Boolean>()
     // 초기화
@@ -50,6 +52,7 @@ object OrderListSingleTon {
             orders[key] = mutableListOf()
             pageNumbers[key] = 0
             counts[key] = 0
+            hasMore[key] = true
         }
     }
 
@@ -102,7 +105,29 @@ object OrderListSingleTon {
             val uniqueOrders = newOrders.filter { it.orderNumber !in existingOrderNumbers }
 
             if (uniqueOrders.isEmpty()) {
-                println("[DEBUG] No new unique orders to add for key: $key")
+                println("[DEBUG] 키에 추가할 새로운 주문이 없습니다 : $key")
+                if(pageNumbers[key] != 0){
+                    println("totalPages : ${totalPages}")
+                    println("pageNumbers : ${pageNumbers[key]}")
+                    if(totalPages-1 <= pageNumbers[key]!!){
+                        println("${key} 더이상 가져올 데이터가 없음")
+                        hasMore[key] = false
+                        return
+                    }else{
+                        hasMore[key] = true
+                        pageNumbers[key] = (pageNumbers[key] ?: 0) + 1
+                    }
+//                    pageNumbers[key] = if (totalPages-1 <= pageNumbers[key]!!) -1 else (pageNumbers[key] ?: 0) + 1
+                    //가져온데이터 모두 중복이고 다음 페이지가 있을경우 다시 호출
+                    if(pageNumbers[key] != -1){
+                        val result = OrderAPI().fetchOrders(
+                            tabbedPane.parentFrame,
+                            tabbedPane.cardPanel!!,
+                            filter,
+                            pageNumbers[key]!!
+                        )
+                    }
+                }
                 return
             }
             // 옵저버 등록
@@ -119,8 +144,14 @@ object OrderListSingleTon {
             orders[key] = currentOrders // 변경된 리스트를 다시 저장
             // 카운트 및 페이지 번호 업데이트
             counts[key] = totalElements
-            pageNumbers[key] = if (totalPages-1 == pageNumbers[key]!!) -1 else (pageNumbers[key] ?: 0) + 1
-
+//            pageNumbers[key] = if (totalPages-1 == pageNumbers[key]!!) -1 else (pageNumbers[key] ?: 0) + 1
+            if(totalPages-1 <= pageNumbers[key]!!){
+                println("${key} 더이상 가져올 데이터가 없음")
+                hasMore[key] = false
+            }else{
+                hasMore[key] = true
+                pageNumbers[key] = (pageNumbers[key] ?: 0) + 1
+            }
             println("[$key]  pageNumber: ${pageNumbers[key]}")
             println("[$key]  Added unique orders: ${newOrders.map { it.orderNumber }}")
 
