@@ -23,34 +23,34 @@ class RejectOrderCommand(
     private val rejectPanel: PosOrderStatus
 ) : Command {
     override fun execute() {
-        if(rejectPanel == PosOrderStatus.IN_PROGRESS){
-            if(OrderListSingleTon.pageNumbers["processingOrders"]!! > 0){
-                OrderListSingleTon.pageNumbers["processingOrders"] = (OrderListSingleTon.pageNumbers["processingOrders"] ?: 0) - 1
-            }
-            if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
-                if(OrderListSingleTon.pageNumbers["processingDeliveryOrders"]!! > 0){
-                    OrderListSingleTon.pageNumbers["processingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["processingDeliveryOrders"] ?: 0) - 1
-                }
-            }else{
-                if(OrderListSingleTon.pageNumbers["processingTakeOutOrders"]!! > 0 ){
-                    OrderListSingleTon.pageNumbers["processingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["processingTakeOutOrders"] ?: 0) - 1
-                }
-            }
-        }else if(rejectPanel == PosOrderStatus.WAITING){
-
-            if(OrderListSingleTon.pageNumbers["pendingOrders"]!! > 0){
-                OrderListSingleTon.pageNumbers["pendingOrders"] = (OrderListSingleTon.pageNumbers["pendingOrders"] ?: 0) - 1
-            }
-            if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
-                if(OrderListSingleTon.pageNumbers["pendingDeliveryOrders"]!! > 0){
-                    OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] ?: 0) - 1
-                }
-            }else{
-                if(OrderListSingleTon.pageNumbers["pendingTakeOutOrders"]!! > 0 ){
-                    OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] ?: 0) - 1
-                }
-            }
-        }
+//        if(rejectPanel == PosOrderStatus.IN_PROGRESS){
+//            if(OrderListSingleTon.pageNumbers["processingOrders"]!! > 0){
+//                OrderListSingleTon.pageNumbers["processingOrders"] = (OrderListSingleTon.pageNumbers["processingOrders"] ?: 0) - 1
+//            }
+//            if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+//                if(OrderListSingleTon.pageNumbers["processingDeliveryOrders"]!! > 0){
+//                    OrderListSingleTon.pageNumbers["processingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["processingDeliveryOrders"] ?: 0) - 1
+//                }
+//            }else{
+//                if(OrderListSingleTon.pageNumbers["processingTakeOutOrders"]!! > 0 ){
+//                    OrderListSingleTon.pageNumbers["processingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["processingTakeOutOrders"] ?: 0) - 1
+//                }
+//            }
+//        }else if(rejectPanel == PosOrderStatus.WAITING){
+//
+//            if(OrderListSingleTon.pageNumbers["pendingOrders"]!! > 0){
+//                OrderListSingleTon.pageNumbers["pendingOrders"] = (OrderListSingleTon.pageNumbers["pendingOrders"] ?: 0) - 1
+//            }
+//            if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+//                if(OrderListSingleTon.pageNumbers["pendingDeliveryOrders"]!! > 0){
+//                    OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] ?: 0) - 1
+//                }
+//            }else{
+//                if(OrderListSingleTon.pageNumbers["pendingTakeOutOrders"]!! > 0 ){
+//                    OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] ?: 0) - 1
+//                }
+//            }
+//        }
 
         if(rejectType != RejectedReasonType.USER_CANCEL){
             var result = OrderAPI().orderStatusChangeToServer(

@@ -161,7 +161,7 @@ class OrderDetailDialog(
             add(Box.createVerticalStrut(15))
 
             // 연락처 값 - JLabel 사용
-            add(JLabel(order.appMemberPhone).apply {
+            add(JLabel("${order.appMemberPhone} ${if (order.safeNumber) "(안심번호)" else ""}").apply {
                 font = MyFont.SemiBold(18f)
                 alignmentX = Component.LEFT_ALIGNMENT
                 alignmentY = Component.TOP_ALIGNMENT

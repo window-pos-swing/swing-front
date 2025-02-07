@@ -1,15 +1,12 @@
 package org.grr.websocket
 
-import okhttp3.internal.notifyAll
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
-import org.grr.enum.BusinessStatus
 import org.grr.enum.OrderReceiveType
 import org.grr.enum.PosOrderStatus
 import org.grr.`object`.OrderController
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
-import org.grr.model.SettingModel
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.java_websocket.client.WebSocketClient
@@ -17,6 +14,7 @@ import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
 import javax.swing.JFrame
 import javax.swing.JPanel
+import javax.swing.SwingUtilities
 
 
 class PosWebSocketClient(
@@ -37,13 +35,12 @@ class PosWebSocketClient(
 
     override fun onMessage(message: String?) {
         println("WebSocket 메시지 수신: $message")
-
+        val orderData = ReceiveOrderModel.fromJson(
+            json = message!!,
+            parentFrame = parentFrame,
+            cardPanel = cardPanel
+        )
         try {
-            val orderData = ReceiveOrderModel.fromJson(
-                json = message!!,
-                parentFrame = parentFrame,
-                cardPanel = cardPanel
-            )
             if (orderData.posOrderStatusType == ServerOrderStatus.USER_CANCEL.name) {
                 println("유저가 주문을 취소하였습니다.")
                 val rejectOrderCommand = RejectOrderCommand(orderData, "고객 거절", RejectedReasonType.USER_CANCEL, PosOrderStatus.USER_CANCEL)
@@ -51,7 +48,7 @@ class PosWebSocketClient(
                 return
             }
 
-            if (orderData.posOrderStatusType != ServerOrderStatus.REQUEST.name) return
+            if (orderData.posOrderStatusType != ServerOrderStatus.REQUEST.name ) return
 
             // 키 결정
             val key = when (orderData.orderReceiveType) {
@@ -62,19 +59,50 @@ class PosWebSocketClient(
 
             // 싱글톤에 추가
             synchronized(OrderListSingleTon.orders) {
+                OrderListSingleTon.isLoading = true
+
+                val allOrders = OrderListSingleTon.orders["allOrders"]
+                val pendingOrders = OrderListSingleTon.orders["pendingOrders"]
+
                 OrderListSingleTon.orders[key]?.add(0, orderData) // 리스트 맨 앞에 추가
+                println("[웹소켓 BEFORE]")
+                println("OrderListSingleTon.counts pendingDeliveryOrders ${OrderListSingleTon.counts["pendingDeliveryOrders"]}")
+
+                // ✅ counts 값을 UI 업데이트 전에 먼저 갱신
                 OrderListSingleTon.counts[key] = (OrderListSingleTon.counts[key] ?: 0) + 1
                 OrderListSingleTon.counts["allOrders"] = (OrderListSingleTon.counts["allOrders"] ?: 0) + 1
-                OrderListSingleTon.orders["allOrders"]?.add(0, orderData)
                 OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) + 1
-                OrderListSingleTon.orders["pendingOrders"]?.add(0, orderData)
-//                OrderListSingleTon.counts["rejectUserOrders"] = (OrderListSingleTon.counts["rejectUserOrders"] ?: 0) + 1
-//                OrderListSingleTon.orders["rejectUserOrders"]?.add(0, orderData)
-                // OrderController에 추가
+
+                println("[웹소켓 AFTER]")
+                println("OrderListSingleTon.counts pendingDeliveryOrders ${OrderListSingleTon.counts["pendingDeliveryOrders"]}")
+
+                allOrders?.add(0, orderData)
+                pendingOrders?.add(0, orderData)
+
+                // ✅ UI에 주문 추가 후 데이터 일관성을 유지
+                SwingUtilities.invokeLater {
+                    OrderController.addNewOrder(orderData)
+                }
+
+                // ✅ 마지막 주문 삭제 로직
+                if (allOrders != null && allOrders.size > OrderListSingleTon.PAGE_SIZE) {
+                    println("[DEBUG] allOrders before removal: ${allOrders.map { it.orderNumber }}")
+                    OrderController.removeAllOrder(allOrders.last())
+                    allOrders.removeLast()
+                }
+
+                if (pendingOrders != null && pendingOrders.size > OrderListSingleTon.PAGE_SIZE) {
+                    println("[DEBUG] pendingOrders before removal: ${pendingOrders.map { it.orderNumber }}")
+                    OrderController.tabbedPane.removeOrderFromPending(pendingOrders.last())
+                    pendingOrders.removeLast()
+                }
             }
-            OrderController.addNewOrder(orderData)
         } catch (e: Exception) {
             e.printStackTrace()
+        }finally {
+            SwingUtilities.invokeLater {
+                OrderListSingleTon.isLoading = false
+            }
         }
     }
 

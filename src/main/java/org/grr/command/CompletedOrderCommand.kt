@@ -21,18 +21,18 @@ class CompletedOrderCommand(
 ) : Command {
     override fun execute() {
 
-        if(OrderListSingleTon.pageNumbers["processingOrders"]!! > 0){
-            OrderListSingleTon.pageNumbers["processingOrders"] = (OrderListSingleTon.pageNumbers["processingOrders"] ?: 0) - 1
-        }
-        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
-            if(OrderListSingleTon.pageNumbers["processingDeliveryOrders"]!! > 0){
-                OrderListSingleTon.pageNumbers["processingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["processingDeliveryOrders"] ?: 0) - 1
-            }
-        }else{
-            if(OrderListSingleTon.pageNumbers["processingTakeOutOrders"]!! > 0 ){
-                OrderListSingleTon.pageNumbers["processingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["processingTakeOutOrders"] ?: 0) - 1
-            }
-        }
+//        if(OrderListSingleTon.pageNumbers["processingOrders"]!! > 0){
+//            OrderListSingleTon.pageNumbers["processingOrders"] = (OrderListSingleTon.pageNumbers["processingOrders"] ?: 0) - 1
+//        }
+//        if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+//            if(OrderListSingleTon.pageNumbers["processingDeliveryOrders"]!! > 0){
+//                OrderListSingleTon.pageNumbers["processingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["processingDeliveryOrders"] ?: 0) - 1
+//            }
+//        }else{
+//            if(OrderListSingleTon.pageNumbers["processingTakeOutOrders"]!! > 0 ){
+//                OrderListSingleTon.pageNumbers["processingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["processingTakeOutOrders"] ?: 0) - 1
+//            }
+//        }
 
 
         // 주문 상태를 RejectedState로 변경 (거절 사유와 원래 상태 포함)

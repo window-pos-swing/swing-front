@@ -21,7 +21,9 @@ object OrderListSingleTon {
     val orders = mutableMapOf<String, MutableList<ReceiveOrderModel>>()
     val pageNumbers = mutableMapOf<String, Int>()
     val counts = mutableMapOf<String, Int>()
-//    val realTime = mutableMapOf<String, Boolean>()
+
+    var isLoading = false;
+    //    val realTime = mutableMapOf<String, Boolean>()
     // 초기화
     init {
         initializeKeys()
@@ -81,7 +83,8 @@ object OrderListSingleTon {
         parentFrame: JFrame,
         cardPanel: JPanel,
         filter: OrderFilter,
-        totalElements: Int
+        totalElements: Int,
+        totalPages: Int,
     ) {
         try {
             val jsonArray = JSONArray(orderListJson)
@@ -91,37 +94,18 @@ object OrderListSingleTon {
             val key = determineKey(filter)
             println("[key] : $key")
 
-            // 기존 주문 리스트에서 주문 번호 추출
-            val existingOrderNumbers = orders[key]?.map { it.orderNumber } ?: emptyList()
+            // 현재 저장된 주문 리스트
+            val currentOrders = orders[key] ?: mutableListOf()
+            // 기존 orderNumber 목록 추출 (Set 사용하여 중복 체크 빠르게 수행)
+            val existingOrderNumbers = currentOrders.map { it.orderNumber }.toSet()
 
-            // 중복 제거
+            // ✅ 중복 제거: 기존에 없는 주문만 필터링
             val uniqueOrders = newOrders.filter { it.orderNumber !in existingOrderNumbers }
-            // 데이터 추가 여부 확인
-            if (uniqueOrders.isEmpty() && pageNumbers[key] != 0 ) {
-                println("[$key] No unique orders found.")
 
-                // 현재 로드된 데이터와 서버 총 데이터 비교
-                val currentLoadedCount = orders[key]?.size ?: 0
-                if (currentLoadedCount >= totalElements) {
-                    println("[$key] 모든 데이터 가져옴")
-                    pageNumbers[key] = -1 // 페이지 번호를 -1로 설정하여 요청 중단
-                    return
-                }
-
-                // 다음 페이지 요청
-                val nextPage = (pageNumbers[key] ?: 0) + 1
-                // 최대 요청 횟수 제한
-                if (nextPage > MAX_PAGE_REQUESTS) {
-                    println("[$key] 요청 제한 초과 - 무한 루프 방지")
-                    pageNumbers[key] = -1
-                    return
-                }
-                pageNumbers[key] = nextPage // 페이지 번호 업데이트
-                println("[$key] 중복체크 비었음  서버 데이터 있음 다음 페이지 요청 : $nextPage")
-                OrderAPI().fetchOrders(parentFrame, cardPanel, filter, nextPage)
+            if (uniqueOrders.isEmpty()) {
+                println("[DEBUG] No new unique orders to add for key: $key")
                 return
             }
-
             // 옵저버 등록
             uniqueOrders.forEach { order ->
                 order.addStateObserver(object : OrderObserver {
@@ -132,14 +116,15 @@ object OrderListSingleTon {
             }
 
             // 주문 추가
-            orders[key]?.addAll(uniqueOrders)
-
+            currentOrders.addAll(uniqueOrders)
+            orders[key] = currentOrders // 변경된 리스트를 다시 저장
             // 카운트 및 페이지 번호 업데이트
             counts[key] = totalElements
-            pageNumbers[key] = if (newOrders.size < PAGE_SIZE) -1 else (pageNumbers[key] ?: 0) + 1
+            pageNumbers[key] = if (totalPages-1 == pageNumbers[key]!!) -1 else (pageNumbers[key] ?: 0) + 1
 
             println("[$key]  pageNumber: ${pageNumbers[key]}")
-            println("[$key]  Added unique orders: ${uniqueOrders.map { it.orderNumber }}")
+            println("[$key]  Added unique orders: ${newOrders.map { it.orderNumber }}")
+
             // 전체 orderId 순회하여 프린트
             val allOrderIds = orders[key]?.map { it.orderNumber } ?: emptyList()
             println("[addAllOrder] Current ${key} orders: $allOrderIds")
@@ -149,6 +134,7 @@ object OrderListSingleTon {
             println("Error adding orders: ${e.message}")
         }
     }
+
 
 
     // 키 결정
