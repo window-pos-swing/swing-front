@@ -272,27 +272,21 @@ class SoldOutManagementDialog : JPanel() {
                         button.removeActionListener(listener)
                     }
 
+                    // 테이블에서 현재 메뉴 정보를 가져옴
+                    val menuName = table.getValueAt(currentRow, 2) as String
+                    val menu = menuListTable.flatMap { it.menuList }.find { it.menuName == menuName }
+
+//                    println("카테고리 이름, 메뉴 이름 : ${categoryName}, ${menuName}")
+//                    println("메뉴 리스트 : ${menuListTable}")
+
                     // 버튼 클릭 시 상태 변경 및 복사본 데이터 업데이트
                     button.addActionListener {
-                        // 현재 상태 출력 (Before)
-                        println("Before update: Row $currentRow, Value: $currentValue")
-
-                        // 테이블에서 현재 메뉴 정보를 가져옴
-                        val categoryName = table.getValueAt(currentRow, 1) as String
-                        val menuName = table.getValueAt(currentRow, 2) as String
-
-                        val category = copiedMenuCategories.find { it.categoryName == categoryName }
-                        val menu = category?.menuList?.find { it.menuName == menuName }
+//                        println("선택된 메뉴 및 카테고리 : ${category}, ${menu}")
 
                         if (menu != null) {
-                            // Before 상태 출력
-                            println("Before  : $menu")
-
                             // 버튼 상태 반전에 따라 isSoldOut 값 설정
                             menu.isSoldOut = !menu.isSoldOut
                             currentValue = menu.isSoldOut
-                            // After 상태 출력
-                            println("After   : $menu")
 
                             // 테이블 모델 값 업데이트
                             val model = table.model as DefaultTableModel
@@ -307,7 +301,6 @@ class SoldOutManagementDialog : JPanel() {
                         } else {
                             println("Error: Menu not found in copiedMenuCategories!")
                         }
-
                         fireEditingStopped() // 편집 종료
                     }
 
@@ -388,9 +381,13 @@ class SoldOutManagementDialog : JPanel() {
             customFont = MyFont.Bold(26f)  // 버튼 글자 크기 줄임
         ).apply {
             addActionListener {
-                val selectedMenuIds = copiedMenuCategories.flatMap { category ->
+                println("복사한 카테고리 : $menuListTable")
+
+                val selectedMenuIds = menuListTable.flatMap { category ->
                     category.menuList.filter { it.isSoldOut }.map { it.id }
                 }
+
+                println("선택된 메뉴 아이디 : $selectedMenuIds")
 
                 if (selectedMenuIds.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "품절 처리할 메뉴를 선택해주세요.")
