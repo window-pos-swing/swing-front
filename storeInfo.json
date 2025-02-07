@@ -5,7 +5,7 @@
             0
         ],
         "tuesdayStartTime": [
-            2,
+            13,
             0
         ],
         "fridayStartTime": [
@@ -14,6 +14,10 @@
         ],
         "wednesdayEndTime": [
             16,
+            0
+        ],
+        "sundayEndTime": [
+            18,
             0
         ],
         "mondayStartTime": [
@@ -37,11 +41,15 @@
             0
         ],
         "tuesdayEndTime": [
-            3,
-            45
+            14,
+            0
         ],
         "thursdayStartTime": [
             15,
+            0
+        ],
+        "sundayStartTime": [
+            17,
             0
         ],
         "id": 1,
@@ -50,37 +58,83 @@
             0
         ]
     },
-    "businessPauseStartTime": [
-        2025,
-        2,
-        6,
-        0,
-        0
-    ],
     "businessHour": {
         "mondayAllDay": false,
-        "fridayAllDay": true,
-        "wednesdayAllDay": true,
-        "saturdayAllDay": true,
-        "thursdayAllDay": true,
-        "sundayAllDay": true,
-        "tuesdayAllDay": true
+        "wednesdayStartTime": [
+            7,
+            0
+        ],
+        "tuesdayStartTime": [
+            7,
+            0
+        ],
+        "fridayStartTime": [
+            7,
+            0
+        ],
+        "wednesdayEndTime": [
+            20,
+            0
+        ],
+        "sundayEndTime": [
+            20,
+            0
+        ],
+        "mondayStartTime": [
+            7,
+            0
+        ],
+        "mondayEndTime": [
+            20,
+            0
+        ],
+        "thursdayEndTime": [
+            20,
+            0
+        ],
+        "saturdayStartTime": [
+            7,
+            0
+        ],
+        "saturdayEndTime": [
+            20,
+            0
+        ],
+        "tuesdayEndTime": [
+            20,
+            0
+        ],
+        "fridayAllDay": false,
+        "wednesdayAllDay": false,
+        "thursdayStartTime": [
+            7,
+            0
+        ],
+        "saturdayAllDay": false,
+        "sundayStartTime": [
+            7,
+            0
+        ],
+        "thursdayAllDay": false,
+        "sundayAllDay": false,
+        "tuesdayAllDay": false,
+        "fridayEndTime": [
+            20,
+            0
+        ]
     },
     "storeName": "매장 666",
     "estimatedCookingTime": 30,
     "holidayList": [
         {
             "holidayType": "SPECIFIC_DATE",
-            "daysOfMonth": [
-                1,
-                2,
-                3,
-                14,
-                15,
-                16
-            ],
+            "daysOfMonth": [],
             "specificDates": [
                 "2025-05-27",
+                "2025-05-28",
+                "2025-05-29",
+                "2025-05-30",
+                "2025-05-31",
                 "2025-06-02"
             ],
             "daysOfWeek": [],
@@ -91,18 +145,14 @@
             "daysOfMonth": [],
             "specificDates": [],
             "daysOfWeek": [6],
-            "weeksOfMonth": [1]
+            "weeksOfMonth": [
+                1,
+                3
+            ]
         }
     ],
     "estimatedArrivalTime": 50,
     "estimatedCookingTimeControl": false,
-    "businessPauseEndTime": [
-        2025,
-        2,
-        6,
-        0,
-        0
-    ],
     "pause": true,
     "estimatedArrivalTimeControl": false
 }
