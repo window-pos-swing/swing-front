@@ -2,6 +2,7 @@ package org.grr.screen.main.main_widget.tab_manager
 
 import kotlinx.coroutines.*
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderController
 import javax.swing.*
 
 class ScrollPaginationHandler(
@@ -35,6 +36,10 @@ class ScrollPaginationHandler(
             if (isOrderStatusChange) return@addAdjustmentListener
             // 사용자가 스크롤바를 움직이는 중이면 무시
             if (event.valueIsAdjusting) return@addAdjustmentListener
+
+            if(getPageNumber() == 0) return@addAdjustmentListener
+
+            if(OrderController.isLoading) return@addAdjustmentListener
 
             val currentMaxHeight = scrollBar.maximum
             val currentScrollPosition = scrollBar.value + scrollBar.visibleAmount

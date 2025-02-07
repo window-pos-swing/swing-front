@@ -29,28 +29,34 @@ class AcceptOrderCommand(
     private val cookTime: Int = 0,
 ) : Command {
     override fun execute() {
-        CoroutineScope(Dispatchers.IO).launch {
-
-            println("OrderListSingleTon.isCommand = true");
-            // 배달포장 상태에 따라 시간 설정
+        GlobalScope.launch {
             val deliveryTime = if (takeType == "takeOut") 0 else order.deliveryTime
             val sendCookTime = if (cookTime == 0) order.cookTime else cookTime
 
-            //TODO 수락으로 변경 호출
-            if (!changeOrderStatusToAccepted(deliveryTime, sendCookTime)) return@launch
-            //UI update
-            updateOrderStateToProcessing(deliveryTime, sendCookTime, order.orderReceiveType)
+            // ✅ 주문을 "수락됨" 상태로 변경
+            if (!changeOrderStatusToAccepted(deliveryTime, sendCookTime)) {
+                return@launch
+            }
 
-            //TODO(5초 뒤 조리중으로 변경)
-            delay(5000)
-            //거절 주문인지 확인
+            delay(500)
+            // ✅ UI 변경을 **메인(UI) 스레드에서 즉시 실행**
+            SwingUtilities.invokeLater {
+                println("[DEBUG] setTab(\"접수대기\") 실행됨!")
+                OrderController.tabbedPane.setTab("접수대기")
+            }
+
+            delay(5000) // 🚀 5초 후 조리중으로 변경
+
             if (order.state is RejectedState || order.state is CompletedState || order.isPickupWait) {
                 return@launch
             }
+
             changeOrderStatusToCooking(deliveryTime, sendCookTime)
 
         }
     }
+
+
 
     private suspend fun changeOrderStatusToAccepted(deliveryTime: Int, cookTime: Int): Boolean {
         val result = OrderAPI().orderStatusChangeToServer(
@@ -66,45 +72,10 @@ class AcceptOrderCommand(
             }
             return false
         }
+
         return true
     }
 
-
-    private fun updateOrderStateToProcessing(deliveryTime: Int, cookTime: Int, orderReceiveType: String) {
-        // 상태 변경 및 컨트롤러 업데이트
-        SwingUtilities.invokeLater {
-            OrderListSingleTon.counts["processingOrders"] = (OrderListSingleTon.counts["processingOrders"] ?: 0) + 1
-            OrderListSingleTon.counts["pendingOrders"] = (OrderListSingleTon.counts["pendingOrders"] ?: 0) - 1
-            // 주문 타입별 카운트 업데이트
-
-            var targetOrder = OrderListSingleTon.orders["allOrders"]?.find { it.orderNumber == order.orderNumber }
-            // 다른 컬렉션에서 검색
-            if (targetOrder == null) {
-                targetOrder = OrderListSingleTon.orders["pendingOrders"]?.find { it.orderNumber == order.orderNumber }
-                targetOrder = targetOrder
-                    ?: OrderListSingleTon.orders["pendingDeliveryOrders"]?.find { it.orderNumber == order.orderNumber }
-                targetOrder = targetOrder
-                    ?: OrderListSingleTon.orders["pendingTakeOutOrders"]?.find { it.orderNumber == order.orderNumber }
-            }
-
-            // 주문이 없으면 로그 출력 후 종료
-            if (targetOrder == null) {
-                println("@@@ Error: Order not found in any collection. OrderNumber: ${order.orderNumber}")
-                return@invokeLater
-            }
-
-            // 상태 업데이트
-            targetOrder.changeState(ProcessingState(cookTime + deliveryTime, parent, cardPanel))
-            orderController.onOrderStateChanged(targetOrder)
-
-            println("===========================================================================")
-            println("[AcceptOrderCommand] #${order.orderNumber} 접수처리중으로 상태 변경 with total time: ${cookTime + deliveryTime} minutes")
-            println("[CookTime] $cookTime")
-            println("[DeliveryTime] $deliveryTime")
-            println("===========================================================================")
-
-        }
-    }
 
     private suspend fun changeOrderStatusToCooking(deliveryTime: Int, cookTime: Int) {
         val result = OrderAPI().orderStatusChangeToServer(

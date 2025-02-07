@@ -1,14 +1,19 @@
 package org.grr.command
 
 import Command
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.grr.api.OrderAPI
 import org.grr.enum.OrderReceiveType
 import org.grr.enum.PosOrderStatus
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderController
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.order_states_ui.RejectedState
 import javax.swing.JOptionPane
+import javax.swing.SwingUtilities
 
 enum class RejectedReasonType {
     USER_CANCEL,
@@ -23,34 +28,6 @@ class RejectOrderCommand(
     private val rejectPanel: PosOrderStatus
 ) : Command {
     override fun execute() {
-//        if(rejectPanel == PosOrderStatus.IN_PROGRESS){
-//            if(OrderListSingleTon.pageNumbers["processingOrders"]!! > 0){
-//                OrderListSingleTon.pageNumbers["processingOrders"] = (OrderListSingleTon.pageNumbers["processingOrders"] ?: 0) - 1
-//            }
-//            if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
-//                if(OrderListSingleTon.pageNumbers["processingDeliveryOrders"]!! > 0){
-//                    OrderListSingleTon.pageNumbers["processingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["processingDeliveryOrders"] ?: 0) - 1
-//                }
-//            }else{
-//                if(OrderListSingleTon.pageNumbers["processingTakeOutOrders"]!! > 0 ){
-//                    OrderListSingleTon.pageNumbers["processingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["processingTakeOutOrders"] ?: 0) - 1
-//                }
-//            }
-//        }else if(rejectPanel == PosOrderStatus.WAITING){
-//
-//            if(OrderListSingleTon.pageNumbers["pendingOrders"]!! > 0){
-//                OrderListSingleTon.pageNumbers["pendingOrders"] = (OrderListSingleTon.pageNumbers["pendingOrders"] ?: 0) - 1
-//            }
-//            if(order.orderReceiveType == OrderReceiveType.DELIVERY.name){
-//                if(OrderListSingleTon.pageNumbers["pendingDeliveryOrders"]!! > 0){
-//                    OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] = (OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] ?: 0) - 1
-//                }
-//            }else{
-//                if(OrderListSingleTon.pageNumbers["pendingTakeOutOrders"]!! > 0 ){
-//                    OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] = (OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] ?: 0) - 1
-//                }
-//            }
-//        }
 
         if(rejectType != RejectedReasonType.USER_CANCEL){
             var result = OrderAPI().orderStatusChangeToServer(
@@ -71,15 +48,22 @@ class RejectOrderCommand(
         // 주문 상태를 RejectedState로 변경 (거절 사유와 원래 상태 포함)
 
 
-        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
-        allOrder?.changeState(RejectedState(rejectReason, rejectDate, rejectType, rejectPanel))
-        if (rejectPanel == PosOrderStatus.WAITING) {
-            val pendingOrder = OrderListSingleTon.findOrderByNumber("pendingOrders", order.orderNumber)
-            pendingOrder?.changeState(RejectedState(rejectReason, rejectDate, rejectType, rejectPanel))
-        } else {
-            val processOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
-            processOrder?.changeState(RejectedState(rejectReason, rejectDate, rejectType, rejectPanel))
+        println("[DEBUG] rejectPanel : $rejectPanel")
+        GlobalScope.launch {
+            delay(500)
+            if (rejectPanel == PosOrderStatus.WAITING) {
+                SwingUtilities.invokeLater {
+                    println("[DEBUG] setTab(\"접수대기\") 실행됨!")
+                    OrderController.tabbedPane.setTab("접수대기")
+                }
+            } else {
+                SwingUtilities.invokeLater {
+                    println("[DEBUG] setTab(\"접수처리중\") 실행됨!")
+                    OrderController.tabbedPane.setTab("접수처리중")
+                }
+            }
         }
+
 //        order.changeState(RejectedState(rejectReason, rejectDate, rejectType, rejectPanel))
         println("[주문] #${order.orderNumber} 거절상태로 변경 with reason: [$rejectType] - $rejectReason at $rejectDate")
 

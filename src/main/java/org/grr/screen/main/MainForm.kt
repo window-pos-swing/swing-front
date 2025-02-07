@@ -48,16 +48,16 @@ class MainForm : JFrame() {
                         Storage.saveStoreInfo(memberData)
                         println("메인 화면 접속 시 세팅 정보 : ${memberData}")
 
-                        // 로컬 데이터 및 주문 리스트 로드
+                        // 로컬 데이터 로드
                         println("===============================")
-                        fetchUserAndOrders() // 데이터를 로드
+                        fetchUser()
                         println("===============================")
 
                         // 데이터 로드 완료 후 CustomTabbedPane 초기화
                         initializeTabbedPane()
                         // CustomTabbedPane 초기화 후 WebSocketClient와 org.grr.`object`.OrderController 생성
                         initializeWebSocketClient()
-
+                        tabbedPane.setTab("전체보기")
                         // 화면 갱신
                         revalidate()
                         repaint()
@@ -69,7 +69,9 @@ class MainForm : JFrame() {
 
             // JFrame 기본 설정
             setupFrame()
+
         }
+
     }
 
     private fun setupFrame() {
@@ -103,15 +105,12 @@ class MainForm : JFrame() {
         defaultCloseOperation = EXIT_ON_CLOSE
     }
 
-    private fun fetchUserAndOrders() {
+    private fun fetchUser() {
         // [유저 셋팅 가져오기]
         SettingModel.loadCookDeliveryTime()
         SettingModel.loadBreakTime()
         SettingModel.loadOperateTime()
         SettingModel.loadHoliday()
-
-        // [주문리스트 가져오기]
-        OrderListSingleTon.initOrderData(parentFrame = this@MainForm, cardPanel = cardPanel)
     }
 
     private fun initializeTabbedPane() {
@@ -129,6 +128,7 @@ class MainForm : JFrame() {
         // CustomTabbedPane에 cardPanel 전달
         tabbedPane.setCardPanel(cardPanel)
         OverlayManager.update(this, cardPanel)
+
     }
 
     private fun initializeWebSocketClient() {
@@ -136,7 +136,6 @@ class MainForm : JFrame() {
 
         // org.grr.`object`.OrderController 초기화
         OrderController.initialize(tabbedPane)
-        OrderController.initializeOrders(OrderListSingleTon.orders["allOrders"]!!)
 
         // WebSocketClient 생성
         webSocketClient = PosWebSocketClient(

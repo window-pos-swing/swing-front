@@ -6,9 +6,6 @@ import org.grr.enum.PosOrderStatus
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
-import org.grr.`object`.OrderController.handleOrderStateChange
-import org.grr.`object`.OrderController.tabbedPane
-import org.grr.observer.OrderObserver
 import org.json.JSONArray
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -16,13 +13,12 @@ import javax.swing.JPanel
 // 주문 데이터 싱글톤 관리
 object OrderListSingleTon {
     val PAGE_SIZE: Int = 3
-    val MAX_PAGE_REQUESTS: Int = 100
 
     // 데이터 상태
+    val currentOrders = intArrayOf()
     val orders = mutableMapOf<String, MutableList<ReceiveOrderModel>>()
     val pageNumbers = mutableMapOf<String, Int>()
     val counts = mutableMapOf<String, Int>()
-    var hasMore = mutableMapOf<String, Boolean>()
 
     //    val realTime = mutableMapOf<String, Boolean>()
     // 초기화
@@ -52,7 +48,6 @@ object OrderListSingleTon {
             orders[key] = mutableListOf()
             pageNumbers[key] = 0
             counts[key] = 0
-            hasMore[key] = true
         }
     }
 
@@ -96,62 +91,16 @@ object OrderListSingleTon {
             val key = determineKey(filter)
             println("[key] : $key")
 
-            // 현재 저장된 주문 리스트
+            // ✅ 현재 저장된 주문 리스트
             val currentOrders = orders[key] ?: mutableListOf()
-            // 기존 orderNumber 목록 추출 (Set 사용하여 중복 체크 빠르게 수행)
-            val existingOrderNumbers = currentOrders.map { it.orderNumber }.toSet()
 
-            // ✅ 중복 제거: 기존에 없는 주문만 필터링
-            val uniqueOrders = newOrders.filter { it.orderNumber !in existingOrderNumbers }
-
-            if (uniqueOrders.isEmpty()) {
-                println("[DEBUG] 키에 추가할 새로운 주문이 없습니다 : $key")
-                if(pageNumbers[key] != 0){
-                    println("totalPages : ${totalPages}")
-                    println("pageNumbers : ${pageNumbers[key]}")
-                    if(totalPages-1 <= pageNumbers[key]!!){
-                        println("${key} 더이상 가져올 데이터가 없음")
-                        hasMore[key] = false
-                        return
-                    }else{
-                        hasMore[key] = true
-                        pageNumbers[key] = (pageNumbers[key] ?: 0) + 1
-                    }
-//                    pageNumbers[key] = if (totalPages-1 <= pageNumbers[key]!!) -1 else (pageNumbers[key] ?: 0) + 1
-                    //가져온데이터 모두 중복이고 다음 페이지가 있을경우 다시 호출
-                    if(pageNumbers[key] != -1){
-                        val result = OrderAPI().fetchOrders(
-                            tabbedPane.parentFrame,
-                            tabbedPane.cardPanel!!,
-                            filter,
-                            pageNumbers[key]!!
-                        )
-                    }
-                }
-                return
-            }
-            // 옵저버 등록
-            uniqueOrders.forEach { order ->
-                order.addStateObserver(object : OrderObserver {
-                    override fun update(updatedOrder: ReceiveOrderModel) {
-                        handleOrderStateChange(updatedOrder)
-                    }
-                })
-            }
-
-            // 주문 추가
-            currentOrders.addAll(uniqueOrders)
+            // ✅ 주문 추가
+            currentOrders.addAll(newOrders)
             orders[key] = currentOrders // 변경된 리스트를 다시 저장
             // 카운트 및 페이지 번호 업데이트
             counts[key] = totalElements
-//            pageNumbers[key] = if (totalPages-1 == pageNumbers[key]!!) -1 else (pageNumbers[key] ?: 0) + 1
-            if(totalPages-1 <= pageNumbers[key]!!){
-                println("${key} 더이상 가져올 데이터가 없음")
-                hasMore[key] = false
-            }else{
-                hasMore[key] = true
-                pageNumbers[key] = (pageNumbers[key] ?: 0) + 1
-            }
+            pageNumbers[key] = if (totalPages-1 == pageNumbers[key]!!) -1 else (pageNumbers[key] ?: 0) + 1
+
             println("[$key]  pageNumber: ${pageNumbers[key]}")
             println("[$key]  Added unique orders: ${newOrders.map { it.orderNumber }}")
 
@@ -164,6 +113,7 @@ object OrderListSingleTon {
             println("Error adding orders: ${e.message}")
         }
     }
+
 
 
 

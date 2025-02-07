@@ -183,16 +183,4 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
     }
 
-    fun addOrderToRejected(orderFrame: JPanel) {
-        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
-        storeRejectPanel.add(orderFrame)
-        storeRejectPanel.add(Box.createRigidArea(Dimension(0, 30)))
-        storeRejectPanel.revalidate()
-        storeRejectPanel.repaint()
-        tabbedPane.updateTabTitle(4, "주문거절", (
-                OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + (OrderListSingleTon.counts["rejectUserOrders"] ?: 0) + (OrderListSingleTon.counts["rejectRefundOrders"] ?: 0)
-        )
-        initializePanels()
-        updateCounts()
-    }
 }

@@ -183,16 +183,4 @@ class CompletedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
     }
 
-    fun addOrderToCompleted(orderFrame: JPanel,order: ReceiveOrderModel) {
-        println("addOrderToCompleted")
-        completedOrdersPanel.add(orderFrame)
-        completedOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)))
-        completedOrdersPanel.revalidate()
-        completedOrdersPanel.repaint()
-
-
-        initializePanels()
-        updateCounts()
-
-    }
 }
