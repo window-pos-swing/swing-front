@@ -1,13 +1,13 @@
 import org.grr.api.MenuAPI
 import org.grr.model.MenuCategory
-import org.grr.model.MenuData
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.CustomScrollBarUI
 import org.grr.widgets.FillRoundedButton
 import org.grr.widgets.RoundedPanel
-import org.grr.widgets.RoundedPanel2
 import java.awt.*
+import java.awt.event.AdjustmentEvent
+import java.awt.event.AdjustmentListener
 import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
@@ -23,17 +23,23 @@ class SoldOutManagementDialog : JPanel() {
     private var isFilteringSoldOut = false // 품절 필터링 상태를 저장
     private val selectedMenuIds = mutableSetOf<Int>()
 
+    private var currentPage = 0
+    private val pageSize = 10
+    private var isLoading = false
+    private var hasMenuDate = true // 데이터가 없을 경우 api호출을 막는 구문
+    private val menuListTable: MutableList<MenuCategory> = mutableListOf()
 
     init {
         layout = BorderLayout()
         background = MyColor.DARK_NAVY
         border = BorderFactory.createEmptyBorder(20, 0, 0, 0)
 
-        // 초기 데이터 로드
-        val currentPage = 0
-        val pageSize = 10
-        val (success, menuList, categoryList) = MenuAPI().fetchMenuList(currentPage, pageSize)
-        val menuListTable = MenuAPI().parseMenuData(menuList.toString())
+        // [테이블] 품절 관리, 메뉴 그룹, 메뉴 이름
+        tableModel = object : DefaultTableModel(arrayOf("품절 관리", "메뉴 그룹", "메뉴 이름"), 0) {
+            override fun isCellEditable(row: Int, column: Int): Boolean {
+                return column == 0  // "품절 관리" 열만 편집 가능
+            }
+        }
 
         // 둥근 패널 생성
         val roundedPanel = RoundedPanel(30, 30).apply {
@@ -52,17 +58,6 @@ class SoldOutManagementDialog : JPanel() {
                 font = MyFont.Bold(20f)
                 foreground = Color.WHITE
             })
-            val categories = MenuData.createSampleData() // 샘플 데이터 생성
-
-            // 원본 데이터를 깊은 복사하여 복사본 생성
-            copiedMenuCategories.clear()
-            copiedMenuCategories.addAll(categoryList!!.map {
-                MenuCategory(
-                    id = -1,
-                    categoryName = it.toString(),
-                    menuList = emptyList()
-                )
-            })
 
             // DefaultComboBoxModel 생성 및 카테고리 추가
             val categoryModel = DefaultComboBoxModel<String>().apply {
@@ -80,23 +75,18 @@ class SoldOutManagementDialog : JPanel() {
                 font = MyFont.Bold(22f)
                 addActionListener {
                     if (isFilteringSoldOut) {
-                        if (success && menuList != null) {
-                            filterSoldOut(menuListTable)
-                        } else {
-                            JOptionPane.showMessageDialog(this, "데이터를 불러오지 못했습니다.")
-                        }
+                        filterSoldOut()
                     } else {
-                        if (success && menuList != null) {
-                            updateTable(menuListTable)
-                        } else {
-                            JOptionPane.showMessageDialog(this, "데이터를 불러오지 못했습니다.")
-                        }
+                        updateTable()
                     }
                 }
             }
 
             add(categoryComboBox)
             add(Box.createRigidArea(Dimension(20, 0)))
+
+            // 초기 데이터 로드
+            loadMoreData()
 
             // 품절 상품 보기 버튼
             val soldOutButton = FillRoundedButton(
@@ -114,20 +104,12 @@ class SoldOutManagementDialog : JPanel() {
                 addActionListener {
                     if (!isFilteringSoldOut) {
                         // 품절 상품 필터링 동작
-                        if (success && menuList != null) {
-                            filterSoldOut(menuListTable)
-                        } else {
-                            JOptionPane.showMessageDialog(this, "데이터를 불러오지 못했습니다.")
-                        }
+                        filterSoldOut()
                         backgroundColor = MyColor.LIGHT_BLUE
                         borderColor = MyColor.LIGHT_BLUE
                     } else {
                         // 모든 상품 보기 동작
-                        if (success && menuList != null) {
-                            updateTable(menuListTable)
-                        } else {
-                            JOptionPane.showMessageDialog(this, "데이터를 불러오지 못했습니다.")
-                        }
+                        updateTable()
                         backgroundColor = MyColor.LIGHT_GREY2
                         borderColor = MyColor.LIGHT_GREY2
                     }
@@ -138,12 +120,6 @@ class SoldOutManagementDialog : JPanel() {
             add(soldOutButton)
         }
 
-        // [테이블] 품절 관리, 메뉴 그룹, 메뉴 이름
-        tableModel = object : DefaultTableModel(arrayOf("품절 관리", "메뉴 그룹", "메뉴 이름"), 0) {
-            override fun isCellEditable(row: Int, column: Int): Boolean {
-                return column == 0  // "품절 관리" 열만 편집 가능
-            }
-        }
         menuTable = JTable(tableModel).apply {
             rowHeight = 60
             background = MyColor.DARK_NAVY
@@ -151,43 +127,6 @@ class SoldOutManagementDialog : JPanel() {
             font = MyFont.Bold(22f)
             columnModel.getColumn(1).cellEditor = null // "메뉴 그룹"
             columnModel.getColumn(2).cellEditor = null // "메뉴 이름"
-//            columnModel.getColumn(2).cellRenderer = object : DefaultTableCellRenderer() {
-//                override fun getTableCellRendererComponent(
-//                    table: JTable,
-//                    value: Any?,
-//                    isSelected: Boolean,
-//                    hasFocus: Boolean,
-//                    row: Int,
-//                    column: Int
-//                ): Component {
-//                    // 패널 생성
-//                    val panel = JPanel(FlowLayout(FlowLayout.LEFT, 10, 0)).apply {
-//                        background = if (isSelected) MyColor.LIGHT_BLUE_46 else MyColor.DARK_NAVY
-//                    }
-//
-//                    // 메뉴 이름 라벨 추가
-//                    val menuNameLabel = JLabel(value.toString()).apply {
-//                        font = MyFont.SemiBold(18f)
-//                        foreground = Color.WHITE
-//                    }
-//                    panel.add(menuNameLabel)
-//
-//                    // 품절 상태에 따른 "품절" 태그 추가
-//                    val isSoldOut = table.getValueAt(row, 0) as Boolean
-//                    if (isSoldOut) {
-//                        val soldOutLabel = JLabel("품절").apply {
-//                            font = MyFont.Bold(14f)
-//                            foreground = Color.WHITE
-//                            background = Color.PINK
-//                            border = BorderFactory.createEmptyBorder(5, 10, 5, 10) // 내부 패딩
-//                            isOpaque = true // 배경색 적용
-//                        }
-//                        panel.add(soldOutLabel)
-//                    }
-//
-//                    return panel
-//                }
-//            }
 
             // 테이블 헤더 커스텀 렌더러
             val headerRenderer = object : DefaultTableCellRenderer() {
@@ -363,6 +302,18 @@ class SoldOutManagementDialog : JPanel() {
             horizontalScrollBar.preferredSize = Dimension(0, 12) // 가로 스크롤바 높이
         }
 
+        scrollPane.verticalScrollBar.addAdjustmentListener(object : AdjustmentListener {
+            override fun adjustmentValueChanged(e: AdjustmentEvent) {
+                val scrollBar = e.adjustable
+                val maxScroll = scrollBar.maximum - scrollBar.visibleAmount
+                val currentScroll = scrollBar.value
+
+                if (currentScroll >= maxScroll - 20) { // 스크롤이 거의 끝에 도달했을 때
+                    loadMoreData()
+                }
+            }
+        })
+
         // 하단 버튼
         val registerButton = FillRoundedButton(
             text = "등록",
@@ -377,12 +328,6 @@ class SoldOutManagementDialog : JPanel() {
             customFont = MyFont.Bold(26f)  // 버튼 글자 크기 줄임
         ).apply {
             addActionListener {
-//                println("복사한 카테고리 : $menuListTable")
-//                val selectedMenuIds = menuListTable.flatMap { category ->
-//                    category.menuList.filter { it.isSoldOut }.map { it.id }
-//                }
-//                println("선택된 메뉴 아이디 : $selectedMenuIds")
-
                 if (selectedMenuIds.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "품절 처리할 메뉴를 선택해주세요.")
                     return@addActionListener
@@ -416,20 +361,13 @@ class SoldOutManagementDialog : JPanel() {
         // 메인 패널에 둥근 패널 추가
         add(roundedPanel, BorderLayout.CENTER)
 
-//        println("메뉴 데이터 : ${menuList.toString()}")
-//        println("카테고리 데이터 : ${categoryList.toString()}")
-
-        if (success && menuList != null) {
-            updateTable(menuListTable) // 테이블 업데이트
-        } else {
-            JOptionPane.showMessageDialog(this, "데이터를 불러오지 못했습니다.")
-        }
+        updateTable() // 테이블 업데이트
     }
 
-    private fun updateTable(menuCategories: List<MenuCategory>) {
+    private fun updateTable() {
         tableModel.rowCount = 0 // 기존 테이블 데이터 초기화
-        val selectedCategory = categoryComboBox.selectedItem as String
-        menuCategories.forEach { category ->
+        val selectedCategory = categoryComboBox.selectedItem?.toString() ?: "전체"
+        menuListTable.forEach { category ->
             if (selectedCategory == "전체" || selectedCategory == category.categoryName) {
                 category.menuList.forEach { menu ->
                     tableModel.addRow(
@@ -445,16 +383,44 @@ class SoldOutManagementDialog : JPanel() {
     }
 
     // 품절 상품 필터링 동작
-    private fun filterSoldOut(menuCategories: List<MenuCategory>) {
+    private fun filterSoldOut() {
         tableModel.rowCount = 0
-        val selectedCategory = categoryComboBox.selectedItem as String
-        menuCategories.forEach { category ->
-            println("카테고리 명 : ${category}, ${selectedCategory}")
+        val selectedCategory = categoryComboBox.selectedItem?.toString() ?: "전체"
+        menuListTable.forEach { category ->
+//            println("카테고리 명 : ${category}, ${selectedCategory}")
             if (selectedCategory == "전체" || selectedCategory == category.categoryName) {
                 category.menuList.filter { it.isSoldOut }.forEach { menu ->
                     tableModel.addRow(arrayOf(menu.isSoldOut, category.categoryName, menu.menuName))
                 }
             }
         }
+    }
+
+    private fun loadMoreData() {
+        if (isLoading) return
+        isLoading = true
+
+        println("hasMenuDate 값 : $hasMenuDate")
+        if (hasMenuDate) {
+            // API 호출
+            val (success, menuListResponse, categoryListResponse) = MenuAPI().fetchMenuList(
+                pageNumber = currentPage,
+                pageSize = pageSize
+            )
+
+            if (success && menuListResponse != null) {
+                val newMenus = MenuAPI().parseMenuData(menuListResponse.toString())
+
+                if (newMenus.isNotEmpty()) {
+                    menuListTable.addAll(newMenus) // 기존 데이터에 추가
+                    currentPage++ // 페이지 증가
+                    updateTable() // 테이블 업데이트
+
+                } else {
+                    hasMenuDate = false
+                }
+            }
+        }
+        isLoading = false
     }
 }
