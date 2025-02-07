@@ -5,6 +5,7 @@ import org.grr.util.MyFont
 import org.grr.widgets.CustomScrollBarUI
 import org.grr.widgets.FillRoundedButton
 import org.grr.widgets.RoundedPanel
+import org.json.JSONArray
 import java.awt.*
 import java.awt.event.AdjustmentEvent
 import java.awt.event.AdjustmentListener
@@ -16,18 +17,21 @@ import javax.swing.table.TableCellRenderer
 
 class SoldOutManagementDialog : JPanel() {
     // 독립적인 복사본 데이터를 저장
-    private val copiedMenuCategories: MutableList<MenuCategory> = mutableListOf()
     private val tableModel: DefaultTableModel
     private val menuTable: JTable
     private val categoryComboBox: JComboBox<String>
     private var isFilteringSoldOut = false // 품절 필터링 상태를 저장
     private val selectedMenuIds = mutableSetOf<Int>()
+    private var categoryModel: DefaultComboBoxModel<String> = DefaultComboBoxModel()
 
     private var currentPage = 0
     private val pageSize = 10
     private var isLoading = false
-    private var hasMenuDate = true // 데이터가 없을 경우 api호출을 막는 구문
+    private var hasMenuData = true // 데이터가 없을 경우 api호출을 막는 구문
     private val menuListTable: MutableList<MenuCategory> = mutableListOf()
+    private var soldOut: Boolean? = null
+    private var selectCategory: String? = null
+    private var previousCategory: String? = null
 
     init {
         layout = BorderLayout()
@@ -39,6 +43,10 @@ class SoldOutManagementDialog : JPanel() {
             override fun isCellEditable(row: Int, column: Int): Boolean {
                 return column == 0  // "품절 관리" 열만 편집 가능
             }
+        }
+
+        categoryModel = DefaultComboBoxModel<String>().apply {
+            addElement("전체") // "전체" 기본 추가
         }
 
         // 둥근 패널 생성
@@ -59,21 +67,15 @@ class SoldOutManagementDialog : JPanel() {
                 foreground = Color.WHITE
             })
 
-            // DefaultComboBoxModel 생성 및 카테고리 추가
-            val categoryModel = DefaultComboBoxModel<String>().apply {
-                addElement("전체") // "전체" 기본 추가
-                copiedMenuCategories.forEach { category ->
-                    addElement(category.categoryName) // ✅ MenuCategory 객체에서 categoryName만 추가
-                }
-            }
-
             // 카테고리 이름 콤보박스
             categoryComboBox = RoundedComboBox(categoryModel).apply {
                 preferredSize = Dimension(430, 55)
                 maximumSize = Dimension(430, 55)
                 minimumSize = Dimension(430, 55)
                 font = MyFont.Bold(22f)
+
                 addActionListener {
+                    selectCategory = selectedItem?.toString()?.takeIf { it != "전체" }
                     if (isFilteringSoldOut) {
                         filterSoldOut()
                     } else {
@@ -104,10 +106,12 @@ class SoldOutManagementDialog : JPanel() {
                 addActionListener {
                     if (!isFilteringSoldOut) {
                         // 품절 상품 필터링 동작
+                        soldOut = true
                         filterSoldOut()
                         backgroundColor = MyColor.LIGHT_BLUE
                         borderColor = MyColor.LIGHT_BLUE
                     } else {
+                        soldOut = null
                         // 모든 상품 보기 동작
                         updateTable()
                         backgroundColor = MyColor.LIGHT_GREY2
@@ -367,6 +371,7 @@ class SoldOutManagementDialog : JPanel() {
     private fun updateTable() {
         tableModel.rowCount = 0 // 기존 테이블 데이터 초기화
         val selectedCategory = categoryComboBox.selectedItem?.toString() ?: "전체"
+
         menuListTable.forEach { category ->
             if (selectedCategory == "전체" || selectedCategory == category.categoryName) {
                 category.menuList.forEach { menu ->
@@ -387,7 +392,6 @@ class SoldOutManagementDialog : JPanel() {
         tableModel.rowCount = 0
         val selectedCategory = categoryComboBox.selectedItem?.toString() ?: "전체"
         menuListTable.forEach { category ->
-//            println("카테고리 명 : ${category}, ${selectedCategory}")
             if (selectedCategory == "전체" || selectedCategory == category.categoryName) {
                 category.menuList.filter { it.isSoldOut }.forEach { menu ->
                     tableModel.addRow(arrayOf(menu.isSoldOut, category.categoryName, menu.menuName))
@@ -400,27 +404,48 @@ class SoldOutManagementDialog : JPanel() {
         if (isLoading) return
         isLoading = true
 
-        println("hasMenuDate 값 : $hasMenuDate")
-        if (hasMenuDate) {
-            // API 호출
-            val (success, menuListResponse, categoryListResponse) = MenuAPI().fetchMenuList(
-                pageNumber = currentPage,
-                pageSize = pageSize
-            )
+        if (selectCategory != previousCategory) {
+            currentPage = 0
+            menuListTable.clear()
+            hasMenuData = true
+            previousCategory = selectCategory
+        }
 
-            if (success && menuListResponse != null) {
-                val newMenus = MenuAPI().parseMenuData(menuListResponse.toString())
+        // API 호출
+        val (success, menuListResponse, categoryListResponse) = MenuAPI().fetchMenuList(
+            pageNumber = currentPage,
+            pageSize = pageSize,
+            selectCategory,
+            soldOut
+        )
 
-                if (newMenus.isNotEmpty()) {
-                    menuListTable.addAll(newMenus) // 기존 데이터에 추가
-                    currentPage++ // 페이지 증가
-                    updateTable() // 테이블 업데이트
+        updateCategoryComboBox(categoryListResponse)
 
-                } else {
-                    hasMenuDate = false
-                }
+        if (success && menuListResponse != null) {
+            val newMenus = MenuAPI().parseMenuData(menuListResponse.toString())
+
+            if (newMenus.isNotEmpty()) {
+                menuListTable.addAll(newMenus) // 기존 데이터에 추가 el")
+                currentPage++ // 페이지 증가
+                updateTable() // 테이블 업데이트
             }
         }
         isLoading = false
+    }
+
+    private fun updateCategoryComboBox(categoryList: JSONArray?) {
+        val previousSelected = categoryComboBox.selectedItem
+
+        categoryModel.removeAllElements()
+        categoryModel.addElement("전체")
+
+        categoryList?.let {
+            for (i in 0 until it.length()) {
+                categoryModel.addElement(it.getString(i))
+            }
+        }
+
+        categoryComboBox.model = categoryModel
+        categoryComboBox.selectedItem = previousSelected
     }
 }
