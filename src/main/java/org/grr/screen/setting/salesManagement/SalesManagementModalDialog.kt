@@ -64,7 +64,21 @@ class SalesManagementModalDialog(
 
         loadOrderData()
 
+        println("stop 버튼 : $stop")
+
         val tabBarPanel = CreateTabBarPanelForm()
+
+        tabBarPanel.yesterdayButton.addActionListener {
+            startDate = getYesterdayDate()
+            endDate = getYesterdayDate()
+
+            orderList.clear()
+            updateTable(null)
+            currentPage = 0
+            stop = false
+
+            loadOrderData()
+        }
 
         // 매출 요약 정보 패널 1
         val orderTotalLabelPanel = CreateOrderTotalLabelPanelForm()
@@ -113,7 +127,7 @@ class SalesManagementModalDialog(
             )
 
             if (success && orderListDataResponse != null && orderListDataResponse.length() > 0) {
-                SalesManagementData.totalSalesSummary = posOrderSaleManagementTotalDataResponse
+                totalSalesSummary = posOrderSaleManagementTotalDataResponse
                 val newOrders = orderListDataResponse.map { json ->
                     val order = json as JSONObject
                     OrderCategory(
@@ -135,17 +149,16 @@ class SalesManagementModalDialog(
                 println("추가 데이터 없음 or API 호출 실패")
             }
         }
-
         isLoading = false
     }
 
     //    예시 데이터 생성 구문
-    private fun updateTable(orderCategory: List<OrderCategory>) {
+    private fun updateTable(orderCategory: List<OrderCategory>?) {
         // 기존 데이터 초기화
         tableModel.rowCount = 0
 
         // 새로운 데이터 추가
-        orderCategory.forEach { order ->
+        orderCategory?.forEach { order ->
             tableModel.addRow(
                 arrayOf(
                     order.createAt.formatToDisplay(),

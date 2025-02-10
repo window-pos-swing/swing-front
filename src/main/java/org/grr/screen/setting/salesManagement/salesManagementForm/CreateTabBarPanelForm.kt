@@ -10,9 +10,11 @@ import java.awt.FlowLayout
 import java.awt.Image
 import java.io.File
 import javax.swing.ImageIcon
+import javax.swing.JButton
 import javax.swing.JPanel
 
 class CreateTabBarPanelForm : JPanel() {
+    val yesterdayButton = RoundedButton("어제")
 
     // 버튼 리스트를 관리하기 위한 리스트
     private val buttons = mutableListOf<RoundedButton>()
@@ -45,7 +47,7 @@ class CreateTabBarPanelForm : JPanel() {
             ShareData.datePickerButton.icon = scaledIcon
         }
 
-        val yesterdayButton = RoundedButton("어제").apply {
+        yesterdayButton.apply {
             preferredSize = Dimension(150, 60)
             font = MyFont.Bold(22f)
             setCustomBackground(MyColor.LIGHT_GREY)
