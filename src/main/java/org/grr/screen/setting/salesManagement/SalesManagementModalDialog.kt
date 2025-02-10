@@ -4,6 +4,7 @@ import CustomRoundedDialog
 import org.grr.api.SaleManagementAPI
 import org.grr.model.OrderCategory
 import org.grr.model.formatToDisplay
+import org.grr.screen.setting.salesManagement.SalesManagementData.totalSalesSummary
 import org.grr.screen.setting.salesManagement.ShareData.tableModel
 import org.grr.screen.setting.salesManagement.salesManagementForm.*
 import org.json.JSONArray
@@ -61,6 +62,8 @@ class SalesManagementModalDialog(
             }
         })
 
+        loadOrderData()
+
         val tabBarPanel = CreateTabBarPanelForm()
 
         // 매출 요약 정보 패널 1
@@ -95,8 +98,6 @@ class SalesManagementModalDialog(
         mainPanel.add(tableScrollPane, gbc)
 
         contentPane.add(mainPanel, BorderLayout.CENTER)
-
-        loadOrderData()
     }
 
     private fun loadOrderData() {
@@ -104,7 +105,7 @@ class SalesManagementModalDialog(
         isLoading = true
 
         if (stop == false) {
-            val (success, orderListDataResponse, _) = SaleManagementAPI().getOrderListToServer(
+            val (success, orderListDataResponse, posOrderSaleManagementTotalDataResponse) = SaleManagementAPI().getOrderListToServer(
                 pageNumber = currentPage,
                 pageSize = pageSize,
                 startDate,
@@ -112,6 +113,7 @@ class SalesManagementModalDialog(
             )
 
             if (success && orderListDataResponse != null && orderListDataResponse.length() > 0) {
+                SalesManagementData.totalSalesSummary = posOrderSaleManagementTotalDataResponse
                 val newOrders = orderListDataResponse.map { json ->
                     val order = json as JSONObject
                     OrderCategory(

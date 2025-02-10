@@ -1,5 +1,6 @@
 package org.grr.screen.setting.salesManagement.salesManagementForm
 
+import org.grr.screen.setting.salesManagement.SalesManagementData
 import org.grr.screen.setting.salesManagement.ShareData
 import org.grr.style.MyColor
 import org.grr.util.MyFont
@@ -42,6 +43,9 @@ class CreateOrderTotalLabelPanelForm: JPanel() {
             font = MyFont.Bold(24f)
             foreground = MyColor.LIGHT_BLUE
         }
+
+        println("totalSalesSummary 값 : ${SalesManagementData.totalSalesSummary}")
+        println(SalesManagementData.totalSalesSummary?.getLong("deliveryCompletedPrice"))
 
         val completeLabel = JLabel("완료 기준 : 4건 132,000원").apply {
             font = MyFont.Bold(24f)
