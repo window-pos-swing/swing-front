@@ -15,6 +15,7 @@ import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.order_states_ui.CompletedState
 import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
 import org.grr.screen.main.main_widget.order_states_ui.RejectedState
+import java.awt.CardLayout
 import javax.swing.JFrame
 import javax.swing.JOptionPane
 import javax.swing.JPanel
@@ -36,13 +37,6 @@ class AcceptOrderCommand(
             // ✅ 주문을 "수락됨" 상태로 변경
             if (!changeOrderStatusToAccepted(deliveryTime, sendCookTime)) {
                 return@launch
-            }
-
-            delay(500)
-            // ✅ UI 변경을 **메인(UI) 스레드에서 즉시 실행**
-            SwingUtilities.invokeLater {
-                println("[DEBUG] setTab(\"접수대기\") 실행됨!")
-                OrderController.tabbedPane.setTab("접수대기")
             }
 
             delay(5000) // 🚀 5초 후 조리중으로 변경
@@ -71,6 +65,36 @@ class AcceptOrderCommand(
                 JOptionPane.showMessageDialog(null, "주문접수 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
             }
             return false
+        }else{
+            delay(1000)
+            // ✅ UI 변경을 **메인(UI) 스레드에서 즉시 실행**
+            SwingUtilities.invokeLater {
+                println("[DEBUG] setTab(\"접수대기\") 실행됨!")
+                if(OrderListSingleTon.currentPendingSubTabName == "전체보기"){
+                    if(OrderListSingleTon.currentTab == "전체보기"){
+//                        OrderController.tabbedPane.setTab("접수처리중")
+//                        OrderController.tabbedPane.setTab("접수대기")
+                        OrderController.tabbedPane.setTab("전체보기")
+                    }else{
+//                        OrderController.tabbedPane.setTab("접수처리중")
+                        OrderController.tabbedPane.setTab("접수대기")
+                    }
+
+                } else if(OrderListSingleTon.currentPendingSubTabName == "배달") {
+                    val cardLayout = cardPanel.layout as CardLayout
+                    OrderController.tabbedPane.pendingSubTabs.selectButton(tabbedPane.pendingSubTabs.deliveryButton)
+                    tabbedPane.pendingSubTabs.showTab("배달")
+                    cardPanel!!.add(tabbedPane.pendingSubTabs, "접수대기 하위탭")
+                    cardLayout.show(cardPanel, "접수대기 하위탭")
+                } else {
+                    val cardLayout = cardPanel.layout as CardLayout
+                    OrderController.tabbedPane.pendingSubTabs.selectButton(tabbedPane.pendingSubTabs.takeoutButton)
+                    tabbedPane.pendingSubTabs.showTab("포장")
+                    cardPanel.add(tabbedPane.pendingSubTabs, "접수대기 하위탭")
+                    cardLayout.show(cardPanel, "접수대기 하위탭")
+                }
+
+            }
         }
 
         return true

@@ -15,12 +15,13 @@ object OrderListSingleTon {
     val PAGE_SIZE: Int = 3
 
     // 데이터 상태
-    val currentOrders = intArrayOf()
-    val orders = mutableMapOf<String, MutableList<ReceiveOrderModel>>()
+    var myCurrentOrders: MutableList<ReceiveOrderModel> = mutableListOf()
     val pageNumbers = mutableMapOf<String, Int>()
     val counts = mutableMapOf<String, Int>()
 
-    //    val realTime = mutableMapOf<String, Boolean>()
+    var currentTab = "" //전체보기,접수대기,접수처리중,접수완료,주문거절
+    var currentPendingSubTabName = "전체보기" //전체보기,배달,포장
+    var currentProcessingSubTabName = "전체보기" //전체보기,배달,포장
     // 초기화
     init {
         initializeKeys()
@@ -45,7 +46,6 @@ object OrderListSingleTon {
         )
 
         keys.forEach { key ->
-            orders[key] = mutableListOf()
             pageNumbers[key] = 0
             counts[key] = 0
         }
@@ -56,16 +56,16 @@ object OrderListSingleTon {
         val filters = listOf(
             OrderFilter(), //전체 보기
             OrderFilter(posOrderStatus = PosOrderStatus.WAITING), // 접수대기 (전체)
-            OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.DELIVERY), // 접수대기 (배달)
-            OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.TAKEOUT), // 접수대기 (포장)
+//            OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.DELIVERY), // 접수대기 (배달)
+//            OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.TAKEOUT), // 접수대기 (포장)
             OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS), // 접수처리중 (전체)
-            OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS, orderReceiveType = OrderReceiveType.DELIVERY), // 접수처리중 (배달)
-            OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS, orderReceiveType = OrderReceiveType.TAKEOUT), // 접수처리중 (포장)
+//            OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS, orderReceiveType = OrderReceiveType.DELIVERY), // 접수처리중 (배달)
+//            OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS, orderReceiveType = OrderReceiveType.TAKEOUT), // 접수처리중 (포장)
             OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED), // 접수완료 (전체)
-            OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED, orderReceiveType = OrderReceiveType.DELIVERY), // 접수완료 (배달)
-            OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED, orderReceiveType = OrderReceiveType.TAKEOUT), // 접수완료 (포장)
+//            OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED, orderReceiveType = OrderReceiveType.DELIVERY), // 접수완료 (배달)
+//            OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED, orderReceiveType = OrderReceiveType.TAKEOUT), // 접수완료 (포장)
             OrderFilter(serverOrderStatus = ServerOrderStatus.STORE_CANCEL), // 주문거절 (가게거절)
-            OrderFilter(serverOrderStatus = ServerOrderStatus.USER_CANCEL), // 주문거절 (고객거절)
+            OrderFilter(serverOrderStatus = ServerOrderStatus.USER_CANCEL), // 주문거절 (고객취소)
             OrderFilter(serverOrderStatus = ServerOrderStatus.REFUND) // 주문거절 ( 환불 )
         )
 
@@ -91,12 +91,14 @@ object OrderListSingleTon {
             val key = determineKey(filter)
             println("[key] : $key")
 
-            // ✅ 현재 저장된 주문 리스트
-            val currentOrders = orders[key] ?: mutableListOf()
-
             // ✅ 주문 추가
-            currentOrders.addAll(newOrders)
-            orders[key] = currentOrders // 변경된 리스트를 다시 저장
+            if (pageNumbers[key] == 0) {
+                myCurrentOrders.clear()
+                myCurrentOrders.addAll(newOrders)
+            } else {
+                myCurrentOrders.addAll(newOrders)
+            }
+
             // 카운트 및 페이지 번호 업데이트
             counts[key] = totalElements
             pageNumbers[key] = if (totalPages-1 == pageNumbers[key]!!) -1 else (pageNumbers[key] ?: 0) + 1
@@ -105,7 +107,7 @@ object OrderListSingleTon {
             println("[$key]  Added unique orders: ${newOrders.map { it.orderNumber }}")
 
             // 전체 orderId 순회하여 프린트
-            val allOrderIds = orders[key]?.map { it.orderNumber } ?: emptyList()
+            val allOrderIds = myCurrentOrders.map { it.orderNumber } ?: emptyList()
             println("[addAllOrder] Current ${key} orders: $allOrderIds")
 
         } catch (e: Exception) {
@@ -113,8 +115,6 @@ object OrderListSingleTon {
             println("Error adding orders: ${e.message}")
         }
     }
-
-
 
 
     // 키 결정
@@ -137,7 +137,7 @@ object OrderListSingleTon {
     }
 
     // 특정 주문 가져오기
-    fun findOrderByNumber(statusKey: String, orderNumber: String): ReceiveOrderModel? {
-        return orders[statusKey]?.find { it.orderNumber == orderNumber }
+    fun findOrderByNumber(orderNumber: String): ReceiveOrderModel? {
+        return myCurrentOrders.find { it.orderNumber == orderNumber }
     }
 }

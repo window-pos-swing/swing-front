@@ -60,7 +60,7 @@ data class ReceiveOrderModel(
     var isCompleted: Boolean = false  // 주문 완료 여부
     var isResent: Boolean = false  // 배달 대행사로 주문번호 재전송 여부
     var isPickupCompleted: Boolean = false  // 주문 완료 여부
-    var isPickupWait: Boolean = false  // 주문 완료 여부
+    var isPickupWait: Boolean = false  // Deliver Pickup Wait
     var isOnDelivery: Boolean = false
 
     private val stateObservers = mutableListOf<OrderObserver>()
@@ -164,12 +164,6 @@ data class ReceiveOrderModel(
 
         parentFrame.revalidate()
         parentFrame.repaint()
-    }
-
-    // 상태 변경
-    fun changeState(newState: OrderState) {
-        state = newState
-        notifyStateObservers()
     }
 
     // UI 반환

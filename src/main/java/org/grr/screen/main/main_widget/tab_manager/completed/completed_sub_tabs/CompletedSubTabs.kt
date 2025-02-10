@@ -7,6 +7,7 @@ import org.grr.enum.PosOrderStatus
 import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderListSingleTon
+import org.grr.`object`.OrderListSingleTon.currentPendingSubTabName
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.screen.main.main_widget.tab_manager.ScrollPaginationHandler
 import org.grr.style.MyColor
@@ -77,7 +78,6 @@ class CompletedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         add(cardContainer, BorderLayout.CENTER)
 
         selectButton(allOrdersButton)
-        showTab("전체보기")
         initializePanels()
     }
 
@@ -130,26 +130,38 @@ class CompletedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     }
 
     fun showTab(tabName: String) {
+        OrderListSingleTon.myCurrentOrders.clear()
+        OrderListSingleTon.pageNumbers["completedOrders"] = 0
+        OrderListSingleTon.pageNumbers["completedDeliveryOrders"] = 0
+        OrderListSingleTon.pageNumbers["completedTakeOutOrders"] = 0
+        if(tabName == "전체보기"){
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "completedOrders",
+                targetPanel = completedOrdersPanel,
+                filter = OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED)
+            )
+        }else if(tabName == "배달"){
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "completedDeliveryOrders",
+                targetPanel = deliveryOrdersPanel,
+                filter = OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED, orderReceiveType = OrderReceiveType.DELIVERY)
+            )
+        }else{
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "completedTakeOutOrders",
+                targetPanel = takeoutOrdersPanel,
+                filter = OrderFilter(posOrderStatus = PosOrderStatus.COMPLETED, orderReceiveType = OrderReceiveType.TAKEOUT)
+            )
+        }
+        initializePanels()
         selectedTab = tabName
         cardLayout.show(cardContainer, tabName)
-        updateCounts()
-    }
-
-    fun updateCounts() {
-        val totalCount = OrderListSingleTon.counts["completedOrders"] ?: 0
-        val deliveryCount = OrderListSingleTon.counts["completedDeliveryOrders"] ?: 0
-        val takeoutCount = OrderListSingleTon.counts["completedTakeOutOrders"] ?: 0
-
-        println("Counts updated: 전체=$totalCount, 배달=$deliveryCount, 포장=$takeoutCount")
-        allOrdersButton.button.text = "전체보기  $totalCount"
-        deliveryButton.button.text = "배달  $deliveryCount"
-        takeoutButton.button.text = "포장  $takeoutCount"
     }
 
     fun initializePanels() {
-        updatePanel(completedOrdersPanel, OrderListSingleTon.orders["completedOrders"])
-        updatePanel(deliveryOrdersPanel, OrderListSingleTon.orders["completedDeliveryOrders"])
-        updatePanel(takeoutOrdersPanel, OrderListSingleTon.orders["completedTakeOutOrders"])
+        updatePanel(completedOrdersPanel, OrderListSingleTon.myCurrentOrders)
+        updatePanel(deliveryOrdersPanel, OrderListSingleTon.myCurrentOrders)
+        updatePanel(takeoutOrdersPanel, OrderListSingleTon.myCurrentOrders)
     }
 
     private fun updatePanel(panel: JPanel, orders: MutableList<ReceiveOrderModel>?) {

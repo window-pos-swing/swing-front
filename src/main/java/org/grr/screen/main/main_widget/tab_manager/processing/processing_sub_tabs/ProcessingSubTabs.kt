@@ -7,6 +7,8 @@ import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderController
 import org.grr.`object`.OrderListSingleTon
+import org.grr.`object`.OrderListSingleTon.currentPendingSubTabName
+import org.grr.`object`.OrderListSingleTon.currentProcessingSubTabName
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.screen.main.main_widget.tab_manager.ScrollPaginationHandler
 import org.grr.style.MyColor
@@ -30,8 +32,8 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     val takeoutOrdersPanel = createPanel()
 
     val allOrdersButton = SelectButtonRoundedBorder(50)
-    private val deliveryButton = SelectButtonRoundedBorder(50)
-    private val takeoutButton = SelectButtonRoundedBorder(50)
+    val deliveryButton = SelectButtonRoundedBorder(50)
+    val takeoutButton = SelectButtonRoundedBorder(50)
     private var selectedButton: SelectButtonRoundedBorder? = null
 
     // 서브탭 상태 관리
@@ -43,7 +45,7 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     // 카드 컨테이너
     private val cardContainer = JPanel(cardLayout)
 
-    lateinit var scrollPaginationHandler : ScrollPaginationHandler
+    lateinit var scrollPaginationHandler: ScrollPaginationHandler
 
     init {
         layout = BorderLayout()
@@ -83,9 +85,9 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
 
         // 카드 컨테이너에 각 패널 추가
-        addPanelToContainer(processingOrdersPanel, "전체보기" , panelType = "processingOrders")
-        addPanelToContainer(deliveryOrdersPanel, "배달" , panelType = "processingDeliveryOrders")
-        addPanelToContainer(takeoutOrdersPanel, "포장" , panelType = "processingTakeOutOrders")
+        addPanelToContainer(processingOrdersPanel, "전체보기", panelType = "processingOrders")
+        addPanelToContainer(deliveryOrdersPanel, "배달", panelType = "processingDeliveryOrders")
+        addPanelToContainer(takeoutOrdersPanel, "포장", panelType = "processingTakeOutOrders")
 
         // 서브탭 초기화
         add(buttonPanel, BorderLayout.NORTH)
@@ -93,7 +95,6 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
         // 기본 탭 표시
         selectButton(allOrdersButton)
-        showTab("전체보기")
         initializePanels()
     }
 
@@ -104,7 +105,7 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
     }
 
-    private fun addPanelToContainer(panel: JPanel, tabName: String , panelType : String) {
+    private fun addPanelToContainer(panel: JPanel, tabName: String, panelType: String) {
         val processScrollPane = JScrollPane(panel).apply {
             border = javax.swing.BorderFactory.createEmptyBorder(0, 20, 20, 20)
             viewportBorder = null
@@ -119,11 +120,13 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
         var filter = OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS)
         var orderStatus = "processingOrders"
-        if(panelType == "processingDeliveryOrders"){
-            filter = OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS, orderReceiveType = OrderReceiveType.DELIVERY)
+        if (panelType == "processingDeliveryOrders") {
+            filter =
+                OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS, orderReceiveType = OrderReceiveType.DELIVERY)
             orderStatus = "processingDeliveryOrders"
-        }else if(panelType == "processingTakeOutOrders"){
-            filter = OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS , orderReceiveType = OrderReceiveType.TAKEOUT)
+        } else if (panelType == "processingTakeOutOrders") {
+            filter =
+                OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS, orderReceiveType = OrderReceiveType.TAKEOUT)
             orderStatus = "processingTakeOutOrders"
         }
         scrollPaginationHandler = ScrollPaginationHandler(
@@ -134,9 +137,16 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
                 val result = OrderAPI().fetchOrders(
                     tabbedPane.parentFrame,
                     tabbedPane.cardPanel!!,
-                    filter ,
-                    pageNumber)
-                JSONArray(result.second).let { ReceiveOrderModel.fromJsonArray(it, tabbedPane.parentFrame, tabbedPane.cardPanel!!) }
+                    filter,
+                    pageNumber
+                )
+                JSONArray(result.second).let {
+                    ReceiveOrderModel.fromJsonArray(
+                        it,
+                        tabbedPane.parentFrame,
+                        tabbedPane.cardPanel!!
+                    )
+                }
             },
             initializeOrders = {
                 initializePanels()
@@ -145,27 +155,50 @@ class ProcessingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         )
     }
 
-    fun showTab(tabName: String) {
+    fun showTab(tabName: String ) {
+        OrderListSingleTon.myCurrentOrders.clear()
+        OrderListSingleTon.pageNumbers["processingOrders"] = 0
+        OrderListSingleTon.pageNumbers["processingDeliveryOrders"] = 0
+        OrderListSingleTon.pageNumbers["processingTakeOutOrders"] = 0
+
+        if (tabName == "전체보기") {
+            currentProcessingSubTabName = "전체보기"
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "processingOrders",
+                targetPanel = processingOrdersPanel,
+                filter = OrderFilter(posOrderStatus = PosOrderStatus.IN_PROGRESS)
+            )
+        } else if (tabName == "배달") {
+            currentProcessingSubTabName = "배달"
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "processingDeliveryOrders",
+                targetPanel = deliveryOrdersPanel,
+                filter = OrderFilter(
+                    posOrderStatus = PosOrderStatus.IN_PROGRESS,
+                    orderReceiveType = OrderReceiveType.DELIVERY
+                )
+            )
+        } else {
+            currentProcessingSubTabName = "포장"
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "processingTakeOutOrders",
+                targetPanel = takeoutOrdersPanel,
+                filter = OrderFilter(
+                    posOrderStatus = PosOrderStatus.IN_PROGRESS,
+                    orderReceiveType = OrderReceiveType.TAKEOUT
+                )
+            )
+        }
+
+        initializePanels()
         selectedTab = tabName
         cardLayout.show(cardContainer, tabName)
-        updateCounts()
-    }
-
-    fun updateCounts() {
-        val totalCount = OrderListSingleTon.counts["processingOrders"] ?: 0
-        val deliveryCount = OrderListSingleTon.counts["processingDeliveryOrders"] ?: 0
-        val takeoutCount = OrderListSingleTon.counts["processingTakeOutOrders"] ?: 0
-
-        println("Counts updated: 전체=$totalCount, 배달=$deliveryCount, 포장=$takeoutCount")
-        allOrdersButton.button.text = "전체보기  $totalCount"
-        deliveryButton.button.text = "배달  $deliveryCount"
-        takeoutButton.button.text = "포장  $takeoutCount"
     }
 
     fun initializePanels() {
-        updatePanel(processingOrdersPanel, OrderListSingleTon.orders["processingOrders"])
-        updatePanel(deliveryOrdersPanel, OrderListSingleTon.orders["processingDeliveryOrders"])
-        updatePanel(takeoutOrdersPanel, OrderListSingleTon.orders["processingTakeOutOrders"])
+        updatePanel(processingOrdersPanel, OrderListSingleTon.myCurrentOrders)
+        updatePanel(deliveryOrdersPanel, OrderListSingleTon.myCurrentOrders)
+        updatePanel(takeoutOrdersPanel, OrderListSingleTon.myCurrentOrders)
     }
 
     private fun updatePanel(panel: JPanel, orders: MutableList<ReceiveOrderModel>?) {

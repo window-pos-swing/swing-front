@@ -111,6 +111,7 @@ class MainForm : JFrame() {
         SettingModel.loadBreakTime()
         SettingModel.loadOperateTime()
         SettingModel.loadHoliday()
+        OrderListSingleTon.initOrderData(parentFrame = this, cardPanel = cardPanel)
     }
 
     private fun initializeTabbedPane() {

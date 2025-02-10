@@ -226,8 +226,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                 JSONArray(result.second).let { ReceiveOrderModel.fromJsonArray(it, parentFrame, cardPanel) }
             },
             initializeOrders = { newOrders ->
-
-                    initializeOrders(OrderListSingleTon.orders["allOrders"]!!)
+                    initializeOrders(OrderListSingleTon.myCurrentOrders)
                     println("Added new orders to allOrdersPanel: ${newOrders.map { it.orderNumber }}")
             },
             getPageNumber = { OrderListSingleTon.pageNumbers["allOrders"] ?: 0 },
@@ -303,28 +302,32 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         OrderController.isLoading = true
         when (tabName) {
             "전체보기" -> {
+                OrderListSingleTon.currentTab = "전체보기"
                 fetchAndUpdateOrders(
                     orderKey = "allOrders",
                     targetPanel = allOrdersPanel,
                     filter = OrderFilter()
                 )
-                initializeOrders(OrderListSingleTon.orders["allOrders"]!!)
+                initializeOrders(OrderListSingleTon.myCurrentOrders)
                 cardLayout.show(cardPanel, tabName)
             }
             "접수대기" -> {
+                OrderListSingleTon.currentTab = "접수대기"
                 fetchAndUpdateOrders(
                     orderKey = "pendingOrders",
                     targetPanel = pendingSubTabs.pendingOrdersPanel,
                     filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING)
                 )
-                println("접수대기 가져온 데이터 갯수 : ${OrderListSingleTon.orders["pendingOrders"]?.size}")
+                println("접수대기 가져온 데이터 갯수 : ${OrderListSingleTon.counts["pendingOrders"]}")
                 pendingSubTabs.selectButton(pendingSubTabs.allOrdersButton)
                 pendingSubTabs.showTab("전체보기")
                 cardPanel!!.add(pendingSubTabs, "접수대기 하위탭")
                 cardLayout.show(cardPanel, "접수대기 하위탭")
+                updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
             }
 
             "접수처리중" -> {
+                OrderListSingleTon.currentTab = "접수처리중"
                 fetchAndUpdateOrders(
                     orderKey = "processingOrders",
                     targetPanel = processingSubTabs.processingOrdersPanel,
@@ -334,9 +337,11 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                 processingSubTabs.showTab("전체보기")
                 cardPanel!!.add(processingSubTabs, "접수처리중 하위탭")
                 cardLayout.show(cardPanel, "접수처리중 하위탭")
+                updateTabTitle(2, "접수처리중", OrderListSingleTon.counts["processingOrders"] ?: 0)
             }
 
             "접수완료" -> {
+                OrderListSingleTon.currentTab = "접수완료"
                 fetchAndUpdateOrders(
                     orderKey = "completedOrders",
                     targetPanel = completedSubTabs.completedOrdersPanel,
@@ -346,10 +351,11 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                 completedSubTabs.selectButton(completedSubTabs.allOrdersButton)
                 cardPanel!!.add(completedSubTabs, "접수완료 하위탭")
                 cardLayout.show(cardPanel, "접수완료 하위탭")
-
+                updateTabTitle(3, "접수완료", OrderListSingleTon.counts["completedOrders"] ?: 0)
             }
 
             "주문거절" -> {
+                OrderListSingleTon.currentTab = "주문거절"
                 fetchAndUpdateOrders(
                     orderKey = "rejectStoreOrders",
                     targetPanel = completedSubTabs.completedOrdersPanel,
@@ -360,43 +366,18 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
                 cardPanel!!.add(rejectedSubTabs, "주문거절 하위탭")
                 cardLayout.show(cardPanel, "주문거절 하위탭")
                 rejectedSubTabs.initializePanels()
+                updateTabTitle(
+                    4, "주문거절", (
+                            OrderListSingleTon.counts["rejectStoreOrders"]
+                                ?: 0) + (OrderListSingleTon.counts["rejectUserOrders"]
+                        ?: 0) + (OrderListSingleTon.counts["rejectRefundOrders"] ?: 0)
+                )
             }
 
             else -> cardLayout.show(cardPanel, tabName)
         }
 
-        // 기존 선택된 탭의 배경색, 아이콘, 텍스트 색상 복구
-        tabButtonMap.forEach { (name, panel) ->
-            val iconLabel = panel.getComponent(0) as JLabel  // 첫 번째 컴포넌트는 아이콘
-            val textLabel = panel.getComponent(1) as JLabel  // 두 번째 컴포넌트는 텍스트
-            if (name == tabName) {
-                // 선택된 탭: 배경색을 DARK_NAVY로, 텍스트는 흰색으로, 아이콘을 흰색 버전으로
-                panel.background = MyColor.DARK_NAVY
-                textLabel.foreground = Color.WHITE
-                val whiteIconPath = when (name) {
-                    "전체보기" -> "/home_white.png"
-                    "접수대기" -> "/접수대기_white.png"
-                    "접수처리중" -> "/접수처리중_white.png"
-                    "접수완료" -> "/접수완료_white.png"
-                    "주문거절" -> "/주문거절_white.png"
-                    else -> ""  // 여기에 기본값 또는 에러 처리를 추가할 수 있음
-                }
-                iconLabel.icon = ImageIcon(javaClass.getResource(whiteIconPath))
-            } else {
-                // 선택되지 않은 탭: 배경색은 DARK_RED, 텍스트는 UNSELECTED_TAP 색상, 기본 아이콘
-                panel.background = MyColor.DARK_RED
-                textLabel.foreground = MyColor.PINK
-                val defaultIconPath = when (name) {
-                    "전체보기" -> "/home.png"
-                    "접수대기" -> "/접수대기.png"
-                    "접수처리중" -> "/접수처리중.png"
-                    "접수완료" -> "/접수완료.png"
-                    "주문거절" -> "/주문거절.png"
-                    else -> ""  // 여기에 기본값 또는 에러 처리를 추가할 수 있음
-                }
-                iconLabel.icon = ImageIcon(javaClass.getResource(defaultIconPath))
-            }
-        }
+        updateTabAppearance(tabName)
 
         // 현재 선택된 탭 이름을 업데이트
         selectedTabName = tabName
@@ -406,15 +387,45 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
 
     }
 
-    private fun fetchAndUpdateOrders(orderKey: String, targetPanel: JPanel, filter: OrderFilter) {
+    fun updateTabAppearance(tabName: String) {
+        tabButtonMap.forEach { (name, panel) ->
+            val iconLabel = panel.getComponent(0) as JLabel  // 첫 번째 컴포넌트는 아이콘
+            val textLabel = panel.getComponent(1) as JLabel  // 두 번째 컴포넌트는 텍스트
+            if (name == tabName) {
+                // 선택된 탭: 배경색을 DARK_NAVY로, 텍스트는 흰색으로, 아이콘을 흰색 버전으로
+                panel.background = MyColor.DARK_NAVY
+                textLabel.foreground = Color.WHITE
+                val whiteIconPath = getIconPath(name, true)
+                iconLabel.icon = ImageIcon(javaClass.getResource(whiteIconPath))
+            } else {
+                // 선택되지 않은 탭: 배경색은 DARK_RED, 텍스트는 UNSELECTED_TAP 색상, 기본 아이콘
+                panel.background = MyColor.DARK_RED
+                textLabel.foreground = MyColor.PINK
+                val defaultIconPath = getIconPath(name, false)
+                iconLabel.icon = ImageIcon(javaClass.getResource(defaultIconPath))
+            }
+        }
+    }
+
+    private fun getIconPath(tabName: String, isSelected: Boolean): String {
+        val suffix = if (isSelected) "_white" else ""
+        return when (tabName) {
+            "전체보기" -> "/home$suffix.png"
+            "접수대기" -> "/접수대기$suffix.png"
+            "접수처리중" -> "/접수처리중$suffix.png"
+            "접수완료" -> "/접수완료$suffix.png"
+            "주문거절" -> "/주문거절$suffix.png"
+            else -> ""
+        }
+    }
+
+    fun fetchAndUpdateOrders(orderKey: String, targetPanel: JPanel, filter: OrderFilter) {
         OrderListSingleTon.pageNumbers[orderKey] = 0
-        OrderListSingleTon.orders[orderKey]?.clear()
 
         OrderAPI().fetchOrders(parentFrame, cardPanel!!, filter, OrderListSingleTon.pageNumbers[orderKey] ?: 0)
 
-        println("$orderKey: ${OrderListSingleTon.orders[orderKey]?.map { it.orderNumber }}") // 주문 번호 리스트 출력
         var isProcessing = if(filter.posOrderStatus == PosOrderStatus.IN_PROGRESS) true else false
-        updatePanel(targetPanel, OrderListSingleTon.orders[orderKey], isProcessing)
+        updatePanel(targetPanel, OrderListSingleTon.myCurrentOrders, isProcessing)
     }
 
 

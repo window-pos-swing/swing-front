@@ -3,8 +3,6 @@ package org.grr.`object`
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
-import org.grr.screen.main.main_widget.order_states_ui.ProcessingState
-
 
 object OrderController {
     lateinit var tabbedPane: CustomTabbedPane
@@ -18,15 +16,12 @@ object OrderController {
     // 주문 추가
     fun addNewOrder() {
         println("주문 추가")
-        tabbedPane.setTab("전체보기")
-        tabbedPane.setTab("접수대기")
-    }
-
-    fun onOrderStateChanged(order: ReceiveOrderModel) {
-        when (order.state) {
-            is ProcessingState -> {
-                order.startTimer((order.state as ProcessingState).totalTime)
-            }
+        if(OrderListSingleTon.currentTab == "전체보기"){
+            tabbedPane.setTab("접수대기")
+            tabbedPane.setTab("전체보기")
+        }else{
+            tabbedPane.setTab("전체보기")
+            tabbedPane.setTab("접수대기")
         }
     }
 
