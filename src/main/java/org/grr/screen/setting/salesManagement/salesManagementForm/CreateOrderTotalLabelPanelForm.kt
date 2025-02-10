@@ -38,7 +38,7 @@ class CreateOrderTotalLabelPanelForm: JPanel() {
             iconTextGap = 10 // 아이콘과 텍스트 간 간격 설정
         }
 
-        ShareData.selectedDateLabel = JLabel("전체").apply {
+        ShareData.selectedDateLabel = JLabel("오늘").apply {
             font = MyFont.Bold(24f)
             foreground = MyColor.LIGHT_BLUE
         }

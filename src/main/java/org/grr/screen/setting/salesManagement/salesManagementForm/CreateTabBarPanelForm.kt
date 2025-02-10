@@ -56,22 +56,20 @@ class CreateTabBarPanelForm : JPanel() {
                 setCustomBackground(MyColor.LIGHT_BLUE)
                 foreground = Color.WHITE // 선택된 상태 글씨 색상
                 ShareData.selectedDateLabel.text = "어제"
-                println("어제 버튼 클릭됨")
             }
         }
 
         val todayButton = RoundedButton("오늘").apply {
             preferredSize = Dimension(150, 60)
             font = MyFont.Bold(22f)
-            setCustomBackground(MyColor.LIGHT_GREY)
-            foreground = Color.GRAY
+            setCustomBackground(MyColor.LIGHT_BLUE)
+            foreground = Color.WHITE
 
             addActionListener {
                 resetButtonColors()
                 setCustomBackground(MyColor.LIGHT_BLUE)
-                foreground = Color.WHITE // 선택된 상태 글씨 색상
+                foreground = Color.WHITE
                 ShareData.selectedDateLabel.text = "오늘"
-                println("오늘 버튼 클릭됨")
             }
         }
 
@@ -91,10 +89,7 @@ class CreateTabBarPanelForm : JPanel() {
                 setCustomBackground(MyColor.LIGHT_BLUE)
                 foreground = Color.WHITE // 선택된 상태 글씨 색상
                 ShareData.selectedDateLabel.text = "2025-01-24 ~ 2025-01-24"
-
                 icon = whiteScaledIcon
-
-                println("날짜 선택 버튼 클릭됨")
             }
         }
 

@@ -1,5 +1,7 @@
 package org.grr.screen.setting.salesManagement.salesManagementForm
 
+import org.grr.api.MenuAPI
+import org.grr.api.SaleManagementAPI
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.RoundedButton
@@ -7,6 +9,7 @@ import java.awt.*
 import javax.swing.*
 
 class CreateSummaryPanelForm: JPanel() {
+
     init {
         layout = GridLayout(1, 2, 0, 0)
         background = Color.WHITE
@@ -69,7 +72,7 @@ class CreateSummaryPanelForm: JPanel() {
                     BorderFactory.createMatteBorder(0, 0, 0, 1, Color.GRAY) // 오른쪽 경계선 추가
                 )
 
-                add(JLabel("후불결제 - 카드", SwingConstants.CENTER).apply {
+                add(JLabel("만나서 카드 결제", SwingConstants.CENTER).apply {
                     font = MyFont.Bold(16f)
                     foreground = MyColor.DARK_NAVY
                     border = BorderFactory.createEmptyBorder(10, 0, 10, 0)
@@ -108,7 +111,7 @@ class CreateSummaryPanelForm: JPanel() {
                 background = Color.WHITE
                 border = BorderFactory.createEmptyBorder(10, 0, 10, 0)
 
-                add(JLabel("후불결제 - 현금", SwingConstants.CENTER).apply {
+                add(JLabel("만나서 현금 결제", SwingConstants.CENTER).apply {
                     font = MyFont.Bold(16f)
                     foreground = MyColor.DARK_NAVY
                     border = BorderFactory.createEmptyBorder(10, 0, 10, 0)

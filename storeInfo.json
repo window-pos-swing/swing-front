@@ -153,6 +153,6 @@
     ],
     "estimatedArrivalTime": 50,
     "estimatedCookingTimeControl": false,
-    "pause": true,
+    "pause": false,
     "estimatedArrivalTimeControl": false
 }

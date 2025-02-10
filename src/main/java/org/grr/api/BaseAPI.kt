@@ -48,7 +48,6 @@ open class BaseAPI {
         }
     }
 
-
     fun sendGetRequest(
         url: String,
         accessToken: String
@@ -74,5 +73,4 @@ open class BaseAPI {
             return Pair(false, "서버 연결 실패: ${e.message}")
         }
     }
-
 }
