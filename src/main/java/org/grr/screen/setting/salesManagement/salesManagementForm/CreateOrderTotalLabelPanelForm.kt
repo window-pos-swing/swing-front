@@ -1,5 +1,6 @@
 package org.grr.screen.setting.salesManagement.salesManagementForm
 
+import org.grr.`object`.JsonFormatter
 import org.grr.screen.setting.salesManagement.SalesManagementData
 import org.grr.screen.setting.salesManagement.ShareData
 import org.grr.style.MyColor
@@ -44,10 +45,11 @@ class CreateOrderTotalLabelPanelForm: JPanel() {
             foreground = MyColor.LIGHT_BLUE
         }
 
-        println("totalSalesSummary 값 : ${SalesManagementData.totalSalesSummary}")
-        println(SalesManagementData.totalSalesSummary?.getLong("deliveryCompletedPrice"))
+        val paymentCompletedCount = SalesManagementData.totalSalesSummary?.getLong("paymentCompletedCount")
+        val paymentCompletedPrice = SalesManagementData.totalSalesSummary?.getLong("paymentCompletedPrice")
 
-        val completeLabel = JLabel("완료 기준 : 4건 132,000원").apply {
+        val completeLabel = JLabel("완료 기준 : ${JsonFormatter.formatNumber(paymentCompletedCount ?: 0)}건 ${
+            JsonFormatter.formatNumber(paymentCompletedPrice ?: 0)}원").apply {
             font = MyFont.Bold(24f)
         }
 

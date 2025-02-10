@@ -2,6 +2,8 @@ package org.grr.screen.setting.salesManagement.salesManagementForm
 
 import org.grr.api.MenuAPI
 import org.grr.api.SaleManagementAPI
+import org.grr.`object`.JsonFormatter
+import org.grr.screen.setting.salesManagement.SalesManagementData
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.RoundedButton
@@ -14,6 +16,35 @@ class CreateSummaryPanelForm: JPanel() {
         layout = GridLayout(1, 2, 0, 0)
         background = Color.WHITE
         border = BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY)
+
+
+//            결제 완료 건수, 총합
+        val paymentCompletedCount = SalesManagementData.totalSalesSummary?.getLong("paymentCompletedCount")
+        val paymentCompletedPrice = SalesManagementData.totalSalesSummary?.getLong("paymentCompletedPrice")
+
+//            만나서 카드결제 건수, 총합
+        val meetPaymentCompletedCardCount = SalesManagementData.totalSalesSummary?.getLong("meetPaymentCompletedCardCount")
+        val meetPaymentCompletedCardPrice = SalesManagementData.totalSalesSummary?.getLong("meetPaymentCompletedCardPrice")
+
+//            만나서 현금결제 건수, 총합
+        val meetPaymentCompletedCashCount = SalesManagementData.totalSalesSummary?.getLong("meetPaymentCompletedCashCount")
+        val meetPaymentCompletedCashPrice = SalesManagementData.totalSalesSummary?.getLong("meetPaymentCompletedCashPrice")
+
+//            배달 완료 건수, 총합
+        val deliveryCompletedCount = SalesManagementData.totalSalesSummary?.getLong("deliveryCompletedCount")
+        val deliveryCompletedPrice = SalesManagementData.totalSalesSummary?.getLong("deliveryCompletedPrice")
+
+//            배달 취소 건수, 총합
+        val deliveryCancelCount = SalesManagementData.totalSalesSummary?.getLong("deliveryCancelCount")
+        val deliveryCancelPrice = SalesManagementData.totalSalesSummary?.getLong("deliveryCancelPrice")
+
+//            포장 완료 건수, 총합
+        val takeOutCompletedCount = SalesManagementData.totalSalesSummary?.getLong("takeOutCompletedCount")
+        val takeOutCompletedPrice = SalesManagementData.totalSalesSummary?.getLong("takeOutCompletedPrice")
+
+//            포장 취소 건수, 총합
+        val takeOutCancelCount = SalesManagementData.totalSalesSummary?.getLong("takeOutCancelCount")
+        val takeOutCancelPrice = SalesManagementData.totalSalesSummary?.getLong("takeOutCancelPrice")
 
         // 왼쪽 패널 (결제완료, 후불결제)
         val leftPanel = JPanel().apply {
@@ -39,7 +70,7 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0) // 숫자와 단위를 가로로 정렬
                     background = Color.WHITE
-                    add(JLabel("1231223").apply {
+                    add(JLabel(JsonFormatter.formatNumber(paymentCompletedCount ?: 0)).apply {
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE // 숫자 색상 조정
                     })
@@ -52,7 +83,7 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0)
                     background = Color.WHITE
-                    add(JLabel("123,111,123").apply {
+                    add(JLabel(JsonFormatter.formatNumber(paymentCompletedPrice ?: 0)).apply {
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE
                     })
@@ -81,7 +112,7 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0)
                     background = Color.WHITE
-                    add(JLabel("1231223").apply {
+                    add(JLabel(JsonFormatter.formatNumber(meetPaymentCompletedCardCount ?: 0)).apply {
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE
                     })
@@ -94,7 +125,7 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0)
                     background = Color.WHITE
-                    add(JLabel("123,111,123").apply {
+                    add(JLabel(JsonFormatter.formatNumber(meetPaymentCompletedCardPrice ?: 0)).apply {
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE
                     })
@@ -120,7 +151,7 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0)
                     background = Color.WHITE
-                    add(JLabel("1231223").apply {
+                    add(JLabel(JsonFormatter.formatNumber(meetPaymentCompletedCashCount ?: 0)).apply {
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE
                     })
@@ -133,7 +164,7 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0)
                     background = Color.WHITE
-                    add(JLabel("123,111,123").apply {
+                    add(JLabel(JsonFormatter.formatNumber(meetPaymentCompletedCashPrice ?: 0)).apply {
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE
                     })
@@ -188,7 +219,7 @@ class CreateSummaryPanelForm: JPanel() {
                             horizontalAlignment = SwingConstants.CENTER
                         })
 
-                        add(JLabel(" 1231223").apply {
+                        add(JLabel(" ${JsonFormatter.formatNumber(deliveryCompletedCount ?: 0)}").apply {
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
@@ -198,7 +229,7 @@ class CreateSummaryPanelForm: JPanel() {
                             foreground = Color.BLACK
                         })
 
-                        add(JLabel(" 123,111,123").apply {
+                        add(JLabel(" ${JsonFormatter.formatNumber(deliveryCompletedPrice ?: 0)}").apply {
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
@@ -224,7 +255,7 @@ class CreateSummaryPanelForm: JPanel() {
                             horizontalAlignment = SwingConstants.CENTER
                         })
 
-                        add(JLabel(" 1231223").apply {
+                        add(JLabel(" ${JsonFormatter.formatNumber(deliveryCancelCount ?: 0)}").apply {
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
@@ -234,7 +265,7 @@ class CreateSummaryPanelForm: JPanel() {
                             foreground = Color.BLACK
                         })
 
-                        add(JLabel(" 123,111,123").apply {
+                        add(JLabel(" ${JsonFormatter.formatNumber(deliveryCancelPrice ?: 0)}").apply {
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
@@ -276,7 +307,7 @@ class CreateSummaryPanelForm: JPanel() {
                             horizontalAlignment = SwingConstants.CENTER
                         })
 
-                        add(JLabel(" 1231223").apply {
+                        add(JLabel(" ${JsonFormatter.formatNumber(takeOutCompletedCount ?: 0)}").apply {
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
@@ -286,7 +317,7 @@ class CreateSummaryPanelForm: JPanel() {
                             foreground = Color.BLACK
                         })
 
-                        add(JLabel(" 123,111,123").apply {
+                        add(JLabel(" ${JsonFormatter.formatNumber(takeOutCompletedPrice ?: 0)}").apply {
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
@@ -312,7 +343,7 @@ class CreateSummaryPanelForm: JPanel() {
                             horizontalAlignment = SwingConstants.CENTER
                         })
 
-                        add(JLabel(" 1231223").apply {
+                        add(JLabel(" ${JsonFormatter.formatNumber(takeOutCancelCount ?: 0)}").apply {
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
@@ -322,7 +353,7 @@ class CreateSummaryPanelForm: JPanel() {
                             foreground = Color.BLACK
                         })
 
-                        add(JLabel(" 123,111,123").apply {
+                        add(JLabel(" ${JsonFormatter.formatNumber(takeOutCancelPrice ?: 0)}").apply {
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
