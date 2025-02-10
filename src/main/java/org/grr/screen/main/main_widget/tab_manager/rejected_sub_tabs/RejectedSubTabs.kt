@@ -2,6 +2,8 @@ package org.grr.screen.main.main_widget.tab_manager.rejected.rejected_sub_tabs
 
 import org.grr.api.OrderAPI
 import org.grr.command.RejectedReasonType
+import org.grr.enum.OrderReceiveType
+import org.grr.enum.PosOrderStatus
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
@@ -22,8 +24,8 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     val refundPanel = createPanel()
 
     val storeRejectButton = SelectButtonRoundedBorder(50)
-    private val customerCancelButton = SelectButtonRoundedBorder(50)
-    private val refundButton = SelectButtonRoundedBorder(50)
+    val customerCancelButton = SelectButtonRoundedBorder(50)
+    val refundButton = SelectButtonRoundedBorder(50)
     private var selectedButton: SelectButtonRoundedBorder? = null
 
     private var selectedTab: String = "가게거절"
@@ -78,7 +80,6 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
         // 기본 탭 표시
         selectButton(storeRejectButton)
-        showTab("가게거절")
         initializePanels()
     }
 
@@ -130,26 +131,38 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     }
 
     fun showTab(tabName: String) {
+        OrderListSingleTon.myCurrentOrders.clear()
+        OrderListSingleTon.pageNumbers["rejectUserOrders"] = 0
+        OrderListSingleTon.pageNumbers["rejectStoreOrders"] = 0
+        OrderListSingleTon.pageNumbers["rejectRefundOrders"] = 0
+        if (tabName == "가게거절") {
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "rejectStoreOrders",
+                targetPanel = storeRejectPanel,
+                filter = OrderFilter(serverOrderStatus = ServerOrderStatus.STORE_CANCEL)
+            )
+        } else if (tabName == "고객취소") {
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "rejectUserOrders",
+                targetPanel = customerCancelPanel,
+                filter = OrderFilter(serverOrderStatus = ServerOrderStatus.USER_CANCEL)
+            )
+        } else {
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "rejectRefundOrders",
+                targetPanel = refundPanel,
+                filter = OrderFilter(serverOrderStatus = ServerOrderStatus.REFUND)
+            )
+        }
+        initializePanels()
         selectedTab = tabName
         cardLayout.show(cardContainer, tabName)
-        updateCounts()
-    }
-
-    fun updateCounts() {
-        val storeRejectCount = OrderListSingleTon.counts["rejectStoreOrders"] ?: 0
-        val customerCancelCount = OrderListSingleTon.counts["rejectUserOrders"] ?: 0
-        val refundCount = OrderListSingleTon.counts["rejectRefundOrders"] ?: 0
-
-        println("Counts updated: 가게거절=$storeRejectCount, 고객취소=$customerCancelCount, 환불=$refundCount")
-        storeRejectButton.button.text = "가게거절  $storeRejectCount"
-        customerCancelButton.button.text = "고객취소  $customerCancelCount"
-        refundButton.button.text = "환불  $refundCount"
     }
 
     fun initializePanels() {
-        updatePanel(storeRejectPanel, OrderListSingleTon.orders["rejectStoreOrders"])
-        updatePanel(customerCancelPanel, OrderListSingleTon.orders["rejectUserOrders"])
-        updatePanel(refundPanel, OrderListSingleTon.orders["rejectRefundOrders"])
+        updatePanel(storeRejectPanel, OrderListSingleTon.myCurrentOrders)
+        updatePanel(customerCancelPanel, OrderListSingleTon.myCurrentOrders)
+        updatePanel(refundPanel, OrderListSingleTon.myCurrentOrders)
     }
 
     private fun updatePanel(panel: JPanel, orders: MutableList<ReceiveOrderModel>?) {
@@ -183,16 +196,4 @@ class RejectedSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
     }
 
-    fun addOrderToRejected(orderFrame: JPanel) {
-        orderFrame.maximumSize = Dimension(Int.MAX_VALUE, orderFrame.preferredSize.height)
-        storeRejectPanel.add(orderFrame)
-        storeRejectPanel.add(Box.createRigidArea(Dimension(0, 30)))
-        storeRejectPanel.revalidate()
-        storeRejectPanel.repaint()
-        tabbedPane.updateTabTitle(4, "주문거절", (
-                OrderListSingleTon.counts["rejectStoreOrders"] ?: 0) + (OrderListSingleTon.counts["rejectUserOrders"] ?: 0) + (OrderListSingleTon.counts["rejectRefundOrders"] ?: 0)
-        )
-        initializePanels()
-        updateCounts()
-    }
 }

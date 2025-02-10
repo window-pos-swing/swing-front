@@ -276,10 +276,8 @@ class ProcessingState(
 
     // Resend Order 이벤트 처리: 프로그레스바를 버튼으로 변환
     override fun onResendOrder(order: ReceiveOrderModel) {
-        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
-        val processOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+        val allOrder = OrderListSingleTon.findOrderByNumber(order.orderNumber)
         if(allOrder != null) { allOrder.isResent = true }
-        if(processOrder != null) { processOrder.isResent = true }
         // '주문취소' 버튼 생성
         // '배달 대행사로 주문번호 재전송' 버튼 생성
         val resendOrderButton = FillRoundedButton(
@@ -325,15 +323,11 @@ class ProcessingState(
 
     //TODO 배달중 위젯으로 변경
     override fun onDelivery(order: ReceiveOrderModel) {
-        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
-        val processOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+        val allOrder = OrderListSingleTon.findOrderByNumber( order.orderNumber)
+
         if(allOrder != null) {
             allOrder.isOnDelivery = true
             allOrder.isPickupWait = false
-        }
-        if(processOrder != null) {
-            processOrder.isOnDelivery = true
-            processOrder.isPickupWait = false
         }
         val resendOrderButton = createOnDelivery(order)
 
@@ -363,29 +357,10 @@ class ProcessingState(
     //TODO 픽업 대기중 버튼 업데이트
     fun changePickupWaitWidget(order: ReceiveOrderModel) {
 
-        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
-        val processOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+        val allOrder = OrderListSingleTon.findOrderByNumber( order.orderNumber)
         if(allOrder != null) {
             allOrder.isPickupWait = true
             OrderController.tabbedPane.updateOrderInAllOrders(allOrder)
-        }
-        if(processOrder != null) {
-            processOrder.isPickupWait = true
-        }
-        when (order.orderReceiveType) {
-            OrderReceiveType.DELIVERY.name -> {
-                val processingDeliveryOrders = OrderListSingleTon.findOrderByNumber("processingDeliveryOrders", order.orderNumber)
-                if (processingDeliveryOrders != null) {
-                    processingDeliveryOrders.isPickupWait = true
-                    OrderController.tabbedPane.processingSubTabs.initializePanels()
-//                    println("Updated isPickupWait for DELIVERY order: ${processingDeliveryOrders.orderNumber} -> ${processingDeliveryOrders.isPickupWait}")
-//                    println("[changePickupWaitWidget] processingDeliveryOrders COunt : ${OrderListSingleTon.orders["processingDeliveryOrders"]?.size}")
-//                    println("[changePickupWaitWidget] processingOrders COunt : ${OrderListSingleTon.orders["processingOrders"]?.size}")
-                } else {
-                    println("Delivery order not found in processingDeliveryOrders for orderNumber: ${order.orderNumber}")
-                    println("processingDeliveryOrders count : ${OrderListSingleTon.orders["processingDeliveryOrders"]?.size}")
-                }
-            }
         }
 
         rightPanel.border = BorderFactory.createEmptyBorder(-15, 0, 0, 0)
@@ -421,22 +396,12 @@ class ProcessingState(
 
     //TODO 픽업 완료 버튼 업데이트
     fun changePickupCompleteButton(order: ReceiveOrderModel) {
-        val allOrder = OrderListSingleTon.findOrderByNumber("allOrders", order.orderNumber)
-        val processOrder = OrderListSingleTon.findOrderByNumber("processingOrders", order.orderNumber)
+        val allOrder = OrderListSingleTon.findOrderByNumber( order.orderNumber)
         if(allOrder != null) {
             allOrder.isPickupCompleted = true
             OrderController.tabbedPane.updateOrderInAllOrders(allOrder)
         }
-        if(processOrder != null) { processOrder.isPickupCompleted = true }
-        when (order.orderReceiveType) {
-            OrderReceiveType.TAKEOUT.name -> {
-                val processingTakeoutOrders = OrderListSingleTon.findOrderByNumber("processingTakeOutOrders", order.orderNumber)
-                if(processingTakeoutOrders != null) {
-                    processingTakeoutOrders.isPickupCompleted = true
-                    OrderController.tabbedPane.processingSubTabs.initializePanels()
-                }
-            }
-        }
+        
         rightPanel.border = BorderFactory.createEmptyBorder(-15, 0, 0, 0)
         // 주문 완료 버튼 생성
         val completeOrderButton = createPickupCompleteButton(order)
@@ -470,6 +435,7 @@ class ProcessingState(
             }
         }
     }
+
 }
 
 

@@ -6,6 +6,7 @@ import org.grr.enum.PosOrderStatus
 import org.grr.model.OrderFilter
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderListSingleTon
+import org.grr.`object`.OrderListSingleTon.currentPendingSubTabName
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.screen.main.main_widget.tab_manager.ScrollPaginationHandler
 import org.grr.style.MyColor
@@ -24,8 +25,8 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     val takeoutOrdersPanel = createPanel()
 
     val allOrdersButton = SelectButtonRoundedBorder(50)
-    private val deliveryButton = SelectButtonRoundedBorder(50)
-    private val takeoutButton = SelectButtonRoundedBorder(50)
+    val deliveryButton = SelectButtonRoundedBorder(50)
+    val takeoutButton = SelectButtonRoundedBorder(50)
     private var selectedButton: SelectButtonRoundedBorder? = null
 
     // 서브탭 상태 관리
@@ -87,7 +88,6 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
 
         // 기본 탭 표시
         selectButton(allOrdersButton)
-        showTab("전체보기")
         initializePanels()
     }
 
@@ -146,27 +146,46 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
     }
 
     fun showTab(tabName: String) {
+        OrderListSingleTon.myCurrentOrders.clear()
+        OrderListSingleTon.pageNumbers["pendingOrders"] = 0
+        OrderListSingleTon.pageNumbers["pendingDeliveryOrders"] = 0
+        OrderListSingleTon.pageNumbers["pendingTakeOutOrders"] = 0
+        if(tabName == "전체보기"){
+            currentPendingSubTabName = "전체보기"
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "pendingOrders",
+                targetPanel = pendingOrdersPanel,
+                filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING)
+            )
+        }else if(tabName == "배달"){
+            currentPendingSubTabName = "배달"
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "pendingDeliveryOrders",
+                targetPanel = deliveryOrdersPanel,
+                filter = OrderFilter(posOrderStatus = PosOrderStatus.WAITING, orderReceiveType = OrderReceiveType.DELIVERY)
+            )
+        }else {
+            currentPendingSubTabName = "포장"
+            tabbedPane.fetchAndUpdateOrders(
+                orderKey = "pendingTakeOutOrders",
+                targetPanel = takeoutOrdersPanel,
+                filter = OrderFilter(
+                    posOrderStatus = PosOrderStatus.WAITING,
+                    orderReceiveType = OrderReceiveType.TAKEOUT
+                )
+            )
+        }
+
+        initializePanels()
         selectedTab = tabName
         cardLayout.show(cardContainer, tabName)
-        updateCounts()
-    }
-
-    fun updateCounts() {
-        val totalCount = OrderListSingleTon.counts["pendingOrders"] ?: 0
-        val deliveryCount = OrderListSingleTon.counts["pendingDeliveryOrders"] ?: 0
-        val takeoutCount = OrderListSingleTon.counts["pendingTakeOutOrders"] ?: 0
-
-        println("Counts updated: 전체=$totalCount, 배달=$deliveryCount, 포장=$takeoutCount")
-        allOrdersButton.button.text = "전체보기  $totalCount"
-        deliveryButton.button.text = "배달  $deliveryCount"
-        takeoutButton.button.text = "포장  $takeoutCount"
     }
 
     fun initializePanels() {
         // 각각의 패널 업데이트
-        updatePanel(pendingOrdersPanel, OrderListSingleTon.orders["pendingOrders"])
-        updatePanel(deliveryOrdersPanel, OrderListSingleTon.orders["pendingDeliveryOrders"])
-        updatePanel(takeoutOrdersPanel, OrderListSingleTon.orders["pendingTakeOutOrders"])
+        updatePanel(pendingOrdersPanel, OrderListSingleTon.myCurrentOrders)
+        updatePanel(deliveryOrdersPanel, OrderListSingleTon.myCurrentOrders)
+        updatePanel(takeoutOrdersPanel, OrderListSingleTon.myCurrentOrders)
     }
 
     private fun updatePanel(panel: JPanel, orders: MutableList<ReceiveOrderModel>?) {
@@ -202,80 +221,5 @@ class PendingSubTabs(private val tabbedPane: CustomTabbedPane) : JPanel() {
         }
     }
 
-    //TODO [ADD]
-    fun addOrderToPending(orderFrame: JPanel, typeOrderFrame: JPanel, order: ReceiveOrderModel) {
-        pendingOrdersPanel.add(orderFrame,0)
-        pendingOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)),1)
-        pendingOrdersPanel.revalidate()
-        pendingOrdersPanel.repaint()
-        tabbedPane.updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
-        if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) {
-//            OrderListSingleTon.counts["pendingDeliveryOrders"] = (OrderListSingleTon.counts["pendingDeliveryOrders"] ?: 0) + 1
-            deliveryOrdersPanel.add(typeOrderFrame,0)
-            deliveryOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)),1)
-        } else if (order.orderReceiveType == OrderReceiveType.TAKEOUT.name) {
-//            OrderListSingleTon.counts["pendingTakeOutOrders"] = (OrderListSingleTon.counts["pendingTakeOutOrders"] ?: 0) + 1
-            takeoutOrdersPanel.add(typeOrderFrame,0)
-            takeoutOrdersPanel.add(Box.createRigidArea(Dimension(0, 30)),1)
-        }
-        updateCounts()
-    }
 
-    //TODO [REMOVE]
-    fun removeOrderFromPending(order: ReceiveOrderModel , isLastRemove : Boolean = false) {
-        val removeOrder = OrderListSingleTon.orders["pendingOrders"]?.find { it.orderNumber == order.orderNumber }
-        OrderListSingleTon.orders["pendingOrders"]?.remove(removeOrder)
-
-        val frameToRemove = pendingOrdersPanel.components
-            .filterIsInstance<JPanel>()
-            .find { it.getClientProperty("orderNumber") == order.orderNumber }
-
-        frameToRemove?.let {
-            pendingOrdersPanel.remove(it)
-            pendingOrdersPanel.revalidate()
-            pendingOrdersPanel.repaint()
-            tabbedPane.updateTabTitle(1, "접수대기", OrderListSingleTon.counts["pendingOrders"] ?: 0)
-        }
-
-
-        if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) {
-            if(!isLastRemove){
-                OrderListSingleTon.counts["pendingDeliveryOrders"] =
-                    (OrderListSingleTon.counts["pendingDeliveryOrders"] ?: 0) - 1
-            }
-
-            val removeOrder2 =
-                OrderListSingleTon.orders["pendingDeliveryOrders"]?.find { it.orderNumber == order.orderNumber }
-            OrderListSingleTon.orders["pendingDeliveryOrders"]?.remove(removeOrder2)
-
-            val deliveryOrdersPanelRemove = deliveryOrdersPanel.components
-                .filterIsInstance<JPanel>()
-                .find { it.getClientProperty("orderNumber") == order.orderNumber }
-
-            deliveryOrdersPanelRemove?.let {
-                deliveryOrdersPanel.remove(it)
-                deliveryOrdersPanel.revalidate()
-                deliveryOrdersPanel.repaint()
-            }
-
-        } else if (order.orderReceiveType == OrderReceiveType.TAKEOUT.name) {
-            if(!isLastRemove){
-                OrderListSingleTon.counts["pendingTakeOutOrders"] =
-                    (OrderListSingleTon.counts["pendingTakeOutOrders"] ?: 0) - 1
-            }
-            val removeOrder3 =
-                OrderListSingleTon.orders["pendingTakeOutOrders"]?.find { it.orderNumber == order.orderNumber }
-            OrderListSingleTon.orders["pendingTakeOutOrders"]?.remove(removeOrder3)
-
-            val takeOutOrdersPanelRemove = takeoutOrdersPanel.components
-                .filterIsInstance<JPanel>()
-                .find { it.getClientProperty("orderNumber") == order.orderNumber }
-
-            takeOutOrdersPanelRemove?.let {
-                takeoutOrdersPanel.remove(it)
-                takeoutOrdersPanel.revalidate()
-                takeoutOrdersPanel.repaint()
-            }
-        }
-    }
 }
