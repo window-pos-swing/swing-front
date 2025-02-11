@@ -1,6 +1,7 @@
 package org.grr.screen.setting.salesManagement.salesManagementForm
 
-import org.grr.screen.setting.salesManagement.ShareData
+import org.grr.`object`.JsonFormatter
+import org.grr.screen.setting.salesManagement.*
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.RoundedButton
@@ -12,6 +13,9 @@ import java.io.File
 import javax.swing.*
 
 class CreateOrderTotalLabelPanelForm: JPanel() {
+    private val paymentCompletedLabel = JLabel()
+    private val paymentCompletedPriceLabel = JLabel()
+    private val completeLabel = JLabel()
 
     init {
         layout = BorderLayout()
@@ -38,14 +42,14 @@ class CreateOrderTotalLabelPanelForm: JPanel() {
             iconTextGap = 10 // 아이콘과 텍스트 간 간격 설정
         }
 
-        ShareData.selectedDateLabel = JLabel("전체").apply {
+        ShareData.selectedDateLabel = JLabel("오늘").apply {
             font = MyFont.Bold(24f)
             foreground = MyColor.LIGHT_BLUE
         }
 
-        val completeLabel = JLabel("완료 기준 : 4건 132,000원").apply {
-            font = MyFont.Bold(24f)
-        }
+        completeLabel.text = "완료 기준 : ${JsonFormatter.formatNumber(getPaymentCompletedCount())}건 ${
+            JsonFormatter.formatNumber(getPaymentCompletedPrice())}원"
+        completeLabel.font = MyFont.Bold(24f)
 
         labelPanel.add(orderLabel)
         labelPanel.add(Box.createHorizontalStrut(10))
@@ -62,5 +66,19 @@ class CreateOrderTotalLabelPanelForm: JPanel() {
 
         add(labelPanel, BorderLayout.WEST)
         add(printButton, BorderLayout.EAST)
+    }
+
+    fun updateTotal() {
+        val updatedCount = getPaymentCompletedCount()
+        val updatedPrice = getPaymentCompletedPrice()
+
+        paymentCompletedLabel.text = JsonFormatter.formatNumber(updatedCount)
+        paymentCompletedPriceLabel.text = JsonFormatter.formatNumber(updatedPrice)
+
+        completeLabel.text = "완료 기준 : ${JsonFormatter.formatNumber(updatedCount)}건 ${
+            JsonFormatter.formatNumber(updatedPrice)}원"
+        // UI 업데이트 적용
+        revalidate()
+        repaint()
     }
 }

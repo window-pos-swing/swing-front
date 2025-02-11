@@ -182,7 +182,6 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
         isVisible = true
     }
 
-
     private fun createSeparator(orientation: Int, width: Int, height: Int): JSeparator {
         return JSeparator(orientation).apply {
             foreground = MyColor.LIGHT_GREY
@@ -213,5 +212,4 @@ class HolidayModalDialog(parent: JFrame, title: String, callback: ((Boolean) -> 
             JOptionPane.showMessageDialog(null, "저장 중 오류 발생: ${e.message}", "오류", JOptionPane.ERROR_MESSAGE)
         }
     }
-
 }
