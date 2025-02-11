@@ -111,7 +111,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
         }
 
         // 운영시간 레이블 추가
-        val operationLabel = JLabel("운영시간").apply {
+        val operationLabel = JLabel("운영 상태").apply {
             font = MyFont.Bold(20f)
             foreground = Color.WHITE
             alignmentX = CENTER_ALIGNMENT
@@ -176,26 +176,14 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
             }
         }
 
+        menuPanel.add(Box.createVerticalStrut(30))  // 30px 공간 추가
         // 패널에 토글 버튼 추가
         togglePanel.add(customToggleButton)
+
         operationPanel.add(togglePanel)  // 운영시간 패널에 토글 패널 추가
 
-        // 운영시간 텍스트
-        val hoursLabel = JLabel("<html>월 - 금: 24시간<br/>토요일: 24시간<br/>일요일: 24시간</html>").apply {
-            font = MyFont.Bold(14f)
-            foreground = Color.WHITE
-            alignmentX = CENTER_ALIGNMENT
-            horizontalAlignment = SwingConstants.CENTER  // 텍스트 중앙 정렬
-            border = BorderFactory.createEmptyBorder(10, 0, 0, 0)
-        }
-        operationPanel.add(hoursLabel)
-
-//        operationPanel.add(Box.createVerticalStrut(20))  // 10px 공간 추가
-
         // 하단에 운영시간 패널 추가
-        menuPanel.add(Box.createVerticalGlue())  // 기존 컴포넌트와 하단 운영시간 사이 공간 확보
         menuPanel.add(operationPanel)
-
 
         // 메인 패널에 세로 탭 메뉴 추가
         add(menuPanel, BorderLayout.WEST)
