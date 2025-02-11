@@ -15,6 +15,7 @@ import javax.swing.JPanel
 
 class CreateTabBarPanelForm : JPanel() {
     val yesterdayButton = RoundedButton("어제")
+    val todayButton = RoundedButton("오늘")
 
     // 버튼 리스트를 관리하기 위한 리스트
     private val buttons = mutableListOf<RoundedButton>()
@@ -61,7 +62,7 @@ class CreateTabBarPanelForm : JPanel() {
             }
         }
 
-        val todayButton = RoundedButton("오늘").apply {
+        todayButton.apply {
             preferredSize = Dimension(150, 60)
             font = MyFont.Bold(22f)
             setCustomBackground(MyColor.LIGHT_BLUE)

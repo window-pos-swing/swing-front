@@ -4,6 +4,7 @@ import CustomRoundedDialog
 import org.grr.api.SaleManagementAPI
 import org.grr.model.OrderCategory
 import org.grr.model.formatToDisplay
+import org.grr.screen.setting.salesManagement.SalesManagementData.totalLabelPanel
 import org.grr.screen.setting.salesManagement.SalesManagementData.totalSalesSummary
 import org.grr.screen.setting.salesManagement.ShareData.tableModel
 import org.grr.screen.setting.salesManagement.salesManagementForm.*
@@ -68,6 +69,15 @@ class SalesManagementModalDialog(
 
         val tabBarPanel = CreateTabBarPanelForm()
 
+        // 매출 요약 정보 패널 1
+        val orderTotalLabelPanel = CreateOrderTotalLabelPanelForm()
+
+        // 매출 요약 정보 패널 2
+        val summaryPanel = CreateSummaryPanelForm()
+
+        // 주문 목록 패널 생성
+        val orderLabelPanel = CreateOrderLabelPanelForm()
+
         tabBarPanel.yesterdayButton.addActionListener {
             startDate = getYesterdayDate()
             endDate = getYesterdayDate()
@@ -78,16 +88,25 @@ class SalesManagementModalDialog(
             stop = false
 
             loadOrderData()
+
+            summaryPanel.updateSummary()
+            orderTotalLabelPanel.updateTotal()
         }
 
-        // 매출 요약 정보 패널 1
-        val orderTotalLabelPanel = CreateOrderTotalLabelPanelForm()
+        tabBarPanel.todayButton.addActionListener {
+            startDate = getTodayDate()
+            endDate = getTodayDate()
 
-        // 매출 요약 정보 패널 2
-        val summaryPanel = CreateSummaryPanelForm()
+            orderList.clear()
+            updateTable(null)
+            currentPage = 0
+            stop = false
 
-        // 주문 목록 패널 생성
-        val orderLabelPanel = CreateOrderLabelPanelForm()
+            loadOrderData()
+
+            summaryPanel.updateSummary()
+            orderTotalLabelPanel.updateTotal()
+        }
 
         // 모든 패널 추가
         gbc.gridy = 0
@@ -118,16 +137,16 @@ class SalesManagementModalDialog(
         if (isLoading) return // 중복 요청 방지
         isLoading = true
 
-        if (stop == false) {
+        if (!stop) {
             val (success, orderListDataResponse, posOrderSaleManagementTotalDataResponse) = SaleManagementAPI().getOrderListToServer(
                 pageNumber = currentPage,
                 pageSize = pageSize,
                 startDate,
                 endDate
             )
+            totalSalesSummary = posOrderSaleManagementTotalDataResponse
 
             if (success && orderListDataResponse != null && orderListDataResponse.length() > 0) {
-                totalSalesSummary = posOrderSaleManagementTotalDataResponse
                 val newOrders = orderListDataResponse.map { json ->
                     val order = json as JSONObject
                     OrderCategory(

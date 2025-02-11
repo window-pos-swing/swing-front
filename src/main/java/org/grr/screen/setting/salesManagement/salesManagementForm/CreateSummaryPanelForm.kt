@@ -1,7 +1,5 @@
 package org.grr.screen.setting.salesManagement.salesManagementForm
 
-import org.grr.api.MenuAPI
-import org.grr.api.SaleManagementAPI
 import org.grr.`object`.JsonFormatter
 import org.grr.screen.setting.salesManagement.*
 import org.grr.style.MyColor
@@ -11,19 +9,25 @@ import java.awt.*
 import javax.swing.*
 
 class CreateSummaryPanelForm: JPanel() {
+    private val paymentCompletedLabel = JLabel()
+    private val paymentCompletedPriceLabel = JLabel()
+    private val meetPaymentCompletedCardLabel = JLabel()
+    private val meetPaymentCompletedCardPriceLabel = JLabel()
+    private val meetPaymentCompletedCashLabel = JLabel()
+    private val meetPaymentCompletedCashPriceLabel = JLabel()
+    private val deliveryCompletedLabel = JLabel()
+    private val deliveryCompletedPriceLabel = JLabel()
+    private val deliveryCancelLabel = JLabel()
+    private val deliveryCancelPriceLabel = JLabel()
+    private val takeOutCompletedLabel = JLabel()
+    private val takeOutCompletedPriceLabel = JLabel()
+    private val takeOutCancelLabel = JLabel()
+    private val takeOutCancelPriceLabel = JLabel()
 
     init {
         layout = GridLayout(1, 2, 0, 0)
         background = Color.WHITE
         border = BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY)
-
-//            포장 완료 건수, 총합
-        val takeOutCompletedCount = SalesManagementData.totalSalesSummary?.getLong("takeOutCompletedCount")
-        val takeOutCompletedPrice = SalesManagementData.totalSalesSummary?.getLong("takeOutCompletedPrice")
-
-//            포장 취소 건수, 총합
-        val takeOutCancelCount = SalesManagementData.totalSalesSummary?.getLong("takeOutCancelCount")
-        val takeOutCancelPrice = SalesManagementData.totalSalesSummary?.getLong("takeOutCancelPrice")
 
         // 왼쪽 패널 (결제완료, 후불결제)
         val leftPanel = JPanel().apply {
@@ -49,9 +53,10 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0) // 숫자와 단위를 가로로 정렬
                     background = Color.WHITE
-                    add(JLabel(JsonFormatter.formatNumber(getPaymentCompletedCount())).apply {
+                    add(paymentCompletedLabel.apply {
+                        text = JsonFormatter.formatNumber(getPaymentCompletedCount())
                         font = MyFont.Bold(20f)
-                        foreground = MyColor.LIGHT_BLUE // 숫자 색상 조정
+                        foreground = MyColor.LIGHT_BLUE
                     })
                     add(JLabel(" 건").apply {
                         font = MyFont.Medium(15f)
@@ -62,7 +67,8 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0)
                     background = Color.WHITE
-                    add(JLabel(JsonFormatter.formatNumber(getPaymentCompletedPrice())).apply {
+                    add(paymentCompletedPriceLabel.apply {
+                        text = JsonFormatter.formatNumber(getPaymentCompletedPrice())
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE
                     })
@@ -91,7 +97,8 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0)
                     background = Color.WHITE
-                    add(JLabel(JsonFormatter.formatNumber(getMeetPaymentCompletedCardCount())).apply {
+                    add(meetPaymentCompletedCardLabel.apply {
+                        text = JsonFormatter.formatNumber(getMeetPaymentCompletedCardCount())
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE
                     })
@@ -104,7 +111,8 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0)
                     background = Color.WHITE
-                    add(JLabel(JsonFormatter.formatNumber(getMeetPaymentCompletedCardPrice())).apply {
+                    add(meetPaymentCompletedCardPriceLabel.apply {
+                        text = JsonFormatter.formatNumber(getMeetPaymentCompletedCardPrice())
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE
                     })
@@ -130,7 +138,8 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0)
                     background = Color.WHITE
-                    add(JLabel(JsonFormatter.formatNumber(getMeetPaymentCompletedCashCount())).apply {
+                    add(meetPaymentCompletedCashLabel.apply {
+                        text = JsonFormatter.formatNumber(getMeetPaymentCompletedCashCount())
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE
                     })
@@ -143,7 +152,8 @@ class CreateSummaryPanelForm: JPanel() {
                 add(JPanel().apply {
                     layout = FlowLayout(FlowLayout.CENTER, 0, 0)
                     background = Color.WHITE
-                    add(JLabel(JsonFormatter.formatNumber(getMeetPaymentCompletedCashPrice())).apply {
+                    add(meetPaymentCompletedCashPriceLabel.apply {
+                        text = JsonFormatter.formatNumber(getMeetPaymentCompletedCashPrice())
                         font = MyFont.Bold(20f)
                         foreground = MyColor.LIGHT_BLUE
                     })
@@ -197,22 +207,24 @@ class CreateSummaryPanelForm: JPanel() {
                             preferredSize = Dimension(45, 24)
                             horizontalAlignment = SwingConstants.CENTER
                         })
-
-                        add(JLabel(" ${JsonFormatter.formatNumber(getDeliveryCompletedCount())}").apply {
+                        add(Box.createHorizontalStrut(10))
+                        add(deliveryCompletedLabel.apply {
+                            text = JsonFormatter.formatNumber(getDeliveryCompletedCount())
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
-
+                        add(Box.createHorizontalStrut(3))
                         add(JLabel(" 건").apply {
                             font = MyFont.Medium(15f)
                             foreground = Color.BLACK
                         })
-
-                        add(JLabel(" ${JsonFormatter.formatNumber(getDeliveryCompletedPrice())}").apply {
+                        add(Box.createHorizontalStrut(5))
+                        add(deliveryCompletedPriceLabel.apply {
+                            text = JsonFormatter.formatNumber(getDeliveryCompletedPrice())
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
-
+                        add(Box.createHorizontalStrut(3))
                         add(JLabel(" 원").apply {
                             font = MyFont.Medium(15f)
                             foreground = Color.BLACK
@@ -233,22 +245,24 @@ class CreateSummaryPanelForm: JPanel() {
                             preferredSize = Dimension(45, 24)
                             horizontalAlignment = SwingConstants.CENTER
                         })
-
-                        add(JLabel(" ${JsonFormatter.formatNumber(getDeliveryCancelCount())}").apply {
+                        add(Box.createHorizontalStrut(10))
+                        add(deliveryCancelLabel.apply {
+                            text = JsonFormatter.formatNumber(getDeliveryCancelCount())
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
-
+                        add(Box.createHorizontalStrut(3))
                         add(JLabel(" 건").apply {
                             font = MyFont.Medium(15f)
                             foreground = Color.BLACK
                         })
-
-                        add(JLabel(" ${JsonFormatter.formatNumber(getDeliveryCancelPrice())}").apply {
+                        add(Box.createHorizontalStrut(5))
+                        add(deliveryCancelPriceLabel.apply {
+                            text = JsonFormatter.formatNumber(getDeliveryCancelPrice())
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
-
+                        add(Box.createHorizontalStrut(3))
                         add(JLabel(" 원").apply {
                             font = MyFont.Medium(15f)
                             foreground = Color.BLACK
@@ -285,22 +299,24 @@ class CreateSummaryPanelForm: JPanel() {
                             preferredSize = Dimension(45, 24)
                             horizontalAlignment = SwingConstants.CENTER
                         })
-
-                        add(JLabel(" ${JsonFormatter.formatNumber(takeOutCompletedCount ?: 0)}").apply {
+                        add(Box.createHorizontalStrut(10))
+                        add(takeOutCompletedLabel.apply {
+                            text = JsonFormatter.formatNumber(getTakeOutCompletedCount())
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
-
+                        add(Box.createHorizontalStrut(3))
                         add(JLabel(" 건").apply {
                             font = MyFont.Medium(15f)
                             foreground = Color.BLACK
                         })
-
-                        add(JLabel(" ${JsonFormatter.formatNumber(takeOutCompletedPrice ?: 0)}").apply {
+                        add(Box.createHorizontalStrut(5))
+                        add(takeOutCompletedPriceLabel.apply {
+                            text = JsonFormatter.formatNumber(getTakeOutCompletedPrice())
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
-
+                        add(Box.createHorizontalStrut(3))
                         add(JLabel(" 원").apply {
                             font = MyFont.Medium(15f)
                             foreground = Color.BLACK
@@ -321,22 +337,24 @@ class CreateSummaryPanelForm: JPanel() {
                             preferredSize = Dimension(45, 24)
                             horizontalAlignment = SwingConstants.CENTER
                         })
-
-                        add(JLabel(" ${JsonFormatter.formatNumber(takeOutCancelCount ?: 0)}").apply {
+                        add(Box.createHorizontalStrut(10))
+                        add(takeOutCancelLabel.apply {
+                            text = JsonFormatter.formatNumber(getTakeOutCancelCount())
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
-
+                        add(Box.createHorizontalStrut(3))
                         add(JLabel(" 건").apply {
                             font = MyFont.Medium(15f)
                             foreground = Color.BLACK
                         })
-
-                        add(JLabel(" ${JsonFormatter.formatNumber(takeOutCancelPrice ?: 0)}").apply {
+                        add(Box.createHorizontalStrut(5))
+                        add(takeOutCancelPriceLabel.apply {
+                            text = JsonFormatter.formatNumber(getTakeOutCancelPrice())
                             font = MyFont.Bold(20f)
                             foreground = MyColor.LIGHT_BLUE
                         })
-
+                        add(Box.createHorizontalStrut(3))
                         add(JLabel(" 원").apply {
                             font = MyFont.Medium(15f)
                             foreground = Color.BLACK
@@ -358,5 +376,26 @@ class CreateSummaryPanelForm: JPanel() {
             add(rightPanel)
         }
         add(summaryPanel)
+    }
+
+    fun updateSummary() {
+        paymentCompletedLabel.text = JsonFormatter.formatNumber(getPaymentCompletedCount())
+        paymentCompletedPriceLabel.text = JsonFormatter.formatNumber(getPaymentCompletedPrice())
+        meetPaymentCompletedCardLabel.text = JsonFormatter.formatNumber(getMeetPaymentCompletedCardCount())
+        meetPaymentCompletedCardPriceLabel.text = JsonFormatter.formatNumber(getMeetPaymentCompletedCardPrice())
+        meetPaymentCompletedCashLabel.text = JsonFormatter.formatNumber(getMeetPaymentCompletedCashCount())
+        meetPaymentCompletedCashPriceLabel.text = JsonFormatter.formatNumber(getMeetPaymentCompletedCashPrice())
+        deliveryCompletedLabel.text = JsonFormatter.formatNumber(getDeliveryCompletedCount())
+        deliveryCompletedPriceLabel.text = JsonFormatter.formatNumber(getDeliveryCompletedPrice())
+        deliveryCancelLabel.text = JsonFormatter.formatNumber(getDeliveryCancelCount())
+        deliveryCancelPriceLabel.text = JsonFormatter.formatNumber(getDeliveryCancelPrice())
+        takeOutCompletedLabel.text = JsonFormatter.formatNumber(getTakeOutCompletedCount())
+        takeOutCompletedPriceLabel.text = JsonFormatter.formatNumber(getTakeOutCompletedPrice())
+        takeOutCancelLabel.text = JsonFormatter.formatNumber(getTakeOutCancelCount())
+        takeOutCancelPriceLabel.text = JsonFormatter.formatNumber(getTakeOutCancelPrice())
+
+        // UI 업데이트 적용
+        revalidate()
+        repaint()
     }
 }
