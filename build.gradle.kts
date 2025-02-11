@@ -12,6 +12,10 @@ repositories {
 }
 
 dependencies {
+
+    implementation("org.scream3r:jssc:2.8.0")// 포트 찾는 라이브러리
+
+
     implementation(files("libs/swingx-1.6.4.jar"))
     implementation(files("TimingFramework-0.55.jar"))
 
