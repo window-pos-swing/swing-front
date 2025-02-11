@@ -1,4 +1,5 @@
 
+import org.grr.`object`.Storage
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import java.awt.*
@@ -66,6 +67,19 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
     private var printerCount = 1
     private val buttonStrutMap = mutableMapOf<JButton, Box.Filler>()
     private val printerButtons = mutableListOf<PrinterButton>()
+    private val myPrinters = mutableListOf<Storage.PrinterInfo>() // 프린터 정보 리스트
+    // 왼쪽 프린터 목록 패널
+    val leftPanel = JPanel().apply {
+        background = Color.WHITE
+        layout = BoxLayout(this, BoxLayout.Y_AXIS)
+    }
+
+    // 오른쪽 패널: 프린터 설정
+    val rightPanel = JPanel(CardLayout()).apply {
+        preferredSize = Dimension(725, 300)
+    }
+
+    val addPrinterButton = createAddPrinterButton()
 
     init {
         setSize(1000, 530)  // 다이얼로그 크기 설정
@@ -83,111 +97,18 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
             fill = GridBagConstraints.HORIZONTAL
         }
 
-        // 왼쪽 프린터 목록 패널
-        val leftPanel = JPanel().apply {
-            background = Color.WHITE
-            layout = BoxLayout(this, BoxLayout.Y_AXIS)
-        }
 
-        // 오른쪽 패널: 프린터 설정
-        val rightPanel = JPanel(CardLayout()).apply {
-            preferredSize = Dimension(725, 300)
-        }
+        // ✅ 기존에 저장된 프린터 설정 불러오기
+        val savedPrinters = Storage.loadPrinterSettings()
+        myPrinters.addAll(savedPrinters)
+        printerCount = savedPrinters.size
 
-        // 프린터1 버튼 추가
-        val printer1Button = PrinterButton("프린트1").apply {
-            addActionListener {
-                printerButtons.forEach { it.resetStyle() }
-                setClickedStyle()
+        // ✅ 저장된 프린터 버튼 추가
+        addSavedPrinters(savedPrinters)
 
-                val layout = rightPanel.layout as CardLayout
-                layout.show(rightPanel, "프린트1")
-            }
-        }
-        printerButtons.add(printer1Button)  // 리스트에 버튼 추가
-
-        leftPanel.add(printer1Button)
-
-        // 프린터 추가 버튼
-        val addPrinterButton = JButton("프린트 추가").apply {
-            preferredSize = Dimension(200, 50)
-            minimumSize = Dimension(200, 50)
-            maximumSize = Dimension(200, 50)
-
-            background = Color.WHITE
-            foreground = Color(27, 43, 66)
-            isOpaque = true
-            isBorderPainted = true
-            font = MyFont.Bold(20f)
-
-            border = BorderFactory.createLineBorder(foreground, 2)
-        }
-        leftPanel.add(Box.createVerticalStrut(5)) // 간격 추가
+        // ✅ 프린터 추가 버튼
+        leftPanel.add(Box.createVerticalStrut(5))
         leftPanel.add(addPrinterButton)
-
-//        leftPanel.add(Box.createVerticalGlue())
-
-        // 기본 프린터 설정 추가 (주방프린터)
-        val kitchenPrinterPanel = createPrinterSettingPanel("프린트1", leftPanel, printer1Button, rightPanel, printer1Button)
-        rightPanel.add(kitchenPrinterPanel, "프린트1")
-
-        // 버튼 클릭 시 오른쪽 패널에 맞는 프린터 설정 보여주기
-        printer1Button.addActionListener {
-            val layout = rightPanel.layout as CardLayout
-            layout.show(rightPanel, "프린트1")
-        }
-
-        // 프린터 추가 기능
-        addPrinterButton.addActionListener {
-            if (printerCount >= 4) {
-                JOptionPane.showMessageDialog(null, "최대 4개의 프린터만 추가할 수 있습니다.")
-                return@addActionListener
-            }
-
-            printerCount++
-            val newPrinterName = "프린트$printerCount"
-
-            // 왼쪽 패널에서 '프린트 추가' 버튼을 제거
-            leftPanel.remove(addPrinterButton)
-
-            val verticalStrut = Box.createVerticalStrut(5)
-            val newPrinterButton = PrinterButton(newPrinterName).apply {
-                addActionListener {
-                    printerButtons.forEach { it.resetStyle() }
-                    setClickedStyle()
-
-                    val layout = rightPanel.layout as CardLayout
-                    layout.show(rightPanel, newPrinterName)
-                }
-            }
-
-            // 새로 추가된 버튼도 리스트에 추가
-            printerButtons.add(newPrinterButton)
-
-            // 버튼과 Strut을 Map에 저장
-            buttonStrutMap[newPrinterButton] = verticalStrut as Box.Filler
-
-            // 버튼 간 고정된 간격을 위한 Strut 추가
-            if (printerCount > 1) {
-                leftPanel.add(verticalStrut, leftPanel.componentCount - 1)  // 첫 번째 버튼에는 추가되지 않도록
-            }
-
-            leftPanel.add(newPrinterButton, leftPanel.componentCount - 1) // 프린트 추가 버튼 위에 추가
-            leftPanel.add(addPrinterButton)
-
-            leftPanel.revalidate()
-            leftPanel.repaint()
-
-            // 오른쪽 패널에 해당 프린터 설정 패널 추가
-            val newPrinterPanel = createPrinterSettingPanel(newPrinterName, leftPanel, newPrinterButton, rightPanel, newPrinterButton)
-            rightPanel.add(newPrinterPanel, newPrinterName)
-
-            // 새로 추가된 버튼 클릭 시 해당 프린터 설정 패널 보여주기
-            newPrinterButton.addActionListener {
-                val layout = rightPanel.layout as CardLayout
-                layout.show(rightPanel, newPrinterName)
-            }
-        }
 
         // 왼쪽 패널 및 오른쪽 패널을 contentPanel에 추가
         gbc.gridx = 0
@@ -211,7 +132,10 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
             isBorderPainted = false  // 테두리는 그리지 않음
             preferredSize = Dimension(300, 60)  // 버튼 크기 설정
         }
-
+        saveButton.addActionListener {
+            Storage.savePrinterSettings(myPrinters)
+            JOptionPane.showMessageDialog(this@PrinterSettingDialog, "프린터 설정이 저장되었습니다.", "알림", JOptionPane.INFORMATION_MESSAGE)
+        }
         gbc.gridx = 0
         gbc.gridy = 1
         gbc.gridwidth = 2
@@ -231,6 +155,7 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
 
     // 프린터 설정 패널 생성 함수
     private fun createPrinterSettingPanel(
+        printer: Storage.PrinterInfo,
         name: String,
         leftPanel: JPanel,
         buttonToRemove: JButton,
@@ -276,14 +201,17 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         printerNameField.document.addDocumentListener(object : javax.swing.event.DocumentListener {
             override fun insertUpdate(e: javax.swing.event.DocumentEvent?) {
                 buttonToUpdate.text = printerNameField.text
+                printer.name = buttonToUpdate.text
             }
 
             override fun removeUpdate(e: javax.swing.event.DocumentEvent?) {
                 buttonToUpdate.text = printerNameField.text
+                printer.name = buttonToUpdate.text
             }
 
             override fun changedUpdate(e: javax.swing.event.DocumentEvent?) {
                 buttonToUpdate.text = printerNameField.text
+                printer.name = buttonToUpdate.text
             }
         })
 
@@ -310,8 +238,10 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         gbc.ipady = 15
         panel.add(deleteButton, gbc)
 
-        // 삭제 버튼 클릭 시 해당 프린터 삭제
+        // ✅ 삭제 버튼 클릭 시 해당 프린터 삭제
         deleteButton.addActionListener {
+            myPrinters.removeIf { it.name == printer.name } // ✅ 리스트에서도 삭제
+
             val verticalStrut = buttonStrutMap[buttonToRemove]
             if (verticalStrut != null) {
                 leftPanel.remove(verticalStrut) // 마진 제거
@@ -325,8 +255,37 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
             rightPanel.revalidate()
             rightPanel.repaint()
 
+            printerButtons.remove(buttonToRemove as PrinterButton) // ✅ 삭제된 버튼을 리스트에서도 제거
+
             printerCount--
+
+            // ✅ 삭제 후 남아있는 프린터 중 첫 번째 프린터를 선택
+            if (myPrinters.isNotEmpty()) {
+                println("첫 번째 프린터 자동 선택 : ${myPrinters[0].name}")
+
+                myPrinters.forEach { it.selectPrint = false } // 기존 선택 초기화
+                myPrinters[0].selectPrint = true // 첫 번째 프린터 선택
+
+                // ✅ UI에서 첫 번째 프린터 버튼 강조
+                printerButtons.forEach { it.resetStyle() }
+
+                // ✅ 첫 번째 버튼 스타일 변경
+                if (printerButtons.isNotEmpty()) {
+                    printerButtons.first().setClickedStyle()
+                }
+
+                // ✅ 첫 번째 프린터 설정 화면으로 변경
+                val layout = rightPanel.layout as CardLayout
+                layout.show(rightPanel, myPrinters[0].name)
+
+                // ✅ UI 갱신 강제 적용
+                leftPanel.revalidate()
+                leftPanel.repaint()
+                rightPanel.revalidate()
+                rightPanel.repaint()
+            }
         }
+
 
         // 가로 경계선 추가 (프린터 이름과 포트 사이)
         gbc.gridx = 0
@@ -348,8 +307,13 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         panel.add(printerPortLabel, gbc)
 
         val portComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("COM1", "COM2", "COM3"))).apply {
+            selectedItem = printer.port // ✅ 기존 저장된 값 로드
             preferredSize = Dimension(205, 50)
             font = MyFont.Bold(20f)
+            // ✅ 포트 변경 시 프린터 객체 업데이트
+            addActionListener {
+                printer.port = selectedItem as String
+            }
         }
         gbc.gridx = 1
         gbc.gridy = 2
@@ -376,8 +340,13 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
 
         val speedComboBox =
             RoundedComboBox(DefaultComboBoxModel(arrayOf("9600", "19200", "38400", "57600", "115200"))).apply {
+                selectedItem = printer.speed // ✅ 기존 저장된 값 로드
                 preferredSize = Dimension(205, 50)
                 font = MyFont.Bold(20f)
+                // ✅ 속도 변경 시 프린터 객체 업데이트
+                addActionListener {
+                    printer.speed = selectedItem as String
+                }
             }
         gbc.gridx = 4
         gbc.gridy = 2
@@ -394,22 +363,26 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         panel.add(createSeparator(SwingConstants.HORIZONTAL, 680, 1), gbc)
 
 // 패널에 체크박스를 묶어서 배치
+        val receiptCheckBox = JCheckBox("영수증 출력", printer.receiptPrint).apply {
+            background = Color.WHITE
+            font = MyFont.Bold(20f)
+            addActionListener { printer.receiptPrint = isSelected }
+        }
+
+        val kitchenCheckBox = JCheckBox("주방 주문서 출력", printer.kitchenPrint).apply {
+            background = Color.WHITE
+            font = MyFont.Bold(20f)
+            addActionListener { printer.kitchenPrint = isSelected }
+        }
+
         val checkBoxPanel = JPanel().apply {
             layout = FlowLayout(FlowLayout.CENTER, 30, 0)  // 가운데 정렬
             background = Color.WHITE  // 패널 배경색 설정 (필요시)
 
             // 체크박스 추가
-            add(JCheckBox("영수증 출력").apply {
-                background = Color.WHITE
-                isSelected = true
-                font = MyFont.Bold(20f)
-            })
+            add(receiptCheckBox)
 
-            add(JCheckBox("주방주문서출력").apply {
-                background = Color.WHITE
-                isSelected = true
-                font = MyFont.Bold(20f)
-            })
+            add(kitchenCheckBox)
         }
 
         // 체크박스 패널을 중앙에 배치
@@ -449,4 +422,136 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
             minimumSize = Dimension(width, height)
         }
     }
+
+    /// == [SAVE LOAD] ==
+    // ✅ 저장된 프린터 버튼 추가
+    private fun addSavedPrinters(savedPrinters: List<Storage.PrinterInfo>) {
+        savedPrinters.forEachIndexed { index, printer ->
+            val printerButton = createPrinterButton(printer)
+
+            // ✅ 버튼 사이에 간격 추가 (첫 번째 버튼 제외)
+            if (index > 0) {
+                val verticalStrut = Box.createVerticalStrut(5)
+                leftPanel.add(verticalStrut)
+                buttonStrutMap[printerButton] = verticalStrut as Box.Filler
+            }
+
+            printerButtons.add(printerButton)
+            leftPanel.add(printerButton)
+
+            val printerPanel = createPrinterSettingPanel(printer, printer.name, leftPanel, printerButton, rightPanel, printerButton)
+            rightPanel.add(printerPanel, printer.name)
+
+            // ✅ 처음 로드될 때, selectPrint가 true인 프린터 선택
+            if (printer.selectPrint) {
+                selectPrinter(printer, printerButton)
+            }
+        }
+    }
+    // ✅ 개별 프린터 버튼 생성
+    private fun createPrinterButton(printer: Storage.PrinterInfo): PrinterButton {
+        return PrinterButton(printer.name).apply {
+            addActionListener {
+                selectPrinter(printer, this)
+            }
+        }
+    }
+    // ✅ 프린터 선택 시 스타일 및 UI 변경
+    private fun selectPrinter(printer: Storage.PrinterInfo, printerButton: PrinterButton) {
+        // ✅ 모든 버튼 스타일 리셋
+        printerButtons.forEach { it.resetStyle() }
+
+        // ✅ 클릭된 버튼 스타일 적용
+        printerButton.setClickedStyle()
+
+        // ✅ 모든 프린터 selectPrint false 처리
+        myPrinters.forEach { it.selectPrint = false }
+
+        // ✅ 현재 선택된 프린터 selectPrint = true
+        printer.selectPrint = true
+
+        // ✅ 패널 변경
+        val layout = rightPanel.layout as CardLayout
+        layout.show(rightPanel, printer.name)
+
+        // ✅ UI 갱신 강제 적용
+        rightPanel.revalidate()
+        rightPanel.repaint()
+    }
+
+
+    /// == [ADD BUTTON] ==
+    // ✅ 프린터 추가 버튼 생성
+    private fun createAddPrinterButton(): JButton {
+        return JButton("프린트 추가").apply {
+            preferredSize = Dimension(200, 50)
+            minimumSize = Dimension(200, 50)
+            maximumSize = Dimension(200, 50)
+            background = Color.WHITE
+            foreground = Color(27, 43, 66)
+            isOpaque = true
+            isBorderPainted = true
+            font = MyFont.Bold(20f)
+            border = BorderFactory.createLineBorder(foreground, 2)
+
+            addActionListener { addPrinter() }
+        }
+    }
+    // ✅ 프린터 추가 기능 (버튼 클릭)
+    private fun addPrinter() {
+        if (printerCount >= 4) {
+            JOptionPane.showMessageDialog(null, "최대 4개의 프린터만 추가할 수 있습니다.")
+            return
+        }
+
+        printerCount++
+        val newPrinterName = "프린트$printerCount"
+
+        // 왼쪽 패널에서 '프린트 추가' 버튼을 제거
+        leftPanel.remove(addPrinterButton)
+
+        val verticalStrut = Box.createVerticalStrut(5)
+        val newPrinterButton = createPrinterButton2(newPrinterName)
+
+        // ✅ 기존 프린터들 selectPrint = false 처리
+        myPrinters.forEach { it.selectPrint = false }
+
+        // 새로 추가된 버튼도 리스트에 추가
+        printerButtons.add(newPrinterButton)
+        buttonStrutMap[newPrinterButton] = verticalStrut as Box.Filler
+
+        // 버튼 간 고정된 간격을 위한 Strut 추가
+        if (printerCount > 1) {
+            leftPanel.add(verticalStrut, leftPanel.componentCount - 1)  // 첫 번째 버튼에는 추가되지 않도록
+        }
+
+        leftPanel.add(newPrinterButton, leftPanel.componentCount - 1) // 프린트 추가 버튼 위에 추가
+        leftPanel.add(addPrinterButton)
+
+        leftPanel.revalidate()
+        leftPanel.repaint()
+
+        // ✅ 스토리지 추가될 변수에 추가
+        val newPrinter = Storage.PrinterInfo(newPrinterName, "COM1", "9600", true, true, true)
+        myPrinters.add(newPrinter)
+
+        // ✅ UI에서도 해당 프린터 버튼만 강조
+        printerButtons.forEach { it.resetStyle() }
+        newPrinterButton.setClickedStyle()
+
+        // 오른쪽 패널에 해당 프린터 설정 패널 추가
+        val newPrinterPanel = createPrinterSettingPanel(newPrinter, newPrinter.name, leftPanel, newPrinterButton, rightPanel, newPrinterButton)
+        rightPanel.add(newPrinterPanel, newPrinterName)
+
+        // ✅ 추가된 프린터의 설정 화면을 즉시 보여주기
+        val layout = rightPanel.layout as CardLayout
+        layout.show(rightPanel, newPrinterName)
+    }
+    // ✅ 개별 프린터 버튼 생성
+    private fun createPrinterButton2(name: String): PrinterButton {
+        return PrinterButton(name).apply {
+            addActionListener { selectPrinter(myPrinters.last(), this) }
+        }
+    }
+
 }
