@@ -1,9 +1,72 @@
 package org.grr.`object`
 
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 
 object Storage {
+
+    /*
+        프린터 정보
+    */
+    val printerInfo = File("printers.json")
+
+    // ✅ 프린터 정보 저장
+    fun savePrinterSettings(printerList: List<PrinterInfo>) {
+        val jsonArray = JSONArray()
+        printerList.forEach { printer ->
+            val jsonObject = JSONObject().apply {
+                put("name", printer.name)
+                put("port", printer.port)
+                put("speed", printer.speed)
+                put("receiptPrint", printer.receiptPrint)
+                put("kitchenPrint", printer.kitchenPrint)
+                put("selectPrint", printer.selectPrint)
+            }
+            jsonArray.put(jsonObject)
+        }
+        printerInfo.writeText(jsonArray.toString(4)) // JSON 형식 저장
+    }
+
+    // ✅ 저장된 프린터 정보 불러오기
+    fun loadPrinterSettings(): List<PrinterInfo> {
+        if (!printerInfo.exists()) return emptyList()
+
+        val jsonArray = JSONArray(printerInfo.readText())
+        val printerList = mutableListOf<PrinterInfo>()
+
+        for (i in 0 until jsonArray.length()) {
+            val obj = jsonArray.getJSONObject(i)
+            val printer = PrinterInfo(
+                name = obj.getString("name"),
+                port = obj.getString("port"),
+                speed = obj.getString("speed"),
+                receiptPrint = obj.getBoolean("receiptPrint"),
+                kitchenPrint = obj.getBoolean("kitchenPrint"),
+                selectPrint = obj.getBoolean("selectPrint"),
+            )
+            printerList.add(printer)
+        }
+        return printerList
+    }
+
+    // ✅ 프린터 정보 삭제
+    fun clearPrinterSettings() {
+        if (printerInfo.exists()) {
+            printerInfo.delete()
+        }
+    }
+
+    data class PrinterInfo(
+        var name: String, // 프린터 이름
+        var port: String, // 프린터 포트
+        var speed: String, // 프린터 속도
+        var receiptPrint: Boolean, //영수증 출력
+        var kitchenPrint: Boolean, // 주방 주문서 출력
+        var selectPrint : Boolean // 현재 선택된 프린터
+    )
+
+
 
     /*
         현재 로그인한 회원 정보
@@ -100,4 +163,7 @@ object Storage {
         val autoLogin: Boolean,
         val storeCode: String?
     )
+
+
+
 }

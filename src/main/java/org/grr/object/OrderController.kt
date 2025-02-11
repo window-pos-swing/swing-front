@@ -1,5 +1,6 @@
 package org.grr.`object`
 
+import org.grr.enum.PaymentWayType
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
@@ -38,6 +39,27 @@ object OrderController {
                 tabbedPane.updateOrderInAllOrders(order)
                 tabbedPane.addOrderToAllOrders(orderFrame, true)
             }
+        }
+    }
+
+    // 결제 방식 변환
+    fun getFormattedPaymentWayTypeStatus(paymentWayTypeStatus : PaymentWayType): String {
+        return when (paymentWayTypeStatus) {
+            PaymentWayType.CARD -> "카드결제"
+            PaymentWayType.MEET_CARD -> "만나서 카드결제"
+            PaymentWayType.MEET_CASH -> "만나서 현금결제"
+            PaymentWayType.TOSS -> "토스 결제"
+            PaymentWayType.NAVER -> "네이버 결제"
+            PaymentWayType.KAKAO -> "카카오 결제"
+            PaymentWayType.NONE -> "캐시 결제"
+            else -> "NONE"
+        }
+    }
+
+    fun getFormattedDisposable(disposable : Boolean) : String{
+        return when (disposable){
+            true -> "O"
+            false -> "X"
         }
     }
 }

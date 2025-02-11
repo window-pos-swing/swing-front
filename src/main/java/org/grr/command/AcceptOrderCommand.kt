@@ -56,8 +56,8 @@ class AcceptOrderCommand(
         val result = OrderAPI().orderStatusChangeToServer(
             ServerOrderStatus.ACCEPT,
             orderId = order.id,
-            estimatedCookingTime = deliveryTime,
-            estimatedArrivalTime = cookTime
+            estimatedCookingTime = cookTime,
+            estimatedArrivalTime = deliveryTime
         )
 
         if (!result.first) {
@@ -105,8 +105,8 @@ class AcceptOrderCommand(
         val result = OrderAPI().orderStatusChangeToServer(
             ServerOrderStatus.COOKING,
             orderId = order.id,
-            estimatedCookingTime = deliveryTime,
-            estimatedArrivalTime = cookTime
+            estimatedCookingTime = cookTime,
+            estimatedArrivalTime = deliveryTime
         )
 
         if (!result.first) {
