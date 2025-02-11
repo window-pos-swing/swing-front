@@ -2,6 +2,7 @@ package org.grr.model
 
 import org.grr.command.RejectedReasonType
 import org.grr.enum.OrderReceiveType
+import org.grr.enum.PaymentWayType
 import org.grr.enum.PosOrderStatus
 import org.grr.enum.ServerOrderStatus
 import org.grr.observer.OrderObserver
@@ -36,6 +37,7 @@ data class ReceiveOrderModel(
     val orderReceiveType: String,
     val posOrderStatus: PosOrderStatus,
     val posOrderStatusType: String,
+    val paymentWayType: PaymentWayType,
     val expectedPrice: Int,
     val totalOrderPrice: Int,
     val orderPrice: Int,
@@ -171,13 +173,6 @@ data class ReceiveOrderModel(
         return state.getUI(this).apply { putClientProperty("orderNumber", orderNumber) }
     }
 
-    // 옵저버 등록
-    fun addStateObserver(observer: OrderObserver) {
-        if (!stateObservers.contains(observer)) {
-            stateObservers.add(observer)
-        }
-    }
-
     // 타이머 업데이트 옵저버 등록
     fun addTimerObserver(observer: OrderObserver) {
         if (!timerObservers.contains(observer)) {
@@ -185,33 +180,9 @@ data class ReceiveOrderModel(
         }
     }
 
-    // 상태 변경 옵저버 알림
-    fun notifyStateObservers() {
-        val observersSnapshot = ArrayList(stateObservers)
-        observersSnapshot.forEach { observer ->
-            observer.update(this)
-        }
-//        println("[상태변경 옵저버 호출] #$orderId")
-    }
-
     // 타이머 업데이트 옵저버 알림
     private fun notifyTimerObservers() {
         timerObservers.forEach { observer -> observer.update(this) }
-    }
-
-    data class Menu(
-        val id: Int,
-        val menuName: String,
-        val quantity: Int,
-        val menuTotalPrice : Int,
-        val menuOptionList: List<MenuOption>
-    ) {
-        data class MenuOption(
-            val id: Int,
-            val categoryName: String,
-            val menuOptionName: String,
-            val menuOptionPrice: Int
-        )
     }
 
     //String To Model
@@ -278,6 +249,7 @@ data class ReceiveOrderModel(
                 orderReceiveType = jsonObject.getString("orderReceiveType"),
                 posOrderStatus = PosOrderStatus.valueOf(jsonObject.getString("posOrderStatus").uppercase()),
                 posOrderStatusType = jsonObject.getString("posOrderStatusType"),
+                paymentWayType = PaymentWayType.valueOf(jsonObject.getString("paymentWayTypeStatus").uppercase()),
                 expectedPrice = jsonObject.getInt("expectedPrice"),
                 totalOrderPrice = jsonObject.getInt("totalOrderPrice"),
                 orderPrice = jsonObject.getInt("orderPrice"),
@@ -343,6 +315,7 @@ data class ReceiveOrderModel(
                 orderReceiveType = jsonObject.getString("orderReceiveType"),
                 posOrderStatus = PosOrderStatus.valueOf(jsonObject.getString("posOrderStatus").uppercase()),
                 posOrderStatusType = jsonObject.getString("posOrderStatusType"),
+                paymentWayType = PaymentWayType.valueOf(jsonObject.getString("paymentWayTypeStatus").uppercase()),
                 expectedPrice = jsonObject.getInt("expectedPrice"),
                 totalOrderPrice = jsonObject.getInt("totalOrderPrice"),
                 orderPrice = jsonObject.getInt("orderPrice"),

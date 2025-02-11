@@ -9,7 +9,7 @@ object Storage {
     /*
         프린터 정보
     */
-    private val printerFile = File("printers.json")
+    val printerInfo = File("printers.json")
 
     // ✅ 프린터 정보 저장
     fun savePrinterSettings(printerList: List<PrinterInfo>) {
@@ -25,14 +25,14 @@ object Storage {
             }
             jsonArray.put(jsonObject)
         }
-        printerFile.writeText(jsonArray.toString(4)) // JSON 형식 저장
+        printerInfo.writeText(jsonArray.toString(4)) // JSON 형식 저장
     }
 
     // ✅ 저장된 프린터 정보 불러오기
     fun loadPrinterSettings(): List<PrinterInfo> {
-        if (!printerFile.exists()) return emptyList()
+        if (!printerInfo.exists()) return emptyList()
 
-        val jsonArray = JSONArray(printerFile.readText())
+        val jsonArray = JSONArray(printerInfo.readText())
         val printerList = mutableListOf<PrinterInfo>()
 
         for (i in 0 until jsonArray.length()) {
@@ -52,8 +52,8 @@ object Storage {
 
     // ✅ 프린터 정보 삭제
     fun clearPrinterSettings() {
-        if (printerFile.exists()) {
-            printerFile.delete()
+        if (printerInfo.exists()) {
+            printerInfo.delete()
         }
     }
 

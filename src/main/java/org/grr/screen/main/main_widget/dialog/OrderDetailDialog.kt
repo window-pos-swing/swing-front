@@ -3,6 +3,7 @@ package org.grr.screen.main.main_widget.dialog
 import CustomRoundedDialog
 import org.grr.enum.OrderReceiveType
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.OrderController
 import org.grr.util.LoadImage
 import org.grr.util.MyFont
 import org.grr.style.MyColor
@@ -171,7 +172,7 @@ class OrderDetailDialog(
             add(Box.createVerticalStrut(30))
 
             // 결제방법 값 - JLabel 사용
-            add(JLabel("카드결제").apply {
+            add(JLabel(OrderController.getFormattedPaymentWayTypeStatus(order.paymentWayType)).apply {
                 font = MyFont.SemiBold(18f)
                 alignmentX = Component.LEFT_ALIGNMENT
                 alignmentY = Component.TOP_ALIGNMENT

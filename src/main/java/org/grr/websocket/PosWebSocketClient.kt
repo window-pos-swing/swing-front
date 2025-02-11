@@ -1,5 +1,6 @@
 package org.grr.websocket
 
+import ReceiptPrinter
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
 import org.grr.enum.OrderReceiveType
@@ -49,6 +50,11 @@ class PosWebSocketClient(
             }
 
             if (orderData.posOrderStatusType != ServerOrderStatus.REQUEST.name ) return
+
+            // ✅ 프린트 출력
+            var receiptPrinter = ReceiptPrinter()
+            receiptPrinter.ForCustomersOrderSheet(orderData)
+            receiptPrinter.ForBurialOrderSheet(orderData)
 
             // ✅ UI 업데이트
             SwingUtilities.invokeLater {

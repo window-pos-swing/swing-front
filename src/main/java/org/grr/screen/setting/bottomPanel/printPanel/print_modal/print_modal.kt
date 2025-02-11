@@ -59,7 +59,7 @@ class RoundedButton2(text: String) : JButton(text) {
 class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -> Unit)? = null) : CustomRoundedDialog(
     parent,
     title,
-    1000,
+    1100,
     530,
     callback
 ) {
@@ -76,13 +76,22 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
 
     // 오른쪽 패널: 프린터 설정
     val rightPanel = JPanel(CardLayout()).apply {
-        preferredSize = Dimension(725, 300)
+        preferredSize = Dimension(850, 350)
+        border = BorderFactory.createEmptyBorder(0,10,0,0)
+        background = Color.WHITE
     }
 
     val addPrinterButton = createAddPrinterButton()
 
+    val gbc = GridBagConstraints().apply {
+        gridx = 0
+        gridy = 0
+        weightx = 1.0
+        fill = GridBagConstraints.HORIZONTAL
+    }
+
     init {
-        setSize(1000, 530)  // 다이얼로그 크기 설정
+        setSize(1100, 530)  // 다이얼로그 크기 설정
         setLocationRelativeTo(parent)
 
         // 설정 패널 구성 (전체 레이아웃은 GridBagLayout)
@@ -90,12 +99,7 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
             background = Color.WHITE
             border = BorderFactory.createEmptyBorder(20, 20, 20, 20)  // 패널 마진 추가 (좌우 20, 상하 20)
         }
-        val gbc = GridBagConstraints().apply {
-            gridx = 0
-            gridy = 0
-            weightx = 1.0
-            fill = GridBagConstraints.HORIZONTAL
-        }
+
 
 
         // ✅ 기존에 저장된 프린터 설정 불러오기
@@ -131,14 +135,31 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
             isOpaque = true  // 배경이 그려지도록 설정
             isBorderPainted = false  // 테두리는 그리지 않음
             preferredSize = Dimension(300, 60)  // 버튼 크기 설정
+            minimumSize = Dimension(300, 60)  // 버튼 크기 설정
+            maximumSize = Dimension(300, 60)  // 버튼 크기 설정
         }
         saveButton.addActionListener {
+            // ✅ 포트가 설정되지 않은 프린터 찾기
+            val printersWithoutPort = myPrinters.filter { it.port.isBlank() }
+
+            if (printersWithoutPort.isNotEmpty()) {
+                val printerNames = printersWithoutPort.joinToString("\n") { it.name } // 🔹 프린터 이름 리스트 생성
+
+                JOptionPane.showMessageDialog(
+                    null,
+                    "설정되지 않은 프린터 포트가 있습니다.\n다음 프린터의 포트를 설정해주세요:\n\n$printerNames",
+                    "경고",
+                    JOptionPane.WARNING_MESSAGE
+                )
+                return@addActionListener
+            }
+
             Storage.savePrinterSettings(myPrinters)
             JOptionPane.showMessageDialog(this@PrinterSettingDialog, "프린터 설정이 저장되었습니다.", "알림", JOptionPane.INFORMATION_MESSAGE)
         }
         gbc.gridx = 0
         gbc.gridy = 1
-        gbc.gridwidth = 2
+        gbc.gridwidth = 4
         gbc.weightx = 1.0
         gbc.fill = GridBagConstraints.NONE
         gbc.anchor = GridBagConstraints.CENTER
@@ -162,6 +183,29 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         rightPanel: JPanel,
         buttonToUpdate: JButton
     ): JPanel {
+        //테스트 버튼
+        var testPrintButton = RoundedButton2("테스트 인쇄").apply {
+            background = if(printer.port.isBlank()) MyColor.GREY500 else MyColor.PINK
+            foreground = Color.WHITE
+            isOpaque = false
+            isBorderPainted = false
+            addActionListener {
+                if (printer.port.isBlank()) {
+                    JOptionPane.showMessageDialog(null, "프린터 포트를 설정해주세요.", "경고", JOptionPane.WARNING_MESSAGE)
+                    return@addActionListener
+                }
+                // ✅ 현재 프린터의 포트와 속도 가져오기
+                val port = printer.port.ifBlank { "포트가 설정되지 않음" }
+                val speed = printer.speed.toIntOrNull() ?: 9600
+
+                println("🖨 테스트 인쇄 버튼 클릭됨")
+                println("🔍 현재 설정된 프린터 정보: 포트=$port, 속도=$speed")
+
+                // ✅ testPrinter 실행
+                val testPrinterInstance = TestPrinter(port, speed)
+                testPrinterInstance.printTestPage()
+            }
+        }
         val panel = JPanel().apply {
             background = Color.WHITE
             layout = GridBagLayout()
@@ -188,6 +232,7 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         }
         gbc.gridx = 0
         gbc.gridy = 0
+        gbc.insets = Insets(0, 10, 0, 5) // ✅ 오른쪽 여백 축소
         gbc.anchor = GridBagConstraints.WEST
         panel.add(printerNameLabel, gbc)
 
@@ -295,26 +340,13 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         gbc.insets = Insets(10, 0, 0, 0)
         panel.add(createSeparator(SwingConstants.HORIZONTAL, 680, 1), gbc)
 
-        // 프린터 포트 선택
-        val printerPortLabel = JLabel("프린터 포트 :").apply {
-            font = MyFont.Bold(16f)
-            foreground = MyColor.LIGHT_GREY2
-        }
-        gbc.gridx = 0 // 첫번째 열
-        gbc.gridy = 2 // 첫번째 행
-        gbc.gridwidth = 1
-        gbc.insets = Insets(0, 10, 0, 0)
-        panel.add(printerPortLabel, gbc)
+        // ✅ 프린터 포트 : & 연결됨 or 연결안됨
+        printPortSetting(printer, panel)
 
-        val portComboBox = RoundedComboBox(DefaultComboBoxModel(arrayOf("COM1", "COM2", "COM3"))).apply {
-            selectedItem = printer.port // ✅ 기존 저장된 값 로드
-            preferredSize = Dimension(205, 50)
-            font = MyFont.Bold(20f)
-            // ✅ 포트 변경 시 프린터 객체 업데이트
-            addActionListener {
-                printer.port = selectedItem as String
-            }
-        }
+
+        // ✅ 사용 가능한 포트 목록 가져오기
+        val portComboBox = createPortComboBox(printer,panel,testPrintButton)
+
         gbc.gridx = 1
         gbc.gridy = 2
         gbc.gridwidth = 1
@@ -359,7 +391,7 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         gbc.gridy = 3
         gbc.gridwidth = 5  // 전체 너비 차지
         gbc.anchor = GridBagConstraints.CENTER
-//        gbc.insets = Insets(20, 0, 20, 0)
+        gbc.insets = Insets(10, 0, 0, 0)
         panel.add(createSeparator(SwingConstants.HORIZONTAL, 680, 1), gbc)
 
 // 패널에 체크박스를 묶어서 배치
@@ -394,13 +426,7 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         gbc.insets = Insets(10, 0, 0, 0)  // 여백 설정
         panel.add(checkBoxPanel, gbc)
 
-        // 테스트 출력 버튼
-        val testPrintButton = RoundedButton2("테스트 인쇄").apply {
-            background = Color(255, 185, 185)
-            foreground = Color.WHITE
-            isOpaque = false
-            isBorderPainted = false
-        }
+
         gbc.gridx = 0
         gbc.gridy = 5
         gbc.gridwidth = 5
@@ -532,7 +558,7 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
         leftPanel.repaint()
 
         // ✅ 스토리지 추가될 변수에 추가
-        val newPrinter = Storage.PrinterInfo(newPrinterName, "COM1", "9600", true, true, true)
+        val newPrinter = Storage.PrinterInfo(newPrinterName, "", "9600", true, true, true)
         myPrinters.add(newPrinter)
 
         // ✅ UI에서도 해당 프린터 버튼만 강조
@@ -553,5 +579,136 @@ class PrinterSettingDialog(parent: JFrame, title: String, callback: ((Boolean) -
             addActionListener { selectPrinter(myPrinters.last(), this) }
         }
     }
+
+    // ✅ 프린터 포트 선택 콤보박스 생성 (수정됨)
+    private fun createPortComboBox(printer: Storage.PrinterInfo, panel: JPanel,testPrintButton : RoundedButton2): JComboBox<String> {
+        val availablePorts = SerialPortManager.getAvailableSerialPorts()
+        val defaultMessage = "포트를 설정해주세요"  // ✅ 기본 메시지
+
+        // ✅ 포트 리스트에 기본 메시지 추가 (빈 값 대신 표시)
+        val portOptions = mutableListOf(defaultMessage).apply { addAll(availablePorts) }
+
+        val portComboBox = RoundedComboBox(DefaultComboBoxModel(portOptions.toTypedArray())).apply {
+            selectedItem = if (printer.port.isBlank()) defaultMessage else printer.port // ✅ 기본 메시지 설정
+            preferredSize = Dimension(200, 50) // ✅ 콤보박스 크기 고정
+            maximumSize = Dimension(200, 50)
+            minimumSize = Dimension(200, 50)
+            font = MyFont.Bold(20f)
+
+            // ✅ 포트 이름이 길 경우 툴팁에 전체 표시
+            renderer = object : DefaultListCellRenderer() {
+                override fun getListCellRendererComponent(
+                    list: JList<*>?,
+                    value: Any?,
+                    index: Int,
+                    isSelected: Boolean,
+                    cellHasFocus: Boolean
+                ): Component {
+                    val component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
+                    if (component is JLabel) {
+                        val text = value?.toString() ?: ""
+                        component.toolTipText = text // ✅ 툴팁에 전체 포트 이름 표시
+                        component.text = if (text.length > 15) text.take(12) + "..." else text // ✅ 긴 포트명 줄임표 표시
+                    }
+                    return component
+                }
+            }
+
+            // ✅ 포트 변경 시 UI 갱신
+            addActionListener {
+                val selectedPort = selectedItem as String
+                printer.port = if (selectedPort == defaultMessage) "" else selectedPort
+
+                // ✅ 포트 상태 UI 업데이트
+                updatePortStatus(printer, panel)
+
+                // ✅ 테스트 인쇄 버튼 색상 업데이트
+                testPrintButton.background = if (printer.port.isBlank()) MyColor.GREY500 else MyColor.PINK
+            }
+        }
+
+        return portComboBox
+    }
+
+
+    private fun printPortSetting(printer: Storage.PrinterInfo, panel: JPanel) {
+
+        // ✅ 프린터 포트 라벨
+        val printerPortTitleLabel = JLabel("프린터 포트 :").apply {
+            font = MyFont.Bold(16f)
+            foreground = MyColor.LIGHT_GREY2
+            name = "printerPortTitleLabel"
+            preferredSize = Dimension(120, 20)
+            minimumSize = Dimension(120,50)
+            maximumSize = Dimension(120,50)
+        }
+
+        val gbcLocal = GridBagConstraints().apply {  // ✅ 새로운 GridBagConstraints 객체 생성
+            gridx = 0
+            gridy = 2
+            gridwidth = 1
+            insets = Insets(0, 10, 0, 10)  // ✅ 여백을 명확히 지정
+        }
+
+        if (printer.port.isNotBlank()) {
+            // ✅ 포트 상태 라벨 (초기화)
+            val printerPortStatusLabel = JLabel().apply {
+                font = MyFont.Bold(14f)
+                text = if (SerialPortManager.isPortAvailable(printer.port)) "연결됨" else "연결 안됨"
+                foreground = if (text == "연결됨") Color(34, 139, 34) else Color.RED
+                preferredSize = Dimension(120, 20)
+                minimumSize = Dimension(120,50)
+                maximumSize = Dimension(120,50)
+                alignmentX = Component.LEFT_ALIGNMENT
+            }
+
+            // ✅ 프린터 포트 박스 (수직 정렬)
+            val printerPortBox = JPanel().apply {
+                layout = BoxLayout(this, BoxLayout.Y_AXIS) // ✅ 요소를 위아래 정렬
+                background = Color.WHITE
+                preferredSize = Dimension(120,50)
+                minimumSize = Dimension(120,50)
+                maximumSize = Dimension(120,50)
+                name = "printerPortBox" // ✅ 반드시 name 설정
+                add(printerPortTitleLabel)
+                add(Box.createVerticalStrut(5)) // ✅ 여백 추가
+                add(printerPortStatusLabel)
+                alignmentX = Component.LEFT_ALIGNMENT
+            }
+
+            panel.add(printerPortBox, gbcLocal)  // ✅ 수정된 GridBagConstraints 사용
+        } else {
+            panel.add(printerPortTitleLabel, gbcLocal)  // ✅ 수정된 GridBagConstraints 사용
+        }
+    }
+
+
+    private fun updatePortStatus(printer: Storage.PrinterInfo, panel: JPanel) {
+        SwingUtilities.invokeLater {
+            // ✅ 기존에 추가된 포트 상태 UI 제거
+            val componentsToRemove = mutableListOf<Component>()
+
+            for (component in panel.components) {
+                // ✅ `printerPortBox` 또는 `printerPortTitleLabel`이면 삭제 대상
+                if ((component is JPanel && component.name == "printerPortBox") ||
+                    (component is JLabel && component.name == "printerPortTitleLabel")) {
+                    componentsToRemove.add(component)
+                }
+            }
+
+            println("제거할 컴포넌트 개수: ${componentsToRemove.size}")
+
+            // ✅ 기존 UI 제거
+            componentsToRemove.forEach { panel.remove(it) }
+
+            // ✅ 새로운 포트 상태 UI 추가
+            printPortSetting(printer, panel)
+
+            // ✅ UI 강제 갱신
+            panel.revalidate()
+            panel.repaint()
+        }
+    }
+
 
 }
