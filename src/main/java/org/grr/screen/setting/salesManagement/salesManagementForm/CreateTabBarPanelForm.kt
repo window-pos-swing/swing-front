@@ -8,17 +8,11 @@ import org.grr.screen.setting.salesManagement.getTodayDate
 import org.grr.style.MyColor
 import org.grr.util.MyFont
 import org.grr.widgets.RoundedButton
-import java.awt.Color
-import java.awt.Dimension
-import java.awt.FlowLayout
-import java.awt.Image
+import java.awt.*
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import javax.swing.ImageIcon
-import javax.swing.JButton
-import javax.swing.JOptionPane
-import javax.swing.JPanel
+import javax.swing.*
 
 class CreateTabBarPanelForm : JPanel() {
     val yesterdayButton = RoundedButton("어제")
@@ -95,12 +89,11 @@ class CreateTabBarPanelForm : JPanel() {
             icon = scaledIcon
 
             addActionListener {
-                resetButtonColors().apply {
-                    createDatePicker()
-                }
+                resetButtonColors()
+                createDatePicker()
+
                 setCustomBackground(MyColor.LIGHT_BLUE)
                 foreground = Color.WHITE // 선택된 상태 글씨 색상
-                ShareData.selectedDateLabel.text = "$startDate ~ $endDate"
                 icon = whiteScaledIcon
             }
         }
@@ -117,45 +110,47 @@ class CreateTabBarPanelForm : JPanel() {
     }
 
     private fun createDatePicker() {
-        val settings = DatePickerSettings().apply {
+        this.components.filterIsInstance<DatePicker>().forEach { this.remove(it) }
+        // `DatePickerSettings` 설정
+        val dateSettings = DatePickerSettings().apply {
             setFormatForDatesCommonEra("yyyy-MM-dd")
             fontValidDate = MyFont.Bold(18f)
             fontCalendarDateLabels = MyFont.Bold(16f)
             isOpaque = false
         }
 
-        // 첫 번째 캘린더 (시작 날짜 선택)
-        val startDatePicker = DatePicker(settings).apply {
+        // `DatePicker` 생성
+        val datePicker = DatePicker(dateSettings).apply {
             isOpaque = false
             componentDateTextField.isVisible = false
         }
 
-        // 두 번째 캘린더 (종료 날짜 선택)
-        val endDatePicker = DatePicker(settings).apply {
-            isOpaque = false
-            componentDateTextField.isVisible = false
+        this.add(datePicker)
+
+        SwingUtilities.invokeLater {
+            datePicker.openPopup()
         }
 
-        // 첫 번째 캘린더에서 날짜 선택 시 두 번째 캘린더 띄우기
-        startDatePicker.addDateChangeListener { dateEvent ->
+        var isFirstSelection = true
+
+        // 날짜 선택 리스너
+        datePicker.addDateChangeListener { dateEvent ->
             val selectedDate = dateEvent.newDate
             if (selectedDate != null) {
-                startDate = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                if (isFirstSelection) {
+                    startDate = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    isFirstSelection = false
 
-                // 두 번째 캘린더 띄우기
-                JOptionPane.showMessageDialog(null, endDatePicker, "종료 날짜 선택", JOptionPane.PLAIN_MESSAGE)
+                    SwingUtilities.invokeLater {
+                        datePicker.openPopup()
+                    }
+                } else {
+                    endDate = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
-                val endSelectedDate = endDatePicker.date
-                if (endSelectedDate != null) {
-                    endDate = endSelectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    // 버튼 텍스트 업데이트
+                    ShareData.datePickerButton.text = "$startDate ~ $endDate"
                 }
-
-                // 버튼 텍스트 업데이트
-                ShareData.datePickerButton.text = "$startDate ~ $endDate"
             }
         }
-
-        // 첫 번째 캘린더 띄우기
-        JOptionPane.showMessageDialog(null, startDatePicker, "시작 날짜 선택", JOptionPane.PLAIN_MESSAGE)
     }
 }
