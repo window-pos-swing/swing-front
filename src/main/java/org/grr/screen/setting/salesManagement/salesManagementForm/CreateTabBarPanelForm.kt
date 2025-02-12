@@ -18,6 +18,7 @@ import javax.swing.border.AbstractBorder
 class CreateTabBarPanelForm : JPanel() {
     val yesterdayButton = RoundedButton("어제")
     val todayButton = RoundedButton("오늘")
+    val startEndDatePicker: DatePicker
     var startDate = getTodayDate()
     var endDate = getTodayDate()
 
@@ -50,6 +51,8 @@ class CreateTabBarPanelForm : JPanel() {
     init {
         layout = FlowLayout(FlowLayout.LEFT, 10, 0) // 버튼 간의 간격 설정
         background = Color.WHITE
+
+        startEndDatePicker = createStartEndDatePicker()
 
         // 초기화 함수 호출
         initializeComponents()
@@ -96,8 +99,7 @@ class CreateTabBarPanelForm : JPanel() {
             }
         }
 
-
-        val startEndDatePicker = createStartEndDatePicker()
+//        startEndDatePicker = createStartEndDatePicker()
 
         // 버튼 리스트에 추가
         buttons.add(yesterdayButton)
@@ -108,7 +110,6 @@ class CreateTabBarPanelForm : JPanel() {
         add(todayButton)
         add(startEndDatePicker)
     }
-
 
     fun createStartEndDatePicker() : DatePicker{
         toggleButton = datePicker.componentToggleCalendarButton
@@ -152,6 +153,7 @@ class CreateTabBarPanelForm : JPanel() {
                         it.foreground = Color.GRAY // 기본 글씨 색상
                     }
                     isFirstSelection = true
+                    ShareData.selectedDateLabel.text = "${startDate} - ${endDate}"
                     println("선택 날짜 : ${startDate} - ${endDate}")
                 }
             }
@@ -202,22 +204,14 @@ class CreateTabBarPanelForm : JPanel() {
             g2.color = backgroundColor
             g2.fillRoundRect(0, 0, width, height, 30, 30)
 
-
             // 텍스트 그리기
             g2.font = MyFont.Bold(20f) // 폰트 설정
             g2.color = textColor // 텍스트 색상 설정
             val fm = g2.fontMetrics
-            val textX = 12  // 텍스트를 가운데 정렬
+            val textWidth = fm.stringWidth(model)
+            val textX = (width - textWidth) / 2  // 텍스트를 가운데 정렬
             val textY = (height + fm.ascent) / 2 - 2
             g2.drawString(model, textX, textY)  // 텍스트 그리기
-
-            // 화살표 아이콘 그리기
-            arrowIcon?.let { icon ->
-                val iconX = width - icon.iconWidth - 10  // 아이콘의 X 위치
-                val iconY = (height - icon.iconHeight) / 2  // 아이콘의 Y 위치
-                icon.paintIcon(c, g2, iconX, iconY)
-            }
         }
     }
-
 }

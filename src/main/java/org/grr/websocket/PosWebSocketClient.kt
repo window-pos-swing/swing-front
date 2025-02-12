@@ -8,6 +8,7 @@ import org.grr.enum.PosOrderStatus
 import org.grr.`object`.OrderController
 import org.grr.enum.ServerOrderStatus
 import org.grr.model.ReceiveOrderModel
+import org.grr.`object`.FormManager
 import org.grr.`object`.OrderListSingleTon
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.java_websocket.client.WebSocketClient
@@ -35,6 +36,7 @@ class PosWebSocketClient(
     }
 
     override fun onMessage(message: String?) {
+        if(FormManager.isLogout) return
         println("WebSocket 메시지 수신: $message")
         val orderData = ReceiveOrderModel.fromJson(
             json = message!!,
@@ -67,7 +69,6 @@ class PosWebSocketClient(
 
         }
     }
-
 
     override fun onClose(code: Int, reason: String?, remote: Boolean) {
         println("WebSocket 연결 종료: $reason")

@@ -14,6 +14,7 @@ import java.awt.*
 import java.awt.event.AdjustmentEvent
 import java.awt.event.AdjustmentListener
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.swing.*
 
 class SalesManagementModalDialog(
@@ -106,6 +107,39 @@ class SalesManagementModalDialog(
 
             summaryPanel.updateSummary()
             orderTotalLabelPanel.updateTotal()
+        }
+        var isFirstSelection = true
+
+        tabBarPanel.startEndDatePicker.addDateChangeListener { dateEvent ->
+            val selectedDate = dateEvent.newDate
+            if (selectedDate != null) {
+                if (isFirstSelection) {
+                    // ✅ startDate를 즉시 업데이트
+                    tabBarPanel.startDate = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    isFirstSelection = false  // 이제 종료 날짜 선택 대기
+                } else {
+                    // ✅ endDate를 즉시 업데이트
+                    tabBarPanel.endDate = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+                    // ✅ startDate와 endDate를 업데이트한 후 서버 요청 실행
+                    startDate = tabBarPanel.startDate
+                    endDate = tabBarPanel.endDate
+
+                    println("시작날짜 - 종료날짜 : $startDate - $endDate")
+
+                    orderList.clear()
+                    updateTable(null)
+                    currentPage = 0
+                    stop = false
+
+                    loadOrderData()
+
+                    summaryPanel.updateSummary()
+                    orderTotalLabelPanel.updateTotal()
+
+                    isFirstSelection = true  // ✅ 다음 선택을 위해 초기화
+                }
+            }
         }
 
         // 모든 패널 추가

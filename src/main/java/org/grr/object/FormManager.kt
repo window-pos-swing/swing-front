@@ -6,6 +6,7 @@ import org.grr.screen.select_store.SelectStoreForm
 object FormManager {
     private var mainForm: MainForm? = null
     private var selectStoreForm: SelectStoreForm? = null
+    var isLogout: Boolean = false
 
     fun getMainForm(): MainForm {
         if (mainForm == null) {
