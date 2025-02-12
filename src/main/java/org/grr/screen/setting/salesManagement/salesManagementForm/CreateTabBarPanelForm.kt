@@ -170,7 +170,7 @@ class CreateTabBarPanelForm : JPanel() {
     class SalesDateRoundedBorder(
         private var model: String
     ) : AbstractBorder() {
-        private var textColor: Color = Color.DARK_GRAY  // ✅ 기본 텍스트 색상
+        private var textColor: Color = Color.GRAY  // ✅ 기본 텍스트 색상
         private var backgroundColor: Color = MyColor.LIGHT_GREY  // ✅ 기본 텍스트 색상
 
         fun setModelText(text: String , _textColor : Color, _backgroundColor : Color) {
