@@ -166,6 +166,7 @@ class LoginForm : JFrame() { // JFrame을 상속받아 LoginForm 클래스 정�
                     }
 //                    로그인 시 토큰 저장 후 메인페이지 이동
                     Storage.saveToken(message)
+                    FormManager.isLogout = false
                     this@LoginForm.dispose()
                 } else {
 //                    실패시 즉, this가 false일 경우

@@ -4,6 +4,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.grr.api.LogoutToServer
+import org.grr.`object`.FormManager
 import org.grr.`object`.Storage
 import org.grr.screen.login.LoginForm
 import org.grr.style.MyColor
@@ -54,6 +55,7 @@ class HeaderPanelForm : JPanel() {
             */
             addActionListener {
                 // 로그아웃 요청
+                FormManager.isLogout = true
                 val logoutToServer = LogoutToServer()
                 GlobalScope.launch {
 
