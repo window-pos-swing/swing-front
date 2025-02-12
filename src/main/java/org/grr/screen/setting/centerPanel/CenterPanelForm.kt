@@ -1,17 +1,21 @@
 package org.grr.screen.setting.centerPanel
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.grr.api.LogoutToServer
+import org.grr.`object`.Storage
+import org.grr.screen.login.LoginForm
 import org.grr.screen.setting.centerPanel.breakTimePanel.BreakTime
 import org.grr.screen.setting.centerPanel.cookingCompltePanel.CookingCompletionTime
 import org.grr.screen.setting.centerPanel.deliveryMethodTimePanel.DeliveryMethodTime
 import org.grr.screen.setting.centerPanel.holidayPanel.HolidayPanel
 import org.grr.screen.setting.centerPanel.operateTimePanel.OperateTime
 import org.grr.style.MyColor
+import org.grr.util.MyFont
 import org.grr.widgets.RoundedPanel
 import java.awt.*
-import javax.swing.BorderFactory
-import javax.swing.JPanel
-import javax.swing.JSeparator
-import javax.swing.SwingConstants
+import javax.swing.*
 
 class CenterPanelForm : JPanel() {
     init {
@@ -104,6 +108,55 @@ class CenterPanelForm : JPanel() {
         roundedPanel.add(HolidayPanel(), gbc)
 
         add(roundedPanel, BorderLayout.NORTH)
+
+        val logoutButton = JButton("로그아웃").apply {
+            preferredSize = Dimension(150, 50)
+            background = MyColor.GREY100
+            font = MyFont.Bold(24f)
+            isOpaque = true
+            /*
+                로그아웃을 진행하는 구문
+            */
+            addActionListener {
+                // 로그아웃 요청
+                val logoutToServer = LogoutToServer()
+                GlobalScope.launch {
+
+                    delay(500) // 0.5초 대기
+
+                    val (isSuccess, message) = logoutToServer.logoutToServer()
+
+                    delay(500) // 0.5초 대기
+
+                    SwingUtilities.invokeLater {
+                        if (isSuccess) {
+//                            토큰 삭제
+                            Storage.deleteToken()
+//                            저장된 로그인 정보 삭제
+                            Storage.clearLoginInfo()
+//                            저장된 회원 정보 삭제
+                            Storage.clearMemberInfo()
+
+                            val loginForm = LoginForm()
+                            loginForm.isVisible = true
+
+                            val parentWindow = SwingUtilities.getWindowAncestor(this@apply)
+                            parentWindow?.dispose()
+                        } else {
+                            JOptionPane.showMessageDialog(this@apply, message, "오류", JOptionPane.ERROR_MESSAGE)
+                        }
+                    }
+                }
+            }
+        }
+
+        // 로그아웃 버튼을 패널에 넣어 정렬을 유지
+        val buttonPanel = JPanel().apply {
+            layout = FlowLayout(FlowLayout.RIGHT, 0, 0)
+            background = MyColor.DARK_NAVY
+            add(logoutButton)
+        }
+        add(buttonPanel, BorderLayout.SOUTH)
     }
 
     private fun createSeparator(orientation: Int, width: Int, height: Int): JSeparator {

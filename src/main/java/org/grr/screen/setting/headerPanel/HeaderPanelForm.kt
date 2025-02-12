@@ -44,55 +44,6 @@ class HeaderPanelForm : JPanel() {
             add(titleLabel, BorderLayout.CENTER)
         }
 
-        val logoutButton = JButton("로그아웃").apply {
-            preferredSize = Dimension(150, 50)
-            background = MyColor.GREY100
-            font = MyFont.Bold(24f)
-            isOpaque = true
-            /*
-                로그아웃을 진행하는 구문
-            */
-            addActionListener {
-                // 로그아웃 요청
-                val logoutToServer = LogoutToServer()
-                GlobalScope.launch {
-
-                    delay(500) // 0.5초 대기
-
-                    val (isSuccess, message) = logoutToServer.logoutToServer()
-
-                    delay(500) // 0.5초 대기
-
-                    SwingUtilities.invokeLater {
-                        if (isSuccess) {
-//                            토큰 삭제
-                            Storage.deleteToken()
-//                            저장된 로그인 정보 삭제
-                            Storage.clearLoginInfo()
-//                            저장된 회원 정보 삭제
-                            Storage.clearMemberInfo()
-
-                            val loginForm = LoginForm()
-                            loginForm.isVisible = true
-
-                            val parentWindow = SwingUtilities.getWindowAncestor(this@apply)
-                            parentWindow?.dispose()
-                        } else {
-                            JOptionPane.showMessageDialog(this@apply, message, "오류", JOptionPane.ERROR_MESSAGE)
-                        }
-                    }
-                }
-            }
-        }
-
-        // 로그아웃 버튼을 패널에 넣어 정렬을 유지
-        val buttonPanel = JPanel().apply {
-            layout = FlowLayout(FlowLayout.RIGHT, 0, 0)
-            background = MyColor.DARK_NAVY
-            add(logoutButton)
-        }
-
         add(titlePanel, BorderLayout.WEST)
-        add(buttonPanel, BorderLayout.EAST)
     }
 }
