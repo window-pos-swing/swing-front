@@ -14,6 +14,9 @@ class PrintManager {
     val inverseModeOff = byteArrayOf(0x1D, 0x42, 0x00) // 반전 모드 끄기
     val alignCenter = byteArrayOf(0x1B, 0x61, 0x01) // 중앙 정렬
     val alignLeft = byteArrayOf(0x1B, 0x61, 0x00) // 왼쪽 정렬
+    val boldOn = byteArrayOf(0x1B, 0x45, 0x01) // 굵게 ON
+    val boldOff = byteArrayOf(0x1B, 0x45, 0x00) // 굵게 OFF
+
 
 
     // 프린터 초기화 (ESC @)

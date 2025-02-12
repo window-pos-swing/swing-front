@@ -1,5 +1,6 @@
 package org.grr.screen.setting.salesManagement.salesManagementForm
 
+import ReceiptPrinter
 import org.grr.`object`.JsonFormatter
 import org.grr.screen.setting.salesManagement.*
 import org.grr.style.MyColor
@@ -62,6 +63,11 @@ class CreateOrderTotalLabelPanelForm: JPanel() {
             font = MyFont.Bold(22f)
             foreground = Color.WHITE
             setCustomBackground(MyColor.DARK_NAVY)
+            addActionListener{
+                // ✅ 프린트 출력
+                var receiptPrinter = ReceiptPrinter()
+                receiptPrinter.SalesSummarySheet()
+            }
         }
 
         add(labelPanel, BorderLayout.WEST)

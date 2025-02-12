@@ -2,9 +2,11 @@ import com.fazecast.jSerialComm.SerialPort
 import org.grr.enum.OrderReceiveType
 import org.grr.model.Menu
 import org.grr.model.ReceiveOrderModel
+import org.grr.model.SettingModel.storeInfo
 import org.grr.`object`.OrderController
 import org.grr.`object`.Storage
 import org.grr.screen.setting.bottomPanel.printPanel.print_modal.PrintManager
+import org.grr.screen.setting.salesManagement.*
 import java.io.OutputStream
 import java.nio.charset.Charset
 import java.time.LocalDateTime
@@ -51,9 +53,9 @@ class ReceiptPrinter  {
                 baudRate = printerSpeed
             }
 
-            if (!serialPort.openPort()) {
-                throw Exception("❌ 프린터 포트 열기 실패")
-            }
+            if (serialPort == null) { throw Exception("❌ SerialPort 객체가 null입니다.") }
+
+            if (!serialPort.openPort()) { throw Exception("❌ 프린터 포트 열기 실패") }
 
             outputStream = serialPort.outputStream
 
@@ -153,9 +155,9 @@ class ReceiptPrinter  {
                 baudRate = printerSpeed
             }
 
-            if (!serialPort.openPort()) {
-                throw Exception("❌ 프린터 포트 열기 실패")
-            }
+            if (serialPort == null) { throw Exception("❌ SerialPort 객체가 null입니다.") }
+
+            if (!serialPort.openPort()) { throw Exception("❌ 프린터 포트 열기 실패") }
 
             outputStream = serialPort.outputStream
 
@@ -318,6 +320,8 @@ class ReceiptPrinter  {
 
     //매출 요약 출력
     fun SalesSummarySheet(){
+        var paddingSpace = " "
+        var paddingSpaceCount = 10
         var serialPort: SerialPort? = null
         var outputStream: OutputStream? = null
 
@@ -331,16 +335,68 @@ class ReceiptPrinter  {
                 baudRate = printerSpeed
             }
 
-            if (!serialPort.openPort()) {
-                throw Exception("❌ 프린터 포트 열기 실패")
-            }
+            if (serialPort == null) { throw Exception("❌ SerialPort 객체가 null입니다.") }
+
+            if (!serialPort.openPort()) { throw Exception("❌ 프린터 포트 열기 실패") }
 
             outputStream = serialPort.outputStream
 
             //=======================[영수증 출력 시작]==================================
+            outputStream.write(printManager.doubleSize)
+            outputStream.write(printManager.alignCenter)
+            outputStream.write("[꼬르륵 매출요약]\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write(printManager.normalSize)
+            outputStream.write(printManager.alignLeft)
+            outputStream.write(printManager.boldOn)
+            printManager.LineSpace(outputStream,1)
+            outputStream.write("총매출\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write(printManager.doubleSize)
+            outputStream.write("${getPaymentCompletedPrice()}원\n".toByteArray(Charset.forName("CP949")))
+
+            printManager.flush(outputStream)
+
+            printManager.LineSpace(outputStream,1)
+
+            outputStream.write(printManager.boldOff)
+            outputStream.write(printManager.normalSize)
+            val storeName = storeInfo?.optString("storeName", "") ?: ""
+            outputStream.write("가맹점명${paddingSpace.repeat(3)}${storeName}\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write("출력시간${paddingSpace.repeat(3)}${getCurrentTime()}\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write("조회날짜${paddingSpace.repeat(3)}${getSalesSelectedDate()}\n".toByteArray(Charset.forName("CP949")))
+
+            Divider(outputStream)
+
+            outputStream.write(printManager.boldOn)
+            outputStream.write("[매출상세]\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write(printManager.boldOff)
+            outputStream.write("총매출${paddingSpace.repeat(paddingSpaceCount+3)}${getPaymentCompletedCount()}건${paddingSpace.repeat(paddingSpaceCount)}${getPaymentCompletedPrice()}원\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write("배달 완료${paddingSpace.repeat(paddingSpaceCount)}${getDeliveryCompletedCount()}건${paddingSpace.repeat(paddingSpaceCount)}${getDeliveryCompletedPrice()}원\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write("배달 취소${paddingSpace.repeat(paddingSpaceCount)}${getDeliveryCancelCount()}건${paddingSpace.repeat(paddingSpaceCount)}${getDeliveryCancelPrice()}원\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write("포장 완료${paddingSpace.repeat(paddingSpaceCount)}${getTakeOutCompletedCount()}건${paddingSpace.repeat(paddingSpaceCount)}${getTakeOutCompletedPrice()}원\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write("포장 취소${paddingSpace.repeat(paddingSpaceCount)}${getTakeOutCancelCount()}건${paddingSpace.repeat(paddingSpaceCount)}${getTakeOutCancelPrice()}원\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write("만나서 현금 결제${paddingSpace.repeat(3)}${getMeetPaymentCompletedCashCount()}건${paddingSpace.repeat(paddingSpaceCount)}${getMeetPaymentCompletedCashPrice()}원\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write("만나서 카드 결제${paddingSpace.repeat(3)}${getMeetPaymentCompletedCardCount()}건${paddingSpace.repeat(paddingSpaceCount)}${getMeetPaymentCompletedCardPrice()}원\n".toByteArray(Charset.forName("CP949")))
+
+            // 공백 추가 후 용지 자르기
+            Thread.sleep(100) // ⬅️ 프린터가 데이터를 소화할 시간 확보
+            printManager.LineSpace(outputStream,5)
+            printManager.cutPaper(outputStream)
+
         }catch (e:Exception){
             println("매출 요약 인쇄 실패: ${e.message}")
+        } finally {
+            serialPort?.closePort()
+            if (outputStream != null) {
+                outputStream.flush()
+            }
         }
+    }
+
+    fun Divider(outputStream: OutputStream){
+        outputStream.write(printManager.doubleSize)
+        outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
+        printManager.flush(outputStream)
+        outputStream.write(printManager.normalSize)
     }
 
     private fun getCurrentTime(): String {

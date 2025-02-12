@@ -80,6 +80,7 @@ class SalesManagementModalDialog(
         val orderLabelPanel = CreateOrderLabelPanelForm()
 
         tabBarPanel.yesterdayButton.addActionListener {
+            setSalesSelectedDate(getYesterdayDate())
             startDate = getYesterdayDate()
             endDate = getYesterdayDate()
 
@@ -95,6 +96,7 @@ class SalesManagementModalDialog(
         }
 
         tabBarPanel.todayButton.addActionListener {
+            setSalesSelectedDate(getYesterdayDate())
             startDate = getTodayDate()
             endDate = getTodayDate()
 
@@ -125,6 +127,7 @@ class SalesManagementModalDialog(
                     startDate = tabBarPanel.startDate
                     endDate = tabBarPanel.endDate
 
+                    setSalesSelectedDate("${startDate} - ${endDate}")
                     println("시작날짜 - 종료날짜 : $startDate - $endDate")
 
                     orderList.clear()
