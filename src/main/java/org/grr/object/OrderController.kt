@@ -1,5 +1,6 @@
 package org.grr.`object`
 
+import org.grr.enum.OrderReceiveType
 import org.grr.enum.PaymentWayType
 import org.grr.screen.main.main_widget.tab_manager.CustomTabbedPane
 import org.grr.enum.ServerOrderStatus
@@ -60,6 +61,14 @@ object OrderController {
         return when (disposable){
             true -> "O"
             false -> "X"
+        }
+    }
+
+    fun getFormattedReceiveType(orderReceiveType: OrderReceiveType ) : String{
+        return when (orderReceiveType){
+            OrderReceiveType.DELIVERY -> "배달"
+            OrderReceiveType.TAKEOUT  -> "포장"
+            else -> ""
         }
     }
 }

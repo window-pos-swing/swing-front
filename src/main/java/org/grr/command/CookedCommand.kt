@@ -23,7 +23,7 @@ class CookedCommand(
             JOptionPane.showMessageDialog(null, "조리완료 실패: ${result.second}", "오류", JOptionPane.ERROR_MESSAGE)
             return
         }
-        if (order.orderReceiveType == OrderReceiveType.DELIVERY.name){
+        if (order.orderReceiveType == OrderReceiveType.DELIVERY){
             order.isPickupWait = true
         }else{
             order.isPickupCompleted = true

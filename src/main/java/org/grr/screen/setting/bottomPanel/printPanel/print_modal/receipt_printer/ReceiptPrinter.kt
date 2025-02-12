@@ -1,4 +1,5 @@
 import com.fazecast.jSerialComm.SerialPort
+import org.grr.enum.OrderReceiveType
 import org.grr.model.Menu
 import org.grr.model.ReceiveOrderModel
 import org.grr.`object`.OrderController
@@ -13,6 +14,7 @@ class ReceiptPrinter  {
     private var printerPort: String? = null
     private var printerSpeed: Int = 9600
     var printManager = PrintManager()
+
     init {
         setPrinterSettings()
     }
@@ -34,17 +36,11 @@ class ReceiptPrinter  {
     }
 
 
-    private fun getCurrentTime(): String {
-        val now = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 a hh:mm")
-        return now.format(formatter)
-    }
-
     //📌 [매장용]
     fun ForBurialOrderSheet(orderData: ReceiveOrderModel) {
         var serialPort: SerialPort? = null
         var outputStream: OutputStream? = null
-
+        val currentTime = getCurrentTime()
         try {
             if (printerPort == null) {
                 println("❌ 프린터 설정이 없습니다.")
@@ -64,41 +60,35 @@ class ReceiptPrinter  {
             // ✅ 프린터 초기화
             printManager.initializePrinter(outputStream)
 
-            val currentTime = getCurrentTime()
-            val normalSize = byteArrayOf(0x1D, 0x21, 0x00) // 기본 크기
-            val oneAndHalfSize = byteArrayOf(0x1D, 0x21, 0x0A) // 1.5배 크기
-            val doubleSize = byteArrayOf(0x1D, 0x21, 0x11) // 2배 크기
-            val inverseModeOn = byteArrayOf(0x1D, 0x42, 0x01) // 반전 모드 켜기
-            val inverseModeOff = byteArrayOf(0x1D, 0x42, 0x00) // 반전 모드 끄기
-            val alignCenter = byteArrayOf(0x1B, 0x61, 0x01) // 중앙 정렬
-            val alignLeft = byteArrayOf(0x1B, 0x61, 0x00) // 왼쪽 정렬
-
             // 매장용 출력
-            outputStream.write(alignLeft)
+            outputStream.write(printManager.alignLeft)
             outputStream.write("[매장용]\n".toByteArray(Charset.forName("CP949")))
-            outputStream.write(doubleSize)
-            outputStream.write(alignCenter)
+            outputStream.write(printManager.doubleSize)
+            outputStream.write(printManager.alignCenter)
             outputStream.write("꼬르륵\n".toByteArray(Charset.forName("CP949")))
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
-            outputStream.write(alignLeft)
+            outputStream.write(printManager.alignLeft)
             outputStream.write("#${orderData.orderNumber}\n".toByteArray(Charset.forName("CP949")))
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
+            printManager.flush(outputStream)
 
             // 요청사항과 수저포크 출력
-            outputStream.write(inverseModeOn)
+            outputStream.write(printManager.inverseModeOn)
             outputStream.write("요청사항: ${orderData.storeRequest}\n".toByteArray(Charset.forName("CP949")))
             outputStream.write("수저포크: ${OrderController.getFormattedDisposable(orderData.disposable)}\n".toByteArray(Charset.forName("CP949")))
-            outputStream.write(inverseModeOff)
+            outputStream.write(printManager.inverseModeOff)
 
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
+            printManager.flush(outputStream)
 
             // 메뉴 출력 (글자 작게)
-            outputStream.write(normalSize)
+            outputStream.write(printManager.normalSize)
             outputStream.write("메뉴                               수량\n".toByteArray(Charset.forName("CP949")))
-            outputStream.write(doubleSize)
+            outputStream.write(printManager.doubleSize)
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
+            printManager.flush(outputStream)
 
-            outputStream.write(oneAndHalfSize)
+            outputStream.write(printManager.oneAndHalfSize)
             for (menu in orderData.menuList) {
                 val menuName = menu.menuName
                 val count = menu.quantity
@@ -109,7 +99,7 @@ class ReceiptPrinter  {
                 outputStream.write("$menuName$paddingSpace$count\n".toByteArray(Charset.forName("CP949")))
 
                 // 메뉴 옵션 출력 (normalSize로 출력)
-                outputStream.write(normalSize)  // 옵션 출력 시 normalSize로 설정
+                outputStream.write(printManager.normalSize)  // 옵션 출력 시 normalSize로 설정
                 val menuOptions = menu.menuOptionList
                 menuOptions?.forEach { option ->
                     val optionName = option.menuOptionName
@@ -119,17 +109,20 @@ class ReceiptPrinter  {
                     }
                 }
 
-                outputStream.write(oneAndHalfSize)  // 다시 메뉴 출력 크기로 복원
+                outputStream.write(printManager.oneAndHalfSize)  // 다시 메뉴 출력 크기로 복원
+                printManager.flush(outputStream)
             }
 
-            outputStream.write(doubleSize)
+            outputStream.write(printManager.doubleSize)
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
-
+            printManager.flush(outputStream)
             // 주문 일자 (글자 작게)
-            outputStream.write(normalSize)
-            outputStream.write("주문 일자: $currentTime\n".toByteArray(Charset.forName("CP949")))
-
+            Thread.sleep(100) // ⬅️ 프린터가 데이터를 소화할 시간 확보
+            outputStream.write(printManager.normalSize)
+            outputStream.write("주문 일자: ${currentTime}\n".toByteArray(Charset.forName("CP949")))
+            printManager.flush(outputStream)
             // 공백 추가 후 용지 자르기
+            Thread.sleep(100) // ⬅️ 프린터가 데이터를 소화할 시간 확보
             printManager.LineSpace(outputStream,5)
             printManager.cutPaper(outputStream)
 
@@ -137,6 +130,9 @@ class ReceiptPrinter  {
             println("매장용 주문표 인쇄 실패: ${e.message}")
         } finally {
             serialPort?.closePort()
+            if (outputStream != null) {
+                outputStream.flush()
+            }
         }
     }
 
@@ -146,7 +142,7 @@ class ReceiptPrinter  {
     fun ForCustomersOrderSheet(orderData: ReceiveOrderModel) {
         var serialPort: SerialPort? = null
         var outputStream: OutputStream? = null
-
+        val currentTime = getCurrentTime()
         try {
             if (printerPort == null) {
                 println("❌ 프린터 설정이 없습니다.")
@@ -166,50 +162,48 @@ class ReceiptPrinter  {
             // ✅ 프린터 초기화
             printManager.initializePrinter(outputStream)
 
-
-            val currentTime = getCurrentTime()
-            val normalSize = byteArrayOf(0x1D, 0x21, 0x00) // 기본 크기
-            val oneAndHalfSize = byteArrayOf(0x1D, 0x21, 0x0A) // 1.5배 크기
-            val doubleSize = byteArrayOf(0x1D, 0x21, 0x11) // 2배 크기
-            val inverseModeOn = byteArrayOf(0x1D, 0x42, 0x01) // 반전 모드 켜기
-            val inverseModeOff = byteArrayOf(0x1D, 0x42, 0x00) // 반전 모드 끄기
-            val alignCenter = byteArrayOf(0x1B, 0x61, 0x01) // 중앙 정렬
-            val alignLeft = byteArrayOf(0x1B, 0x61, 0x00) // 왼쪽 정렬
-
             // 고객용 출력
-            outputStream.write("[고객용]\n".toByteArray(Charset.forName("CP949")))
-            outputStream.write(doubleSize)
-            outputStream.write(alignCenter)
+            outputStream.write("[고객용] ${OrderController.getFormattedReceiveType(orderData.orderReceiveType)}\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write(printManager.doubleSize)
+            outputStream.write(printManager.alignCenter)
             outputStream.write("꼬르륵\n".toByteArray(Charset.forName("CP949")))
+            printManager.flush(outputStream)
 
-            outputStream.write(alignLeft)
+            outputStream.write(printManager.alignLeft)
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
-            outputStream.write(oneAndHalfSize)
+            outputStream.write(printManager.oneAndHalfSize)
             outputStream.write("주문 번호: #${orderData.orderNumber}\n".toByteArray(Charset.forName("CP949")))
             outputStream.write("결제방법: ${OrderController.getFormattedPaymentWayTypeStatus(orderData.paymentWayType)}\n".toByteArray(Charset.forName("CP949")))
-            outputStream.write(doubleSize)
+            outputStream.write(printManager.doubleSize)
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
+            printManager.flush(outputStream)
+
             // 주문 정보 출력
-            outputStream.write(inverseModeOn)
+            outputStream.write(printManager.inverseModeOn)
             outputStream.write("[요청사항]\n".toByteArray(Charset.forName("CP949")))
             outputStream.write("가게 : ${orderData.storeRequest}\n".toByteArray(Charset.forName("CP949")))
-            outputStream.write("배달 : ${orderData.riderRequest}\n".toByteArray(Charset.forName("CP949")))
+            if(orderData.orderReceiveType == OrderReceiveType.DELIVERY){
+                outputStream.write("배달 : ${orderData.riderRequest}\n".toByteArray(Charset.forName("CP949")))
+            }
             outputStream.write("수저포크: ${OrderController.getFormattedDisposable(orderData.disposable)}\n".toByteArray(Charset.forName("CP949")))
-            outputStream.write(inverseModeOff)
+            outputStream.write(printManager.inverseModeOff)
 
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
-            outputStream.write(normalSize)
-            outputStream.write("배달주소: ${orderData.appMemberJibunAddress}\n".toByteArray(Charset.forName("CP949")))
+            outputStream.write(printManager.normalSize)
+            if(orderData.orderReceiveType == OrderReceiveType.DELIVERY){
+                outputStream.write("배달주소: ${orderData.appMemberJibunAddress}\n".toByteArray(Charset.forName("CP949")))
+            }
             outputStream.write("연락처: ${orderData.appMemberPhone}\n".toByteArray(Charset.forName("CP949")))
-            outputStream.write(doubleSize)
+            outputStream.write(printManager.doubleSize)
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
+            printManager.flush(outputStream)
 
             // 메뉴 출력
-            outputStream.write(normalSize)
+            outputStream.write(printManager.normalSize)
             outputStream.write("메뉴                        수량    가격\n".toByteArray(Charset.forName("CP949")))
-            outputStream.write(doubleSize)
+            outputStream.write(printManager.doubleSize)
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
-            outputStream.write(oneAndHalfSize)
+            outputStream.write(printManager.oneAndHalfSize)
             for (menu in orderData.menuList) {
                 val menuName = menu.menuName
                 val count = menu.quantity
@@ -220,7 +214,7 @@ class ReceiptPrinter  {
 
                 val menuNameLength = menuName.toByteArray(Charset.forName("CP949")).size
 
-                outputStream.write(oneAndHalfSize)
+                outputStream.write(printManager.oneAndHalfSize)
                 // 메뉴 이름이 한 줄을 넘으면 나눠서 출력
                 if (menuNameLength > maxCharsPerLine) {
                     var firstLine = ""
@@ -248,7 +242,7 @@ class ReceiptPrinter  {
                     outputStream.write("$menuName$paddingSpace${count.toString().padStart(4)}${price.toString().padStart(10)}\n".toByteArray(Charset.forName("CP949")))
                 }
 
-                outputStream.write(normalSize) // Reset size
+                outputStream.write(printManager.normalSize) // Reset size
 
                 // 옵션 출력
                 val options = menu.menuOptionList
@@ -278,15 +272,16 @@ class ReceiptPrinter  {
                     val optionLine = "  + $optionNameDisplay$padding${"%5d".format(optionPrice)}\n"
                     outputStream.write(optionLine.toByteArray(Charset.forName("CP949")))
                 }
+                printManager.flush(outputStream)
             }
 
-            outputStream.write(doubleSize)
+            outputStream.write(printManager.doubleSize)
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
 
             val totalPrice = orderData.totalOrderPrice // 가격은 Int형이라고 가정
             val totalLineLength = 40  // 한 줄에 출력할 전체 길이
             val totalLabel = "합계"  // 왼쪽에 표시할 텍스트
-            outputStream.write(oneAndHalfSize)
+            outputStream.write(printManager.oneAndHalfSize)
             // totalLabel의 길이를 CP949로 인코딩한 후 길이를 구함
             val labelLength = totalLabel.toByteArray(Charset.forName("CP949")).size
 
@@ -300,18 +295,57 @@ class ReceiptPrinter  {
             // 출력
             outputStream.write("$totalLabel$paddingSpace$priceString\n".toByteArray(Charset.forName("CP949")))
 
-            outputStream.write(doubleSize)
+            outputStream.write(printManager.doubleSize)
             outputStream.write(("-".repeat(21) + "\n").toByteArray(Charset.forName("CP949")))
-            outputStream.write(normalSize)
-            outputStream.write("주문 일자: $currentTime\n".toByteArray(Charset.forName("CP949")))
-
+            // 주문 일자
+            Thread.sleep(100) // ⬅️ 프린터가 데이터를 소화할 시간 확보
+            outputStream.write(printManager.normalSize) // (글자 작게)
+            outputStream.write("주문 일자: ${currentTime}\n".toByteArray(Charset.forName("CP949")))
+            printManager.flush(outputStream)
             // 공백 추가 후 용지 자르기
+            Thread.sleep(100) // ⬅️ 프린터가 데이터를 소화할 시간 확보
             printManager.LineSpace(outputStream,5)
             printManager.cutPaper(outputStream)
         } catch (e: Exception) {
             println("고객용 주문표 인쇄 실패: ${e.message}")
         } finally {
             serialPort?.closePort()
+            if (outputStream != null) {
+                outputStream.flush()
+            }
         }
+    }
+
+    //매출 요약 출력
+    fun SalesSummarySheet(){
+        var serialPort: SerialPort? = null
+        var outputStream: OutputStream? = null
+
+        try {
+            if (printerPort == null) {
+                println("❌ 프린터 설정이 없습니다.")
+                return
+            }
+
+            serialPort = SerialPort.getCommPort(printerPort).apply {
+                baudRate = printerSpeed
+            }
+
+            if (!serialPort.openPort()) {
+                throw Exception("❌ 프린터 포트 열기 실패")
+            }
+
+            outputStream = serialPort.outputStream
+
+            //=======================[영수증 출력 시작]==================================
+        }catch (e:Exception){
+            println("매출 요약 인쇄 실패: ${e.message}")
+        }
+    }
+
+    private fun getCurrentTime(): String {
+        val now = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 a hh:mm")
+        return now.format(formatter)
     }
 }

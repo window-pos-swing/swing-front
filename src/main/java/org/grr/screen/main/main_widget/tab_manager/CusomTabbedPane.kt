@@ -582,7 +582,7 @@ class CustomTabbedPane(val parentFrame: JFrame) : JPanel() {
     private fun getOrderDialogTitle(order: ReceiveOrderModel): String {
         val customFont = MyFont.Bold(32f)
         val fontFamily = customFont.fontName
-        val orderTypeText = if (order.orderReceiveType == OrderReceiveType.DELIVERY.toString()) {
+        val orderTypeText = if (order.orderReceiveType == OrderReceiveType.DELIVERY) {
             "<font color='red' style='font-family:$fontFamily; font-size:26px;'>배달</font>"
         } else {
             "<font color='blue' style='font-family:$fontFamily; font-size:26px;'>포장</font>"

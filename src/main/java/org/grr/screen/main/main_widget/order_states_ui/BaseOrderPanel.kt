@@ -38,7 +38,7 @@ class BaseOrderPanel(order: ReceiveOrderModel) : JPanel() {
             alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
 
             // 아이콘 로드
-            val iconLabel = JLabel(LoadImage.loadImage(if (order.orderReceiveType == OrderReceiveType.DELIVERY.toString()) "/delivery_state.png" else "/takeout_state.png", 56, 80)).apply {
+            val iconLabel = JLabel(LoadImage.loadImage(if (order.orderReceiveType == OrderReceiveType.DELIVERY) "/delivery_state.png" else "/takeout_state.png", 56, 80)).apply {
                 border = BorderFactory.createEmptyBorder(0, 0, 0, 15)  // 오른쪽에 여백 추가
                 alignmentX = Component.LEFT_ALIGNMENT  // 왼쪽 정렬
             }

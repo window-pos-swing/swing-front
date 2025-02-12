@@ -34,7 +34,7 @@ data class ReceiveOrderModel(
     val sideDish: Boolean,
     val storeRequest: String,
     val riderRequest: String,
-    val orderReceiveType: String,
+    val orderReceiveType: OrderReceiveType,
     val posOrderStatus: PosOrderStatus,
     val posOrderStatusType: String,
     val paymentWayType: PaymentWayType,
@@ -107,7 +107,7 @@ data class ReceiveOrderModel(
             }
 
             ServerOrderStatus.COOKED.name -> {
-                if (orderReceiveType == OrderReceiveType.DELIVERY.name) {
+                if (orderReceiveType == OrderReceiveType.DELIVERY) {
                     isPickupWait = true
                 } else {
                     isPickupCompleted = true
@@ -246,7 +246,7 @@ data class ReceiveOrderModel(
                 sideDish = jsonObject.getBoolean("sideDish"),
                 storeRequest = jsonObject.getString("storeRequest"),
                 riderRequest = jsonObject.getString("riderRequest"),
-                orderReceiveType = jsonObject.getString("orderReceiveType"),
+                orderReceiveType = OrderReceiveType.valueOf(jsonObject.getString("orderReceiveType")),
                 posOrderStatus = PosOrderStatus.valueOf(jsonObject.getString("posOrderStatus").uppercase()),
                 posOrderStatusType = jsonObject.getString("posOrderStatusType"),
                 paymentWayType = PaymentWayType.valueOf(jsonObject.getString("paymentWayTypeStatus").uppercase()),
@@ -312,7 +312,7 @@ data class ReceiveOrderModel(
                 sideDish = jsonObject.getBoolean("sideDish"),
                 storeRequest = jsonObject.getString("storeRequest"),
                 riderRequest = jsonObject.getString("riderRequest"),
-                orderReceiveType = jsonObject.getString("orderReceiveType"),
+                orderReceiveType = OrderReceiveType.valueOf(jsonObject.getString("orderReceiveType")),
                 posOrderStatus = PosOrderStatus.valueOf(jsonObject.getString("posOrderStatus").uppercase()),
                 posOrderStatusType = jsonObject.getString("posOrderStatusType"),
                 paymentWayType = PaymentWayType.valueOf(jsonObject.getString("paymentWayTypeStatus").uppercase()),

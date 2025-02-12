@@ -1,5 +1,6 @@
 package org.grr.screen.main.main_widget.order_states_ui
 
+import ReceiptPrinter
 import org.grr.model.OrderState
 import org.grr.model.ReceiveOrderModel
 import org.grr.style.MyColor
@@ -43,7 +44,10 @@ class CompletedState : OrderState {
                 ).apply {
                     addActionListener {
                         // 인쇄 기능 추가
-                        println("프린터 버튼 클릭")
+                        // ✅ 프린트 출력
+                        var receiptPrinter = ReceiptPrinter()
+                        receiptPrinter.ForCustomersOrderSheet(order)
+                        receiptPrinter.ForBurialOrderSheet(order)
                     }
                 })
 
