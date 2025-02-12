@@ -44,6 +44,61 @@ class HeaderPanelForm : JPanel() {
             add(titleLabel, BorderLayout.CENTER)
         }
 
-        add(titlePanel, BorderLayout.WEST)
+        val logoutButton = JButton("로그아웃").apply {
+            preferredSize = Dimension(150, 50)
+            background = MyColor.GREY100
+            font = MyFont.Bold(24f)
+            isOpaque = true
+            /*
+                로그아웃을 진행하는 구문
+            */
+            addActionListener {
+                // 로그아웃 요청
+                val logoutToServer = LogoutToServer()
+                GlobalScope.launch {
+
+                    delay(500) // 0.5초 대기
+
+                    val (isSuccess, message) = logoutToServer.logoutToServer()
+
+                    delay(500) // 0.5초 대기
+
+                    SwingUtilities.invokeLater {
+                        if (isSuccess) {
+//                            토큰 삭제
+                            Storage.deleteToken()
+//                            저장된 로그인 정보 삭제
+                            Storage.clearLoginInfo()
+//                            저장된 회원 정보 삭제
+                            Storage.clearMemberInfo()
+
+                            val loginForm = LoginForm()
+                            loginForm.isVisible = true
+
+                            val parentWindow = SwingUtilities.getWindowAncestor(this@apply)
+                            parentWindow?.dispose()
+                        } else {
+                            JOptionPane.showMessageDialog(this@apply, message, "오류", JOptionPane.ERROR_MESSAGE)
+                        }
+                    }
+                }
+            }
+        }
+
+        // 로그아웃 버튼을 패널에 넣어 정렬을 유지
+        val buttonPanel = JPanel().apply {
+            layout = FlowLayout(FlowLayout.RIGHT, 0, 0)
+            background = MyColor.DARK_NAVY
+            add(logoutButton)
+        }
+
+        val titleLogoutButton = JPanel().apply {
+            layout = FlowLayout(FlowLayout.LEFT, 30, 0) // 10px 간격, 세로 정렬 유지
+            background = MyColor.DARK_NAVY // 기존 배경 유지
+            add(titlePanel) // 타이틀 패널 추가
+            add(buttonPanel) // 버튼 패널 추가 (타이틀 패널 바로 옆)
+        }
+
+        add(titleLogoutButton, BorderLayout.WEST)
     }
 }
