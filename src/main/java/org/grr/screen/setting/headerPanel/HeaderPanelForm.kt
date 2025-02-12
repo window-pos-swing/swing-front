@@ -92,7 +92,13 @@ class HeaderPanelForm : JPanel() {
             add(logoutButton)
         }
 
-        add(titlePanel, BorderLayout.WEST)
-        add(buttonPanel, BorderLayout.EAST)
+        val titleLogoutButton = JPanel().apply {
+            layout = FlowLayout(FlowLayout.LEFT, 30, 0) // 10px 간격, 세로 정렬 유지
+            background = MyColor.DARK_NAVY // 기존 배경 유지
+            add(titlePanel) // 타이틀 패널 추가
+            add(buttonPanel) // 버튼 패널 추가 (타이틀 패널 바로 옆)
+        }
+
+        add(titleLogoutButton, BorderLayout.WEST)
     }
 }
