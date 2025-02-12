@@ -99,8 +99,6 @@ class CreateTabBarPanelForm : JPanel() {
             }
         }
 
-//        startEndDatePicker = createStartEndDatePicker()
-
         // 버튼 리스트에 추가
         buttons.add(yesterdayButton)
         buttons.add(todayButton)
@@ -154,7 +152,7 @@ class CreateTabBarPanelForm : JPanel() {
                     }
                     isFirstSelection = true
                     ShareData.selectedDateLabel.text = "${startDate} - ${endDate}"
-                    println("선택 날짜 : ${startDate} - ${endDate}")
+//                    println("선택 날짜 : ${startDate} - ${endDate}")
                 }
             }
             toggleButton.repaint()
@@ -172,22 +170,8 @@ class CreateTabBarPanelForm : JPanel() {
     class SalesDateRoundedBorder(
         private var model: String
     ) : AbstractBorder() {
-
-        private var arrowIcon: ImageIcon? = null
         private var textColor: Color = Color.DARK_GRAY  // ✅ 기본 텍스트 색상
         private var backgroundColor: Color = MyColor.LIGHT_GREY  // ✅ 기본 텍스트 색상
-
-        init {
-            // 아이콘 로드
-            val iconUrl = Thread.currentThread().contextClassLoader.getResource("custom_arrow_icon.png")
-            if (iconUrl != null) {
-                val originalIcon = ImageIcon(iconUrl)
-                // 아이콘 크기 변경 (13x10)
-                arrowIcon = ImageIcon(originalIcon.image.getScaledInstance(13, 10, Image.SCALE_SMOOTH))
-            } else {
-                println("Icon not found: custom_arrow_icon.png")
-            }
-        }
 
         fun setModelText(text: String , _textColor : Color, _backgroundColor : Color) {
             model = text

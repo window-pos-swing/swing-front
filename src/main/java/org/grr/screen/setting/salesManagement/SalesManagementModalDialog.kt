@@ -114,18 +114,16 @@ class SalesManagementModalDialog(
             val selectedDate = dateEvent.newDate
             if (selectedDate != null) {
                 if (isFirstSelection) {
-                    // ✅ startDate를 즉시 업데이트
+                    // startDate를 즉시 업데이트
                     tabBarPanel.startDate = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                     isFirstSelection = false  // 이제 종료 날짜 선택 대기
                 } else {
-                    // ✅ endDate를 즉시 업데이트
+                    // endDate를 즉시 업데이트
                     tabBarPanel.endDate = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
-                    // ✅ startDate와 endDate를 업데이트한 후 서버 요청 실행
+                    // startDate와 endDate를 업데이트한 후 서버 요청 실행
                     startDate = tabBarPanel.startDate
                     endDate = tabBarPanel.endDate
-
-                    println("시작날짜 - 종료날짜 : $startDate - $endDate")
 
                     orderList.clear()
                     updateTable(null)
@@ -137,7 +135,7 @@ class SalesManagementModalDialog(
                     summaryPanel.updateSummary()
                     orderTotalLabelPanel.updateTotal()
 
-                    isFirstSelection = true  // ✅ 다음 선택을 위해 초기화
+                    isFirstSelection = true  // 다음 선택을 위해 초기화
                 }
             }
         }
