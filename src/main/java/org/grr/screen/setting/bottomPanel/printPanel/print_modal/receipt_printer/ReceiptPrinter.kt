@@ -366,6 +366,7 @@ class ReceiptPrinter  {
 
             Divider(outputStream)
 
+            outputStream.write(printManager.oneAndHalfSize)
             outputStream.write(printManager.boldOn)
             outputStream.write("[매출상세]\n".toByteArray(Charset.forName("CP949")))
             outputStream.write(printManager.boldOff)

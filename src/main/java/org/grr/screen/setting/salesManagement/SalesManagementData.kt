@@ -14,7 +14,7 @@ import kotlin.properties.Delegates
 
 object SalesManagementData {
     //조회날짜
-    var SalesSelectedDate : String = ""
+    var SalesSelectedDate : String = getTodayDate()
 //    옵저버 패턴으로 값 감지 시 업데이트
     var totalSalesSummary: JSONObject? by Delegates.observable(null) { _, _, _ ->
         summaryPanel?.updateSummary()
