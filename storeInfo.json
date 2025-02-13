@@ -1,158 +1,58 @@
 {
-    "breakTime": {
-        "wednesdayStartTime": [
-            15,
-            0
-        ],
-        "tuesdayStartTime": [
-            13,
-            0
-        ],
-        "fridayStartTime": [
-            15,
-            0
-        ],
-        "wednesdayEndTime": [
-            16,
-            0
-        ],
-        "sundayEndTime": [
-            18,
-            0
-        ],
-        "mondayStartTime": [
-            8,
-            0
-        ],
-        "mondayEndTime": [
-            14,
-            0
-        ],
-        "thursdayEndTime": [
-            16,
-            0
-        ],
-        "saturdayStartTime": [
-            15,
-            0
-        ],
-        "saturdayEndTime": [
-            16,
-            0
-        ],
-        "tuesdayEndTime": [
-            14,
-            0
-        ],
-        "thursdayStartTime": [
-            15,
-            0
-        ],
-        "sundayStartTime": [
-            17,
-            0
-        ],
-        "id": 1,
-        "fridayEndTime": [
-            16,
-            0
-        ]
-    },
-    "businessHour": {
-        "mondayAllDay": false,
-        "wednesdayStartTime": [
-            7,
-            0
-        ],
-        "tuesdayStartTime": [
-            7,
-            0
-        ],
-        "fridayStartTime": [
-            7,
-            0
-        ],
-        "wednesdayEndTime": [
-            20,
-            0
-        ],
-        "sundayEndTime": [
-            20,
-            0
-        ],
-        "mondayStartTime": [
-            7,
-            0
-        ],
-        "mondayEndTime": [
-            20,
-            0
-        ],
-        "thursdayEndTime": [
-            20,
-            0
-        ],
-        "saturdayStartTime": [
-            7,
-            0
-        ],
-        "saturdayEndTime": [
-            20,
-            0
-        ],
-        "tuesdayEndTime": [
-            20,
-            0
-        ],
-        "fridayAllDay": false,
-        "wednesdayAllDay": false,
-        "thursdayStartTime": [
-            7,
-            0
-        ],
-        "saturdayAllDay": false,
-        "sundayStartTime": [
-            7,
-            0
-        ],
-        "thursdayAllDay": false,
-        "sundayAllDay": false,
-        "tuesdayAllDay": false,
-        "fridayEndTime": [
-            20,
-            0
-        ]
-    },
-    "storeName": "매장 666",
-    "estimatedCookingTime": 30,
-    "holidayList": [
-        {
-            "holidayType": "SPECIFIC_DATE",
-            "daysOfMonth": [],
-            "specificDates": [
-                "2025-05-27",
-                "2025-05-28",
-                "2025-05-29",
-                "2025-05-30",
-                "2025-05-31",
-                "2025-06-02"
-            ],
-            "daysOfWeek": [],
-            "weeksOfMonth": []
-        },
-        {
-            "holidayType": "WEEKLY",
-            "daysOfMonth": [],
-            "specificDates": [],
-            "daysOfWeek": [6],
-            "weeksOfMonth": [
-                1,
-                3
-            ]
-        }
+    "safeNumber": true,
+    "orderNumber": "ORD-1-20250213-0001",
+    "modifyOrderDate": [
+        2025,
+        2,
+        13,
+        14,
+        10,
+        20,
+        638753000
     ],
-    "estimatedArrivalTime": 50,
-    "estimatedCookingTimeControl": false,
-    "pause": false,
-    "estimatedArrivalTimeControl": false
+    "paymentWayTypeStatus": "MEET_CARD",
+    "riderRequest": "벨을 눌러주세요.",
+    "posOrderStatus": "IN_PROGRESS",
+    "appMemberRoadAddress": "대전광역시 대덕구 대화동 611 가온비즈타워 120",
+    "storeName": "매장 666",
+    "orderPrice": 40000,
+    "estimatedCookingTime": 30,
+    "id": 1,
+    "estimatedArrivalTime": 30,
+    "orderReceiveType": "DELIVERY",
+    "menuList": [{
+        "quantity": 2,
+        "menuTotalPrice": 40000,
+        "menuName": "첫 번째",
+        "menuOptionList": [
+            [{
+                "menuOptionName": "L사이즈",
+                "menuOptionPrice": 20000,
+                "id": 1,
+                "categoryName": "가격"
+            }],
+            []
+        ],
+        "id": 1
+    }],
+    "appMemberDetailAddress": "901호",
+    "expectedPrice": 40000,
+    "totalOrderPrice": 40000,
+    "deliveryPrice": 0,
+    "storeId": 1,
+    "disposable": true,
+    "appMemberJibunAddress": "대전 대덕구 대화동 611",
+    "storeRequest": "양념 반반으로 부탁드립니다.",
+    "appMemberPhone": "01012345678",
+    "posOrderStatusType": "ACCEPT",
+    "sideDish": false,
+    "orderDate": [
+        2025,
+        2,
+        13,
+        14,
+        10,
+        15,
+        364814000
+    ]
 }
