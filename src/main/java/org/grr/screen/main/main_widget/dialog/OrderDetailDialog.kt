@@ -43,7 +43,7 @@ class OrderDetailDialog(
         }
         mainPanel.add(storeRequestInfoPanel)
 
-        if(order.orderReceiveType == OrderReceiveType.DELIVERY.toString()){
+        if(order.orderReceiveType == OrderReceiveType.DELIVERY){
             val deliveryRequestInfoPanel = createRequestInfoPanel("배달" , order).apply {
                 border = EmptyBorder(10, 0, 0, 0)
             }

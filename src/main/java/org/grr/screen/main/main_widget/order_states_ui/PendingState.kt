@@ -2,6 +2,7 @@ package org.grr.screen.main.main_widget.order_states_ui
 
 import org.grr.`object`.OrderController
 import OrderRejectCancelDialog
+import ReceiptPrinter
 import org.grr.command.AcceptOrderCommand
 import org.grr.command.RejectOrderCommand
 import org.grr.command.RejectedReasonType
@@ -41,7 +42,7 @@ class PendingState(
                 if (!::overlayManager.isInitialized) {
                     overlayManager = OverlayManager // 전역적으로 초기화된 OverlayManager 사용
                 }
-                add(createPrintButton())
+                add(createPrintButton(order))
                 add(Box.createRigidArea(Dimension(15, 0)))
 
                 add(createRejectButton(order, overlayManager))
@@ -56,7 +57,7 @@ class PendingState(
         }
     }
 
-    private fun createPrintButton(): JButton {
+    private fun createPrintButton(order: ReceiveOrderModel): JButton {
         return FillRoundedButton(
             text = "",
             borderColor = Color(230, 230, 230),
@@ -72,7 +73,10 @@ class PendingState(
             iconHeight = 45
         ).apply {
             addActionListener {
-                println("프린터 버튼 클릭")
+                // ✅ 프린트 출력
+                var receiptPrinter = ReceiptPrinter()
+                receiptPrinter.ForCustomersOrderSheet(order)
+                receiptPrinter.ForBurialOrderSheet(order)
             }
         }
     }
@@ -136,7 +140,7 @@ class PendingState(
     }
 
     //어떤 다이얼로그를 띄워줘야할까 판별하는 부분
-    private fun statusOfDialog(takeType: String, overlayManager: OverlayManager, order: ReceiveOrderModel) {
+    private fun statusOfDialog(takeType: OrderReceiveType, overlayManager: OverlayManager, order: ReceiveOrderModel) {
         val allOff = !SettingModel.cookingTimeControl && !SettingModel.deliveryTimeControl
         val allOn = SettingModel.cookingTimeControl && SettingModel.deliveryTimeControl
         val deliveryDialogType = when {
@@ -155,7 +159,7 @@ class PendingState(
 
         when (takeType) {
             // ===============[포장 주문 처리] ======================
-            OrderReceiveType.TAKEOUT.name -> {
+            OrderReceiveType.TAKEOUT -> {
                 when(takeOutDialogType) {
                     "CookOFF" -> {
                         //요리시간 다이얼로그만 띄워줌
@@ -167,7 +171,7 @@ class PendingState(
                             order = order,
                             orderController = OrderController,
                             overlayManager = overlayManager,
-                            takeType = takeType
+                            takeType = takeType.name
                         )
                         dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
                             override fun windowClosed(e: java.awt.event.WindowEvent?) {
@@ -183,7 +187,7 @@ class PendingState(
                             cardPanel = cardPanel,
                             order = order,
                             orderController = OrderController,
-                            takeType = takeType,
+                            takeType = takeType.name,
                             cookTime = SettingModel.cookingTime
                         ).execute() // 주문 상태 변경
                     }
@@ -192,7 +196,7 @@ class PendingState(
 
             }
             // ===============[배달 주문 처리] ======================
-            OrderReceiveType.DELIVERY.name -> {
+            OrderReceiveType.DELIVERY -> {
                 when (deliveryDialogType) {
                     "CookONDeliveryOFF" -> {
                         println("[$takeType] CookONDeliveryOFF ...")
@@ -224,7 +228,7 @@ class PendingState(
                             order = order,
                             orderController = OrderController,
                             overlayManager = overlayManager,
-                            takeType = takeType
+                            takeType = takeType.name
                         )
                         dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
                             override fun windowClosed(e: java.awt.event.WindowEvent?) {
@@ -242,7 +246,7 @@ class PendingState(
                             cardPanel = cardPanel,
                             order = order,
                             orderController = OrderController,
-                            takeType = takeType,
+                            takeType = takeType.name,
                             cookTime = SettingModel.cookingTime
                         ).execute() // 주문 상태 변경
 
@@ -257,7 +261,7 @@ class PendingState(
                             order = order,
                             orderController = OrderController,
                             overlayManager = overlayManager,
-                            takeType = takeType
+                            takeType = takeType.name
                         )
                         dialog.addWindowListener(object : java.awt.event.WindowAdapter() {
                             override fun windowClosed(e: java.awt.event.WindowEvent?) {

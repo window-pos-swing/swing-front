@@ -2,8 +2,22 @@ package org.grr.screen.setting.bottomPanel.printPanel.print_modal
 
 import java.io.OutputStream
 import java.nio.charset.Charset
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class PrintManager {
+
+    val normalSize = byteArrayOf(0x1D, 0x21, 0x00) // 기본 크기
+    val oneAndHalfSize = byteArrayOf(0x1D, 0x21, 0x0A) // 1.5배 크기
+    val doubleSize = byteArrayOf(0x1D, 0x21, 0x11) // 2배 크기
+    val inverseModeOn = byteArrayOf(0x1D, 0x42, 0x01) // 반전 모드 켜기
+    val inverseModeOff = byteArrayOf(0x1D, 0x42, 0x00) // 반전 모드 끄기
+    val alignCenter = byteArrayOf(0x1B, 0x61, 0x01) // 중앙 정렬
+    val alignLeft = byteArrayOf(0x1B, 0x61, 0x00) // 왼쪽 정렬
+    val boldOn = byteArrayOf(0x1B, 0x45, 0x01) // 굵게 ON
+    val boldOff = byteArrayOf(0x1B, 0x45, 0x00) // 굵게 OFF
+
+
 
     // 프린터 초기화 (ESC @)
     fun initializePrinter(outputStream: OutputStream) {
@@ -25,6 +39,11 @@ class PrintManager {
     // 용지 컷팅 명령어
     fun cutPaper(outputStream: OutputStream) {
         outputStream.write(byteArrayOf(0x1D, 0x56, 0x00)) // ESC/POS 컷팅 명령
+        outputStream.flush()
+    }
+
+    //데이터 버퍼 비우기
+    fun flush(outputStream: OutputStream) {
         outputStream.flush()
     }
 

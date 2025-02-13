@@ -1,6 +1,7 @@
 package org.grr.screen.main.main_widget.order_states_ui
 
 import OrderRejectCancelDialog
+import ReceiptPrinter
 import RoundedProgressBar
 import org.grr.command.*
 import org.grr.enum.OrderReceiveType
@@ -51,7 +52,7 @@ class ProcessingState(
                 border = BorderFactory.createEmptyBorder(15, 0, 0, 0)
 
                 // 프린터 버튼
-                add(createPrintButton())
+                add(createPrintButton(order))
                 add(Box.createRigidArea(Dimension(15, 0)))
                 add(
                     createCancelButton(
@@ -215,7 +216,7 @@ class ProcessingState(
             customFont = MyFont.Bold(28f)
         ).apply {
             addActionListener {
-                if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) {
+                if (order.orderReceiveType == OrderReceiveType.DELIVERY) {
                     order.stopTimers()
                     changePickupWaitWidget(order)
                 } else {
@@ -242,7 +243,7 @@ class ProcessingState(
 
         // 픽업 대기 상태에서 배달 중으로 변경
         //TODO 배달타입이고 , 주문이배달중이고, 주문이 요리완료 일때 시그널 받을 수 있음
-        if (order.orderReceiveType == OrderReceiveType.DELIVERY.name &&
+        if (order.orderReceiveType == OrderReceiveType.DELIVERY &&
             order.isOnDelivery &&
             order.posOrderStatusType == ServerOrderStatus.COOKED.name
         ) {
@@ -414,7 +415,7 @@ class ProcessingState(
     }
 
     //TODO 프린터 버튼
-    fun createPrintButton(): FillRoundedButton {
+    fun createPrintButton(order: ReceiveOrderModel): FillRoundedButton {
         return FillRoundedButton(
             text = "",
             borderColor = Color(230, 230, 230),
@@ -431,7 +432,10 @@ class ProcessingState(
         ).apply {
             addActionListener {
                 // 인쇄 기능 추가
-                println("프린터 버튼 클릭")
+                // ✅ 프린트 출력
+                var receiptPrinter = ReceiptPrinter()
+                receiptPrinter.ForCustomersOrderSheet(order)
+                receiptPrinter.ForBurialOrderSheet(order)
             }
         }
     }

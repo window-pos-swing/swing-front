@@ -20,7 +20,7 @@ class CompletedOrderCommand(
 ) : Command {
     override fun execute() {
         // 주문 상태를 RejectedState로 변경 (거절 사유와 원래 상태 포함)
-        val status = if (order.orderReceiveType == OrderReceiveType.DELIVERY.name) ServerOrderStatus.DELIVERY_COMPLETE else ServerOrderStatus.PICKUP_COMPLETE
+        val status = if (order.orderReceiveType == OrderReceiveType.DELIVERY) ServerOrderStatus.DELIVERY_COMPLETE else ServerOrderStatus.PICKUP_COMPLETE
         val result = OrderAPI().orderStatusChangeToServer(
             status,
             orderId = order.id,

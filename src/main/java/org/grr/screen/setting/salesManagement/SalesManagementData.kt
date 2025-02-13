@@ -1,5 +1,6 @@
 package org.grr.screen.setting.salesManagement
 
+import org.grr.screen.setting.salesManagement.SalesManagementData.SalesSelectedDate
 import org.grr.screen.setting.salesManagement.SalesManagementData.totalSalesSummary
 import org.grr.screen.setting.salesManagement.salesManagementForm.CreateOrderTotalLabelPanelForm
 import org.grr.screen.setting.salesManagement.salesManagementForm.CreateSummaryPanelForm
@@ -12,6 +13,8 @@ import javax.swing.table.DefaultTableModel
 import kotlin.properties.Delegates
 
 object SalesManagementData {
+    //조회날짜
+    var SalesSelectedDate : String = getTodayDate()
 //    옵저버 패턴으로 값 감지 시 업데이트
     var totalSalesSummary: JSONObject? by Delegates.observable(null) { _, _, _ ->
         summaryPanel?.updateSummary()
@@ -59,4 +62,11 @@ fun getTodayDate(): String {
 //  어제 날짜
 fun getYesterdayDate(): String {
     return LocalDate.now().minusDays(1).format(DATE_FORMATTER)
+}
+
+fun setSalesSelectedDate(changeSalesDate : String) {
+    SalesSelectedDate = changeSalesDate
+}
+fun getSalesSelectedDate(): String {
+    return SalesSelectedDate
 }
